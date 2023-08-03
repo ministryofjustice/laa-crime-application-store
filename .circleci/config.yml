@@ -4,21 +4,21 @@ orbs:
   snyk: snyk/snyk@1.1.2
 
 references:
-  _save-dependencies: &save-dependencies
-    save-cache:
+  _save-requirements: &save-requirements
+    save_cache:
       key: deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       paths:
-        - "Pipfile.lock"
         - ".venv"
 
-  _restore-dependencies: &restore-dependencies
+  _restore-requirements: &restore-requirements
     restore_cache:
-      - deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-      - deps-{{ .Branch }}
+      keys:
+        - deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+        - deps-{{ .Branch }}
 
-  _install-requirements: &install-dependencies
+  _install-requirements: &install-requirements
     run:
-      name: Install Dependencies
+      name: Install Requirements
       command: pipenv install --dev
 
 executors:
@@ -28,10 +28,11 @@ executors:
       - image: cimg/python:3.11.1
 
 commands:
-  install-dependencies:
-    - *restore-dependencies
-    - *install-dependencies
-    - *save-dependencies
+  install-requirements:
+    steps:
+      - *restore-requirements
+      - *install-requirements
+      - *save-requirements
 
   run-tests:
     steps:
@@ -101,7 +102,7 @@ workflows:
   version: 2
   pr-checks:
     jobs:
-      - lint-python:
+      - lint-app:
           filters:
             branches:
               ignore:
@@ -119,7 +120,7 @@ workflows:
 
   main-deploy:
     jobs:
-      - lint-python:
+      - lint-app:
           filters:
             branches:
               only:
