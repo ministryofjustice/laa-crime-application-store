@@ -15,6 +15,14 @@ repos:
         entry: pipenv run black
         types: [python]
 
+      - id: flake8
+        name: flake8
+        stages: [commit]
+        language: system
+        entry: pipenv run flake8
+        types: [python]
+        exclude: setup.py
+
       - id: pytest
         name: pytest
         stages: [commit]
