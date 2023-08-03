@@ -38,7 +38,7 @@ commands:
     steps:
       - run:
           name: Run pytest
-          command: pipenv run pytest --cov-report term --junitxml=test-results/junit.xml --cov=laa_court_data_api_app test
+          command: pipenv run pytest --cov-report term --junitxml=test-results/junit.xml --cov=laa_crime_application_store_app tests
       - store_test_results:
           path: test-results
       - store_artifacts:
