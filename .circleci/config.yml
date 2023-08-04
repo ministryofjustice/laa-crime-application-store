@@ -183,11 +183,11 @@ workflows:
             branches:
               ignore:
                 - main
-        - build-and-push:
-          requires:
-            - lint-app
-            - test-app
-            - scan-docker-image
+      - build-and-push:
+            requires:
+              - lint-app
+              - test-app
+              - scan-docker-image
       - hold-dev:
           type: approval
           requires:
@@ -215,10 +215,10 @@ workflows:
               only:
                 - main
       - build-and-push:
-        requires:
-          - lint-app
-          - test-app
-          - scan-docker-image
+          requires:
+            - lint-app
+            - test-app
+            - scan-docker-image
       - hold-dev:
           type: approval
           requires:
