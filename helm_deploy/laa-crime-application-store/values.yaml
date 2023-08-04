@@ -74,3 +74,6 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+service_account:
+  name: laa-crime-application-store-dev-irsa
