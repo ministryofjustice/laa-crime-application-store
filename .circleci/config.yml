@@ -92,6 +92,9 @@ commands:
       environment:
         description: Name of environment to deploy to
         type: string
+      registry:
+        description: Location of ECR Images
+        type: string
     steps:
       - checkout
       - *authenticate-kubectl
@@ -102,7 +105,7 @@ commands:
                   --install --wait --force \
                   --namespace=${K8S_NAMESPACE} \
                   --values ./helm_deploy/laa-crime-application-store/values-<< parameters.environment >>.yaml \
-                  --set image.repository="${ECR_REPOSITORY}" \
+                  --set image.repository="<< parameters.registry >>/${ECR_REPOSITORY}" \
                   --set image.tag="${CIRCLE_SHA1}" \
                   --atomic
 
@@ -161,8 +164,12 @@ jobs:
   deploy-dev:
     executor: cloud-platform-executor
     steps:
+      - aws-cli/setup:
+          role_arn: $ECR_ROLE_TO_ASSUME
+          region: $ECR_REGION
       - deploy_to_environment:
           environment: development
+          registry: ${AWS_ECR_REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com
 
 workflows:
   version: 2
