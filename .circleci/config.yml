@@ -1,0 +1,137 @@
+version: 2.1
+
+orbs:
+  snyk: snyk/snyk@1.1.2
+
+references:
+  _save-requirements: &save-requirements
+    save_cache:
+      key: deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+      paths:
+        - ".venv"
+
+  _restore-requirements: &restore-requirements
+    restore_cache:
+      keys:
+        - deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+        - deps-{{ .Branch }}
+
+  _install-requirements: &install-requirements
+    run:
+      name: Install Requirements
+      command: pipenv install --dev
+
+executors:
+  build-image-executor:
+    resource_class: small
+    docker:
+      - image: cimg/python:3.10.9
+
+commands:
+  install-requirements:
+    steps:
+      - *restore-requirements
+      - *install-requirements
+      - *save-requirements
+
+  run-tests:
+    steps:
+      - run:
+          name: Run pytest
+          command: pipenv run pytest --cov-report term --junitxml=test-results/junit.xml --cov=laa_crime_application_store_app tests
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: coverage
+
+  run-linting:
+    steps:
+      - run:
+          name: Check styling
+          command: pipenv run flake8
+
+  build-docker-image:
+    steps:
+      - run:
+          name: Compile Docker Image
+          command: |
+              docker build \
+                --build-arg BUILD_DATE=$(date +%Y-%m-%dT%H:%M:%S%z) \
+                --build-arg COMMIT_ID=${CIRCLE_SHA1} \
+                --build-arg BUILD_TAG="app-${CIRCLE_SHA1}" \
+                --build-arg APP_BRANCH=${CIRCLE_BRANCH} \
+                --pull \
+                --tag app \
+                --file Dockerfile .
+
+jobs:
+  lint-app:
+    executor: build-image-executor
+    parallelism: 
+    steps:
+      - checkout
+      - install-requirements
+      - run-linting
+
+  test-app:
+    executor: build-image-executor
+    parallelism: 1
+    steps:
+      - checkout
+      - install-requirements
+      - run-tests
+
+  scan-docker-image:
+    executor: build-image-executor
+    parallelism: 1
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - build-docker-image
+      - snyk/scan:
+          token-variable: SNYK_TOKEN
+          docker-image-name: app
+          target-file: ./Dockerfile
+          organization: 'legal-aid-agency'
+          project: ministryofjustice/laa-crime-application-store
+          severity-threshold: "high"
+          fail-on-issues: true
+
+workflows:
+  version: 2
+  pr-checks:
+    jobs:
+      - lint-app:
+          filters:
+            branches:
+              ignore:
+                - main
+      - test-app:
+          filters:
+            branches:
+              ignore:
+                - main
+      - scan-docker-image:
+          filters:
+            branches:
+              ignore:
+                - main
+
+  main-deploy:
+    jobs:
+      - lint-app:
+          filters:
+            branches:
+              only:
+                - main
+      - test-app:
+          filters:
+            branches:
+              only:
+                - main
+      - scan-docker-image:
+          filters:
+            branches:
+              only:
+                - main
