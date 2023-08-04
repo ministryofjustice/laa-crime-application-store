@@ -98,7 +98,7 @@ commands:
       - run:
           name: Deploy to namespace
           command: |
-              helm upgrade laa-court-data-api ./helm_deploy/laa-court-data-api/. \
+              helm upgrade laa-crime-application-store ./helm_deploy/laa-crime-application-store/. \
                   --install --wait --force \
                   --namespace=${K8S_NAMESPACE} \
                   --values ./helm_deploy/laa-crime-application-store/values-<< parameters.environment >>.yaml \
