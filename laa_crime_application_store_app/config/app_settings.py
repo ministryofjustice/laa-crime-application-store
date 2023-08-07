@@ -6,10 +6,10 @@ class AppSettings(BaseSettings):
     app_repo: str = "https://github.com/ministryofjustice/laa-crime-application-store"
     contact_email: str = "crm457@digital.justice.gov.uk"
     contact_team: str = "CRM457"
-    commit_id: str | None
-    build_date: str | None
-    build_tag: str | None
-    app_branch: str | None
+    commit_id: str | None = None
+    build_date: str | None = None
+    build_tag: str | None = None
+    app_branch: str | None = None
 
     class Config:
         env_file = '.env'
