@@ -2,6 +2,8 @@ version: 2.1
 
 orbs:
   snyk: snyk/snyk@1.1.2
+  aws-cli: circleci/aws-cli@4.0.0 # use v4 of this orb
+  aws-ecr: circleci/aws-ecr@8.2.1 # this orb doesn't support OIDC v2, so we use aws-cli to authenticate
 
 references:
   _save-requirements: &save-requirements
@@ -21,11 +23,30 @@ references:
       name: Install Requirements
       command: pipenv install --dev
 
+  _authenticate-kubectl: &authenticate-kubectl
+    run:
+      name: Authenticate K8s
+      command: |
+          echo -n ${K8S_CLUSTER_CERT} | base64 -d > ./ca.crt
+          kubectl config set-cluster ${K8S_CLUSTER_NAME} --certificate-authority=./ca.crt --server=${K8S_CLUSTER_NAME}
+          kubectl config set-credentials circleci --token=${K8S_TOKEN}
+          kubectl config set-context ${K8S_CLUSTER_NAME} --cluster=${K8S_CLUSTER_NAME} --user=circleci --namespace=${K8S_NAMESPACE}
+          kubectl config use-context ${K8S_CLUSTER_NAME}
+          kubectl --namespace=${K8S_NAMESPACE} get pods
+
 executors:
   build-image-executor:
     resource_class: small
     docker:
       - image: cimg/python:3.10.9
+
+  cloud-platform-executor:
+    resource_class: small
+    docker:
+      - image: ministryofjustice/cloud-platform-tools
+        environment:
+          GITHUB_TEAM_NAME_SLUG: laa-assess-a-claim
+          REPO_NAME: laa-court-data-api
 
 commands:
   install-requirements:
@@ -64,6 +85,30 @@ commands:
                 --tag app \
                 --file Dockerfile .
 
+  deploy_to_environment:
+    description: >
+      Deploy image to the specified environment
+    parameters:
+      environment:
+        description: Name of environment to deploy to
+        type: string
+      registry:
+        description: Location of ECR Images
+        type: string
+    steps:
+      - checkout
+      - *authenticate-kubectl
+      - run:
+          name: Deploy to namespace
+          command: |
+              helm upgrade laa-crime-application-store ./helm_deploy/laa-crime-application-store/. \
+                  --install --wait --force \
+                  --namespace=${K8S_NAMESPACE} \
+                  --values ./helm_deploy/laa-crime-application-store/values-<< parameters.environment >>.yaml \
+                  --set image.repository="<< parameters.registry >>/${ECR_REPOSITORY}" \
+                  --set image.tag="${CIRCLE_SHA1}" \
+                  --atomic
+
 jobs:
   lint-app:
     executor: build-image-executor
@@ -97,6 +142,34 @@ jobs:
           project: ministryofjustice/laa-crime-application-store
           severity-threshold: "high"
           fail-on-issues: true
+  
+  build-and-push:
+    executor: aws-ecr/default # use the aws-ecr/default executor to start the docker daemon
+    steps:
+      - checkout
+      # Authenticate to AWS using OIDC v2 with the AWS CLI
+      - aws-cli/setup:
+          role_arn: $ECR_ROLE_TO_ASSUME
+          region: $ECR_REGION
+      # Authenticate to the ECR repository using the standard command
+      - run: |
+          aws ecr get-login-password --region $ECR_REGION | docker login --username AWS --password-stdin ${AWS_ECR_REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com
+      # Build and push your Docker image
+      - aws-ecr/build-image:
+          push-image: true
+          tag: ${CIRCLE_SHA1}
+          region: $ECR_REGION # this will use the env var
+          repo: $ECR_REPOSITORY # this will use the env var
+
+  deploy-dev:
+    executor: cloud-platform-executor
+    steps:
+      - aws-cli/setup:
+          role_arn: $ECR_ROLE_TO_ASSUME
+          region: $ECR_REGION
+      - deploy_to_environment:
+          environment: development
+          registry: ${AWS_ECR_REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com
 
 workflows:
   version: 2
@@ -117,6 +190,19 @@ workflows:
             branches:
               ignore:
                 - main
+      - build-and-push:
+            requires:
+              - lint-app
+              - test-app
+              - scan-docker-image
+      - hold-dev:
+          type: approval
+          requires:
+            - build-and-push
+      - deploy-dev:
+          context: laa-crime-application-store-dev
+          requires:
+            - hold-dev
 
   main-deploy:
     jobs:
@@ -135,3 +221,16 @@ workflows:
             branches:
               only:
                 - main
+      - build-and-push:
+          requires:
+            - lint-app
+            - test-app
+            - scan-docker-image
+      - hold-dev:
+          type: approval
+          requires:
+            - build-and-push
+      - deploy-dev:
+          context: laa-crime-application-store-dev
+          requires:
+            - hold-dev
