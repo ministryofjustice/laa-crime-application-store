@@ -23,13 +23,6 @@ repos:
         types: [python]
         exclude: setup.py
 
-      - id: pytest
-        name: pytest
-        stages: [pre-commit]
-        language: system
-        entry: pipenv run pytest
-        types: [python]
-
       - id: pytest-cov
         name: pytest
         stages: [pre-commit]
