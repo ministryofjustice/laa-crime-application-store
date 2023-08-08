@@ -1,0 +1,3 @@
+[run]
+omit =
+    laa_crime_application_store_app/main.py
