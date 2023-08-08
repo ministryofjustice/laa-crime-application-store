@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 fastapi = "==0.100.1"
 uvicorn = "==0.23.2"
+pydantic-settings = "==2.0.2"
 
 [dev-packages]
 httpx = "==0.24.1"
@@ -14,6 +15,7 @@ pytest-cov = "==4.1.0"
 black = "==23.7.0"
 isort = "==5.12.0"
 flake8 = "==6.1.0"
+pre-commit = "*"
 
 [requires]
 python_version = "3.10"
