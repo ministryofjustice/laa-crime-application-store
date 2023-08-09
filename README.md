@@ -15,6 +15,11 @@ $ pipenv shell
 $ pipenv install --dev
 ```
 
+### Setting up the database
+
+We are currently using [Alembic](https://alembic.sqlalchemy.org/en/latest/index.html) for our database migrations.
+Information on our usage can be found [here](alembic/README.md)
+
 ### Running the application
 
 Running the application can be done by using the following command from the root of the project
