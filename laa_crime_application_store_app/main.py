@@ -1,5 +1,7 @@
+import json
 import logging.config
 
+import sentry_sdk
 import structlog
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import FastAPI
@@ -9,6 +11,15 @@ from structlog.stdlib import LoggerFactory
 from laa_crime_application_store_app.config import logging_config
 from laa_crime_application_store_app.config.app_settings import get_app_settings
 from laa_crime_application_store_app.routers import ping
+
+
+def send_event(event, hint):
+    log_message = json.loads(event["logentry"]["message"])
+    event["logentry"]["message"] = log_message["event"]
+    event["logentry"]["params"] = log_message
+
+    return event
+
 
 structlog.configure(
     logger_factory=LoggerFactory(),
@@ -25,6 +36,14 @@ structlog.configure(
     cache_logger_on_first_use=True,
 )
 logging.config.dictConfig(logging_config.config)
+
+sentry_sdk.init(
+    dsn=get_app_settings().sentry_dsn,
+    release=get_app_settings().build_tag,
+    sample_rate=1.0,
+    traces_sample_rate=0.1,
+    before_send=send_event,
+)
 
 
 app = FastAPI(

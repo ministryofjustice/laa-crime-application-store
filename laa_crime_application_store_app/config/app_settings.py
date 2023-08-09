@@ -16,6 +16,7 @@ class AppSettings(BaseSettings):
     build_date: str | None = None
     build_tag: str | None = None
     app_branch: str | None = None
+    sentry_dsn: str | None = None
 
 
 @lru_cache()
