@@ -2,12 +2,14 @@
 
 ## Getting Started
 
-To be able to perform migrations, you will need to set some Environment Variables for the tool to connect to your DB. 
+To be able to perform migrations, you will need to set some Environment Variables for the tool to connect to your DB.
+This can be done by adding them to your `.env` file.
+
 The following variables are required:
 ```
 POSTGRES_USERNAME={database user}
 POSTGRES_PASSWORD={database password}
-POSTGRES_HOST={database address}
+POSTGRES_HOSTNAME={database address}
 POSTGRES_NAME={database name}
 ```
 

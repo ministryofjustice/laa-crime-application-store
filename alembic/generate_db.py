@@ -13,14 +13,14 @@ def get_postgres_url(username, password, hostname, db):
 
 # Connect to default DB and create our database
 postgres_url = get_postgres_url(
-    os.getenv("POSTGRES_USERNAME", "test"),
-    os.getenv("POSTGRES_PASSWORD", "pass"),
-    os.getenv("POSTGRES_HOSTNAME", "localhost"),
+    os.getenv("POSTGRES_USERNAME"),
+    os.getenv("POSTGRES_PASSWORD"),
+    os.getenv("POSTGRES_HOSTNAME"),
     "postgres",
 )
 
 engine = create_engine(postgres_url)
-db_name = os.getenv("POSTGRES_NAME", "laa_crime_application_store")
+db_name = os.getenv("POSTGRES_NAME")
 
 with contextlib.suppress(exc.ProgrammingError):
     with engine.connect() as conn:
@@ -29,9 +29,9 @@ with contextlib.suppress(exc.ProgrammingError):
 
 # Connect to new DB and run our migrations
 database_url = get_postgres_url(
-    os.getenv("POSTGRES_USERNAME", "test"),
-    os.getenv("POSTGRES_PASSWORD", "pass"),
-    os.getenv("POSTGRES_HOSTNAME", "localhost"),
+    os.getenv("POSTGRES_USERNAME"),
+    os.getenv("POSTGRES_PASSWORD"),
+    os.getenv("POSTGRES_HOSTNAME"),
     db_name,
 )
 
