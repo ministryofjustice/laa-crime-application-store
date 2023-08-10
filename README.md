@@ -15,6 +15,27 @@ $ pipenv shell
 $ pipenv install --dev
 ```
 
+### Setting up pre-commit
+
+To ensure the code standards of our service, we are using a series of linters to help us adhere to PEP8 and general coding guidlines.
+Before working on the codebase run the following command
+```shell
+pipenv run pre-commit install
+```
+This will add a git hook into your repo that will run the commands from [the pre-commit config](.pre-commit-config.yaml)
+This current performs the following functions:
+- isort - orders the imports
+- black - formats the code to python standards
+- flake8 - ensures the code is PEP8 standards
+- pytest - runs tests with coverage (100% line currently)
+
+On the rare occasion you may need to bypass this, you can do so with `git commit --no-verify`
+
+### Setting up the database
+
+We are currently using [Alembic](https://alembic.sqlalchemy.org/en/latest/index.html) for our database migrations.
+Information on our usage can be found [here](alembic/README.md)
+
 ### Running the application
 
 Running the application can be done by using the following command from the root of the project
@@ -32,7 +53,7 @@ To run via a docker container:
 2. You can optionally set build arguments by adding:
 
 `--build-arg arg_name='arg_value'`
-4. Run the container with:
+3. Run the container with:
 
 `docker-compose up app`
 
