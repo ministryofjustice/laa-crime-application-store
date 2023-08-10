@@ -22,7 +22,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     op.create_table(
         "application",
-        sa.Column("id", sa.Integer, primary_key=True),
+        sa.Column("id", UUID(as_uuid=True), primary_key=True),
         sa.Column("claim_id", UUID(as_uuid=True), nullable=False),
         sa.Column("version", sa.Integer, nullable=False),
         sa.Column("json_schema_version", sa.Integer, nullable=False),
