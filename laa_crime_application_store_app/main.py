@@ -13,7 +13,7 @@ from laa_crime_application_store_app.config.app_settings import get_app_settings
 from laa_crime_application_store_app.middleware.secure_headers_middleware import (
     SecureHeadersMiddleware,
 )
-from laa_crime_application_store_app.routers import ping
+from laa_crime_application_store_app.routers import application, ping
 
 
 def send_event(event, hint):
@@ -63,6 +63,7 @@ app.add_middleware(CorrelationIdMiddleware)
 app.add_middleware(SecureHeadersMiddleware)
 
 app.include_router(ping.router)
+app.include_router(application.router)
 
 
 @app.get("/")
