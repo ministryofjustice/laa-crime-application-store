@@ -3,15 +3,15 @@ from uuid import UUID
 
 import structlog
 from fastapi import APIRouter, Depends
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from laa_crime_application_store_app.data.database import get_db
 from laa_crime_application_store_app.models.application import Application as App
-from laa_crime_application_store_app.models.laa_references.request.application_post_request import (
-    ApplicationPostRequest,
-)
+from laa_crime_application_store_app.models.application_new import ApplicationNew
 from laa_crime_application_store_app.schema.application_schema import Application
+from laa_crime_application_store_app.schema.application_version_schema import ApplicationVersion
 
 router = APIRouter()
 logger = structlog.getLogger(__name__)
@@ -24,7 +24,9 @@ responses = {
     #     "description": "Request cannot be processed",
     #     "model": LaaReferencesErrorResponse,
     # },
+    409: {"description": "Resource already exists"},
     424: {"description": "Error with Upstream service"},
+
 }
 
 
@@ -32,29 +34,53 @@ responses = {
 async def ping(app_id: UUID | None = None, db: Session = Depends(get_db)):
     logger.info("GETTING_APPLICATION", application_id=app_id)
     application = db.query(Application).filter(Application.id == app_id).first()
-    if application is not None:
-        logger.info("APPLICATION_FOUND", application_id=app_id)
-        return App(**application.__dict__)
+    if application is None:
+        logger.info("APPLICATION_NOT_FOUND", application_id=app_id)
+        return Response(status_code=400)
 
-    logger.info("APPLICATION_NOT_FOUND", application_id=app_id)
-    return Response(status_code=400)
+    application_version = db.query(ApplicationVersion).filter(
+        ApplicationVersion.application_id == app_id,
+        ApplicationVersion.version == application.current_version
+    ).first()
+    if application_version is None:
+        logger.info("APPLICATION_VERSION_NOT_FOUND", application_id=app_id, version=application.current_version)
+        return Response(status_code=400)
 
+    logger.info("APPLICATION_FOUND", application_id=app_id)
+    return App(
+        application_id=app_id,
+        version=application_version.version,
+        json_schema_version=application_version.json_schema_version,
+        application_state=application.application_state,
+        application_risk=application.application_risk,
+        application=application_version.application
+    )
 
 @router.post("/application/", status_code=202, responses=responses)
 async def post_application(
-    request: ApplicationPostRequest, db: Session = Depends(get_db)
+    request: ApplicationNew, db: Session = Depends(get_db)
 ):
-    logger.info("here")
     new_application = Application(
-        id=uuid.uuid4(),
-        claim_id=request.claim_id,
+        id=request.application_id,
+        current_version=1,
+        application_state=request.application_state,
+        application_risk=request.application_risk,
+    )
+    new_application_version = ApplicationVersion(
+        application_id=request.application_id,
         version=1,
         json_schema_version=request.json_schema_version,
-        application_state=request.application_state,
-        application_risk=request.risk,
         application=request.application,
     )
 
-    db.add(new_application)
-    db.commit()
+
+
+    try:
+        nested = db.begin_nested()  # establish a savepoint
+        db.add_all([new_application, new_application_version])
+        db.commit()
+    except IntegrityError as e:
+        print(f"Data Error: {e.orig}")
+        nested.rollback()
+        return Response(status_code=409)
     return Response(status_code=201)
