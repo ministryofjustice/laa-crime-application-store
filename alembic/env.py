@@ -81,9 +81,7 @@ def run_migrations_online() -> None:
             with context.begin_transaction():
                 context.run_migrations()
     else:
-        context.configure(
-            connection=connectable, target_metadata=target_metadata
-        )
+        context.configure(connection=connectable, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

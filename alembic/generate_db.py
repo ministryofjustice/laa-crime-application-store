@@ -12,9 +12,13 @@ def get_postgres_url(username, password, hostname, db):
     return "postgresql+psycopg2://{}:{}@{}/{}".format(username, password, hostname, db)
 
 
-parser = argparse.ArgumentParser(description="Database creation for LAA Crime Application Store",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-e", "--environment", help="this is what will be appended to your DB name")
+parser = argparse.ArgumentParser(
+    description="Database creation for LAA Crime Application Store",
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+)
+parser.add_argument(
+    "-e", "--environment", help="this is what will be appended to your DB name"
+)
 
 args = parser.parse_args()
 
@@ -27,8 +31,11 @@ postgres_url = get_postgres_url(
 )
 
 engine = create_engine(postgres_url)
-db_name = os.getenv("POSTGRES_NAME") if args.environment is None else "{}_{}".format(os.getenv("POSTGRES_NAME"),
-                                                                                     args.environment)
+db_name = (
+    os.getenv("POSTGRES_NAME")
+    if args.environment is None
+    else "{}_{}".format(os.getenv("POSTGRES_NAME"), args.environment)
+)
 
 with contextlib.suppress(exc.ProgrammingError):
     with engine.connect() as conn:
