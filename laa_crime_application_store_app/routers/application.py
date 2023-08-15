@@ -20,18 +20,13 @@ logger = structlog.getLogger(__name__)
 responses = {
     201: {"description": "Application has been created"},
     202: {"description": "Request has been accepted"},
-    # 400: {"description": "Validation has failed", "model": LaaReferencesErrorResponse},
-    # 422: {
-    #     "description": "Request cannot be processed",
-    #     "model": LaaReferencesErrorResponse,
-    # },
+    400: {"description": "Resource not found"},
     409: {"description": "Resource already exists"},
-    424: {"description": "Error with Upstream service"},
 }
 
 
 @router.get("/application/{app_id}", response_model=App)
-async def ping(app_id: UUID | None = None, db: Session = Depends(get_db)):
+async def get_application(app_id: UUID | None = None, db: Session = Depends(get_db)):
     logger.info("GETTING_APPLICATION", application_id=app_id)
     application = db.query(Application).filter(Application.id == app_id).first()
     if application is None:
@@ -65,7 +60,7 @@ async def ping(app_id: UUID | None = None, db: Session = Depends(get_db)):
     )
 
 
-@router.post("/application/", status_code=202, responses=responses)
+@router.post("/application/", status_code=201, responses=responses)
 async def post_application(request: ApplicationNew, db: Session = Depends(get_db)):
     new_application = Application(
         id=request.application_id,
