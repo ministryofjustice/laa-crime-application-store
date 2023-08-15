@@ -10,6 +10,3 @@ class Application(BaseModel):
     application_state: str
     application_risk: str
     application: dict
-
-    class Config:
-        orm_mode = True
