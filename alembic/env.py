@@ -64,7 +64,7 @@ def run_migrations_online() -> None:
             os.getenv("POSTGRES_USERNAME", "test"),
             os.getenv("POSTGRES_PASSWORD", "pass"),
             os.getenv("POSTGRES_HOSTNAME", "localhost"),
-            os.getenv("POSTGRES_dbNAME", "laa_crime_application_store"),
+            os.getenv("POSTGRES_DBNAME", "laa_crime_application_store"),
         )
 
         config.set_main_option("sqlalchemy.url", postgres_url)
