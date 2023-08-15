@@ -57,23 +57,31 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    postgres_url = "postgresql+psycopg2://{}:{}@{}/{}".format(
-        os.getenv("POSTGRES_USERNAME", "test"),
-        os.getenv("POSTGRES_PASSWORD", "pass"),
-        os.getenv("POSTGRES_HOSTNAME", "localhost"),
-        os.getenv("POSTGRES_NAME", "laa_crime_application_store"),
-    )
+    connectable = config.attributes.get("connection", None)
 
-    config.set_main_option("sqlalchemy.url", postgres_url)
+    if connectable is None:
+        postgres_url = "postgresql+psycopg2://{}:{}@{}/{}".format(
+            os.getenv("POSTGRES_USERNAME", "test"),
+            os.getenv("POSTGRES_PASSWORD", "pass"),
+            os.getenv("POSTGRES_HOSTNAME", "localhost"),
+            os.getenv("POSTGRES_DBNAME", "laa_crime_application_store"),
+        )
 
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+        config.set_main_option("sqlalchemy.url", postgres_url)
 
-    with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        connectable = engine_from_config(
+            config.get_section(config.config_ini_section, {}),
+            prefix="sqlalchemy.",
+            poolclass=pool.NullPool,
+        )
+
+        with connectable.connect() as connection:
+            context.configure(connection=connection, target_metadata=target_metadata)
+
+            with context.begin_transaction():
+                context.run_migrations()
+    else:
+        context.configure(connection=connectable, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
