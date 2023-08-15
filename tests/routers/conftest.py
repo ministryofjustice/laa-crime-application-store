@@ -9,6 +9,9 @@ from starlette.testclient import TestClient
 from laa_crime_application_store_app.data.database import Base, get_db
 from laa_crime_application_store_app.main import app
 from laa_crime_application_store_app.schema.application_schema import Application
+from laa_crime_application_store_app.schema.application_version_schema import (
+    ApplicationVersion,
+)
 
 postgres_test_url = "postgresql+psycopg2://{}:{}@{}/{}".format(
     os.getenv("POSTGRES_USERNAME", "test"),
@@ -55,15 +58,18 @@ def client(dbsession):
 @pytest.fixture
 def seed_application(dbsession):
     app_id = uuid.uuid4()
-    data = Application(
+    application = Application(
         id=app_id,
-        claim_id=uuid.uuid4(),
-        version="1",
-        json_schema_version="1",
+        current_version=1,
         application_state="submitted",
         application_risk="low",
+    )
+    version = ApplicationVersion(
+        application_id=app_id,
+        version=1,
+        json_schema_version=1,
         application={},
     )
-    dbsession.add(data)
+    dbsession.add_all([application, version])
     dbsession.commit()
     return app_id

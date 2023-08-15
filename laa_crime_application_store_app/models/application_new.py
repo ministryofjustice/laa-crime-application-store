@@ -1,0 +1,11 @@
+from uuid import UUID
+
+from pydantic import BaseModel
+
+
+class ApplicationNew(BaseModel):
+    application_id: UUID | None
+    json_schema_version: int | None
+    application_state: str | None
+    application_risk: str | None
+    application: dict | None
