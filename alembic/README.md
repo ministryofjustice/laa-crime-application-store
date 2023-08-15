@@ -20,6 +20,11 @@ pipenv run generate_db
 
 If your database already exists it will not recreate it but should still run any pending upgrades.
 
+To create a test database run the following command
+```shell
+pipenv run generate_db -e=test
+```
+
 ## Migrations
 
 You can generate migrations using the following command

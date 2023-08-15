@@ -1,0 +1,16 @@
+from uuid import UUID, uuid4
+
+from pydantic import BaseModel, Field
+
+
+class Application(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    claim_id: UUID = Field(default_factory=uuid4)
+    version: int
+    json_schema_version: int
+    application_state: str
+    application_risk: str
+    application: dict
+
+    class Config:
+        orm_mode = True
