@@ -48,6 +48,21 @@ executors:
           GITHUB_TEAM_NAME_SLUG: laa-assess-a-claim
           REPO_NAME: laa-court-data-api
 
+  test-executor:
+    docker:
+      - image: cimg/python:3.10.9
+        environment:
+          POSTGRES_USERNAME: postgres
+          POSTGRES_PASSWORD: circleci
+          POSTGRES_NAME: laa_crime_application_store_test
+          POSTGRES_HOSTNAME: 127.0.0.1
+          TZ: Europe/London
+      - image: cimg/postgres:11.13
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: "circleci"
+          POSTGRES_DB: laa_crime_application_store_test
+
 commands:
   install-requirements:
     steps:
@@ -119,7 +134,7 @@ jobs:
       - run-linting
 
   test-app:
-    executor: build-image-executor
+    executor: test-executor
     parallelism: 1
     steps:
       - checkout
