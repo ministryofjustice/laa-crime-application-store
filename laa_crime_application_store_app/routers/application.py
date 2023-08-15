@@ -19,7 +19,6 @@ logger = structlog.getLogger(__name__)
 
 responses = {
     201: {"description": "Application has been created"},
-    202: {"description": "Request has been accepted"},
     400: {"description": "Resource not found"},
     409: {"description": "Resource already exists"},
 }

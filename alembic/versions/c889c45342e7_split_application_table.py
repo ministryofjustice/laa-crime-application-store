@@ -41,7 +41,12 @@ def upgrade() -> None:
             primary_key=True,
             server_default=sa.text("gen_random_uuid()"),
         ),
-        sa.Column("application_id", UUID(as_uuid=True), nullable=False),
+        sa.Column(
+            "application_id",
+            UUID(as_uuid=True),
+            sa.ForeignKey("application.id"),
+            nullable=False,
+        ),
         sa.Column("version", sa.Integer, nullable=False),
         sa.Column("json_schema_version", sa.Integer, nullable=False),
         sa.Column("application", JSON(), nullable=False),
