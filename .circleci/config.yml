@@ -54,7 +54,7 @@ executors:
         environment:
           POSTGRES_USERNAME: postgres
           POSTGRES_PASSWORD: circleci
-          POSTGRES_NAME: laa_crime_application_store_test
+          POSTGRES_NAME: laa_crime_application_store
           POSTGRES_HOSTNAME: 127.0.0.1
           TZ: Europe/London
       - image: cimg/postgres:11.13
