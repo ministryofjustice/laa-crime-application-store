@@ -1,18 +1,16 @@
 import structlog
 from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 
-from laa_crime_application_store_app.config.app_settings import (
-    AppSettings,
-    get_app_settings,
-)
-from laa_crime_application_store_app.main import app
 from laa_crime_application_store_app.schema.application_schema import Application
-from laa_crime_application_store_app.schema.application_version_schema import ApplicationVersion
+from laa_crime_application_store_app.schema.application_version_schema import (
+    ApplicationVersion,
+)
 
 logger = structlog.getLogger(__name__)
 
 
-def test_post_application_returns_200(client, db):
+def test_post_application_returns_200(client: TestClient, db: Session):
     response = client.post(
         "/application/",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
@@ -29,7 +27,9 @@ def test_post_application_returns_200(client, db):
     assert db.query(Application).count() == 1
 
 
-def test_returns_duplicate_error_if_id_already_exists(client, db):
+def test_post_application_returns_duplicate_error_if_id_already_exists(
+    client: TestClient, db: Session
+):
     new_application = Application(
         id="d7f509e8-309c-4262-a41d-ebbb44deab9e",
         current_version=1,

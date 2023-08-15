@@ -1,4 +1,3 @@
-import uuid
 from uuid import UUID
 
 import structlog
@@ -11,7 +10,9 @@ from laa_crime_application_store_app.data.database import get_db
 from laa_crime_application_store_app.models.application import Application as App
 from laa_crime_application_store_app.models.application_new import ApplicationNew
 from laa_crime_application_store_app.schema.application_schema import Application
-from laa_crime_application_store_app.schema.application_version_schema import ApplicationVersion
+from laa_crime_application_store_app.schema.application_version_schema import (
+    ApplicationVersion,
+)
 
 router = APIRouter()
 logger = structlog.getLogger(__name__)
@@ -26,7 +27,6 @@ responses = {
     # },
     409: {"description": "Resource already exists"},
     424: {"description": "Error with Upstream service"},
-
 }
 
 
@@ -38,12 +38,20 @@ async def ping(app_id: UUID | None = None, db: Session = Depends(get_db)):
         logger.info("APPLICATION_NOT_FOUND", application_id=app_id)
         return Response(status_code=400)
 
-    application_version = db.query(ApplicationVersion).filter(
-        ApplicationVersion.application_id == app_id,
-        ApplicationVersion.version == application.current_version
-    ).first()
+    application_version = (
+        db.query(ApplicationVersion)
+        .filter(
+            ApplicationVersion.application_id == app_id,
+            ApplicationVersion.version == application.current_version,
+        )
+        .first()
+    )
     if application_version is None:
-        logger.info("APPLICATION_VERSION_NOT_FOUND", application_id=app_id, version=application.current_version)
+        logger.info(
+            "APPLICATION_VERSION_NOT_FOUND",
+            application_id=app_id,
+            version=application.current_version,
+        )
         return Response(status_code=400)
 
     logger.info("APPLICATION_FOUND", application_id=app_id)
@@ -53,13 +61,12 @@ async def ping(app_id: UUID | None = None, db: Session = Depends(get_db)):
         json_schema_version=application_version.json_schema_version,
         application_state=application.application_state,
         application_risk=application.application_risk,
-        application=application_version.application
+        application=application_version.application,
     )
 
+
 @router.post("/application/", status_code=202, responses=responses)
-async def post_application(
-    request: ApplicationNew, db: Session = Depends(get_db)
-):
+async def post_application(request: ApplicationNew, db: Session = Depends(get_db)):
     new_application = Application(
         id=request.application_id,
         current_version=1,
@@ -72,8 +79,6 @@ async def post_application(
         json_schema_version=request.json_schema_version,
         application=request.application,
     )
-
-
 
     try:
         nested = db.begin_nested()  # establish a savepoint
