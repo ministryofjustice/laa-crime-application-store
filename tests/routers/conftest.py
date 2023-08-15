@@ -14,7 +14,7 @@ postgres_test_url = "postgresql+psycopg2://{}:{}@{}/{}".format(
     os.getenv("POSTGRES_USERNAME", "test"),
     os.getenv("POSTGRES_PASSWORD", "pass"),
     os.getenv("POSTGRES_HOSTNAME", "localhost"),
-    "laa_crime_application_store_test",
+    "{}_{}".format(os.getenv("POSTGRES_NAME"), "test"),
 )
 
 
