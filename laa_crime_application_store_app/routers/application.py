@@ -18,7 +18,7 @@ router = APIRouter()
 logger = structlog.getLogger(__name__)
 
 responses = {
-    201: {"description": "Application has been created"},
+    201: {"description": "Application/Version has been created"},
     400: {"description": "Resource not found"},
     409: {"description": "Resource already exists"},
 }
@@ -77,6 +77,34 @@ async def post_application(request: ApplicationNew, db: Session = Depends(get_db
     try:
         nested = db.begin_nested()  # establish a savepoint
         db.add_all([new_application, new_application_version])
+        db.commit()
+    except IntegrityError as e:
+        print(f"Data Error: {e.orig}")
+        nested.rollback()
+        return Response(status_code=409)
+    return Response(status_code=201)
+
+
+@router.put("/application/{app_id}", status_code=201, responses=responses)
+async def put_application(
+    app_id: UUID, request: ApplicationNew, db: Session = Depends(get_db)
+):
+    application = db.query(Application).filter(Application.id == app_id).first()
+    if application is None:
+        logger.info("APPLICATION_NOT_FOUND", application_id=app_id)
+        return Response(status_code=400)
+
+    try:
+        nested = db.begin_nested()  # establish a savepoint
+        application.current_version += 1
+        application_version = ApplicationVersion(
+            application_id=request.application_id,
+            version=application.current_version,
+            json_schema_version=request.json_schema_version,
+            application=request.application,
+        )
+
+        db.add(application_version)
         db.commit()
     except IntegrityError as e:
         print(f"Data Error: {e.orig}")
