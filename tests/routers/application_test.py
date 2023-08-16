@@ -83,7 +83,6 @@ def test_put_application_returns_200(
             "application_id": str(seed_application),
             "json_schema_version": 1,
             "application_state": "submitted",
-            "application_risk": "high",
             "application": {"id": 10},
         },
     )
@@ -102,7 +101,6 @@ def test_put_application_create_a_new_version(
             "application_id": str(seed_application),
             "json_schema_version": 1,
             "application_state": "submitted",
-            "application_risk": "high",
             "application": {"id": 10, "plea": "guilty"},
         },
     )
@@ -121,7 +119,6 @@ def test_put_application_returns_400_when_application_doesnt_exist(
             "application_id": "d7f509e8-309c-4262-a41d-ebbb44deab9e",
             "json_schema_version": 1,
             "application_state": "submitted",
-            "application_risk": "high",
             "application": {"id": 10},
         },
     )
@@ -140,10 +137,46 @@ def test_put_application_returns_409_when_invalid_data(
             "application_id": "d7f509e8-309c-4262-a41d-ebbb44deab9e",
             "json_schema_version": None,
             "application_state": "submitted",
-            "application_risk": "high",
             "application": {"id": 10},
         },
     )
 
     assert dbsession.query(ApplicationVersion).count() == 1
     assert response.status_code == 409
+
+
+def test_put_application_has_no_effect_if_data_is_unchnaged(
+    client: TestClient, dbsession: Session, seed_application
+):
+    response = client.put(
+        f"/application/{seed_application}",
+        headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
+        json={
+            "application_id": "d7f509e8-309c-4262-a41d-ebbb44deab9e",
+            "json_schema_version": 1,
+            "application_state": "submitted",
+            "application": {"id": 1},
+        },
+    )
+
+    assert dbsession.query(ApplicationVersion).count() == 1
+    assert response.status_code == 200
+
+
+def test_put_application_can_update_state(
+    client: TestClient, dbsession: Session, seed_application
+):
+    client.put(
+        f"/application/{seed_application}",
+        headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
+        json={
+            "application_id": str(seed_application),
+            "json_schema_version": 1,
+            "application_state": "approved",
+            "application": {"id": 10},
+        },
+    )
+
+    assert dbsession.query(Application).count() == 1
+    application = dbsession.query(Application).filter_by(id=seed_application).first()
+    assert application.application_state == "approved"

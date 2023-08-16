@@ -9,6 +9,7 @@ from starlette.responses import Response
 from laa_crime_application_store_app.data.database import get_db
 from laa_crime_application_store_app.models.application import Application as App
 from laa_crime_application_store_app.models.application_new import ApplicationNew
+from laa_crime_application_store_app.models.application_update import ApplicationUpdate
 from laa_crime_application_store_app.schema.application_schema import Application
 from laa_crime_application_store_app.schema.application_version_schema import (
     ApplicationVersion,
@@ -18,6 +19,7 @@ router = APIRouter()
 logger = structlog.getLogger(__name__)
 
 responses = {
+    200: {"description": "Request received"},
     201: {"description": "Application/Version has been created"},
     400: {"description": "Resource not found"},
     409: {"description": "Resource already exists"},
@@ -87,24 +89,44 @@ async def post_application(request: ApplicationNew, db: Session = Depends(get_db
 
 @router.put("/application/{app_id}", status_code=201, responses=responses)
 async def put_application(
-    app_id: UUID, request: ApplicationNew, db: Session = Depends(get_db)
+    app_id: UUID, request: ApplicationUpdate, db: Session = Depends(get_db)
 ):
     application = db.query(Application).filter(Application.id == app_id).first()
     if application is None:
         logger.info("APPLICATION_NOT_FOUND", application_id=app_id)
         return Response(status_code=400)
 
+    application_version = (
+        db.query(ApplicationVersion)
+        .filter(
+            ApplicationVersion.application_id == app_id,
+            ApplicationVersion.version == application.current_version,
+        )
+        .first()
+    )
+
+    # we ignore the issue if no application version is found to
+    # avoid the system getting into a state where new versions
+    # can't be added.
+    if (
+        application_version
+        and application_version.application == request.application
+        and application.application_state == request.application_state
+    ):
+        return Response(status_code=200)
+
     try:
         nested = db.begin_nested()  # establish a savepoint
         application.current_version += 1
-        application_version = ApplicationVersion(
+        application.application_state = request.application_state
+        new_application_version = ApplicationVersion(
             application_id=request.application_id,
             version=application.current_version,
             json_schema_version=request.json_schema_version,
             application=request.application,
         )
 
-        db.add(application_version)
+        db.add(new_application_version)
         db.commit()
     except IntegrityError as e:
         print(f"Data Error: {e.orig}")
