@@ -19,8 +19,8 @@ router = APIRouter()
 logger = structlog.getLogger(__name__)
 
 responses = {
-    200: {"description": "Request received"},
     201: {"description": "Application/Version has been created"},
+    204: {"description": "No content"},
     400: {"description": "Resource not found"},
     409: {"description": "Resource already exists"},
 }
@@ -113,7 +113,7 @@ async def put_application(
         and application_version.application == request.application
         and application.application_state == request.application_state
     ):
-        return Response(status_code=200)
+        return Response(status_code=204)
 
     try:
         nested = db.begin_nested()  # establish a savepoint

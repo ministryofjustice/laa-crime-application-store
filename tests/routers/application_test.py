@@ -160,7 +160,7 @@ def test_put_application_has_no_effect_if_data_is_unchnaged(
     )
 
     assert dbsession.query(ApplicationVersion).count() == 1
-    assert response.status_code == 200
+    assert response.status_code == 204
 
 
 def test_put_application_can_update_state(
