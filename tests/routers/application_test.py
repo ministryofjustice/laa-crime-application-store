@@ -83,6 +83,7 @@ def test_put_application_returns_200(
             "application_id": str(seed_application),
             "json_schema_version": 1,
             "application_state": "submitted",
+            "application_risk": "low",
             "application": {"id": 10},
         },
     )
@@ -101,6 +102,7 @@ def test_put_application_create_a_new_version(
             "application_id": str(seed_application),
             "json_schema_version": 1,
             "application_state": "submitted",
+            "application_risk": "low",
             "application": {"id": 10, "plea": "guilty"},
         },
     )
@@ -109,7 +111,7 @@ def test_put_application_create_a_new_version(
     assert latest_version.application == {"id": 10, "plea": "guilty"}
 
 
-def test_put_application_returns_400_when_application_doesnt_exist(
+def test_put_application_create_a_new_application_when_it_doesnt_exist(
     client: TestClient, dbsession: Session
 ):
     response = client.put(
@@ -119,12 +121,13 @@ def test_put_application_returns_400_when_application_doesnt_exist(
             "application_id": "d7f509e8-309c-4262-a41d-ebbb44deab9e",
             "json_schema_version": 1,
             "application_state": "submitted",
+            "application_risk": "low",
             "application": {"id": 10},
         },
     )
 
-    assert dbsession.query(Application).count() == 0
-    assert response.status_code == 400
+    assert dbsession.query(Application).count() == 1
+    assert response.status_code == 201
 
 
 def test_put_application_returns_409_when_invalid_data(
@@ -137,6 +140,7 @@ def test_put_application_returns_409_when_invalid_data(
             "application_id": "d7f509e8-309c-4262-a41d-ebbb44deab9e",
             "json_schema_version": None,
             "application_state": "submitted",
+            "application_risk": "low",
             "application": {"id": 10},
         },
     )
@@ -155,6 +159,7 @@ def test_put_application_has_no_effect_if_data_is_unchnaged(
             "application_id": "d7f509e8-309c-4262-a41d-ebbb44deab9e",
             "json_schema_version": 1,
             "application_state": "submitted",
+            "application_risk": "low",
             "application": {"id": 1},
         },
     )
@@ -173,6 +178,7 @@ def test_put_application_can_update_state(
             "application_id": str(seed_application),
             "json_schema_version": 1,
             "application_state": "approved",
+            "application_risk": "low",
             "application": {"id": 10},
         },
     )
@@ -180,3 +186,42 @@ def test_put_application_can_update_state(
     assert dbsession.query(Application).count() == 1
     application = dbsession.query(Application).filter_by(id=seed_application).first()
     assert application.application_state == "approved"
+
+
+def test_put_application_changes_to_application_risk_are_ignored(
+    client: TestClient, dbsession: Session, seed_application
+):
+    client.put(
+        f"/application/{seed_application}",
+        headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
+        json={
+            "application_id": str(seed_application),
+            "json_schema_version": 1,
+            "application_state": "approved",
+            "application_risk": "high",
+            "application": {"id": 10},
+        },
+    )
+
+    application = dbsession.query(Application).filter_by(id=seed_application).first()
+    assert application.application_risk == "low"
+
+
+def test_put_application_changes_to_updated_application_risk_are_applied(
+    client: TestClient, dbsession: Session, seed_application
+):
+    client.put(
+        f"/application/{seed_application}",
+        headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
+        json={
+            "application_id": str(seed_application),
+            "json_schema_version": 1,
+            "application_state": "approved",
+            "application_risk": "high",
+            "updated_application_risk": "high",
+            "application": {"id": 10},
+        },
+    )
+
+    application = dbsession.query(Application).filter_by(id=seed_application).first()
+    assert application.application_risk == "high"
