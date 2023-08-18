@@ -11,6 +11,8 @@ RUN apk --update-cache upgrade \
 COPY ./Pipfile /code/Pipfile
 COPY ./Pipfile.lock /code/Pipfile.lock
 COPY ./laa_crime_application_store_app /code/laa_crime_application_store_app
+COPY ./alembic.ini /code/alembic.ini
+COPY ./alembic /code/alembic
 
 RUN pip install --upgrade pip pipenv
 
