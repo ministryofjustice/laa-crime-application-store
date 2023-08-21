@@ -53,6 +53,26 @@ spec:
                 secretKeyRef:
                   name: sentry
                   key: dsn
+            - name: POSTGRES_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: database_name
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: database_username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: database_password
+            - name: POSTGRES_HOSTNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: rds_instance_address
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
