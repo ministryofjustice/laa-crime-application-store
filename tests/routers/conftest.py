@@ -68,7 +68,7 @@ def seed_application(dbsession):
         application_id=app_id,
         version=1,
         json_schema_version=1,
-        application={},
+        application={"id": 1},
     )
     dbsession.add_all([application, version])
     dbsession.commit()
