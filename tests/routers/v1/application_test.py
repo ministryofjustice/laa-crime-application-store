@@ -13,7 +13,7 @@ logger = structlog.getLogger(__name__)
 
 
 def test_no_data_returns_400(client: TestClient):
-    response = client.get("/application/94ae7aab-6bd0-4c88-9d9a-9b82859293a4")
+    response = client.get("/v1/application/94ae7aab-6bd0-4c88-9d9a-9b82859293a4")
     assert response.status_code == 400
 
 
@@ -28,18 +28,18 @@ def test_no_version_data_returns_400(client: TestClient, dbsession: Session):
     dbsession.add(application)
     dbsession.commit()
 
-    response = client.get(f"/application/{app_id}")
+    response = client.get(f"/v1/application/{app_id}")
     assert response.status_code == 400
 
 
 def test_data_returns_200(client: TestClient, seed_application):
-    response = client.get(f"/application/{seed_application}")
+    response = client.get(f"/v1/application/{seed_application}")
     assert response.status_code == 200
 
 
 def test_post_application_returns_200(client: TestClient, dbsession: Session):
     response = client.post(
-        "/application/",
+        "/v1/application/",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
         json={
             "application_id": "d7f509e8-309c-4262-a41d-ebbb44deab9e",
@@ -58,7 +58,7 @@ def test_post_application_returns_duplicate_error_if_id_already_exists(
     client: TestClient, dbsession: Session, seed_application
 ):
     response = client.post(
-        "/application/",
+        "/v1/application/",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
         json={
             "application_id": str(seed_application),
@@ -77,7 +77,7 @@ def test_put_application_returns_200(
     client: TestClient, dbsession: Session, seed_application
 ):
     response = client.put(
-        f"/application/{seed_application}",
+        f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
         json={
             "application_id": str(seed_application),
@@ -96,7 +96,7 @@ def test_put_application_create_a_new_version(
     client: TestClient, dbsession: Session, seed_application
 ):
     client.put(
-        f"/application/{seed_application}",
+        f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
         json={
             "application_id": str(seed_application),
@@ -115,7 +115,7 @@ def test_put_application_create_a_new_application_when_it_doesnt_exist(
     client: TestClient, dbsession: Session
 ):
     response = client.put(
-        "/application/d7f509e8-309c-4262-a41d-ebbb44deab9e",
+        "/v1/application/d7f509e8-309c-4262-a41d-ebbb44deab9e",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
         json={
             "application_id": "d7f509e8-309c-4262-a41d-ebbb44deab9e",
@@ -134,7 +134,7 @@ def test_put_application_returns_409_when_invalid_data(
     client: TestClient, dbsession: Session, seed_application
 ):
     response = client.put(
-        f"/application/{seed_application}",
+        f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
         json={
             "application_id": "d7f509e8-309c-4262-a41d-ebbb44deab9e",
@@ -153,7 +153,7 @@ def test_put_application_has_no_effect_if_data_is_unchnaged(
     client: TestClient, dbsession: Session, seed_application
 ):
     response = client.put(
-        f"/application/{seed_application}",
+        f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
         json={
             "application_id": "d7f509e8-309c-4262-a41d-ebbb44deab9e",
@@ -172,7 +172,7 @@ def test_put_application_can_update_state(
     client: TestClient, dbsession: Session, seed_application
 ):
     client.put(
-        f"/application/{seed_application}",
+        f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
         json={
             "application_id": str(seed_application),
@@ -192,7 +192,7 @@ def test_put_application_changes_to_application_risk_are_ignored(
     client: TestClient, dbsession: Session, seed_application
 ):
     client.put(
-        f"/application/{seed_application}",
+        f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
         json={
             "application_id": str(seed_application),
@@ -211,7 +211,7 @@ def test_put_application_changes_to_updated_application_risk_are_applied(
     client: TestClient, dbsession: Session, seed_application
 ):
     client.put(
-        f"/application/{seed_application}",
+        f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
         json={
             "application_id": str(seed_application),
