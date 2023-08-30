@@ -5,7 +5,7 @@ import structlog
 from circuitbreaker import circuit
 
 from laa_crime_application_store_app.config.external_server_settings import (
-    ExternalServerSettings,
+    ServerSettings,
     get_external_server_settings,
 )
 from laa_crime_application_store_app.models.application_metadata import (
@@ -22,7 +22,7 @@ http_client = httpx.AsyncClient(timeout=15.0)
 
 class Notifier:
     @property
-    def settings(self) -> ExternalServerSettings:
+    def settings(self) -> ServerSettings:
         return get_external_server_settings()
 
     async def notify(
@@ -70,7 +70,8 @@ class Notifier:
         headers: Optional[dict[str, any]] = None,
         body: Optional[any] = None,
     ):
-        http_client.base_url = self.settings.url(scope=scope)
+        logger.error(self.settings.url)
+        http_client.base_url = self.settings.url
         try:
             request = http_client.build_request(
                 method=method,

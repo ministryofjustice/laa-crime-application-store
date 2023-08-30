@@ -2,6 +2,9 @@ from sqlalchemy import UUID, Column, Integer, Text
 from sqlalchemy.orm import relationship
 
 from laa_crime_application_store_app.data.database import Base
+from laa_crime_application_store_app.schema.application_version_schema import (
+    ApplicationVersion,
+)
 
 
 class Application(Base):

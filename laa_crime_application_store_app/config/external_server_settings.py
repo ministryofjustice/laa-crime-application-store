@@ -1,23 +1,23 @@
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class ExternalServerSettings(BaseSettings):
+class ServerSettings(BaseSettings):
+    auth_id: str
+    url: str
+
+
+class NsmCaseworkerServerSettings(ServerSettings):
     model_config = SettingsConfigDict(
         extra="ignore", env_file=".env", env_file_encoding="utf-8"
     )
 
-    nsm_caseworker_auth_id: str
-    nsm_caseworker_url: str
-
-    def auth_id(self, scope: str = "nsm_caseworker") -> str:
-        return getattr(self, f"{scope}_auth_id")
-
-    def url(self, scope: str = "nsm_caseworker") -> str:
-        return getattr(self, f"{scope}_url")
+    auth_id: str = Field("default", env="NSM_CASEWORKER_AUTH_ID")
+    url: str = Field("default", env="NSM_CASEWORKER_URL")
 
 
 @lru_cache()
 def get_external_server_settings():
-    return ExternalServerSettings()
+    return NsmCaseworkerServerSettings()
