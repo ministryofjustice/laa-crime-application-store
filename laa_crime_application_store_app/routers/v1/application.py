@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from laa_crime_application_store_app.data.database import get_db
+from laa_crime_application_store_app.internal.notifier import Notifier
 from laa_crime_application_store_app.models.application import Application as App
 from laa_crime_application_store_app.models.application_new import ApplicationNew
 from laa_crime_application_store_app.models.application_update import ApplicationUpdate
@@ -84,6 +85,11 @@ async def post_application(request: ApplicationNew, db: Session = Depends(get_db
         print(f"Data Error: {e.orig}")
         nested.rollback()
         return Response(status_code=409)
+
+    notifer = Notifier()
+    # TODO: remove the await so that this happens as a background task
+    await notifer.notify(application=new_application, scope="nsm_caseworker")
+
     return Response(status_code=201)
 
 
@@ -140,4 +146,9 @@ async def put_application(
         print(f"Data Error: {e.orig}")
         nested.rollback()
         return Response(status_code=409)
+
+    notifer = Notifier()
+    # TODO: remove the await so that this happens as a background task
+    await notifer.notify(application=application, scope="nsm_caseworker")
+
     return Response(status_code=201)
