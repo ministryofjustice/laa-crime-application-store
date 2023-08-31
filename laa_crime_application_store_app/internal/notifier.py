@@ -88,7 +88,7 @@ class Notifier:
                 status_code=response.status_code,
             )
             return response
-        except Exception as e:
+        except httpx.HTTPError as e:
             logger.error(f"{scope}_Endpoint_Error", endpoint=request.url, exception=e)
             return None
 
