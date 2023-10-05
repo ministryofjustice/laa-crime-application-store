@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -11,3 +11,4 @@ class ApplicationUpdate(BaseModel):
     application_risk: str | None
     updated_application_risk: Optional[str] = Field(None)
     application: dict | None
+    events: Optional[List[dict]] = Field([])

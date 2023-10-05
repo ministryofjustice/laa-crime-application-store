@@ -58,6 +58,7 @@ async def get_application(app_id: UUID | None = None, db: Session = Depends(get_
         json_schema_version=application_version.json_schema_version,
         application_state=application.application_state,
         application_risk=application.application_risk,
+        events=application.events or [],
         application=application_version.application,
     )
 
@@ -69,6 +70,7 @@ async def post_application(request: ApplicationNew, db: Session = Depends(get_db
         current_version=1,
         application_state=request.application_state,
         application_risk=request.application_risk,
+        events=request.events,
     )
     new_application_version = ApplicationVersion(
         application_id=request.application_id,
@@ -107,7 +109,6 @@ async def put_application(
                 application_state=request.application_state,
                 application_risk=request.application_risk,
             )
-            db.add(application)
 
         application_version = (
             db.query(ApplicationVersion)
@@ -131,6 +132,9 @@ async def put_application(
 
         application.current_version += 1
         application.application_state = request.application_state
+        application.events = request.events
+        db.add(application)
+
         if request.updated_application_risk is not None:
             application.application_risk = request.updated_application_risk
         new_application_version = ApplicationVersion(
