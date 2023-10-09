@@ -1,6 +1,7 @@
+from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ApplicationNew(BaseModel):
@@ -9,3 +10,4 @@ class ApplicationNew(BaseModel):
     application_state: str | None
     application_risk: str | None
     application: dict | None
+    events: Optional[List[dict]] = Field([])
