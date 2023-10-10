@@ -25,6 +25,7 @@ def test_no_version_data_returns_400(client: TestClient, dbsession: Session):
         current_version=1,
         application_state="submitted",
         application_risk="low",
+        application_type="crm7",
     )
     dbsession.add(application)
     dbsession.commit()
@@ -51,6 +52,7 @@ def test_post_application_returns_200(
             "json_schema_version": 1,
             "application_state": "submitted",
             "application_risk": "high",
+            "application_type": "crm7",
             "application": {"id": 10},
         },
     )
@@ -72,6 +74,7 @@ def test_post_application_returns_duplicate_error_if_id_already_exists(
             "json_schema_version": 1,
             "application_state": "submitted",
             "application_risk": "high",
+            "application_type": "crm7",
             "application": {"id": 10},
         },
     )
@@ -93,6 +96,7 @@ def test_put_application_returns_200(
             "json_schema_version": 1,
             "application_state": "submitted",
             "application_risk": "low",
+            "application_type": "crm7",
             "application": {"id": 10},
         },
     )
@@ -114,6 +118,7 @@ def test_put_application_create_a_new_version(
             "json_schema_version": 1,
             "application_state": "submitted",
             "application_risk": "low",
+            "application_type": "crm7",
             "application": {"id": 10, "plea": "guilty"},
         },
     )
@@ -135,6 +140,7 @@ def test_put_application_create_a_new_application_when_it_doesnt_exist(
             "json_schema_version": 1,
             "application_state": "submitted",
             "application_risk": "low",
+            "application_type": "crm7",
             "application": {"id": 10},
         },
     )
@@ -156,6 +162,7 @@ def test_put_application_returns_409_when_invalid_data(
             "json_schema_version": None,
             "application_state": "submitted",
             "application_risk": "low",
+            "application_type": "crm7",
             "application": {"id": 10},
         },
     )
@@ -177,6 +184,7 @@ def test_put_application_has_no_effect_if_data_is_unchnaged(
             "json_schema_version": 1,
             "application_state": "submitted",
             "application_risk": "low",
+            "application_type": "crm7",
             "application": {"id": 1},
         },
     )
@@ -198,6 +206,7 @@ def test_put_application_can_update_state(
             "json_schema_version": 1,
             "application_state": "approved",
             "application_risk": "low",
+            "application_type": "crm7",
             "application": {"id": 10},
         },
     )
@@ -220,6 +229,7 @@ def test_put_application_changes_to_application_risk_are_ignored(
             "json_schema_version": 1,
             "application_state": "approved",
             "application_risk": "high",
+            "application_type": "crm7",
             "application": {"id": 10},
         },
     )
@@ -241,6 +251,7 @@ def test_put_application_changes_to_updated_application_risk_are_applied(
             "json_schema_version": 1,
             "application_state": "approved",
             "application_risk": "high",
+            "application_type": "crm7",
             "updated_application_risk": "high",
             "application": {"id": 10},
         },

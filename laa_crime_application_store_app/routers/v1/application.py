@@ -59,6 +59,7 @@ async def get_application(app_id: UUID | None = None, db: Session = Depends(get_
         application_state=application.application_state,
         application_risk=application.application_risk,
         events=application.events or [],
+        application_type=application.application_type,
         application=application_version.application,
     )
 
@@ -71,6 +72,7 @@ async def post_application(request: ApplicationNew, db: Session = Depends(get_db
         application_state=request.application_state,
         application_risk=request.application_risk,
         events=request.events,
+        application_type=request.application_type,
     )
     new_application_version = ApplicationVersion(
         application_id=request.application_id,
@@ -88,9 +90,9 @@ async def post_application(request: ApplicationNew, db: Session = Depends(get_db
         nested.rollback()
         return Response(status_code=409)
 
-    notifer = Notifier()
+    notifier = Notifier()
     # TODO: remove the await so that this happens as a background task
-    await notifer.notify(application=new_application, scope="nsm_caseworker")
+    await notifier.notify(application=new_application, scope="nsm_caseworker")
 
     return Response(status_code=201)
 
@@ -108,6 +110,7 @@ async def put_application(
                 current_version=1,
                 application_state=request.application_state,
                 application_risk=request.application_risk,
+                application_type=request.application_type,
             )
 
         application_version = (
@@ -151,8 +154,8 @@ async def put_application(
         nested.rollback()
         return Response(status_code=409)
 
-    notifer = Notifier()
+    notifier = Notifier()
     # TODO: remove the await so that this happens as a background task
-    await notifer.notify(application=application, scope="nsm_caseworker")
+    await notifier.notify(application=application, scope="nsm_caseworker")
 
     return Response(status_code=201)
