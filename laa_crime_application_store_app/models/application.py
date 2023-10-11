@@ -10,5 +10,6 @@ class Application(BaseModel):
     json_schema_version: int
     application_state: str
     application_risk: str
+    application_type: str
     application: dict
     events: List[dict]

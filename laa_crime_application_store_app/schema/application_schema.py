@@ -11,5 +11,6 @@ class Application(Base):
     current_version = Column(Integer, nullable=False)
     application_state = Column(Text, nullable=False)
     application_risk = Column(Text, nullable=False)
+    application_type = Column(Text, nullable=False)
     versions = relationship("ApplicationVersion", back_populates="application_record")
     events = Column(JSON)

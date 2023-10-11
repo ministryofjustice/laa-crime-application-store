@@ -66,6 +66,7 @@ def seed_application(dbsession):
         current_version=1,
         application_state="submitted",
         application_risk="low",
+        application_type="crm7",
     )
     version = ApplicationVersion(
         application_id=app_id,

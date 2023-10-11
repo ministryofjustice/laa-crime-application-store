@@ -9,6 +9,7 @@ class ApplicationUpdate(BaseModel):
     json_schema_version: int | None
     application_state: str | None
     application_risk: str | None
+    application_type: str | None
     updated_application_risk: Optional[str] = Field(None)
     application: dict | None
     events: Optional[List[dict]] = Field([])
