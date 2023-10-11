@@ -19,18 +19,13 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.add_column("application", sa.Column("application_type", sa.Text, nullable=False))
+    op.add_column("application", sa.Column("application_type", sa.Text))
 
-    rows = sa.text("select* from application")
-
+    update_rows = sa.text("update application set application_type = 'crm7'")
     connection = op.get_bind()
+    connection.execute(update_rows)
 
-    for row in connection.execute(rows):
-        connection.execute(
-            sa.text(
-                "update application set application_type = crm7 where id = %s" % row.id
-            )
-        )
+    op.alter_column("application", "application_type", nullable=False)
 
 
 def downgrade() -> None:
