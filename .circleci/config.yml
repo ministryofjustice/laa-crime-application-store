@@ -196,6 +196,16 @@ jobs:
           environment: uat
           registry: ${AWS_ECR_REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com
 
+  deploy-prod:
+    executor: cloud-platform-executor
+    steps:
+      - aws-cli/setup:
+          role_arn: $ECR_ROLE_TO_ASSUME
+          region: $ECR_REGION
+      - deploy_to_environment:
+          environment: production
+          registry: ${AWS_ECR_REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com
+
 workflows:
   version: 2
   pr-checks:
@@ -275,3 +285,11 @@ workflows:
           context: laa-crime-application-store-uat
           requires:
             - hold-uat
+      - hold-prod:
+          type: approval
+          requires:
+            - build-and-push
+      - deploy-prod:
+          context: laa-crime-application-store-prod
+          requires:
+            - hold-prod
