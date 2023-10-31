@@ -41,7 +41,7 @@ ingress:
     nginx.ingress.kubernetes.io/modsecurity-snippet: |
       SecRuleEngine On
       SecAction "id:900200,phase:1,nolog,pass,t:none,setvar:tx.allowed_methods=GET HEAD POST OPTIONS PUT PATCH DELETE"
-    external-dns.alpha.kubernetes.io/set-identifier: laa-crime-application-store-app-laa-crime-application-store-prod-green
+    external-dns.alpha.kubernetes.io/set-identifier: laa-crime-application-store-app-laa-crime-application-store-production-green
     external-dns.alpha.kubernetes.io/aws-weight: "100"
     nginx.ingress.kubernetes.io/auth-type: basic
     nginx.ingress.kubernetes.io/auth-secret: basic-auth
@@ -76,4 +76,4 @@ tolerations: []
 affinity: {}
 
 service_account:
-  name: laa-crime-application-store-prod-irsa
+  name: laa-crime-application-store-production-irsa
