@@ -20,6 +20,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.add_column("application", sa.Column("updated_at", sa.DateTime))
+    update_rows = sa.text("update application set updated_at = CURRENT_TIMESTAMP")
+    connection = op.get_bind()
+    connection.execute(update_rows)
 
 
 def downgrade() -> None:

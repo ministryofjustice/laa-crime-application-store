@@ -20,6 +20,10 @@ parser.add_argument(
     "-e", "--environment", help="this is what will be appended to your DB name"
 )
 
+parser.add_argument(
+    "-d", "--downgrade", action="store_true", help="downgrade to the previous migration"
+)
+
 args = parser.parse_args()
 
 # Connect to default DB and create our database
@@ -59,5 +63,7 @@ connection = engine.connect()
 alembic_cfg = Config(f"{os.getcwd()}/alembic.ini")
 with engine.begin() as connection:
     alembic_cfg.attributes["connection"] = connection
-    command.upgrade(alembic_cfg, "head")
-    # command.downgrade(alembic_cfg, "-1")
+    if args.downgrade:
+        command.downgrade(alembic_cfg, "-1")
+    else:
+        command.upgrade(alembic_cfg, "head")
