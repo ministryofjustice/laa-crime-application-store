@@ -60,3 +60,4 @@ alembic_cfg = Config(f"{os.getcwd()}/alembic.ini")
 with engine.begin() as connection:
     alembic_cfg.attributes["connection"] = connection
     command.upgrade(alembic_cfg, "head")
+    # command.downgrade(alembic_cfg, "-1")
