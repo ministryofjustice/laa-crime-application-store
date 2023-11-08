@@ -1,5 +1,6 @@
 import os
 import uuid
+from datetime import datetime
 
 import pytest
 from sqlalchemy import create_engine
@@ -67,6 +68,7 @@ def seed_application(dbsession):
         application_state="submitted",
         application_risk="low",
         application_type="crm7",
+        updated_at=datetime.fromtimestamp(1699443712),
     )
     version = ApplicationVersion(
         application_id=app_id,
