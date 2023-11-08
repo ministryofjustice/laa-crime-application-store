@@ -27,6 +27,7 @@ def test_no_version_data_returns_400(client: TestClient, dbsession: Session):
         application_state="submitted",
         application_risk="low",
         application_type="crm7",
+        updated_at=datetime.now(),
     )
     dbsession.add(application)
     dbsession.commit()
