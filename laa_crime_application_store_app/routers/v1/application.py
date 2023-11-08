@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 import structlog
@@ -73,6 +74,7 @@ async def post_application(request: ApplicationNew, db: Session = Depends(get_db
         application_risk=request.application_risk,
         events=request.events,
         application_type=request.application_type,
+        updated_at=datetime.now(),
     )
     new_application_version = ApplicationVersion(
         application_id=request.application_id,
@@ -111,7 +113,11 @@ async def put_application(
                 application_state=request.application_state,
                 application_risk=request.application_risk,
                 application_type=request.application_type,
+                updated_at=datetime.now(),
             )
+            db.add(application)
+        else:
+            application.updated_at = datetime.now()
 
         application_version = (
             db.query(ApplicationVersion)

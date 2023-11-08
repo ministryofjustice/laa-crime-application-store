@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timedelta
 from unittest.mock import patch
 
 import structlog
@@ -26,6 +27,7 @@ def test_no_version_data_returns_400(client: TestClient, dbsession: Session):
         application_state="submitted",
         application_risk="low",
         application_type="crm7",
+        updated_at=datetime.now(),
     )
     dbsession.add(application)
     dbsession.commit()
@@ -123,8 +125,10 @@ def test_put_application_create_a_new_version(
         },
     )
     assert dbsession.query(ApplicationVersion).count() == 2
+    application = dbsession.query(Application).first()
     latest_version = dbsession.query(ApplicationVersion).filter_by(version=2).first()
     assert latest_version.application == {"id": 10, "plea": "guilty"}
+    assert (datetime.now() - application.updated_at) < timedelta(seconds=3)
 
 
 @patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
