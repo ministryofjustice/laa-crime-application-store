@@ -13,8 +13,8 @@ from laa_crime_application_store_app.models.application import Application as Ap
 from laa_crime_application_store_app.models.application_new import ApplicationNew
 from laa_crime_application_store_app.models.application_update import ApplicationUpdate
 from laa_crime_application_store_app.models.basic_application import (
+    ApplicationResponse,
     BasicApplication,
-    Wrapper,
 )
 from laa_crime_application_store_app.schema.application_schema import Application
 from laa_crime_application_store_app.schema.application_version_schema import (
@@ -32,13 +32,15 @@ responses = {
 }
 
 
-@router.get("/v1/applications", response_model=Wrapper)
-async def get_applications(since: int | None = None, db: Session = Depends(get_db)):
+@router.get("/v1/applications", response_model=ApplicationResponse)
+async def get_applications(
+    since: int | None = None, count: int | None = 20, db: Session = Depends(get_db)
+):
     logger.info("GETTING_APPLICATIONS")
     applications = (
         db.query(Application)
         .filter(Application.updated_at > datetime.fromtimestamp(since or 0))
-        .limit(20)
+        .limit(count)
     )
 
     def transform(application):
@@ -51,7 +53,7 @@ async def get_applications(since: int | None = None, db: Session = Depends(get_d
             updated_at=application.updated_at,
         )
 
-    return Wrapper(applications=map(transform, applications))
+    return ApplicationResponse(applications=map(transform, applications))
 
 
 @router.get("/v1/application/{app_id}", response_model=App)

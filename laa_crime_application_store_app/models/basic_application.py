@@ -14,5 +14,5 @@ class BasicApplication(BaseModel):
     updated_at: datetime
 
 
-class Wrapper(BaseModel):
+class ApplicationResponse(BaseModel):
     applications: List[BasicApplication]
