@@ -12,6 +12,10 @@ from laa_crime_application_store_app.internal.notifier import Notifier
 from laa_crime_application_store_app.models.application import Application as App
 from laa_crime_application_store_app.models.application_new import ApplicationNew
 from laa_crime_application_store_app.models.application_update import ApplicationUpdate
+from laa_crime_application_store_app.models.basic_application import (
+    ApplicationResponse,
+    BasicApplication,
+)
 from laa_crime_application_store_app.schema.application_schema import Application
 from laa_crime_application_store_app.schema.application_version_schema import (
     ApplicationVersion,
@@ -26,6 +30,30 @@ responses = {
     400: {"description": "Resource not found"},
     409: {"description": "Resource already exists"},
 }
+
+
+@router.get("/v1/applications", response_model=ApplicationResponse)
+async def get_applications(
+    since: int | None = None, count: int | None = 20, db: Session = Depends(get_db)
+):
+    logger.info("GETTING_APPLICATIONS")
+    applications = (
+        db.query(Application)
+        .filter(Application.updated_at > datetime.fromtimestamp(since or 0))
+        .limit(count)
+    )
+
+    def transform(application):
+        return BasicApplication(
+            application_id=application.id,
+            version=application.current_version,
+            application_state=application.application_state,
+            application_risk=application.application_risk,
+            application_type=application.application_type,
+            updated_at=application.updated_at,
+        )
+
+    return ApplicationResponse(applications=map(transform, applications))
 
 
 @router.get("/v1/application/{app_id}", response_model=App)

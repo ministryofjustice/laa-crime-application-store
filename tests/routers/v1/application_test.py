@@ -1,3 +1,4 @@
+import json
 import uuid
 from datetime import datetime, timedelta
 from unittest.mock import patch
@@ -12,6 +13,28 @@ from laa_crime_application_store_app.schema.application_version_schema import (
 )
 
 logger = structlog.getLogger(__name__)
+
+
+def test_no_applications_return_empty_array(client: TestClient):
+    response = client.get("/v1/applications")
+    assert response.status_code == 200
+    assert response.content == b'{"applications":[]}'
+
+
+def test_applications_return_basic_info(client: TestClient, seed_application):
+    seed_application
+    response = client.get("/v1/applications")
+    assert response.status_code == 200
+    json_data = json.loads(response.content)
+    assert len(json_data["applications"]) == 1
+    assert json_data["applications"][0]["application_id"] == str(seed_application)
+
+
+def test_no_applications_since_return_empty_array(client: TestClient, seed_application):
+    seed_application
+    response = client.get("/v1/applications", params={"since": "1699443712"})
+    assert response.status_code == 200
+    assert response.content == b'{"applications":[]}'
 
 
 def test_no_data_returns_400(client: TestClient):
