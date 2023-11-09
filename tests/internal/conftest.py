@@ -3,10 +3,6 @@ import pytest
 import respx
 from httpx import Response
 
-from laa_crime_application_store_app.config.external_server_settings import (
-    ServerSettings,
-)
-
 
 @pytest.fixture(scope="function")
 def mock_post_metadata_success():
@@ -48,8 +44,3 @@ def mock_post_metadata_error():
         put_route.mock(side_effect=httpx.ConnectError)
 
         yield respx_mock
-
-
-@pytest.fixture()
-def external_settings():
-    return ServerSettings(auth_id="12345", url="https://test-url/")
