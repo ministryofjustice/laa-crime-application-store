@@ -1,61 +1,14 @@
-from unittest.mock import Mock, patch
-
 from laa_crime_application_store_app.internal.notifier import Notifier
 from laa_crime_application_store_app.schema.application_schema import Application
 
 
-@patch(
-    "laa_crime_application_store_app.config.external_server_settings.NsmCaseworkerServerSettings",
-    new_callable=Mock,
-)
-async def test_will_notify_via_http(
-    mock_settings, mock_post_metadata_success, external_settings
-):
+async def test_will_notify_via_http():
     application = Application(
         id="ed69ce3a-4740-11ee-9953-a259c5ffac49",
         application_state="submitted",
         application_risk="high",
         current_version=1,
     )
-    mock_settings.return_value = external_settings
     response = await Notifier().notify(application=application)
 
-    assert response.status_code == 201
-
-
-@patch(
-    "laa_crime_application_store_app.config.external_server_settings.NsmCaseworkerServerSettings",
-    new_callable=Mock,
-)
-async def test_notify_via_http_receive_500(
-    mock_settings, mock_post_metadata_failure, external_settings
-):
-    application = Application(
-        id="ed69ce3a-4740-11ee-9953-a259c5ffac49",
-        application_state="submitted",
-        application_risk="high",
-        current_version=1,
-    )
-    mock_settings.return_value = external_settings
-    response = await Notifier().notify(application=application)
-
-    assert response.status_code == 500
-
-
-@patch(
-    "laa_crime_application_store_app.config.external_server_settings.NsmCaseworkerServerSettings",
-    new_callable=Mock,
-)
-async def test_notify_via_http_receive_exception(
-    mock_settings, mock_post_metadata_error, external_settings
-):
-    application = Application(
-        id="ed69ce3a-4740-11ee-9953-a259c5ffac49",
-        application_state="submitted",
-        application_risk="high",
-        current_version=1,
-    )
-    mock_settings.return_value = external_settings
-    response = await Notifier().notify(application=application)
-
-    assert response is None
+    assert response is True

@@ -40,6 +40,7 @@ async def get_applications(
     applications = (
         db.query(Application)
         .filter(Application.updated_at > datetime.fromtimestamp(since or 0))
+        .order_by(Application.updated_at)
         .limit(count)
     )
 

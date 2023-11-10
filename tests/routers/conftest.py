@@ -7,9 +7,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
-from laa_crime_application_store_app.config.external_server_settings import (
-    ServerSettings,
-)
 from laa_crime_application_store_app.data.database import Base, get_db
 from laa_crime_application_store_app.main import app
 from laa_crime_application_store_app.schema.application_schema import Application
@@ -79,8 +76,3 @@ def seed_application(dbsession):
     dbsession.add_all([application, version])
     dbsession.commit()
     return app_id
-
-
-@pytest.fixture()
-def mock_notifier():
-    return ServerSettings(auth_id="12345", url="https://test-url/")
