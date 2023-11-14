@@ -5,7 +5,6 @@ import sentry_sdk
 import structlog
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import FastAPI
-from starlette.responses import RedirectResponse
 from structlog.stdlib import LoggerFactory
 
 from laa_crime_application_store_app.config import logging_config
@@ -13,8 +12,8 @@ from laa_crime_application_store_app.config.app_settings import get_app_settings
 from laa_crime_application_store_app.middleware.secure_headers_middleware import (
     SecureHeadersMiddleware,
 )
-from laa_crime_application_store_app.routers import ping
-from laa_crime_application_store_app.routers.v1 import application
+from laa_crime_application_store_app.routers import index, ping
+from laa_crime_application_store_app.routers.v1 import application as v1_application
 
 
 def send_event(event, hint):
@@ -63,10 +62,6 @@ app = FastAPI(
 app.add_middleware(CorrelationIdMiddleware)
 app.add_middleware(SecureHeadersMiddleware)
 
+app.include_router(index.router)
 app.include_router(ping.router)
-app.include_router(application.router)
-
-
-@app.get("/")
-async def get_index():
-    return RedirectResponse(url="/docs")
+app.include_router(v1_application.router, prefix="/v1")
