@@ -13,6 +13,10 @@ class DatabaseSettings(BaseSettings):
     postgres_hostname: str | None = None
     postgres_name: str | None = None
 
+    @property
+    def test_database_name(self):
+        return "{}_test".format(self.postgres_name)
+
 
 @lru_cache()
 def get_database_settings():

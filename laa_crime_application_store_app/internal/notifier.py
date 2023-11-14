@@ -3,7 +3,7 @@ from typing import Optional
 import httpx
 import structlog
 
-from laa_crime_application_store_app.schema.application_schema import Application
+from laa_crime_application_store_app.models.application_schema import Application
 
 logger = structlog.get_logger(__name__)
 http_client = httpx.AsyncClient(timeout=15.0)

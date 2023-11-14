@@ -1,4 +1,3 @@
-import os
 import uuid
 from datetime import datetime
 
@@ -7,18 +6,21 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
+from laa_crime_application_store_app.config.database_settings import (
+    get_database_settings,
+)
 from laa_crime_application_store_app.data.database import Base, get_db
 from laa_crime_application_store_app.main import app
-from laa_crime_application_store_app.schema.application_schema import Application
-from laa_crime_application_store_app.schema.application_version_schema import (
+from laa_crime_application_store_app.models.application_schema import Application
+from laa_crime_application_store_app.models.application_version_schema import (
     ApplicationVersion,
 )
 
 postgres_test_url = "postgresql+psycopg2://{}:{}@{}/{}".format(
-    os.getenv("POSTGRES_USERNAME", "test"),
-    os.getenv("POSTGRES_PASSWORD", "pass"),
-    os.getenv("POSTGRES_HOSTNAME", "localhost"),
-    "{}_{}".format(os.getenv("POSTGRES_NAME"), "test"),
+    get_database_settings().postgres_username,
+    get_database_settings().postgres_password,
+    get_database_settings().postgres_hostname,
+    get_database_settings().test_database_name,
 )
 
 
@@ -52,8 +54,7 @@ def dbsession(engine, tables):
 def client(dbsession):
     app.dependency_overrides[get_db] = lambda: dbsession
 
-    with TestClient(app) as test_client:
-        yield test_client
+    yield TestClient(app)
 
 
 @pytest.fixture

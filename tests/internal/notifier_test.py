@@ -1,5 +1,5 @@
 from laa_crime_application_store_app.internal.notifier import Notifier
-from laa_crime_application_store_app.schema.application_schema import Application
+from laa_crime_application_store_app.models.application_schema import Application
 
 
 async def test_will_notify_via_http():
