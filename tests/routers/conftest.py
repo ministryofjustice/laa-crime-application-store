@@ -54,8 +54,7 @@ def dbsession(engine, tables):
 def client(dbsession):
     app.dependency_overrides[get_db] = lambda: dbsession
 
-    with TestClient(app) as test_client:
-        yield test_client
+    yield TestClient(app)
 
 
 @pytest.fixture
