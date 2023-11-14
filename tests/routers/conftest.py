@@ -9,8 +9,8 @@ from starlette.testclient import TestClient
 
 from laa_crime_application_store_app.data.database import Base, get_db
 from laa_crime_application_store_app.main import app
-from laa_crime_application_store_app.schema.application_schema import Application
-from laa_crime_application_store_app.schema.application_version_schema import (
+from laa_crime_application_store_app.models.application_schema import Application
+from laa_crime_application_store_app.models.application_version_schema import (
     ApplicationVersion,
 )
 

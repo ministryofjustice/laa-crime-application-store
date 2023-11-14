@@ -4,7 +4,7 @@ from laa_crime_application_store_app.config.app_settings import (
     AppSettings,
     get_app_settings,
 )
-from laa_crime_application_store_app.models.ping import Ping
+from laa_crime_application_store_app.schema.ping import Ping
 
 router = APIRouter()
 

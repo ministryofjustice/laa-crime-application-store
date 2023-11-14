@@ -7,8 +7,8 @@ import structlog
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from laa_crime_application_store_app.schema.application_schema import Application
-from laa_crime_application_store_app.schema.application_version_schema import (
+from laa_crime_application_store_app.models.application_schema import Application
+from laa_crime_application_store_app.models.application_version_schema import (
     ApplicationVersion,
 )
 

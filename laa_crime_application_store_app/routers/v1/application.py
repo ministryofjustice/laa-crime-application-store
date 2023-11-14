@@ -9,16 +9,16 @@ from starlette.responses import Response
 
 from laa_crime_application_store_app.data.database import get_db
 from laa_crime_application_store_app.internal.notifier import Notifier
-from laa_crime_application_store_app.models.application import Application as App
-from laa_crime_application_store_app.models.application_new import ApplicationNew
-from laa_crime_application_store_app.models.application_update import ApplicationUpdate
-from laa_crime_application_store_app.models.basic_application import (
+from laa_crime_application_store_app.models.application_schema import Application
+from laa_crime_application_store_app.models.application_version_schema import (
+    ApplicationVersion,
+)
+from laa_crime_application_store_app.schema.application import Application as App
+from laa_crime_application_store_app.schema.application_new import ApplicationNew
+from laa_crime_application_store_app.schema.application_update import ApplicationUpdate
+from laa_crime_application_store_app.schema.basic_application import (
     ApplicationResponse,
     BasicApplication,
-)
-from laa_crime_application_store_app.schema.application_schema import Application
-from laa_crime_application_store_app.schema.application_version_schema import (
-    ApplicationVersion,
 )
 
 router = APIRouter()
