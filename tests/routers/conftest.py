@@ -20,7 +20,7 @@ postgres_test_url = "postgresql+psycopg2://{}:{}@{}/{}".format(
     get_database_settings().postgres_username,
     get_database_settings().postgres_password,
     get_database_settings().postgres_hostname,
-    "{}_{}".format(get_database_settings().postgres_name, "test"),
+    get_database_settings().test_database_name,
 )
 
 
