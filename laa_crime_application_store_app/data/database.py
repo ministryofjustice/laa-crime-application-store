@@ -1,13 +1,15 @@
-import os
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
+from laa_crime_application_store_app.config.database_settings import (
+    get_database_settings,
+)
+
 postgres_url = "postgresql+psycopg2://{}:{}@{}/{}".format(
-    os.getenv("POSTGRES_USERNAME", "test"),
-    os.getenv("POSTGRES_PASSWORD", "pass"),
-    os.getenv("POSTGRES_HOSTNAME", "localhost"),
-    os.getenv("POSTGRES_NAME", "laa_crime_application_store"),
+    get_database_settings().postgres_username,
+    get_database_settings().postgres_password,
+    get_database_settings().postgres_hostname,
+    get_database_settings().postgres_name,
 )
 
 engine = create_engine(postgres_url)

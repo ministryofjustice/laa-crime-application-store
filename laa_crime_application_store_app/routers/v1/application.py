@@ -32,7 +32,7 @@ responses = {
 }
 
 
-@router.get("/v1/applications", response_model=ApplicationResponse)
+@router.get("/applications", response_model=ApplicationResponse)
 async def get_applications(
     since: int | None = None, count: int | None = 20, db: Session = Depends(get_db)
 ):
@@ -57,7 +57,7 @@ async def get_applications(
     return ApplicationResponse(applications=map(transform, applications))
 
 
-@router.get("/v1/application/{app_id}", response_model=App)
+@router.get("/application/{app_id}", response_model=App)
 async def get_application(app_id: UUID | None = None, db: Session = Depends(get_db)):
     logger.info("GETTING_APPLICATION", application_id=app_id)
     application = db.query(Application).filter(Application.id == app_id).first()
@@ -94,7 +94,7 @@ async def get_application(app_id: UUID | None = None, db: Session = Depends(get_
     )
 
 
-@router.post("/v1/application/", status_code=201, responses=responses)
+@router.post("/application/", status_code=201, responses=responses)
 async def post_application(request: ApplicationNew, db: Session = Depends(get_db)):
     new_application = Application(
         id=request.application_id,
@@ -128,7 +128,7 @@ async def post_application(request: ApplicationNew, db: Session = Depends(get_db
     return Response(status_code=201)
 
 
-@router.put("/v1/application/{app_id}", status_code=201, responses=responses)
+@router.put("/application/{app_id}", status_code=201, responses=responses)
 async def put_application(
     app_id: UUID, request: ApplicationUpdate, db: Session = Depends(get_db)
 ):
