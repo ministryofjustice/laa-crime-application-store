@@ -1,5 +1,6 @@
 import json
 import logging.config
+import os
 
 import sentry_sdk
 import structlog
@@ -7,6 +8,8 @@ from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import FastAPI
 from structlog.stdlib import LoggerFactory
 
+from alembic.command import upgrade
+from alembic.config import Config
 from laa_crime_application_store_app.config import logging_config
 from laa_crime_application_store_app.config.app_settings import get_app_settings
 from laa_crime_application_store_app.middleware.secure_headers_middleware import (
@@ -65,3 +68,9 @@ app.add_middleware(SecureHeadersMiddleware)
 app.include_router(index.router)
 app.include_router(ping.router)
 app.include_router(v1_application.router, prefix="/v1")
+
+
+@app.on_event("startup")
+async def startup() -> None:
+    alembic_cfg = Config(f"{os.getcwd()}/alembic.ini")
+    upgrade(alembic_cfg, "head")
