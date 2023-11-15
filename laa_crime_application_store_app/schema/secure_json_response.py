@@ -7,4 +7,4 @@ class SecureJsonResponse(Response):
     media_type = "application/json; charset=utf-8"
 
     def render(self, content: typing.Any) -> bytes:
-        return content.json()
+        return content.model_dump_json()

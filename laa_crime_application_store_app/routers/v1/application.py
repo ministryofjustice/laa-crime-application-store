@@ -40,51 +40,24 @@ async def get_applications(
     since: int | None = None, count: int | None = 20, db: Session = Depends(get_db)
 ):
     logger.info("GETTING_APPLICATIONS", since=since, count=count)
-
     applications = ApplicationService().get_applications(db, since, count)
 
     logger.info(
         "GETTING_APPLICATIONS_RETURNING", number_of_apps=len(applications.applications)
     )
-
     return SecureJsonResponse(applications)
 
 
 @router.get("/application/{app_id}", response_model=App)
 async def get_application(app_id: UUID | None = None, db: Session = Depends(get_db)):
     logger.info("GETTING_APPLICATION", application_id=app_id)
-    application = db.query(Application).filter(Application.id == app_id).first()
-    if application is None:
-        logger.info("APPLICATION_NOT_FOUND", application_id=app_id)
-        return Response(status_code=400)
+    application = ApplicationService().get_application(db, app_id)
 
-    application_version = (
-        db.query(ApplicationVersion)
-        .filter(
-            ApplicationVersion.application_id == app_id,
-            ApplicationVersion.version == application.current_version,
-        )
-        .first()
-    )
-    if application_version is None:
-        logger.info(
-            "APPLICATION_VERSION_NOT_FOUND",
-            application_id=app_id,
-            version=application.current_version,
-        )
+    if application is None:
         return Response(status_code=400)
 
     logger.info("APPLICATION_FOUND", application_id=app_id)
-    return App(
-        application_id=app_id,
-        version=application_version.version,
-        json_schema_version=application_version.json_schema_version,
-        application_state=application.application_state,
-        application_risk=application.application_risk,
-        events=application.events or [],
-        application_type=application.application_type,
-        application=application_version.application,
-    )
+    return SecureJsonResponse(application)
 
 
 @router.post("/application/", status_code=201, responses=responses)
