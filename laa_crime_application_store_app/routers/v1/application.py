@@ -16,9 +16,12 @@ from laa_crime_application_store_app.models.application_version_schema import (
 from laa_crime_application_store_app.schema.application import Application as App
 from laa_crime_application_store_app.schema.application_new import ApplicationNew
 from laa_crime_application_store_app.schema.application_update import ApplicationUpdate
-from laa_crime_application_store_app.schema.basic_application import (
-    ApplicationResponse,
-    BasicApplication,
+from laa_crime_application_store_app.schema.basic_application import ApplicationResponse
+from laa_crime_application_store_app.schema.secure_json_response import (
+    SecureJsonResponse,
+)
+from laa_crime_application_store_app.services.v1.application_service import (
+    ApplicationService,
 )
 
 router = APIRouter()
@@ -36,25 +39,15 @@ responses = {
 async def get_applications(
     since: int | None = None, count: int | None = 20, db: Session = Depends(get_db)
 ):
-    logger.info("GETTING_APPLICATIONS")
-    applications = (
-        db.query(Application)
-        .filter(Application.updated_at > datetime.fromtimestamp(since or 0))
-        .order_by(Application.updated_at)
-        .limit(count)
+    logger.info("GETTING_APPLICATIONS", since=since, count=count)
+
+    applications = ApplicationService().get_applications(db, since, count)
+
+    logger.info(
+        "GETTING_APPLICATIONS_RETURNING", number_of_apps=len(applications.applications)
     )
 
-    def transform(application):
-        return BasicApplication(
-            application_id=application.id,
-            version=application.current_version,
-            application_state=application.application_state,
-            application_risk=application.application_risk,
-            application_type=application.application_type,
-            updated_at=application.updated_at,
-        )
-
-    return ApplicationResponse(applications=map(transform, applications))
+    return SecureJsonResponse(applications)
 
 
 @router.get("/application/{app_id}", response_model=App)
