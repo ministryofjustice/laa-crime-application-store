@@ -13,6 +13,17 @@ class BasicApplication(BaseModel):
     application_type: str
     updated_at: datetime
 
+    @staticmethod
+    def transform_from_application(application):
+        return BasicApplication(
+            application_id=application.id,
+            version=application.current_version,
+            application_state=application.application_state,
+            application_risk=application.application_risk,
+            application_type=application.application_type,
+            updated_at=application.updated_at,
+        )
+
 
 class ApplicationResponse(BaseModel):
     applications: List[BasicApplication]
