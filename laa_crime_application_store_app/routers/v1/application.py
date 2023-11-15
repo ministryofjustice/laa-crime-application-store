@@ -62,35 +62,16 @@ async def get_application(app_id: UUID | None = None, db: Session = Depends(get_
 
 @router.post("/application/", status_code=201, responses=responses)
 async def post_application(request: ApplicationNew, db: Session = Depends(get_db)):
-    new_application = Application(
-        id=request.application_id,
-        current_version=1,
-        application_state=request.application_state,
-        application_risk=request.application_risk,
-        events=request.events,
-        application_type=request.application_type,
-        updated_at=datetime.now(),
-    )
-    new_application_version = ApplicationVersion(
-        application_id=request.application_id,
-        version=1,
-        json_schema_version=request.json_schema_version,
-        application=request.application,
-    )
+    logger.info("CREATING_APPLICATION", application_id=request.application_id)
+    new_application = ApplicationService().create_new_application(db, request)
 
-    try:
-        nested = db.begin_nested()  # establish a savepoint
-        db.add_all([new_application, new_application_version])
-        db.commit()
-    except IntegrityError as e:
-        print(f"Data Error: {e.orig}")
-        nested.rollback()
+    if new_application is None:
+        logger.info(
+            "DUPLICATE_APPLICATION_FOUND", application_id=request.application_id
+        )
         return Response(status_code=409)
 
-    notifier = Notifier()
-    # TODO: remove the await so that this happens as a background task
-    await notifier.notify(application=new_application, scope="nsm_caseworker")
-
+    logger.info("APPLICATION_CREATED", application_id=request.application_id)
     return Response(status_code=201)
 
 
