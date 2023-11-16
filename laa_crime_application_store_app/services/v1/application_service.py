@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 import structlog
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from laa_crime_application_store_app.models.application_schema import Application
@@ -9,6 +10,7 @@ from laa_crime_application_store_app.models.application_version_schema import (
     ApplicationVersion,
 )
 from laa_crime_application_store_app.schema.application import Application as App
+from laa_crime_application_store_app.schema.application_new import ApplicationNew
 from laa_crime_application_store_app.schema.basic_application import (
     ApplicationResponse,
     BasicApplication,
@@ -68,3 +70,33 @@ class ApplicationService:
         )
 
         return ApplicationResponse(applications=application_list)
+
+    @staticmethod
+    def create_new_application(db: Session, application: ApplicationNew):
+        new_application = Application(
+            id=application.application_id,
+            current_version=1,
+            application_state=application.application_state,
+            application_risk=application.application_risk,
+            events=application.events,
+            application_type=application.application_type,
+            updated_at=datetime.now(),
+        )
+        new_application_version = ApplicationVersion(
+            application_id=application.application_id,
+            version=1,
+            json_schema_version=application.json_schema_version,
+            application=application.application,
+        )
+        nested = db.begin_nested()  # establish a savepoint
+
+        try:
+            db.add_all([new_application, new_application_version])
+            db.commit()
+
+            return new_application.id
+        except IntegrityError as e:
+            print(f"Data Error: {e.orig}")
+            nested.rollback()
+
+            return None
