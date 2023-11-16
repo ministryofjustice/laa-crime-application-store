@@ -53,7 +53,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "",
+						"value": "basic {{authKey}}",
 						"type": "text"
 					}
 				],
