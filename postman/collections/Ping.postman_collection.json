@@ -50,7 +50,13 @@
 			],
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "{{baseUrl}}/ping",
 					"host": [
