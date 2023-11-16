@@ -1,6 +1,7 @@
 version: 2.1
 
 orbs:
+  newman: postman/newman@1.0.0
   snyk: snyk/snyk@1.1.2
   aws-cli: circleci/aws-cli@4.0.0 # use v4 of this orb
   aws-ecr: circleci/aws-ecr@8.2.1 # this orb doesn't support OIDC v2, so we use aws-cli to authenticate
@@ -211,6 +212,19 @@ jobs:
           environment: production
           registry: ${AWS_ECR_REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com
 
+  postman-test:
+    executor: newman/postman-newman-docker
+    steps:
+      - checkout
+      - newman/newman-run:
+          collection: ./postman/collections/Ping.postman_collection.json
+          environment: ./postman/environments/${K8S_ENV}.postman_environment.json
+          additional-options: --env-var="authKey=${BASIC_AUTH}"
+      - newman/newman-run:
+          collection: ./postman/collections/Application.postman_collection.json
+          environment: ./postman/environments/${K8S_ENV}.postman_environment.json
+          additional-options: --env-var="authKey=${BASIC_AUTH}"
+
 workflows:
   version: 2
   pr-checks:
@@ -243,6 +257,11 @@ workflows:
           context: laa-crime-application-store-dev
           requires:
             - hold-dev
+      - postman-test:
+          name: dev postman tests
+          context: laa-crime-application-store-dev
+          requires:
+            - deploy-dev
       - hold-uat:
           type: approval
           requires:
@@ -251,6 +270,11 @@ workflows:
           context: laa-crime-application-store-uat
           requires:
             - hold-uat
+      - postman-test:
+          name: uat postman tests
+          context: laa-crime-application-store-uat
+          requires:
+            - deploy-uat
 
   main-deploy:
     jobs:
@@ -282,6 +306,11 @@ workflows:
           context: laa-crime-application-store-dev
           requires:
             - hold-dev
+      - postman-test:
+          name: dev postman tests
+          context: laa-crime-application-store-dev
+          requires:
+            - deploy-dev
       - hold-uat:
           type: approval
           requires:
@@ -290,6 +319,11 @@ workflows:
           context: laa-crime-application-store-uat
           requires:
             - hold-uat
+      - postman-test:
+          name: uat postman tests
+          context: laa-crime-application-store-uat
+          requires:
+            - deploy-uat
       - hold-prod:
           type: approval
           requires:

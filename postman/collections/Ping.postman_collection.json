@@ -1,0 +1,67 @@
+{
+	"info": {
+		"_postman_id": "9b0a3dee-382c-4af8-899f-87b3d502ced2",
+		"name": "Ping",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16366316",
+		"_collection_link": "https://orange-satellite-627735.postman.co/workspace/laa-crime-application-store~afb2ce2b-144e-4a66-8d72-49bfd506fd68/collection/16366316-9b0a3dee-382c-4af8-899f-87b3d502ced2?action=share&source=collection_link&creator=16366316"
+	},
+	"item": [
+		{
+			"name": "Ping Endpoint",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Validate that the response code should be 200",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Validate that the response is json object",
+							"pm.test(\"Response is a json object\", function () {",
+							"    pm.expect(pm.response.json()).to.be.an('object');",
+							"});",
+							"",
+							"// Validate that the response has an app_branch object",
+							"pm.test(\"Response to have 'arg' object\", function () {",
+							"    pm.expect(pm.response.json()).to.have.property('app_branch');",
+							"});",
+							"",
+							"// Validate that the response has an build_date object",
+							"pm.test(\"Response to have 'arg' object\", function () {",
+							"    pm.expect(pm.response.json()).to.have.property('build_date');",
+							"});",
+							"",
+							"// Validate that the response has an build_tag object",
+							"pm.test(\"Response to have 'arg' object\", function () {",
+							"    pm.expect(pm.response.json()).to.have.property('build_tag');",
+							"});",
+							"",
+							"// Validate that the response has an commit_id object",
+							"pm.test(\"Response to have 'arg' object\", function () {",
+							"    pm.expect(pm.response.json()).to.have.property('commit_id');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/ping",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ping"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
