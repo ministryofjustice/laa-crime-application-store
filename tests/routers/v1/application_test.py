@@ -217,7 +217,7 @@ def test_put_application_has_no_effect_if_data_is_unchnaged(
     )
 
     assert dbsession.query(ApplicationVersion).count() == 1
-    assert response.status_code == 204
+    assert response.status_code == 201
 
 
 @patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
