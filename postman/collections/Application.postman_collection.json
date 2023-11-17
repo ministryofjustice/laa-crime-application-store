@@ -1,0 +1,305 @@
+{
+	"info": {
+		"_postman_id": "54a4bd58-ed8d-4cde-8d9b-5bb4cdaf8f44",
+		"name": "Application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16366316",
+		"_collection_link": "https://orange-satellite-627735.postman.co/workspace/laa-crime-application-store~afb2ce2b-144e-4a66-8d72-49bfd506fd68/collection/16366316-54a4bd58-ed8d-4cde-8d9b-5bb4cdaf8f44?action=share&source=collection_link&creator=16366316"
+	},
+	"item": [
+		{
+			"name": "New Application",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var uuid = require('uuid')",
+							"var uuidv4 = uuid.v4()",
+							"",
+							"pm.environment.set(\"appId\", uuidv4)"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201)",
+							"});",
+							"",
+							"const baseUrl = pm.environment.get('baseUrl')",
+							"const appId = pm.environment.get('appId')",
+							"const authKey = pm.environment.get('authKey')",
+							"",
+							"const getApp = {",
+							"    url: `${baseUrl}/v1/application/${appId}`,",
+							"    method: 'GET',",
+							"    header: {",
+							"        'Authorization': `basic ${authKey}` ",
+							"    }",
+							"}",
+							"",
+							"pm.sendRequest(getApp, (error, response) => {",
+							"    pm.test(\"No errors from getting new application\", () => {",
+							"        pm.expect(error).to.equal(null)",
+							"    })",
+							"",
+							"    pm.test(\"Application is available\", () => {",
+							"        pm.expect(response).to.have.property('status', 'OK');",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "basic {{authKey}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"application\": {\n        \"id\": \"{{appId}}\",\n        \"ufn\": \"123888/965\",\n        \"office_code\": \"1A123B\",\n        \"status\": \"submitted\",\n        \"claim_type\": {\n            \"value\": \"non_standard_magistrate\",\n            \"en\": \"Non-standard magistrates' court payment\"\n        },\n        \"rep_order_date\": \"2023-01-01\",\n        \"cntp_order\": null,\n        \"cntp_date\": null,\n        \"created_at\": \"2023-11-13T16:59:15.868Z\",\n        \"updated_at\": \"2023-11-15T15:42:08.004Z\",\n        \"reasons_for_claim\": [\n            {\n                \"value\": \"extradition\",\n                \"en\": \"Extradition\"\n            }\n        ],\n        \"representation_order_withdrawn_date\": null,\n        \"reason_for_claim_other_details\": \"\",\n        \"main_offence\": \"Administering chloroform, laudanum etc.\",\n        \"main_offence_date\": \"2023-01-01\",\n        \"assigned_counsel\": \"no\",\n        \"unassigned_counsel\": \"no\",\n        \"agent_instructed\": \"no\",\n        \"remitted_to_magistrate\": \"no\",\n        \"plea\": \"guilty\",\n        \"arrest_warrant_date\": null,\n        \"cracked_trial_date\": null,\n        \"first_hearing_date\": \"1990-01-01\",\n        \"number_of_hearing\": 1,\n        \"court\": \"Nottingham Crown Court\",\n        \"in_area\": \"no\",\n        \"youth_court\": \"no\",\n        \"hearing_outcome\": \"CP01 - Arrest warrant issued/adjourned indefinitely\",\n        \"matter_type\": \"1 - Offences against the person\",\n        \"prosecution_evidence\": 1,\n        \"defence_statement\": 1,\n        \"number_of_witnesses\": 1,\n        \"supplemental_claim\": \"no\",\n        \"time_spent\": null,\n        \"other_info\": \"\",\n        \"conclusion\": \"\",\n        \"concluded\": \"no\",\n        \"laa_reference\": \"LAA-gY60GQ\",\n        \"work_before_date\": null,\n        \"work_after_date\": null,\n        \"signatory_name\": \"Test Test\",\n        \"gender\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"ethnic_group\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"disability\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"send_by_post\": false,\n        \"documents\": null,\n        \"remitted_to_magistrate_date\": null,\n        \"preparation_time\": \"no\",\n        \"work_before\": \"no\",\n        \"work_after\": \"no\",\n        \"has_disbursements\": \"yes\",\n        \"is_other_info\": \"no\",\n        \"answer_equality\": {\n            \"value\": \"no\",\n            \"en\": \"No, skip the equality questions\"\n        },\n        \"letters_and_calls\": [\n            {\n                \"type\": {\n                    \"value\": \"letters\",\n                    \"en\": \"Letters\"\n                },\n                \"count\": 12,\n                \"pricing\": 4.09,\n                \"uplift\": null\n            },\n            {\n                \"type\": {\n                    \"value\": \"calls\",\n                    \"en\": \"Calls\"\n                },\n                \"count\": 12,\n                \"pricing\": 4.09,\n                \"uplift\": null\n            }\n        ],\n        \"disbursements\": [\n            {\n                \"id\": \"fff83546-970c-4ba6-921e-99c7166191cb\",\n                \"disbursement_date\": \"1990-01-01\",\n                \"disbursement_type\": {\n                    \"value\": \"car\",\n                    \"en\": \"Car\"\n                },\n                \"other_type\": {\n                    \"value\": null,\n                    \"en\": null\n                },\n                \"miles\": \"125.0\",\n                \"total_cost_without_vat\": 56.25,\n                \"details\": \"test\",\n                \"prior_authority\": \"yes\",\n                \"apply_vat\": \"true\",\n                \"vat_amount\": 11.25,\n                \"pricing\": 0.45,\n                \"vat_rate\": 0.2\n            },\n            {\n                \"id\": \"9de1b5d8-70d4-4cc5-af19-0ccf55dff199\",\n                \"disbursement_date\": \"1990-01-01\",\n                \"disbursement_type\": {\n                    \"value\": \"other\",\n                    \"en\": \"Other disbursement type\"\n                },\n                \"other_type\": {\n                    \"value\": \"dna_testing\",\n                    \"en\": \"DNA Testing\"\n                },\n                \"miles\": null,\n                \"total_cost_without_vat\": 101.0,\n                \"details\": \"test\",\n                \"prior_authority\": \"yes\",\n                \"apply_vat\": \"true\",\n                \"vat_amount\": 20.2,\n                \"pricing\": 1.0,\n                \"vat_rate\": 0.2\n            }\n        ],\n        \"work_items\": [\n            {\n                \"id\": \"f6beb690-4b94-4784-9edb-64b5c4c67173\",\n                \"work_type\": {\n                    \"value\": \"attendance_without_counsel\",\n                    \"en\": \"Attendance without counsel\"\n                },\n                \"time_spent\": 90,\n                \"completed_on\": \"2023-01-01\",\n                \"fee_earner\": \"PK\",\n                \"uplift\": null,\n                \"pricing\": 52.15\n            }\n        ],\n        \"defendants\": [\n            {\n                \"id\": \"ada320b4-5ca0-467a-b1b6-8d0bf2ac37a9\",\n                \"full_name\": \"Dem Defendants\",\n                \"maat\": \"1234547\",\n                \"position\": 1,\n                \"main\": true\n            }\n        ],\n        \"firm_office\": {\n            \"name\": \"Test Firm\",\n            \"account_number\": \"02DCY\",\n            \"address_line_1\": \"Test address\",\n            \"address_line_2\": \"\",\n            \"town\": \"Nottingham\",\n            \"postcode\": \"NG3 7GY\",\n            \"previous_id\": null\n        },\n        \"solicitor\": {\n            \"full_name\": \"Test Solicitor\",\n            \"reference_number\": \"02DXYD\",\n            \"contact_full_name\": null,\n            \"contact_email\": null,\n            \"previous_id\": null\n        },\n        \"submitter\": {\n            \"email\": \"provider@example.com\",\n            \"description\": null\n        },\n        \"supporting_evidences\": []\n    },\n    \"application_id\": \"{{appId}}\",\n    \"application_state\": \"submitted\",\n    \"application_risk\": \"high\",\n    \"application_type\": \"crm7\",\n    \"json_schema_version\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/application/",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"application",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Application",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201)",
+							"});",
+							"",
+							"const baseUrl = pm.environment.get('baseUrl')",
+							"const appId = pm.environment.get('appId')",
+							"const authKey = pm.environment.get('authKey')",
+							"",
+							"const getApp = {",
+							"    url: `${baseUrl}/v1/application/${appId}`,",
+							"    method: 'GET',",
+							"    header: {",
+							"        'Authorization': `basic ${authKey}` ",
+							"    }",
+							"}",
+							"",
+							"pm.sendRequest(getApp, (error, response) => {",
+							"    pm.test(\"No errors from getting new application\", () => {",
+							"        pm.expect(error).to.equal(null)",
+							"    })",
+							"",
+							"    pm.test(\"Application is available\", () => {",
+							"        pm.expect(response).to.have.property('status', 'OK');",
+							"    })",
+							"",
+							"    const body = response.json()",
+							"",
+							"    pm.test(\"Updates have been made\", () => {",
+							"        pm.expect(body.application_state).to.equal('granted')",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "basic {{authKey}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"application\": {\n        \"id\": \"{{appId}}\",\n        \"ufn\": \"123888/965\",\n        \"office_code\": \"1A123B\",\n        \"status\": \"submitted\",\n        \"claim_type\": {\n            \"value\": \"non_standard_magistrate\",\n            \"en\": \"Non-standard magistrates' court payment\"\n        },\n        \"rep_order_date\": \"2023-01-01\",\n        \"cntp_order\": null,\n        \"cntp_date\": null,\n        \"created_at\": \"2023-11-13T16:59:15.868Z\",\n        \"updated_at\": \"2023-11-15T15:42:08.004Z\",\n        \"reasons_for_claim\": [\n            {\n                \"value\": \"extradition\",\n                \"en\": \"Extradition\"\n            }\n        ],\n        \"representation_order_withdrawn_date\": null,\n        \"reason_for_claim_other_details\": \"\",\n        \"main_offence\": \"Administering chloroform, laudanum etc.\",\n        \"main_offence_date\": \"2023-01-01\",\n        \"assigned_counsel\": \"no\",\n        \"unassigned_counsel\": \"no\",\n        \"agent_instructed\": \"no\",\n        \"remitted_to_magistrate\": \"no\",\n        \"plea\": \"guilty\",\n        \"arrest_warrant_date\": null,\n        \"cracked_trial_date\": null,\n        \"first_hearing_date\": \"1990-01-01\",\n        \"number_of_hearing\": 1,\n        \"court\": \"Nottingham Crown Court\",\n        \"in_area\": \"no\",\n        \"youth_court\": \"no\",\n        \"hearing_outcome\": \"CP01 - Arrest warrant issued/adjourned indefinitely\",\n        \"matter_type\": \"1 - Offences against the person\",\n        \"prosecution_evidence\": 1,\n        \"defence_statement\": 1,\n        \"number_of_witnesses\": 1,\n        \"supplemental_claim\": \"no\",\n        \"time_spent\": null,\n        \"other_info\": \"\",\n        \"conclusion\": \"\",\n        \"concluded\": \"no\",\n        \"laa_reference\": \"LAA-gY60GQ\",\n        \"work_before_date\": null,\n        \"work_after_date\": null,\n        \"signatory_name\": \"Test Test\",\n        \"gender\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"ethnic_group\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"disability\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"send_by_post\": false,\n        \"documents\": null,\n        \"remitted_to_magistrate_date\": null,\n        \"preparation_time\": \"no\",\n        \"work_before\": \"no\",\n        \"work_after\": \"no\",\n        \"has_disbursements\": \"yes\",\n        \"is_other_info\": \"no\",\n        \"answer_equality\": {\n            \"value\": \"no\",\n            \"en\": \"No, skip the equality questions\"\n        },\n        \"letters_and_calls\": [\n            {\n                \"type\": {\n                    \"value\": \"letters\",\n                    \"en\": \"Letters\"\n                },\n                \"count\": 12,\n                \"pricing\": 4.09,\n                \"uplift\": null\n            },\n            {\n                \"type\": {\n                    \"value\": \"calls\",\n                    \"en\": \"Calls\"\n                },\n                \"count\": 12,\n                \"pricing\": 4.09,\n                \"uplift\": null\n            }\n        ],\n        \"disbursements\": [\n            {\n                \"id\": \"fff83546-970c-4ba6-921e-99c7166191cb\",\n                \"disbursement_date\": \"1990-01-01\",\n                \"disbursement_type\": {\n                    \"value\": \"car\",\n                    \"en\": \"Car\"\n                },\n                \"other_type\": {\n                    \"value\": null,\n                    \"en\": null\n                },\n                \"miles\": \"125.0\",\n                \"total_cost_without_vat\": 56.25,\n                \"details\": \"test\",\n                \"prior_authority\": \"yes\",\n                \"apply_vat\": \"true\",\n                \"vat_amount\": 11.25,\n                \"pricing\": 0.45,\n                \"vat_rate\": 0.2\n            },\n            {\n                \"id\": \"9de1b5d8-70d4-4cc5-af19-0ccf55dff199\",\n                \"disbursement_date\": \"1990-01-01\",\n                \"disbursement_type\": {\n                    \"value\": \"other\",\n                    \"en\": \"Other disbursement type\"\n                },\n                \"other_type\": {\n                    \"value\": \"dna_testing\",\n                    \"en\": \"DNA Testing\"\n                },\n                \"miles\": null,\n                \"total_cost_without_vat\": 101.0,\n                \"details\": \"test\",\n                \"prior_authority\": \"yes\",\n                \"apply_vat\": \"true\",\n                \"vat_amount\": 20.2,\n                \"pricing\": 1.0,\n                \"vat_rate\": 0.2\n            }\n        ],\n        \"work_items\": [\n            {\n                \"id\": \"f6beb690-4b94-4784-9edb-64b5c4c67173\",\n                \"work_type\": {\n                    \"value\": \"attendance_without_counsel\",\n                    \"en\": \"Attendance without counsel\"\n                },\n                \"time_spent\": 90,\n                \"completed_on\": \"2023-01-01\",\n                \"fee_earner\": \"PK\",\n                \"uplift\": null,\n                \"pricing\": 52.15\n            }\n        ],\n        \"defendants\": [\n            {\n                \"id\": \"ada320b4-5ca0-467a-b1b6-8d0bf2ac37a9\",\n                \"full_name\": \"Dem Defendants\",\n                \"maat\": \"1234547\",\n                \"position\": 1,\n                \"main\": true\n            }\n        ],\n        \"firm_office\": {\n            \"name\": \"Test Firm\",\n            \"account_number\": \"02DCY\",\n            \"address_line_1\": \"Test address\",\n            \"address_line_2\": \"\",\n            \"town\": \"Nottingham\",\n            \"postcode\": \"NG3 7GY\",\n            \"previous_id\": null\n        },\n        \"solicitor\": {\n            \"full_name\": \"Test Solicitor\",\n            \"reference_number\": \"02DXYD\",\n            \"contact_full_name\": null,\n            \"contact_email\": null,\n            \"previous_id\": null\n        },\n        \"submitter\": {\n            \"email\": \"provider@example.com\",\n            \"description\": null\n        },\n        \"supporting_evidences\": []\n    },\n    \"application_id\": \"{{appId}}\",\n    \"application_state\": \"granted\",\n    \"application_risk\": \"high\",\n    \"application_type\": \"crm7\",\n    \"json_schema_version\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/application/{{appId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"application",
+						"{{appId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Application",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200)",
+							"});",
+							"",
+							"pm.test(\"JSON contains application_id\", () => {",
+							"    pm.expect(pm.response.json()).to.haveOwnProperty(\"application_id\")",
+							"})",
+							"",
+							"pm.test(\"Correct app has been returned\", () => {",
+							"    var jsonData = pm.response.json()",
+							"    pm.expect(jsonData.application_id).to.eql(pm.environment.get(\"appId\"))",
+							"});",
+							"",
+							"pm.test(\"JSON contains version\", () => {",
+							"    pm.expect(pm.response.json()).to.haveOwnProperty(\"version\")",
+							"})",
+							"",
+							"pm.test(\"JSON contains json_schema_version\", () => {",
+							"    pm.expect(pm.response.json()).to.haveOwnProperty(\"json_schema_version\")",
+							"})",
+							"",
+							"pm.test(\"JSON contains application_state\", () => {",
+							"    pm.expect(pm.response.json()).to.haveOwnProperty(\"application_state\")",
+							"})",
+							"",
+							"pm.test(\"JSON contains application_risk\", () => {",
+							"    pm.expect(pm.response.json()).to.haveOwnProperty(\"application_risk\")",
+							"})",
+							"",
+							"pm.test(\"JSON contains application_type\", () => {",
+							"    pm.expect(pm.response.json()).to.haveOwnProperty(\"application_type\")",
+							"})",
+							"",
+							"pm.test(\"JSON contains application\", () => {",
+							"    pm.expect(pm.response.json()).to.haveOwnProperty(\"application\")",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "basic {{authKey}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/v1/application/{{appId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"application",
+						"{{appId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all Applications",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200)",
+							"});",
+							"",
+							"var jsonResponse = pm.response.json()",
+							"",
+							"pm.test(\"JSON contains applications\", () => {",
+							"    pm.expect(jsonResponse).to.haveOwnProperty(\"applications\")",
+							"})",
+							"",
+							"pm.test(\"JSON contains application_id\", () => {",
+							"    pm.expect(jsonResponse.applications[0]).to.haveOwnProperty(\"application_id\")",
+							"})",
+							"",
+							"pm.test(\"JSON contains version\", () => {",
+							"    pm.expect(jsonResponse.applications[0]).to.haveOwnProperty(\"version\")",
+							"})",
+							"",
+							"pm.test(\"JSON contains application_state\", () => {",
+							"    pm.expect(jsonResponse.applications[0]).to.haveOwnProperty(\"application_state\")",
+							"})",
+							"",
+							"pm.test(\"JSON contains application_risk\", () => {",
+							"    pm.expect(jsonResponse.applications[0]).to.haveOwnProperty(\"application_risk\")",
+							"})",
+							"",
+							"pm.test(\"JSON contains application_type\", () => {",
+							"    pm.expect(jsonResponse.applications[0]).to.haveOwnProperty(\"application_type\")",
+							"})",
+							"",
+							"pm.test(\"JSON contains updated_at\", () => {",
+							"    pm.expect(jsonResponse.applications[0]).to.haveOwnProperty(\"updated_at\")",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "basic {{authKey}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/v1/applications",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"applications"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
