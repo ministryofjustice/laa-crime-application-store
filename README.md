@@ -59,11 +59,16 @@ To run via a docker container:
 
 ### Running tests
 
-Unit tests
+#### Unit tests
 Run units tests with the following command from the root of the project
 ```shell
 pipenv run pytest --cov-report term --cov=laa_crime_application_store_app tests/
 ```
+
+#### API Tests
+API testing is done using the Postman tooling. This can be downloaded from [the Postman website()
+and a free account created. Once this is done you can import the collections and environments found in the postman
+folder to begin testing.
 
 ### Running linters
 
