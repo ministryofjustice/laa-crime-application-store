@@ -10,9 +10,6 @@ from laa_crime_application_store_app.schema.application import Application as Ap
 from laa_crime_application_store_app.schema.application_new import ApplicationNew
 from laa_crime_application_store_app.schema.application_update import ApplicationUpdate
 from laa_crime_application_store_app.schema.basic_application import ApplicationResponse
-from laa_crime_application_store_app.schema.secure_json_response import (
-    SecureJsonResponse,
-)
 from laa_crime_application_store_app.services.v1.application_service import (
     ApplicationService,
 )
@@ -38,7 +35,7 @@ async def get_applications(
     logger.info(
         "GETTING_APPLICATIONS_RETURNING", number_of_apps=len(applications.applications)
     )
-    return SecureJsonResponse(applications)
+    return applications
 
 
 @router.get("/application/{app_id}", response_model=App)
@@ -50,7 +47,8 @@ async def get_application(app_id: UUID | None = None, db: Session = Depends(get_
         return Response(status_code=400)
 
     logger.info("APPLICATION_FOUND", application_id=app_id)
-    return SecureJsonResponse(application)
+
+    return application
 
 
 @router.post("/application/", status_code=201, responses=responses)
