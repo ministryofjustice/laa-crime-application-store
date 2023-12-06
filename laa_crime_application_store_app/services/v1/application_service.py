@@ -111,7 +111,9 @@ class ApplicationService:
         )
 
         logger.info("CHECKING APPLICATION CHANGES")
-        logger.info("CURRENT APPLICATION STATE: ", existing_application.application_state)
+        logger.info(
+            "CURRENT APPLICATION STATE: ", existing_application.application_state
+        )
         logger.info("NEW APPLICATION STATE: ", application.application_state)
         logger.info("CURRENT APPLICATION RISK: ", existing_application.application_risk)
         logger.info("NEW APPLICATION RISK: ", application.application_risk)
@@ -123,13 +125,14 @@ class ApplicationService:
         ):
             return existing_application.id
 
-        
         existing_application.updated_at = datetime.now()
         existing_application.current_version += 1
         existing_application.application_state = application.application_state
         existing_application.events = application.events
         logger.info("UPDATED APPLICATION: ")
-        logger.info("CURRENT APPLICATION STATE: ", existing_application.application_state)
+        logger.info(
+            "CURRENT APPLICATION STATE: ", existing_application.application_state
+        )
         logger.info("NEW APPLICATION STATE: ", application.application_state)
         logger.info("CURRENT APPLICATION RISK: ", existing_application.application_risk)
         logger.info("NEW APPLICATION RISK: ", application.application_risk)
