@@ -141,7 +141,7 @@ class ApplicationService:
 
         try:
             logger.info("PEFORMING DB TRANSACTIONS")
-            
+
             db.add_all([existing_application, new_application_version])
             db.commit()
             return existing_application.id
