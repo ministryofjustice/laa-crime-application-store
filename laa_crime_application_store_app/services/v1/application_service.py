@@ -111,7 +111,10 @@ class ApplicationService:
         )
 
         logger.info("CHECKING APPLICATION CHANGES")
-
+        logger.info("CURRENT RISK: ", risk=existing_application.application_risk)
+        logger.info("NEW RISK: ", risk=application.application_risk)
+        logger.info("CURRENT STATE: ", state=existing_application.application_state)
+        logger.info("NEW STATE: ", state=application.application_state)
         if (
             existing_application_version.application == application.application
             and existing_application.application_state == application.application_state
