@@ -110,6 +110,13 @@ class ApplicationService:
             db, app_id, existing_application.current_version
         )
 
+        logger.info("CHECKING APPLICATION CHANGES")
+        logger.info(
+            "CURRENT APPLICATION STATE: ", existing_application.application_state
+        )
+        logger.info("NEW APPLICATION STATE: ", application.application_state)
+        logger.info("CURRENT APPLICATION RISK: ", existing_application.application_risk)
+        logger.info("NEW APPLICATION RISK: ", application.application_risk)
         if (
             existing_application_version.application == application.application
             and existing_application.application_state == application.application_state
@@ -122,6 +129,13 @@ class ApplicationService:
         existing_application.current_version += 1
         existing_application.application_state = application.application_state
         existing_application.events = application.events
+        logger.info("UPDATED APPLICATION: ")
+        logger.info(
+            "CURRENT APPLICATION STATE: ", existing_application.application_state
+        )
+        logger.info("NEW APPLICATION STATE: ", application.application_state)
+        logger.info("CURRENT APPLICATION RISK: ", existing_application.application_risk)
+        logger.info("NEW APPLICATION RISK: ", application.application_risk)
 
         if application.updated_application_risk is not None:
             existing_application.application_risk = application.updated_application_risk
@@ -136,6 +150,7 @@ class ApplicationService:
         nested = db.begin_nested()
 
         try:
+            logger.info("PEFORMING DB TRANSACTIONS")
             db.add_all([existing_application, new_application_version])
             db.commit()
             return existing_application.id
