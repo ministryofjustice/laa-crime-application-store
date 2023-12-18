@@ -17,6 +17,7 @@ psycopg2-binary = "==2.9.7"
 typing-extensions = "==4.7.1"
 circuitbreaker = "==2.0.0"
 httpx = "==0.25.0"
+fastapi-azure-auth = "*"
 
 [dev-packages]
 httpx = "==0.24.1"

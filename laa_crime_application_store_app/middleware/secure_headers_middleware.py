@@ -12,7 +12,7 @@ x_frame_options = secure.XFrameOptions().sameorigin()
 hsts = secure.StrictTransportSecurity().include_subdomains().preload().max_age(2592000)
 csp = (
     secure.ContentSecurityPolicy()
-    .default_src(SELF_REFERENCE)
+    .default_src(SELF_REFERENCE, "login.microsoftonline.com")
     .base_uri(SELF_REFERENCE)
     .img_src(SELF_REFERENCE, "fastapi.tiangolo.com", "data:")
     .style_src(SELF_REFERENCE, "cdn.jsdelivr.net", "'unsafe-inline'")
