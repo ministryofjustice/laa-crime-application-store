@@ -76,12 +76,12 @@ spec:
             - name: APP_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: azure_secret
+                  name: azure-secret
                   key: app_client_id
             - name: TENANT_ID
               valueFrom:
                 secretKeyRef:
-                  name: azure_secret
+                  name: azure-secret
                   key: tenant_id
             - name: SWAGGER_ENDPOINT
               value: {{ .Values.secrets.swaggerEndpoint }}
