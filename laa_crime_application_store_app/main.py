@@ -84,7 +84,7 @@ app.include_router(
 
 @app.exception_handler(401)
 async def validation_exception_handler(request, exc):
-    structlog.getLogger("auth_event").warning("Invalid Auth", exception=exc)
+    structlog.getLogger("AUTH_EVENT").warning("INVALID_AUTH", exception=exc)
     return JSONResponse(status_code=401, content={"detail": exc.detail})
 
 
