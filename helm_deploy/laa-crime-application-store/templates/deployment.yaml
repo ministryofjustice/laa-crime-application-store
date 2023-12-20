@@ -73,6 +73,18 @@ spec:
                 secretKeyRef:
                   name: rds-postgresql-instance-output
                   key: rds_instance_address
+            - name: APP_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: azure_secret
+                  key: app_client_id
+            - name: TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: azure_secret
+                  key: tenant_id
+            - name: SWAGGER_ENDPOINT
+              value: {{ .Values.secrets.swaggerEndpoint }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

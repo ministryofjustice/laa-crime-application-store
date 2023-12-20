@@ -17,6 +17,7 @@ class AppSettings(BaseSettings):
     build_tag: str | None = None
     app_branch: str | None = None
     sentry_dsn: str | None = None
+    swagger_endpoint: str | None = None
 
 
 @lru_cache()

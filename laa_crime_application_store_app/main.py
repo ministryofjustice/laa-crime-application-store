@@ -56,6 +56,8 @@ sentry_sdk.init(
 )
 
 app = FastAPI(
+    docs_url=get_app_settings().swagger_endpoint,
+    redoc_url=None,
     title=get_app_settings().app_name,
     version="0.0.1",
     contact={
