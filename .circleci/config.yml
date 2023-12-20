@@ -227,7 +227,8 @@ jobs:
 
 workflows:
   version: 2
-  pr-checks:
+
+  test:
     jobs:
       - lint-app:
           filters:
@@ -244,11 +245,18 @@ workflows:
             branches:
               ignore:
                 - main
+
+  build-push-branch:
+    jobs:
+      - branch-build-approval:
+          type: approval
+          filters:
+            branches:
+              ignore:
+                - main
       - build-and-push:
-            requires:
-              - lint-app
-              - test-app
-              - scan-docker-image
+          requires:
+              - branch-build-approval
       - hold-dev:
           type: approval
           requires:
@@ -276,7 +284,7 @@ workflows:
           requires:
             - deploy-uat
 
-  main-deploy:
+  test-build-deploy-main:
     jobs:
       - lint-app:
           filters:
@@ -296,6 +304,7 @@ workflows:
       - build-and-push:
           requires:
             - lint-app
+            - test-app
             - scan-docker-image
       - hold-dev:
           type: approval
