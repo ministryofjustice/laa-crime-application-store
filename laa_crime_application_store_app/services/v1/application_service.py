@@ -87,6 +87,7 @@ class ApplicationService:
         nested = db.begin_nested()  # establish a savepoint
 
         try:
+            logger.info("PERFORMING_DB_TRANSACTIONS")
             db.add_all([new_application, new_application_version])
             db.commit()
 
@@ -110,11 +111,7 @@ class ApplicationService:
             db, app_id, existing_application.current_version
         )
 
-        logger.info("CHECKING APPLICATION CHANGES")
-        logger.info("CURRENT RISK: ", risk=existing_application.application_risk)
-        logger.info("NEW RISK: ", risk=application.application_risk)
-        logger.info("CURRENT STATE: ", state=existing_application.application_state)
-        logger.info("NEW STATE: ", state=application.application_state)
+        logger.info("CHECKING_APPLICATION_CHANGES")
         if (
             existing_application_version.application == application.application
             and existing_application.application_state == application.application_state
@@ -143,7 +140,7 @@ class ApplicationService:
         nested = db.begin_nested()
 
         try:
-            logger.info("PEFORMING DB TRANSACTIONS")
+            logger.info("PEFORMING_DB_TRANSACTIONS")
 
             db.add_all([existing_application, new_application_version])
             db.commit()
