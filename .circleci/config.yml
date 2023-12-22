@@ -192,6 +192,16 @@ jobs:
           environment: development
           registry: ${AWS_ECR_REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com
 
+  deploy-dev-crm4:
+    executor: cloud-platform-executor
+    steps:
+      - aws-cli/setup:
+          role_arn: $ECR_ROLE_TO_ASSUME
+          region: $ECR_REGION
+      - deploy_to_environment:
+          environment: dev-crm4
+          registry: ${AWS_ECR_REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com
+
   deploy-uat:
     executor: cloud-platform-executor
     steps:
@@ -270,6 +280,19 @@ workflows:
           context: laa-crime-application-store-dev
           requires:
             - deploy-dev
+      - hold-dev-crm4:
+          type: approval
+          requires:
+            - build-and-push
+      - deploy-dev-crm4:
+          context: laa-crime-application-store-dev-crm4
+          requires:
+            - hold-dev-crm4
+      - postman-test:
+          name: dev-crm4 postman tests
+          context: laa-crime-application-store-dev-crm4
+          requires:
+            - deploy-dev-crm4
       - hold-uat:
           type: approval
           requires:
@@ -319,6 +342,19 @@ workflows:
           context: laa-crime-application-store-dev
           requires:
             - deploy-dev
+      - hold-dev-crm4:
+          type: approval
+          requires:
+            - build-and-push
+      - deploy-dev-crm4:
+          context: laa-crime-application-store-dev-crm4
+          requires:
+            - hold-dev-crm4
+      - postman-test:
+          name: dev postman tests
+          context: laa-crime-application-store-dev-crm4
+          requires:
+            - deploy-dev-crm4
       - hold-uat:
           type: approval
           requires:
