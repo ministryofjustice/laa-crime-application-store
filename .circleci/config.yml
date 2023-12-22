@@ -336,7 +336,7 @@ workflows:
           requires:
             - hold-dev-crm4
       - postman-test:
-          name: dev postman tests
+          name: dev-crm4 postman tests
           context: laa-crime-application-store-dev-crm4
           requires:
             - deploy-dev-crm4
