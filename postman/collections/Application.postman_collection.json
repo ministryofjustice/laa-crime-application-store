@@ -33,6 +33,7 @@
 							"const baseUrl = pm.environment.get('baseUrl')",
 							"const appId = pm.environment.get('appId')",
 							"const authKey = pm.environment.get('authKey')",
+							"const accessToken = pm.environment.get('accessToken')",
 							"",
 							"const getApp = {",
 							"    url: `${baseUrl}/v1/application/${appId}`,",
