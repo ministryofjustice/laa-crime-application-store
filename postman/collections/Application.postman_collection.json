@@ -38,7 +38,7 @@
 							"    url: `${baseUrl}/v1/application/${appId}`,",
 							"    method: 'GET',",
 							"    header: {",
-							"        'Authorization': `basic ${authKey}` ",
+							"        'Authorization': `Bearer ${accessToken}` ",
 							"    }",
 							"}",
 							"",
