@@ -83,8 +83,8 @@ spec:
                 secretKeyRef:
                   name: azure-secret
                   key: tenant_id
-            - name: SWAGGER_ENDPOINT
-              value: {{ .Values.secrets.swaggerEndpoint | default " " }}
+            - name: SWAGGER_ENDPOINT_ENABLED
+              value: {{ .Values.secrets.swaggerEndpoint }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

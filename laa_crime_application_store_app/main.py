@@ -56,7 +56,7 @@ sentry_sdk.init(
 )
 
 app = FastAPI(
-    docs_url=get_app_settings().swagger_endpoint,
+    docs_url="/docs" if get_app_settings().swagger_endpoint_enabled else None,
     redoc_url=None,
     title=get_app_settings().app_name,
     version="0.0.1",
