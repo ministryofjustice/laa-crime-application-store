@@ -2,6 +2,8 @@ import uuid
 from datetime import datetime
 
 import pytest
+from fastapi import Request
+from fastapi_azure_auth.user import User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
@@ -10,7 +12,7 @@ from laa_crime_application_store_app.config.database_settings import (
     get_database_settings,
 )
 from laa_crime_application_store_app.data.database import Base, get_db
-from laa_crime_application_store_app.main import app
+from laa_crime_application_store_app.main import app, azure_auth
 from laa_crime_application_store_app.models.application_schema import Application
 from laa_crime_application_store_app.models.application_version_schema import (
     ApplicationVersion,
@@ -50,9 +52,34 @@ def dbsession(engine, tables):
     connection.close()
 
 
+async def mock_normal_user(request: Request):
+    user = User(
+        claims={},
+        preferred_username="NormalUser",
+        roles=["role1"],
+        aud="aud",
+        tid="tid",
+        access_token="123",
+        is_guest=False,
+        iat=1537231048,
+        nbf=1537231048,
+        exp=1537234948,
+        iss="iss",
+        aio="aio",
+        sub="sub",
+        oid="oid",
+        uti="uti",
+        rh="rh",
+        ver="2.0",
+    )
+    request.state.user = user
+    return user
+
+
 @pytest.fixture(scope="function")
 def client(dbsession):
     app.dependency_overrides[get_db] = lambda: dbsession
+    app.dependency_overrides[azure_auth] = mock_normal_user
 
     yield TestClient(app)
 

@@ -14,10 +14,10 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"var uuid = require('uuid')",
-							"var uuidv4 = uuid.v4()",
+							"const uuid = require('uuid')",
+							"const uuidv4 = uuid.v4()",
 							"",
-							"pm.environment.set(\"appId\", uuidv4)"
+							"pm.environment.set('appId', uuidv4)"
 						],
 						"type": "text/javascript"
 					}
@@ -33,12 +33,13 @@
 							"const baseUrl = pm.environment.get('baseUrl')",
 							"const appId = pm.environment.get('appId')",
 							"const authKey = pm.environment.get('authKey')",
+							"const accessToken = pm.environment.get('accessToken')",
 							"",
 							"const getApp = {",
 							"    url: `${baseUrl}/v1/application/${appId}`,",
 							"    method: 'GET',",
 							"    header: {",
-							"        'Authorization': `basic ${authKey}` ",
+							"        'Authorization': `Bearer ${accessToken}` ",
 							"    }",
 							"}",
 							"",
@@ -57,17 +58,20 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "POST",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "basic {{authKey}}",
+						"value": "Bearer {{accessToken}}",
 						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"application\": {\n        \"id\": \"{{appId}}\",\n        \"ufn\": \"123888/965\",\n        \"office_code\": \"1A123B\",\n        \"status\": \"submitted\",\n        \"claim_type\": {\n            \"value\": \"non_standard_magistrate\",\n            \"en\": \"Non-standard magistrates' court payment\"\n        },\n        \"rep_order_date\": \"2023-01-01\",\n        \"cntp_order\": null,\n        \"cntp_date\": null,\n        \"created_at\": \"2023-11-13T16:59:15.868Z\",\n        \"updated_at\": \"2023-11-15T15:42:08.004Z\",\n        \"reasons_for_claim\": [\n            {\n                \"value\": \"extradition\",\n                \"en\": \"Extradition\"\n            }\n        ],\n        \"representation_order_withdrawn_date\": null,\n        \"reason_for_claim_other_details\": \"\",\n        \"main_offence\": \"Administering chloroform, laudanum etc.\",\n        \"main_offence_date\": \"2023-01-01\",\n        \"assigned_counsel\": \"no\",\n        \"unassigned_counsel\": \"no\",\n        \"agent_instructed\": \"no\",\n        \"remitted_to_magistrate\": \"no\",\n        \"plea\": \"guilty\",\n        \"arrest_warrant_date\": null,\n        \"cracked_trial_date\": null,\n        \"first_hearing_date\": \"1990-01-01\",\n        \"number_of_hearing\": 1,\n        \"court\": \"Nottingham Crown Court\",\n        \"in_area\": \"no\",\n        \"youth_court\": \"no\",\n        \"hearing_outcome\": \"CP01 - Arrest warrant issued/adjourned indefinitely\",\n        \"matter_type\": \"1 - Offences against the person\",\n        \"prosecution_evidence\": 1,\n        \"defence_statement\": 1,\n        \"number_of_witnesses\": 1,\n        \"supplemental_claim\": \"no\",\n        \"time_spent\": null,\n        \"other_info\": \"\",\n        \"conclusion\": \"\",\n        \"concluded\": \"no\",\n        \"laa_reference\": \"LAA-gY60GQ\",\n        \"work_before_date\": null,\n        \"work_after_date\": null,\n        \"signatory_name\": \"Test Test\",\n        \"gender\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"ethnic_group\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"disability\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"send_by_post\": false,\n        \"documents\": null,\n        \"remitted_to_magistrate_date\": null,\n        \"preparation_time\": \"no\",\n        \"work_before\": \"no\",\n        \"work_after\": \"no\",\n        \"has_disbursements\": \"yes\",\n        \"is_other_info\": \"no\",\n        \"answer_equality\": {\n            \"value\": \"no\",\n            \"en\": \"No, skip the equality questions\"\n        },\n        \"letters_and_calls\": [\n            {\n                \"type\": {\n                    \"value\": \"letters\",\n                    \"en\": \"Letters\"\n                },\n                \"count\": 12,\n                \"pricing\": 4.09,\n                \"uplift\": null\n            },\n            {\n                \"type\": {\n                    \"value\": \"calls\",\n                    \"en\": \"Calls\"\n                },\n                \"count\": 12,\n                \"pricing\": 4.09,\n                \"uplift\": null\n            }\n        ],\n        \"disbursements\": [\n            {\n                \"id\": \"fff83546-970c-4ba6-921e-99c7166191cb\",\n                \"disbursement_date\": \"1990-01-01\",\n                \"disbursement_type\": {\n                    \"value\": \"car\",\n                    \"en\": \"Car\"\n                },\n                \"other_type\": {\n                    \"value\": null,\n                    \"en\": null\n                },\n                \"miles\": \"125.0\",\n                \"total_cost_without_vat\": 56.25,\n                \"details\": \"test\",\n                \"prior_authority\": \"yes\",\n                \"apply_vat\": \"true\",\n                \"vat_amount\": 11.25,\n                \"pricing\": 0.45,\n                \"vat_rate\": 0.2\n            },\n            {\n                \"id\": \"9de1b5d8-70d4-4cc5-af19-0ccf55dff199\",\n                \"disbursement_date\": \"1990-01-01\",\n                \"disbursement_type\": {\n                    \"value\": \"other\",\n                    \"en\": \"Other disbursement type\"\n                },\n                \"other_type\": {\n                    \"value\": \"dna_testing\",\n                    \"en\": \"DNA Testing\"\n                },\n                \"miles\": null,\n                \"total_cost_without_vat\": 101.0,\n                \"details\": \"test\",\n                \"prior_authority\": \"yes\",\n                \"apply_vat\": \"true\",\n                \"vat_amount\": 20.2,\n                \"pricing\": 1.0,\n                \"vat_rate\": 0.2\n            }\n        ],\n        \"work_items\": [\n            {\n                \"id\": \"f6beb690-4b94-4784-9edb-64b5c4c67173\",\n                \"work_type\": {\n                    \"value\": \"attendance_without_counsel\",\n                    \"en\": \"Attendance without counsel\"\n                },\n                \"time_spent\": 90,\n                \"completed_on\": \"2023-01-01\",\n                \"fee_earner\": \"PK\",\n                \"uplift\": null,\n                \"pricing\": 52.15\n            }\n        ],\n        \"defendants\": [\n            {\n                \"id\": \"ada320b4-5ca0-467a-b1b6-8d0bf2ac37a9\",\n                \"full_name\": \"Dem Defendants\",\n                \"maat\": \"1234547\",\n                \"position\": 1,\n                \"main\": true\n            }\n        ],\n        \"firm_office\": {\n            \"name\": \"Test Firm\",\n            \"account_number\": \"02DCY\",\n            \"address_line_1\": \"Test address\",\n            \"address_line_2\": \"\",\n            \"town\": \"Nottingham\",\n            \"postcode\": \"NG3 7GY\",\n            \"previous_id\": null\n        },\n        \"solicitor\": {\n            \"full_name\": \"Test Solicitor\",\n            \"reference_number\": \"02DXYD\",\n            \"contact_full_name\": null,\n            \"contact_email\": null,\n            \"previous_id\": null\n        },\n        \"submitter\": {\n            \"email\": \"provider@example.com\",\n            \"description\": null\n        },\n        \"supporting_evidences\": []\n    },\n    \"application_id\": \"{{appId}}\",\n    \"application_state\": \"submitted\",\n    \"application_risk\": \"high\",\n    \"application_type\": \"crm7\",\n    \"json_schema_version\": 1\n}",
+					"raw": "{\n    \"application\": {\n        \"id\": \"{{appId}}\",\n        \"ufn\": \"123523/002\",\n        \"office_code\": \"1A123B\",\n        \"status\": \"submitted\",\n        \"claim_type\": {\n            \"value\": \"non_standard_magistrate\",\n            \"en\": \"Non-standard magistrates' court payment\"\n        },\n        \"rep_order_date\": \"2023-01-01\",\n        \"cntp_order\": null,\n        \"cntp_date\": null,\n        \"created_at\": \"2023-12-14T14:06:40.157Z\",\n        \"updated_at\": \"2023-12-19T09:41:05.600Z\",\n        \"reasons_for_claim\": [\n            {\n                \"value\": \"extradition\",\n                \"en\": \"Extradition\"\n            }\n        ],\n        \"representation_order_withdrawn_date\": null,\n        \"reason_for_claim_other_details\": \"\",\n        \"main_offence\": \"Assault (common)\",\n        \"main_offence_date\": \"2022-11-02\",\n        \"assigned_counsel\": \"no\",\n        \"unassigned_counsel\": \"no\",\n        \"agent_instructed\": \"no\",\n        \"remitted_to_magistrate\": \"no\",\n        \"plea\": {\n            \"value\": \"guilty\",\n            \"en\": \"Guilty plea\"\n        },\n        \"arrest_warrant_date\": null,\n        \"cracked_trial_date\": null,\n        \"first_hearing_date\": \"2023-01-01\",\n        \"number_of_hearing\": 1,\n        \"court\": \"Aldershot Magistrates' Court\",\n        \"in_area\": \"no\",\n        \"youth_court\": \"no\",\n        \"hearing_outcome\": {\n            \"value\": \"CP01\",\n            \"en\": \"Arrest warrant issued/adjourned indefinitely\"\n        },\n        \"matter_type\": {\n            \"value\": \"1\",\n            \"en\": \"Offences against the person\"\n        },\n        \"prosecution_evidence\": 1,\n        \"defence_statement\": 1,\n        \"number_of_witnesses\": 1,\n        \"supplemental_claim\": \"no\",\n        \"time_spent\": null,\n        \"other_info\": \"\",\n        \"conclusion\": \"\",\n        \"concluded\": \"no\",\n        \"laa_reference\": \"LAA-x0PlnK\",\n        \"work_before_date\": null,\n        \"work_after_date\": null,\n        \"signatory_name\": \"Test test\",\n        \"gender\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"ethnic_group\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"disability\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"send_by_post\": true,\n        \"remitted_to_magistrate_date\": null,\n        \"preparation_time\": \"no\",\n        \"work_before\": \"no\",\n        \"work_after\": \"no\",\n        \"has_disbursements\": \"yes\",\n        \"is_other_info\": \"no\",\n        \"answer_equality\": {\n            \"value\": \"no\",\n            \"en\": \"No, skip the equality questions\"\n        },\n        \"plea_category\": {\n            \"value\": \"guilty_pleas\",\n            \"en\": \"Category 1\"\n        },\n        \"submitted_total\": null,\n        \"submitted_total_inc_vat\": null,\n        \"adjusted_total\": null,\n        \"adjusted_total_inc_vat\": null,\n        \"letters_and_calls\": [\n            {\n                \"type\": {\n                    \"value\": \"letters\",\n                    \"en\": \"Letters\"\n                },\n                \"count\": 2,\n                \"pricing\": 4.09,\n                \"uplift\": null\n            },\n            {\n                \"type\": {\n                    \"value\": \"calls\",\n                    \"en\": \"Calls\"\n                },\n                \"count\": 2,\n                \"pricing\": 4.09,\n                \"uplift\": null\n            }\n        ],\n        \"disbursements\": [\n            {\n                \"id\": \"ef307a55-fa63-4532-80ba-ed7b86bcaabd\",\n                \"disbursement_date\": \"1990-01-01\",\n                \"disbursement_type\": {\n                    \"value\": \"bike\",\n                    \"en\": \"Bike\"\n                },\n                \"other_type\": {\n                    \"value\": null,\n                    \"en\": null\n                },\n                \"miles\": \"12.0\",\n                \"total_cost_without_vat\": 3,\n                \"details\": \"rest\",\n                \"prior_authority\": \"yes\",\n                \"apply_vat\": \"true\",\n                \"vat_amount\": 0.6,\n                \"pricing\": 0.25,\n                \"vat_rate\": 0.2\n            }\n        ],\n        \"work_items\": [\n            {\n                \"id\": \"805aad38-e9d2-43de-a359-76b687fb6105\",\n                \"work_type\": {\n                    \"value\": \"attendance_without_counsel\",\n                    \"en\": \"Attendance without counsel\"\n                },\n                \"time_spent\": 60,\n                \"completed_on\": \"2023-01-01\",\n                \"fee_earner\": \"PK\",\n                \"uplift\": 0,\n                \"pricing\": 52.15\n            }\n        ],\n        \"defendants\": [\n            {\n                \"id\": \"4d864db3-910b-4ed8-8139-f283ccf70329\",\n                \"full_name\": \"Test name\",\n                \"maat\": \"1234547\",\n                \"position\": 1,\n                \"main\": true\n            }\n        ],\n        \"firm_office\": {\n            \"name\": \"Test Firm\",\n            \"account_number\": \"02DCY\",\n            \"address_line_1\": \"Test address\",\n            \"address_line_2\": \"\",\n            \"town\": \"Bradford\",\n            \"postcode\": \"BF34 4DS\",\n            \"previous_id\": null,\n            \"vat_registered\": \"yes\"\n        },\n        \"solicitor\": {\n            \"full_name\": \"Test Solicitor\",\n            \"reference_number\": \"02DXYD\",\n            \"contact_full_name\": null,\n            \"contact_email\": null,\n            \"previous_id\": null\n        },\n        \"submitter\": {\n            \"email\": \"provider@example.com\",\n            \"description\": null\n        },\n        \"supporting_evidences\": []\n    },\n    \"application_id\": \"{{appId}}\",\n    \"application_state\": \"submitted\",\n    \"application_risk\": \"high\",\n    \"application_type\": \"crm7\",\n    \"json_schema_version\": 1\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -101,13 +105,13 @@
 							"",
 							"const baseUrl = pm.environment.get('baseUrl')",
 							"const appId = pm.environment.get('appId')",
-							"const authKey = pm.environment.get('authKey')",
+							"const accessToken = pm.environment.get('accessToken')",
 							"",
 							"const getApp = {",
 							"    url: `${baseUrl}/v1/application/${appId}`,",
 							"    method: 'GET',",
 							"    header: {",
-							"        'Authorization': `basic ${authKey}` ",
+							"        'Authorization': `Bearer ${accessToken}` ",
 							"    }",
 							"}",
 							"",
@@ -136,13 +140,13 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "basic {{authKey}}",
+						"value": "Bearer {{accessToken}}",
 						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"application\": {\n        \"id\": \"{{appId}}\",\n        \"ufn\": \"123888/965\",\n        \"office_code\": \"1A123B\",\n        \"status\": \"submitted\",\n        \"claim_type\": {\n            \"value\": \"non_standard_magistrate\",\n            \"en\": \"Non-standard magistrates' court payment\"\n        },\n        \"rep_order_date\": \"2023-01-01\",\n        \"cntp_order\": null,\n        \"cntp_date\": null,\n        \"created_at\": \"2023-11-13T16:59:15.868Z\",\n        \"updated_at\": \"2023-11-15T15:42:08.004Z\",\n        \"reasons_for_claim\": [\n            {\n                \"value\": \"extradition\",\n                \"en\": \"Extradition\"\n            }\n        ],\n        \"representation_order_withdrawn_date\": null,\n        \"reason_for_claim_other_details\": \"\",\n        \"main_offence\": \"Administering chloroform, laudanum etc.\",\n        \"main_offence_date\": \"2023-01-01\",\n        \"assigned_counsel\": \"no\",\n        \"unassigned_counsel\": \"no\",\n        \"agent_instructed\": \"no\",\n        \"remitted_to_magistrate\": \"no\",\n        \"plea\": \"guilty\",\n        \"arrest_warrant_date\": null,\n        \"cracked_trial_date\": null,\n        \"first_hearing_date\": \"1990-01-01\",\n        \"number_of_hearing\": 1,\n        \"court\": \"Nottingham Crown Court\",\n        \"in_area\": \"no\",\n        \"youth_court\": \"no\",\n        \"hearing_outcome\": \"CP01 - Arrest warrant issued/adjourned indefinitely\",\n        \"matter_type\": \"1 - Offences against the person\",\n        \"prosecution_evidence\": 1,\n        \"defence_statement\": 1,\n        \"number_of_witnesses\": 1,\n        \"supplemental_claim\": \"no\",\n        \"time_spent\": null,\n        \"other_info\": \"\",\n        \"conclusion\": \"\",\n        \"concluded\": \"no\",\n        \"laa_reference\": \"LAA-gY60GQ\",\n        \"work_before_date\": null,\n        \"work_after_date\": null,\n        \"signatory_name\": \"Test Test\",\n        \"gender\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"ethnic_group\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"disability\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"send_by_post\": false,\n        \"documents\": null,\n        \"remitted_to_magistrate_date\": null,\n        \"preparation_time\": \"no\",\n        \"work_before\": \"no\",\n        \"work_after\": \"no\",\n        \"has_disbursements\": \"yes\",\n        \"is_other_info\": \"no\",\n        \"answer_equality\": {\n            \"value\": \"no\",\n            \"en\": \"No, skip the equality questions\"\n        },\n        \"letters_and_calls\": [\n            {\n                \"type\": {\n                    \"value\": \"letters\",\n                    \"en\": \"Letters\"\n                },\n                \"count\": 12,\n                \"pricing\": 4.09,\n                \"uplift\": null\n            },\n            {\n                \"type\": {\n                    \"value\": \"calls\",\n                    \"en\": \"Calls\"\n                },\n                \"count\": 12,\n                \"pricing\": 4.09,\n                \"uplift\": null\n            }\n        ],\n        \"disbursements\": [\n            {\n                \"id\": \"fff83546-970c-4ba6-921e-99c7166191cb\",\n                \"disbursement_date\": \"1990-01-01\",\n                \"disbursement_type\": {\n                    \"value\": \"car\",\n                    \"en\": \"Car\"\n                },\n                \"other_type\": {\n                    \"value\": null,\n                    \"en\": null\n                },\n                \"miles\": \"125.0\",\n                \"total_cost_without_vat\": 56.25,\n                \"details\": \"test\",\n                \"prior_authority\": \"yes\",\n                \"apply_vat\": \"true\",\n                \"vat_amount\": 11.25,\n                \"pricing\": 0.45,\n                \"vat_rate\": 0.2\n            },\n            {\n                \"id\": \"9de1b5d8-70d4-4cc5-af19-0ccf55dff199\",\n                \"disbursement_date\": \"1990-01-01\",\n                \"disbursement_type\": {\n                    \"value\": \"other\",\n                    \"en\": \"Other disbursement type\"\n                },\n                \"other_type\": {\n                    \"value\": \"dna_testing\",\n                    \"en\": \"DNA Testing\"\n                },\n                \"miles\": null,\n                \"total_cost_without_vat\": 101.0,\n                \"details\": \"test\",\n                \"prior_authority\": \"yes\",\n                \"apply_vat\": \"true\",\n                \"vat_amount\": 20.2,\n                \"pricing\": 1.0,\n                \"vat_rate\": 0.2\n            }\n        ],\n        \"work_items\": [\n            {\n                \"id\": \"f6beb690-4b94-4784-9edb-64b5c4c67173\",\n                \"work_type\": {\n                    \"value\": \"attendance_without_counsel\",\n                    \"en\": \"Attendance without counsel\"\n                },\n                \"time_spent\": 90,\n                \"completed_on\": \"2023-01-01\",\n                \"fee_earner\": \"PK\",\n                \"uplift\": null,\n                \"pricing\": 52.15\n            }\n        ],\n        \"defendants\": [\n            {\n                \"id\": \"ada320b4-5ca0-467a-b1b6-8d0bf2ac37a9\",\n                \"full_name\": \"Dem Defendants\",\n                \"maat\": \"1234547\",\n                \"position\": 1,\n                \"main\": true\n            }\n        ],\n        \"firm_office\": {\n            \"name\": \"Test Firm\",\n            \"account_number\": \"02DCY\",\n            \"address_line_1\": \"Test address\",\n            \"address_line_2\": \"\",\n            \"town\": \"Nottingham\",\n            \"postcode\": \"NG3 7GY\",\n            \"previous_id\": null\n        },\n        \"solicitor\": {\n            \"full_name\": \"Test Solicitor\",\n            \"reference_number\": \"02DXYD\",\n            \"contact_full_name\": null,\n            \"contact_email\": null,\n            \"previous_id\": null\n        },\n        \"submitter\": {\n            \"email\": \"provider@example.com\",\n            \"description\": null\n        },\n        \"supporting_evidences\": []\n    },\n    \"application_id\": \"{{appId}}\",\n    \"application_state\": \"granted\",\n    \"application_risk\": \"high\",\n    \"application_type\": \"crm7\",\n    \"json_schema_version\": 1\n}",
+					"raw": "{\n    \"application\": {\n        \"id\": \"{{appId}}\",\n        \"ufn\": \"123523/002\",\n        \"office_code\": \"1A123B\",\n        \"status\": \"granted\",\n        \"claim_type\": {\n            \"value\": \"non_standard_magistrate\",\n            \"en\": \"Non-standard magistrates' court payment\"\n        },\n        \"rep_order_date\": \"2023-01-01\",\n        \"cntp_order\": null,\n        \"cntp_date\": null,\n        \"created_at\": \"2023-12-14T14:06:40.157Z\",\n        \"updated_at\": \"2023-12-19T09:41:05.600Z\",\n        \"reasons_for_claim\": [\n            {\n                \"value\": \"extradition\",\n                \"en\": \"Extradition\"\n            }\n        ],\n        \"representation_order_withdrawn_date\": null,\n        \"reason_for_claim_other_details\": \"\",\n        \"main_offence\": \"Assault (common)\",\n        \"main_offence_date\": \"2022-11-02\",\n        \"assigned_counsel\": \"no\",\n        \"unassigned_counsel\": \"no\",\n        \"agent_instructed\": \"no\",\n        \"remitted_to_magistrate\": \"no\",\n        \"plea\": {\n            \"value\": \"guilty\",\n            \"en\": \"Guilty plea\"\n        },\n        \"arrest_warrant_date\": null,\n        \"cracked_trial_date\": null,\n        \"first_hearing_date\": \"2023-01-01\",\n        \"number_of_hearing\": 1,\n        \"court\": \"Aldershot Magistrates' Court\",\n        \"in_area\": \"no\",\n        \"youth_court\": \"no\",\n        \"hearing_outcome\": {\n            \"value\": \"CP01\",\n            \"en\": \"Arrest warrant issued/adjourned indefinitely\"\n        },\n        \"matter_type\": {\n            \"value\": \"1\",\n            \"en\": \"Offences against the person\"\n        },\n        \"prosecution_evidence\": 1,\n        \"defence_statement\": 1,\n        \"number_of_witnesses\": 1,\n        \"supplemental_claim\": \"no\",\n        \"time_spent\": null,\n        \"other_info\": \"\",\n        \"conclusion\": \"\",\n        \"concluded\": \"no\",\n        \"laa_reference\": \"LAA-x0PlnK\",\n        \"work_before_date\": null,\n        \"work_after_date\": null,\n        \"signatory_name\": \"Test test\",\n        \"gender\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"ethnic_group\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"disability\": {\n            \"value\": null,\n            \"en\": null\n        },\n        \"send_by_post\": true,\n        \"remitted_to_magistrate_date\": null,\n        \"preparation_time\": \"no\",\n        \"work_before\": \"no\",\n        \"work_after\": \"no\",\n        \"has_disbursements\": \"yes\",\n        \"is_other_info\": \"no\",\n        \"answer_equality\": {\n            \"value\": \"no\",\n            \"en\": \"No, skip the equality questions\"\n        },\n        \"plea_category\": {\n            \"value\": \"guilty_pleas\",\n            \"en\": \"Category 1\"\n        },\n        \"submitted_total\": null,\n        \"submitted_total_inc_vat\": null,\n        \"adjusted_total\": null,\n        \"adjusted_total_inc_vat\": null,\n        \"letters_and_calls\": [\n            {\n                \"type\": {\n                    \"value\": \"letters\",\n                    \"en\": \"Letters\"\n                },\n                \"count\": 2,\n                \"pricing\": 4.09,\n                \"uplift\": null\n            },\n            {\n                \"type\": {\n                    \"value\": \"calls\",\n                    \"en\": \"Calls\"\n                },\n                \"count\": 2,\n                \"pricing\": 4.09,\n                \"uplift\": null\n            }\n        ],\n        \"disbursements\": [\n            {\n                \"id\": \"ef307a55-fa63-4532-80ba-ed7b86bcaabd\",\n                \"disbursement_date\": \"1990-01-01\",\n                \"disbursement_type\": {\n                    \"value\": \"bike\",\n                    \"en\": \"Bike\"\n                },\n                \"other_type\": {\n                    \"value\": null,\n                    \"en\": null\n                },\n                \"miles\": \"12.0\",\n                \"total_cost_without_vat\": 3,\n                \"details\": \"rest\",\n                \"prior_authority\": \"yes\",\n                \"apply_vat\": \"true\",\n                \"vat_amount\": 0.6,\n                \"pricing\": 0.25,\n                \"vat_rate\": 0.2\n            }\n        ],\n        \"work_items\": [\n            {\n                \"id\": \"805aad38-e9d2-43de-a359-76b687fb6105\",\n                \"work_type\": {\n                    \"value\": \"attendance_without_counsel\",\n                    \"en\": \"Attendance without counsel\"\n                },\n                \"time_spent\": 60,\n                \"completed_on\": \"2023-01-01\",\n                \"fee_earner\": \"PK\",\n                \"uplift\": 0,\n                \"pricing\": 52.15\n            }\n        ],\n        \"defendants\": [\n            {\n                \"id\": \"4d864db3-910b-4ed8-8139-f283ccf70329\",\n                \"full_name\": \"Test name\",\n                \"maat\": \"1234547\",\n                \"position\": 1,\n                \"main\": true\n            }\n        ],\n        \"firm_office\": {\n            \"name\": \"Test Firm\",\n            \"account_number\": \"02DCY\",\n            \"address_line_1\": \"Test address\",\n            \"address_line_2\": \"\",\n            \"town\": \"Bradford\",\n            \"postcode\": \"BF34 4DS\",\n            \"previous_id\": null,\n            \"vat_registered\": \"yes\"\n        },\n        \"solicitor\": {\n            \"full_name\": \"Test Solicitor\",\n            \"reference_number\": \"02DXYD\",\n            \"contact_full_name\": null,\n            \"contact_email\": null,\n            \"previous_id\": null\n        },\n        \"submitter\": {\n            \"email\": \"provider@example.com\",\n            \"description\": null\n        },\n        \"supporting_evidences\": []\n    },\n    \"application_id\": \"{{appId}}\",\n    \"application_state\": \"granted\",\n    \"application_risk\": \"high\",\n    \"application_type\": \"crm7\",\n    \"json_schema_version\": 1\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -216,7 +220,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "basic {{authKey}}",
+						"value": "Bearer {{accessToken}}",
 						"type": "text"
 					}
 				],
@@ -284,7 +288,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "basic {{authKey}}",
+						"value": "Bearer {{accessToken}}",
 						"type": "text"
 					}
 				],
@@ -300,6 +304,66 @@
 				}
 			},
 			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const tenantId = pm.environment.get('tenantId')",
+					"const clientId = pm.environment.get('applicationId')",
+					"const clientSecret = pm.environment.get('applicationSecret')",
+					"const tokenExpired = pm.environment.get('tokenExpires')",
+					"",
+					"const tokenEndpoint = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`",
+					"",
+					"const postRequest = {",
+					"    url: tokenEndpoint,",
+					"    method: 'POST',",
+					"    timeout: 0,",
+					"    header: {",
+					"        \"Content-Type\": \"application/x-www-form-urlencoded\"",
+					"    },",
+					"    body: {",
+					"        mode: 'urlencoded',",
+					"        urlencoded: [",
+					"            { key: \"grant_type\", value: \"client_credentials\" },",
+					"            { key: \"client_id\", value: clientId },",
+					"            { key: \"client_secret\", value: clientSecret },",
+					"            { key: \"scope\", value: `api://${clientId}/.default` },",
+					"        ]",
+					"    }",
+					"};",
+					"",
+					"const date = new Date()",
+					"const tokenDate = tokenExpired !== undefined ? new Date(tokenExpired) : date",
+					"",
+					"console.log(date)",
+					"console.log(tokenDate)",
+					"console.log(tokenDate.getTime() <= date.getTime())",
+					"",
+					"if (tokenDate.getTime() <= date.getTime()) {",
+					"    console.log(\"Getting new token\")",
+					"    pm.sendRequest(postRequest, function (err, res) {",
+					"        const responseJson = res.json();",
+					"        pm.environment.set('tokenExpires', date.setSeconds(date.getSeconds() + responseJson.expires_in))",
+					"        pm.environment.set('accessToken', responseJson.access_token);",
+					"",
+					"    });",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
 		}
 	]
 }

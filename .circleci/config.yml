@@ -214,11 +214,10 @@ jobs:
       - newman/newman-run:
           collection: ./postman/collections/Ping.postman_collection.json
           environment: ./postman/environments/${K8S_ENV}.postman_environment.json
-          additional-options: --env-var="authKey=${BASIC_AUTH}"
       - newman/newman-run:
           collection: ./postman/collections/Application.postman_collection.json
           environment: ./postman/environments/${K8S_ENV}.postman_environment.json
-          additional-options: --env-var="authKey=${BASIC_AUTH}"
+          additional-options: --env-var="tenantId=${ENTRA_TENANT_ID}" --env-var="applicationId=${ENTRA_APP_ID}" --env-var="applicationSecret=${ENTRA_APP_SECRET}"
 
 workflows:
   version: 2

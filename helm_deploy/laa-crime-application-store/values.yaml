@@ -43,8 +43,6 @@ ingress:
       SecAction "id:900200,phase:1,nolog,pass,t:none,setvar:tx.allowed_methods=GET HEAD POST OPTIONS PUT PATCH DELETE"
     external-dns.alpha.kubernetes.io/set-identifier: laa-crime-application-store-app-laa-crime-application-store-dev-green
     external-dns.alpha.kubernetes.io/aws-weight: "100"
-    nginx.ingress.kubernetes.io/auth-type: basic
-    nginx.ingress.kubernetes.io/auth-secret: basic-auth
   hosts:
     - host: laa-crime-application-store-dev.apps.live.cloud-platform.service.justice.gov.uk
       paths:
@@ -77,3 +75,6 @@ affinity: {}
 
 service_account:
   name: laa-crime-application-store-dev-irsa
+
+secrets:
+  swaggerEndpoint: /docs

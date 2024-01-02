@@ -32,5 +32,5 @@ def test_csp_returns_correct_output():
     response = client.get("/ping")
     assert (
         response.headers.get("content-security-policy")
-        == "default-src 'self'; base-uri 'self'; img-src 'self' fastapi.tiangolo.com data:; style-src 'self' cdn.jsdelivr.net 'unsafe-inline'; script-src 'self' cdn.jsdelivr.net 'unsafe-inline'"
+        == "default-src 'self' login.microsoftonline.com; base-uri 'self'; img-src 'self' fastapi.tiangolo.com data:; style-src 'self' cdn.jsdelivr.net 'unsafe-inline'; script-src 'self' cdn.jsdelivr.net 'unsafe-inline'"
     )
