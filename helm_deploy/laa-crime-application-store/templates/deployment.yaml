@@ -83,7 +83,7 @@ spec:
                 secretKeyRef:
                   name: azure-secret
                   key: tenant_id
-            - name: SWAGGER_ENDPOINT_ENABLED
+            - name: SWAGGER_ENDPOINT
               value: {{ .Values.secrets.swaggerEndpoint | quote}}
       {{- with .Values.nodeSelector }}
       nodeSelector:
