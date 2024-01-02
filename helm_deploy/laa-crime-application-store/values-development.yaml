@@ -76,6 +76,3 @@ affinity: {}
 
 service_account:
   name: laa-crime-application-store-dev-irsa
-
-secrets:
-  swaggerEndpoint: /docs
