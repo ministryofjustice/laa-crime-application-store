@@ -1,6 +1,5 @@
 from functools import lru_cache
 
-from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -18,12 +17,7 @@ class AppSettings(BaseSettings):
     build_tag: str | None = None
     app_branch: str | None = None
     sentry_dsn: str | None = None
-    swagger_endpoint: str | None = None
-
-    @computed_field
-    @property
-    def swagger_enabled(self) -> bool:
-        return self.swagger_endpoint == "enabled"
+    swagger_endpoint: str = ""
 
 
 @lru_cache()
