@@ -64,6 +64,20 @@ def test_data_returns_200(client: TestClient, seed_application):
     assert response.status_code == 200
 
 
+def test_data_selected_version_returns_200(client: TestClient, seed_application):
+    response = client.get(
+        f"/v1/application/{seed_application}", params={"app_version": 2}
+    )
+    assert response.status_code == 200
+
+
+def test_data_selected_version_returns_400(client: TestClient, seed_application):
+    response = client.get(
+        f"/v1/application/{seed_application}", params={"app_version": 3}
+    )
+    assert response.status_code == 400
+
+
 @patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
 def test_post_application_returns_200(
     mock_notify, client: TestClient, dbsession: Session
@@ -147,9 +161,9 @@ def test_put_application_create_a_new_version(
             "application": {"id": 10, "plea": "guilty"},
         },
     )
-    assert dbsession.query(ApplicationVersion).count() == 2
+    assert dbsession.query(ApplicationVersion).count() == 3
     application = dbsession.query(Application).first()
-    latest_version = dbsession.query(ApplicationVersion).filter_by(version=2).first()
+    latest_version = dbsession.query(ApplicationVersion).filter_by(version=3).first()
     assert latest_version.application == {"id": 10, "plea": "guilty"}
     assert (datetime.now() - application.updated_at) < timedelta(seconds=3)
 
@@ -194,12 +208,12 @@ def test_put_application_returns_409_when_invalid_data(
         },
     )
 
-    assert dbsession.query(ApplicationVersion).count() == 1
+    assert dbsession.query(ApplicationVersion).count() == 2
     assert response.status_code == 409
 
 
 @patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
-def test_put_application_has_no_effect_if_data_is_unchnaged(
+def test_put_application_has_no_effect_if_data_is_unchanged(
     mock_notify, client: TestClient, dbsession: Session, seed_application
 ):
     mock_notify.return_value = True
@@ -212,11 +226,11 @@ def test_put_application_has_no_effect_if_data_is_unchnaged(
             "application_state": "submitted",
             "application_risk": "low",
             "application_type": "crm7",
-            "application": {"id": 1},
+            "application": {"id": 2},
         },
     )
 
-    assert dbsession.query(ApplicationVersion).count() == 1
+    assert dbsession.query(ApplicationVersion).count() == 2
     assert response.status_code == 201
 
 

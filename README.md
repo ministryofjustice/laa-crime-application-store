@@ -1,6 +1,6 @@
 # laa-crime-application-store
 
-LAA Crime Application Store is a service to provide the ability to store and version crime applications from CRM forms. 
+LAA Crime Application Store is a service to provide the ability to store and version crime applications from CRM forms.
 
 ## Setting up the service
 
@@ -44,10 +44,21 @@ pipenv run uvicorn laa_crime_application_store_app.main:app --reload
 ```
 The application will reload on code changes to save on rebuild times
 
-### Running locally with Docker
+#### Authenticating Requests
+
+This application uses [Entra ID](https://www.microsoft.com/en-gb/security/business/identity-access/microsoft-entra-id#overview)
+to authenticate API requests through the use of the [fastapi-azure-auth](https://github.com/Intility/fastapi-azure-auth). To be able to authenticate
+requests you will need to setup and add your application within Entra ID and add the following environment variables
+```
+APP_CLIENT_ID={uuid of the application created}
+TENANT_ID={uuid of the tentant that the application was created in}
+```
+Once added, calls to the API will require a [bearer token requested from the same app/tenant id within the header](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#use-a-token).
+
+#### Running locally with Docker
 
 To run via a docker container:
-1. Perform the docker build with: 
+1. Perform the docker build with:
 
 `docker-compose build app`
 2. You can optionally set build arguments by adding:
@@ -68,7 +79,8 @@ pipenv run pytest --cov-report term --cov=laa_crime_application_store_app tests/
 #### API Tests
 API testing is done using the Postman tooling. This can be downloaded from [the Postman website()
 and a free account created. Once this is done you can import the collections and environments found in the postman
-folder to begin testing.
+folder to begin testing. You will need to get a secret token from Entra ID from the Tenant and Application ID as setup
+above to be able to authenticate requests.
 
 ### Running linters
 

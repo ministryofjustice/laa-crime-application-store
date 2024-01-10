@@ -89,7 +89,7 @@ def seed_application(dbsession):
     app_id = uuid.uuid4()
     application = Application(
         id=app_id,
-        current_version=1,
+        current_version=2,
         application_state="submitted",
         application_risk="low",
         application_type="crm7",
@@ -101,6 +101,12 @@ def seed_application(dbsession):
         json_schema_version=1,
         application={"id": 1},
     )
-    dbsession.add_all([application, version])
+    version_2 = ApplicationVersion(
+        application_id=app_id,
+        version=2,
+        json_schema_version=1,
+        application={"id": 2},
+    )
+    dbsession.add_all([application, version, version_2])
     dbsession.commit()
     return app_id

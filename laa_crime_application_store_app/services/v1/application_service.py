@@ -22,22 +22,24 @@ logger = structlog.getLogger(__name__)
 
 class ApplicationService:
     @staticmethod
-    def get_application(db: Session, app_id: UUID):
+    def get_application(db: Session, app_id: UUID, app_version: int | None):
         application = ApplicationService.__get_application_by_id(db, app_id)
 
         if application is None:
             logger.info("APPLICATION_NOT_FOUND", application_id=app_id)
             return None
 
+        version = application.current_version if app_version is None else app_version
+
         application_version = ApplicationService.__get_application_version(
-            db, app_id, application.current_version
+            db, app_id, version
         )
 
         if application_version is None:
             logger.info(
                 "APPLICATION_VERSION_NOT_FOUND",
                 application_id=app_id,
-                version=application.current_version,
+                version=version,
             )
             return None
 

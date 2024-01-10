@@ -48,10 +48,13 @@ async def get_applications(
 @router.get("/application/{app_id}", response_model=App)
 @auth_logger
 async def get_application(
-    request: Request, app_id: UUID | None = None, db: Session = Depends(get_db)
+    request: Request,
+    app_id: UUID | None = None,
+    app_version: int | None = None,
+    db: Session = Depends(get_db),
 ):
     logger.info("GETTING_APPLICATION", application_id=app_id)
-    application = ApplicationService().get_application(db, app_id)
+    application = ApplicationService().get_application(db, app_id, app_version)
 
     if application is None:
         return Response(status_code=400)
