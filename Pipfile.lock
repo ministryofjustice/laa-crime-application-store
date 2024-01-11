@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "4f6bbdd9abd2d1eb8bfcfa7708656d92313b55bcb971a11744db741f3859032d"
+            "sha256": "e906d4c6e32f108f09a2a74aa0912fd2ba84c9acf409de43e36d7d7ae36f60e0"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -178,11 +178,12 @@
         },
         "fastapi": {
             "hashes": [
-                "sha256:522700d7a469e4a973d92321ab93312448fbe20fca9c8da97effc7e7bc56df23",
-                "sha256:ec6dd52bfc4eff3063cfcd0713b43c87640fefb2687bbbe3d8a08d94049cdf32"
+                "sha256:5056e504ac6395bf68493d71fcfc5352fdbd5fda6f88c21f6420d80d81163296",
+                "sha256:8c7bc6d315da963ee4cdb605557827071a9a7f95aeb8fcdd3bde48cdc8764dd7"
             ],
             "index": "pypi",
-            "version": "==0.100.1"
+            "markers": "python_version >= '3.8'",
+            "version": "==0.108.0"
         },
         "fastapi-azure-auth": {
             "hashes": [
@@ -687,11 +688,11 @@
         },
         "starlette": {
             "hashes": [
-                "sha256:6a6b0d042acb8d469a01eba54e9cda6cbd24ac602c4cd016723117d6a7e73b75",
-                "sha256:918416370e846586541235ccd38a474c08b80443ed31c578a418e2209b3eef91"
+                "sha256:cd0cb10ddb49313f609cedfac62c8c12e56c7314b66d89bb077ba228bada1b09",
+                "sha256:e54e2b7e2fb06dff9eac40133583f10dfa05913f5a85bf26f427c7a40a9a3d02"
             ],
-            "markers": "python_version >= '3.7'",
-            "version": "==0.27.0"
+            "markers": "python_version >= '3.8'",
+            "version": "==0.32.0.post1"
         },
         "structlog": {
             "hashes": [
