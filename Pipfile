@@ -16,11 +16,11 @@ sqlalchemy = "==2.0.25"
 psycopg2-binary = "==2.9.9"
 typing-extensions = "==4.9.0"
 circuitbreaker = "==2.0.0"
-httpx = "==0.25.0"
+httpx = "==0.26.0"
 fastapi-azure-auth = "==4.3.0"
 
 [dev-packages]
-httpx = "==0.24.1"
+httpx = "==0.26.0"
 pytest = "==7.4.0"
 pytest-cov = "==4.1.0"
 pytest-mock = "==3.11.1"
