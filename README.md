@@ -4,7 +4,7 @@ LAA Crime Application Store is a service to provide the ability to store and ver
 
 ## Setting up the service
 
-This application is currently set to use python 3.11
+This application is currently set to use python 3.12
 
 ### Installing pipenv
 
@@ -13,6 +13,12 @@ This application uses pipenv for its virtual environment. To get started run the
 $ pip3 install pipenv
 $ pipenv shell
 $ pipenv install --dev
+```
+
+If you need to update your python version or reset your virtual environment you can run the following
+```shell
+$ pipenv --rm
+$ pipenv install
 ```
 
 ### Setting up pre-commit
