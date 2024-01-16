@@ -28,7 +28,7 @@ executors:
   build-image-executor:
     resource_class: small
     docker:
-      - image: cimg/python:3.10.9
+      - image: cimg/python:3.12.1
 
   cloud-platform-executor:
     resource_class: small
@@ -40,7 +40,7 @@ executors:
 
   test-executor:
     docker:
-      - image: cimg/python:3.10.9
+      - image: cimg/python:3.12.1
         environment:
           POSTGRES_USERNAME: postgres
           POSTGRES_PASSWORD: circleci
@@ -129,7 +129,7 @@ commands:
 jobs:
   lint-app:
     executor: build-image-executor
-    parallelism: 
+    parallelism:
     steps:
       - checkout
       - install-requirements
@@ -159,7 +159,7 @@ jobs:
           project: ministryofjustice/laa-crime-application-store
           severity-threshold: "high"
           fail-on-issues: true
-  
+
   build-and-push:
     executor: aws-ecr/default # use the aws-ecr/default executor to start the docker daemon
     steps:
