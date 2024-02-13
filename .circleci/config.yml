@@ -6,76 +6,42 @@ orbs:
   aws-cli: circleci/aws-cli@4.0.0 # use v4 of this orb
   aws-ecr: circleci/aws-ecr@8.2.1 # this orb doesn't support OIDC v2, so we use aws-cli to authenticate
 
-references:
-  _save-requirements: &save-requirements
-    save_cache:
-      key: deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-      paths:
-        - ".venv"
 
-  _restore-requirements: &restore-requirements
-    restore_cache:
-      keys:
-        - deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-        - deps-{{ .Branch }}
-
-  _install-requirements: &install-requirements
-    run:
-      name: Install Requirements
-      command: pipenv install --dev
 
 executors:
+  cloud-platform-executor:
+    docker:
+      - image: ministryofjustice/cloud-platform-tools:2.3.0
+        environment:
+          GITHUB_TEAM_NAME_SLUG: laa-estimate-eligibility
+  linting-executor:
+    docker:
+      - image: cimg/ruby:3.2.2-node
+        environment:
+          - RAILS_ENV=test
+          - TZ: "Europe/London"
   build-image-executor:
     resource_class: small
     docker:
-      - image: cimg/python:3.12.1
-
-  cloud-platform-executor:
-    resource_class: small
-    docker:
-      - image: ministryofjustice/cloud-platform-tools
+      - image: cimg/ruby:3.2.2-node
         environment:
-          GITHUB_TEAM_NAME_SLUG: laa-assess-a-claim
-          REPO_NAME: laa-court-data-api
-
+          - RAILS_ENV=test
+          - TZ: "Europe/London"
   test-executor:
     docker:
-      - image: cimg/python:3.12.1
+      - image: cimg/ruby:3.2.2-node
         environment:
-          POSTGRES_USERNAME: postgres
-          POSTGRES_PASSWORD: circleci
-          POSTGRES_NAME: laa_crime_application_store
-          POSTGRES_HOSTNAME: 127.0.0.1
-          TZ: Europe/London
-      - image: cimg/postgres:14.9
+          - RAILS_ENV=test
+          - PGHOST=localhost
+          - PGUSER=user
+          - TZ: "Europe/London"
+      - image: cimg/postgres:14.8
         environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: "circleci"
-          POSTGRES_DB: laa_crime_application_store_test
+          POSTGRES_USER: user
+          POSTGRES_DB: nscc_app_store_test
+  ccq-executor:
 
 commands:
-  install-requirements:
-    steps:
-      - *restore-requirements
-      - *install-requirements
-      - *save-requirements
-
-  run-tests:
-    steps:
-      - run:
-          name: Run pytest
-          command: pipenv run pytest --cov-report term --junitxml=test-results/junit.xml --cov=laa_crime_application_store_app tests
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: coverage
-
-  run-linting:
-    steps:
-      - run:
-          name: Check styling
-          command: pipenv run flake8
-
   build-docker-image:
     steps:
       - run:
@@ -126,22 +92,84 @@ commands:
                   --set image.tag="${CIRCLE_SHA1}" \
                   --atomic
 
+references:
+  install_packages_for_testing: &install_packages_for_testing
+    run:
+      name: Install System packages needed for testing
+      command: |
+        sudo apt-get update
+        sudo apt-get install -y postgresql-client cmake
+
+  restore_gems_cache: &restore_gems_cache
+    restore_cache:
+      keys:
+        - nscc-app-store-gems-{{ checksum "Gemfile.lock" }}
+        - nscc-app-store-gems
+
+  install_gems: &install_gems
+    run:
+      name: Install ruby gems
+      command: |
+        sudo gem update --system
+        bundle config set --local frozen 'true'
+        bundle config set --local path 'vendor/bundle'
+        bundle config set --local without 'development'
+        bundle install --jobs=4 && bundle clean
+
+  save_gems_cache: &save_gems_cache
+    save_cache:
+      key: nscc-app-store-gems-{{ checksum "Gemfile.lock" }}
+      paths:
+        - vendor/bundle
+
+  restore_helm_cache: &restore_helm_cache
+    restore_cache:
+      keys:
+        - nscc-app-store-helm-{{ checksum "deploy/helm/Chart.lock" }}
+        - nscc-app-store-helm
+
+  save_helm_cache: &save_helm_cache
+    save_cache:
+      key: nscc-app-store-helm-{{ checksum "deploy/helm/Chart.lock" }}
+      paths:
+        - deploy/helm/charts
+
+  setup_database: &setup_database
+    run:
+      name: Database Setup
+      command: |
+        bundle exec rake db:schema:load
+        bundle exec rake db:migrate
+
 jobs:
   lint-app:
-    executor: build-image-executor
-    parallelism:
+    executor: linting-executor
     steps:
       - checkout
-      - install-requirements
-      - run-linting
+      - *restore_gems_cache
+      - *install_gems
+      - *save_gems_cache
+      - run:
+          name: Run Rubocop
+          command:  bundle exec rubocop
 
   test-app:
     executor: test-executor
-    parallelism: 1
     steps:
       - checkout
-      - install-requirements
-      - run-tests
+      - *install_packages_for_testing
+      - *restore_gems_cache
+      - *install_gems
+      - *save_gems_cache
+      - *setup_database
+      - run:
+          name: Run ruby tests
+          command: |
+            bundle exec rspec --format progress --format RspecJunitFormatter -o /tmp/test-results/rspec/rspec.xml
+      - store_test_results:
+          path: /tmp/test-results/rspec
+      - store_artifacts:
+          path: ./coverage
 
   scan-docker-image:
     executor: build-image-executor
@@ -227,13 +255,11 @@ workflows:
       - lint-app:
           filters:
             branches:
-              ignore:
-                - main
+              ignore: main
       - test-app:
           filters:
             branches:
-              ignore:
-                - main
+              ignore: main
       - scan-docker-image:
           filters:
             branches:
@@ -296,13 +322,11 @@ workflows:
       - lint-app:
           filters:
             branches:
-              only:
-                - main
+              only: main
       - test-app:
           filters:
             branches:
-              only:
-                - main
+              only: main
       - scan-docker-image:
           filters:
             branches:

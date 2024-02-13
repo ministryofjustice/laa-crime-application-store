@@ -42,6 +42,8 @@ gem "jwt", "~> 2.7.1"
 
 gem "with_advisory_lock"
 
+gem "nokogiri", "~> 1.15.5"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[mri mingw x64_mingw]
@@ -58,6 +60,7 @@ group :development, :test do
 end
 
 group :test do
+  gem "rspec_junit_formatter"
   gem "webmock", ">= 3.13.0"
 end
 
