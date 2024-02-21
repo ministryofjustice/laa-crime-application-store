@@ -6,7 +6,7 @@ RUN apk --update-cache upgrade \
 && apk --no-cache add --upgrade gcc \
     musl-dev \
     build-base \
-    expat
+    expat>2.6.0-r0
 
 COPY ./Pipfile /code/Pipfile
 COPY ./Pipfile.lock /code/Pipfile.lock
