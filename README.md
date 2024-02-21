@@ -37,9 +37,15 @@ This current performs the following functions:
 
 On the rare occasion you may need to bypass this, you can do so with `git commit --no-verify`
 
+### Setup environment variables
+
+Copy `.env.sample` to `.env` and amend as neccesary. See sections below for expected
+values.
+
 ### Setting up the database
 
 We are currently using [Alembic](https://alembic.sqlalchemy.org/en/latest/index.html) for our database migrations.
+
 Information on our usage can be found [here](alembic/README.md)
 
 ### Running the application
@@ -52,13 +58,17 @@ The application will reload on code changes to save on rebuild times
 
 #### Authenticating Requests
 
-This application uses [Entra ID](https://www.microsoft.com/en-gb/security/business/identity-access/microsoft-entra-id#overview)
-to authenticate API requests through the use of the [fastapi-azure-auth](https://github.com/Intility/fastapi-azure-auth). To be able to authenticate
-requests you will need to setup and add your application within Entra ID and add the following environment variables
-```
+This application uses [Entra ID](https://www.microsoft.com/en-gb/security/business/identity-access/microsoft-entra-id#overview) to authenticate API requests through the use of the [fastapi-azure-auth](https://github.com/Intility/fastapi-azure-auth).
+
+To be able to authenticate requests you will need to setup and add your application within Entra ID and add the following environment variables. See this [confluence page on API authentication](https://dsdmoj.atlassian.net/wiki/spaces/CRM457/pages/4637983031/API+Authentication) for more details.
+
+```sh
 APP_CLIENT_ID={uuid of the application created}
 TENANT_ID={uuid of the tentant that the application was created in}
 ```
+
+*Note that it is possible to use the pre-production client and tenant IDs*
+
 Once added, calls to the API will require a [bearer token requested from the same app/tenant id within the header](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#use-a-token).
 
 #### Running locally with Docker
