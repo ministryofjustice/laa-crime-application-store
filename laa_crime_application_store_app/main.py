@@ -21,6 +21,8 @@ from laa_crime_application_store_app.routers import index, ping
 from laa_crime_application_store_app.routers.v1 import application as v1_application
 from laa_crime_application_store_app.services.auth_service import azure_auth_service
 
+logger = structlog.getLogger(__name__)
+
 
 def send_event(event, hint):
     log_message = json.loads(event["logentry"]["message"])
@@ -72,16 +74,22 @@ app = FastAPI(
     },
 )
 
-azure_auth = azure_auth_service()
 
 app.add_middleware(CorrelationIdMiddleware)
 app.add_middleware(SecureHeadersMiddleware)
 
 app.include_router(index.router)
 app.include_router(ping.router)
-app.include_router(
-    v1_application.router, prefix="/v1", dependencies=[Security(azure_auth)]
-)
+
+# if developing then we want to allow authentication to be turned off
+if get_auth_settings().azure_authentication:
+    azure_auth = azure_auth_service()
+    app.include_router(
+        v1_application.router, prefix="/v1", dependencies=[Security(azure_auth)]
+    )
+else:
+    azure_auth = None
+    app.include_router(v1_application.router, prefix="/v1")
 
 
 @app.exception_handler(401)
@@ -101,4 +109,5 @@ async def load_config() -> None:
     """
     Load OpenID config on startup.
     """
-    await azure_auth.openid_config.load_config()
+    if get_auth_settings().azure_authentication:
+        await azure_auth.openid_config.load_config()

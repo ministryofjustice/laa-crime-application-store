@@ -12,6 +12,8 @@ class AuthSettings(BaseSettings):
     app_client_id: str = ""
     tenant_id: str = ""
     scope_description: str = ".default"
+    azure_authentication: bool = True
+    safe_clients: list[str] = []
 
     @computed_field
     @property

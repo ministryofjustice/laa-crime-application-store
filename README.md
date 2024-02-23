@@ -39,7 +39,7 @@ On the rare occasion you may need to bypass this, you can do so with `git commit
 
 ### Setup environment variables
 
-Copy `.env.sample` to `.env` and amend as neccesary. See sections below for expected
+Copy `.env.sample` to `.env` and amend as necessary. See sections below for expected
 values.
 
 ### Setting up the database
@@ -47,6 +47,8 @@ values.
 We are currently using [Alembic](https://alembic.sqlalchemy.org/en/latest/index.html) for our database migrations.
 
 Information on our usage can be found [here](alembic/README.md)
+
+Note if you are running the application locally you will need to use the alembic documentation to create a database and run the initial migrations
 
 ### Running the application
 
@@ -71,6 +73,8 @@ TENANT_ID={uuid of the tentant that the application was created in}
 
 Once added, calls to the API will require a [bearer token requested from the same app/tenant id within the header](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#use-a-token).
 
+Alternatively it is possible to run without authentication when developing locally.
+You will not need ENTRAID details but should set SAFE_HOSTS to include the client host in environment variables
 #### Running locally with Docker
 
 To run via a docker container:
@@ -88,6 +92,7 @@ To run via a docker container:
 
 #### Unit tests
 Run units tests with the following command from the root of the project
+Before running unit tests you will need to have created a test database - see the alembic readme [here](alembic/README.md)
 ```shell
 pipenv run pytest --cov-report term --cov=laa_crime_application_store_app tests/
 ```
