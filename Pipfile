@@ -20,7 +20,7 @@ httpx = "==0.26.0"
 fastapi-azure-auth = "==4.3.0"
 
 [dev-packages]
-pytest = "==7.4.4"
+pytest = "==8.0.2"
 pytest-cov = "==4.1.0"
 pytest-mock = "==3.12.0"
 black = "==23.12.1"
