@@ -236,7 +236,7 @@ workflows:
 
   build-and-deploy:
     jobs:
-      - build-and-push:
+      - build-and-push: {}
       - deploy-dev:
           context: laa-crime-application-store-dev
       - postman-test:
@@ -256,7 +256,7 @@ workflows:
           filters:
             branches:
               only:
-                - main
+                - mainx
       - deploy-uat:
           context: laa-crime-application-store-uat
           requires:
