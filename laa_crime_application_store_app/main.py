@@ -20,6 +20,36 @@ from laa_crime_application_store_app.routers.v1 import application as v1_applica
 from laa_crime_application_store_app.services.auth_service import azure_auth_service
 
 
+def create_app(azure_schema):
+    fastapi_app = FastAPI(
+        docs_url=get_app_settings().swagger_endpoint,
+        redoc_url=None,
+        title=get_app_settings().app_name,
+        version="0.0.1",
+        contact={
+            "name": get_app_settings().contact_team,
+            "email": get_app_settings().contact_email,
+            "url": get_app_settings().app_repo,
+        },
+        swagger_ui_oauth2_redirect_url="/oauth2-redirect",
+        swagger_ui_init_oauth={
+            "usePkceWithAuthorizationCodeGrant": False,
+            "clientId": get_auth_settings().app_client_id,
+        },
+    )
+    fastapi_app.include_router(index.router)
+    fastapi_app.include_router(ping.router)
+
+    fastapi_app.include_router(
+        v1_application.router, prefix="/v1", dependencies=[Security(azure_schema)]
+    )
+
+    fastapi_app.add_middleware(CorrelationIdMiddleware)
+    fastapi_app.add_middleware(SecureHeadersMiddleware)
+
+    return fastapi_app
+
+
 def send_event(event, hint):
     log_message = json.loads(event["logentry"]["message"])
     event["logentry"]["message"] = log_message["event"]
@@ -54,34 +84,9 @@ sentry_sdk.init(
     before_send=send_event,
 )
 
-app = FastAPI(
-    docs_url=get_app_settings().swagger_endpoint,
-    redoc_url=None,
-    title=get_app_settings().app_name,
-    version="0.0.1",
-    contact={
-        "name": get_app_settings().contact_team,
-        "email": get_app_settings().contact_email,
-        "url": get_app_settings().app_repo,
-    },
-    swagger_ui_oauth2_redirect_url="/oauth2-redirect",
-    swagger_ui_init_oauth={
-        "usePkceWithAuthorizationCodeGrant": False,
-        "clientId": get_auth_settings().app_client_id,
-    },
-)
-
 azure_auth = azure_auth_service()
 
-app.add_middleware(CorrelationIdMiddleware)
-app.add_middleware(SecureHeadersMiddleware)
-
-app.include_router(index.router)
-app.include_router(ping.router)
-
-app.include_router(
-    v1_application.router, prefix="/v1", dependencies=[Security(azure_auth)]
-)
+app = create_app(azure_auth)
 
 
 @app.exception_handler(401)
@@ -96,4 +101,5 @@ async def lifespan():
     Load OpenID configs on startup.
     """
     await azure_auth.openid_config.load_config()
+    yield
 

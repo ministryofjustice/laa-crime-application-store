@@ -17,8 +17,11 @@ class CrimeSingleTenantAzureAuthorizationCodeBearer(
     async def __call__(
         self, request: Request, security_scopes: SecurityScopes
     ) -> Optional[User]:
-        if not settings.authentication_required == "True":
+        if settings.authentication_required.lower() != "true":
+            print(settings.authentication_required.lower())
+            print("not")
             return None
+        print("yes")
         await super().__call__(request, security_scopes)
 
 
