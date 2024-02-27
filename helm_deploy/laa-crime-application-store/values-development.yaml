@@ -47,7 +47,7 @@ ingress:
     - host: laa-crime-application-store-dev.apps.live.cloud-platform.service.justice.gov.uk
       paths:
         - path: /
-          pathType: Prefix 
+          pathType: Prefix
   tls:
     - hosts:
       - laa-crime-application-store-dev.apps.live.cloud-platform.service.justice.gov.uk
@@ -79,3 +79,29 @@ service_account:
 
 secrets:
   swaggerEndpoint: /docs
+
+# This is used to configure the temporary non-RDS postgres DB
+postgresql:
+  enabled: true
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  auth:
+    database: nsm_assess_dev
+    enablePostgresUser: true
+    postgresPassword: postgres
+  postgresqlUsername: postgres
+  primary:
+    persistence:
+      enabled: true
+    containerSecurityContext:
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop: [ "ALL" ]

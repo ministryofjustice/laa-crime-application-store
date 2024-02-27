@@ -47,7 +47,7 @@ ingress:
     - host: laa-crime-application-store-uat.apps.live.cloud-platform.service.justice.gov.uk
       paths:
         - path: /
-          pathType: Prefix 
+          pathType: Prefix
   tls:
     - hosts:
       - laa-crime-application-store-uat.apps.live.cloud-platform.service.justice.gov.uk
@@ -78,3 +78,7 @@ service_account:
 
 secrets:
   swaggerEndpoint: /docs
+
+# Instead of a temporary postgres pod we use RDS
+postgresql:
+  enabled: false
