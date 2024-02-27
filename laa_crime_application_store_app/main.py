@@ -1,5 +1,6 @@
 import json
 import logging.config
+from contextlib import asynccontextmanager
 
 import sentry_sdk
 import structlog
@@ -77,6 +78,7 @@ app.add_middleware(SecureHeadersMiddleware)
 
 app.include_router(index.router)
 app.include_router(ping.router)
+
 app.include_router(
     v1_application.router, prefix="/v1", dependencies=[Security(azure_auth)]
 )
@@ -88,9 +90,10 @@ async def validation_exception_handler(request, exc):
     return JSONResponse(status_code=401, content={"detail": exc.detail})
 
 
-@app.on_event("startup")
-async def load_config() -> None:
+@asynccontextmanager
+async def lifespan():
     """
-    Load OpenID config on startup.
+    Load OpenID configs on startup.
     """
     await azure_auth.openid_config.load_config()
+

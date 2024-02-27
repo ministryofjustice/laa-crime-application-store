@@ -78,9 +78,9 @@ affinity: {}
 service_account:
   name: laa-crime-application-store-dev-irsa
 
-secrets:
+envVars:
   swaggerEndpoint: /docs
-
+  authenticationRequired: True
 # This is used to configure the temporary non-RDS postgres DB
 postgresql:
   enabled: true

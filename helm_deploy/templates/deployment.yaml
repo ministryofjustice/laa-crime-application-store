@@ -96,6 +96,8 @@ spec:
                   key: tenant_id
             - name: SWAGGER_ENDPOINT
               value: {{ .Values.secrets.swaggerEndpoint | quote}}
+            - name: AUTHENTICATION_REQUIRED
+              value: {{ .Values.secrets.authenticationRequired | quote}}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

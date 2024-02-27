@@ -77,10 +77,10 @@ affinity: {}
 service_account:
   name: laa-crime-application-store-production-irsa
 
-secrets:
+envVars:
   swaggerEndpoint:
+  authenticationRequired: True
 
 # Instead of a temporary postgres pod we use RDS
 postgresql:
   enabled: false
-

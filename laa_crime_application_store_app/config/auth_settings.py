@@ -8,7 +8,7 @@ class AuthSettings(BaseSettings):
     model_config = SettingsConfigDict(
         extra="ignore", env_file=".env", env_file_encoding="utf-8"
     )
-
+    authentication_required: str = "True"
     app_client_id: str = ""
     tenant_id: str = ""
     scope_description: str = ".default"
