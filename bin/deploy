@@ -12,10 +12,10 @@ deploy_branch() {
   IDENTIFIER="$BRANCH_RELEASE_NAME-laa-claim-non-standard-magistrate-fee-dev-green"
   echo "Deploying under release name: '$BRANCH_RELEASE_NAME' with identifier '$IDENTIFIER'..."
 
-  helm upgrade $BRANCH_RELEASE_NAME ./helm_deploy/laa-crime-application-store/. \
+  helm upgrade $BRANCH_RELEASE_NAME ./helm_deploy/. \
                 --install --wait \
                 --namespace=${K8S_NAMESPACE} \
-                --values ./helm_deploy/laa-crime-application-store/values-development.yaml \
+                --values ./helm_deploy/values-development.yaml \
                 --set image.repository="${AWS_ECR_REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/${ECR_REPOSITORY}" \
                 --set image.tag="branch-$CIRCLE_SHA1" \
                 --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/set-identifier"="$IDENTIFIER" \
@@ -27,10 +27,10 @@ deploy_branch() {
 }
 
 deploy_main() {
-  helm upgrade laa-claim-non-standard-magistrate-fee ./helm_deploy/laa-crime-application-store/. \
+  helm upgrade laa-claim-non-standard-magistrate-fee ./helm_deploy/. \
                           --install --wait \
                           --namespace=${K8S_NAMESPACE} \
-                          --values ./helm_deploy/laa-crime-application-store/values-$ENVIRONMENT.yaml \
+                          --values ./helm_deploy/values-$ENVIRONMENT.yaml \
                           --set image.repository="${AWS_ECR_REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/${ECR_REPOSITORY}" \
                           --set image.tag="main-$CIRCLE_SHA1"
 }
