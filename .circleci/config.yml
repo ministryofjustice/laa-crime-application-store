@@ -244,11 +244,6 @@ workflows:
           context: laa-crime-application-store-dev
           requires:
             - deploy-dev
-      - postman-test:
-          name: dev-crm4 postman tests
-          context: laa-crime-application-store-dev-crm4
-          requires:
-            - deploy-dev-crm4
       - hold-uat:
           type: approval
           requires:
@@ -310,19 +305,6 @@ workflows:
           context: laa-crime-application-store-dev
           requires:
             - deploy-dev
-      - hold-dev-crm4:
-          type: approval
-          requires:
-            - build-and-push
-      - deploy-dev-crm4:
-          context: laa-crime-application-store-dev-crm4
-          requires:
-            - hold-dev-crm4
-      - postman-test:
-          name: dev-crm4 postman tests
-          context: laa-crime-application-store-dev-crm4
-          requires:
-            - deploy-dev-crm4
       - hold-uat:
           type: approval
           requires:
