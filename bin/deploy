@@ -12,7 +12,7 @@ deploy_branch() {
   IDENTIFIER="$BRANCH_RELEASE_NAME-laa-claim-non-standard-magistrate-fee-dev-green"
   echo "Deploying under release name: '$BRANCH_RELEASE_NAME' with identifier '$IDENTIFIER'..."
 
-  helm upgrade $BRANCH_RELEASE_NAME ./helm_deploy/. \
+  helm upgrade $BRANCH_RELEASE_NAME ./helm_deploy/laa-crime-application-store/. \
                 --install --wait \
                 --namespace=${K8S_NAMESPACE} \
                 --values ./helm_deploy/laa-crime-application-store/values-development.yaml \
@@ -27,7 +27,7 @@ deploy_branch() {
 }
 
 deploy_main() {
-  helm upgrade laa-claim-non-standard-magistrate-fee ./helm_deploy/. \
+  helm upgrade laa-claim-non-standard-magistrate-fee ./helm_deploy/laa-crime-application-store/. \
                           --install --wait \
                           --namespace=${K8S_NAMESPACE} \
                           --values ./helm_deploy/laa-crime-application-store/values-$ENVIRONMENT.yaml \
