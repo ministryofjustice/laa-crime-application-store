@@ -83,7 +83,7 @@ spec:
                 secretKeyRef:
                   name: rds-postgresql-instance-output
                   key: rds_instance_address
-          {{ else }}
+          {{ end }}
             - name: APP_CLIENT_ID
               valueFrom:
                 secretKeyRef:
