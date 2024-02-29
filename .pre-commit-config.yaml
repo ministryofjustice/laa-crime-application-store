@@ -27,6 +27,6 @@ repos:
         name: pytest
         stages: [pre-commit]
         language: system
-        entry: pipenv run pytest --cov-report=term-missing  --cov=laa_crime_application_store_app --cov-fail-under=100
+        entry: bash -c 'PIPENV_DOTENV_LOCATION=.env.test pipenv run pytest --cov-report=term-missing  --cov=laa_crime_application_store_app --cov-fail-under=100'
         types: [python]
         pass_filenames: false

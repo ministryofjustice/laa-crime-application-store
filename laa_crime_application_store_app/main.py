@@ -100,6 +100,7 @@ async def lifespan():
     """
     Load OpenID configs on startup.
     """
+
     await azure_auth.openid_config.load_config()
     yield
 

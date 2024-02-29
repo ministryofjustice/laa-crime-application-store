@@ -5,10 +5,10 @@
 To be able to perform migrations, you will need to set some Environment Variables for the tool to connect to your DB.
 This can be done by adding them to your `.env` file.
 
-Copy `.env.sample` to `.env` and amend
+Copy `.env.sample.dev` to `.env.dev`  and `.env.sample.test` to `.env.test` and amend as necessary
 
 ```shell
-cp .env.sample .env
+cp .env.sample.dev .env.dev
 ```
 
 The following variables are required:
@@ -30,6 +30,7 @@ If your database already exists it will not recreate it but should still run any
 
 To create a test database run the following command
 ```shell
+PIPENV_DOTENV_LOCATION=.env.test pipenv shell
 pipenv run generate_db -e=test
 ```
 
@@ -37,7 +38,7 @@ pipenv run generate_db -e=test
 
 You can generate migrations using the following command
 ```shell
-pipenv run alembic revision -m "{migration name here}" 
+pipenv run alembic revision -m "{migration name here}"
 ```
 
 This will provide you with an templated migration file for you to add in your changes. This is done in the upgrade method
