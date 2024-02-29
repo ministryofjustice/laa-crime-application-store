@@ -16,6 +16,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
+  namespace: {{ .Values.ingress.namespace}}
   labels:
     {{- include "laa-crime-application-store.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
