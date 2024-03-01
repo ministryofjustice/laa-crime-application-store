@@ -54,7 +54,7 @@ spec:
                   name: sentry
                   key: dsn
           {{ if .Values.postgresql.enabled }}
-            - name: POSTGRES_USER
+            - name: POSTGRES_USERNAME
               value: {{ .Values.postgresql.postgresqlUsername }}
             - name: POSTGRES_PASSWORD
               value: {{ .Values.postgresql.auth.postgresPassword }}
