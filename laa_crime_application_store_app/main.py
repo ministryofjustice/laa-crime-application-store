@@ -99,6 +99,7 @@ async def startup() -> None:
         upgrade(alembic_cfg, "head")
         logger.info("complete alembic run")
     except Exception as exc:
+        logger.info("error alembic run")
         logger.info(exc)
 
 
