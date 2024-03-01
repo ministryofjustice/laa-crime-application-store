@@ -93,10 +93,13 @@ async def validation_exception_handler(request, exc):
 
 @app.on_event("startup")
 async def startup() -> None:
-    logger.info("start alembic run")
-    alembic_cfg = Config(f"{os.getcwd()}/alembic.ini")
-    upgrade(alembic_cfg, "head")
-    logger.info("complete alembic run")
+    try:
+        logger.info("start alembic run")
+        alembic_cfg = Config(f"{os.getcwd()}/alembic.ini")
+        upgrade(alembic_cfg, "head")
+        logger.info("complete alembic run")
+    except Exception as exc:
+        logger.info(exc)
 
 
 @app.on_event("startup")
