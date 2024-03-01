@@ -13,6 +13,8 @@ COPY ./Pipfile.lock /code/Pipfile.lock
 COPY ./laa_crime_application_store_app /code/laa_crime_application_store_app
 COPY ./alembic.ini /code/alembic.ini
 COPY ./alembic /code/alembic
+COPY ./run.sh /code/run.sh
+RUN chmod a+x /code/run.sh
 
 RUN pip install --upgrade pip pipenv
 
@@ -35,5 +37,5 @@ ARG APP_BRANCH
 ENV APP_BRANCH ${APP_BRANCH}
 
 EXPOSE 8000
-# ENTRYPOINT ["./run.sh"]
-CMD ["uvicorn", "laa_crime_application_store_app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["./run.sh"]
+# CMD ["uvicorn", "laa_crime_application_store_app.main:app", "--host", "0.0.0.0", "--port", "8000"]
