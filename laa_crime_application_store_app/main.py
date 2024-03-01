@@ -1,6 +1,5 @@
 import json
 import logging.config
-import os
 
 import sentry_sdk
 import structlog
@@ -9,8 +8,8 @@ from fastapi import FastAPI, Security
 from starlette.responses import JSONResponse
 from structlog.stdlib import LoggerFactory
 
-from alembic.command import upgrade
-from alembic.config import Config
+# from alembic.command import upgrade
+# from alembic.config import Config
 from laa_crime_application_store_app.config import logging_config
 from laa_crime_application_store_app.config.app_settings import get_app_settings
 from laa_crime_application_store_app.config.auth_settings import get_auth_settings
@@ -20,6 +19,8 @@ from laa_crime_application_store_app.middleware.secure_headers_middleware import
 from laa_crime_application_store_app.routers import index, ping
 from laa_crime_application_store_app.routers.v1 import application as v1_application
 from laa_crime_application_store_app.services.auth_service import azure_auth_service
+
+# import os
 
 
 def send_event(event, hint):
@@ -95,8 +96,8 @@ async def validation_exception_handler(request, exc):
 async def startup() -> None:
     try:
         logger.info("start alembic run")
-        alembic_cfg = Config(f"{os.getcwd()}/alembic.ini")
-        upgrade(alembic_cfg, "head")
+        # alembic_cfg = Config(f"{os.getcwd()}/alembic.ini")
+        # upgrade(alembic_cfg, "head")
         logger.info("complete alembic run")
     except Exception as exc:
         logger.info("error alembic run")
