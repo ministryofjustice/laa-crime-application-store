@@ -22,9 +22,7 @@ deploy_branch() {
                 --set ingress.hosts[0].host="$RELEASE_HOST" \
                 --set ingress.tls[0].host="$RELEASE_HOST" \
                 --set nameOverride="$BRANCH_RELEASE_NAME"\
-                --set fullnameOverride="$BRANCH_RELEASE_NAME"\
-                --atomic
-
+                --set fullnameOverride="$BRANCH_RELEASE_NAME"
 }
 
 deploy_main() {
