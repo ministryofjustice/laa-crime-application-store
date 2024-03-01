@@ -46,6 +46,7 @@ structlog.configure(
     wrapper_class=structlog.stdlib.BoundLogger,
     cache_logger_on_first_use=True,
 )
+logger = structlog.getLogger(__name__)
 
 sentry_sdk.init(
     dsn=get_app_settings().sentry_dsn,
@@ -92,8 +93,10 @@ async def validation_exception_handler(request, exc):
 
 @app.on_event("startup")
 async def startup() -> None:
+    logger.info("start alembic run")
     alembic_cfg = Config(f"{os.getcwd()}/alembic.ini")
     upgrade(alembic_cfg, "head")
+    logger.info("complete alembic run")
 
 
 @app.on_event("startup")
@@ -101,4 +104,6 @@ async def load_config() -> None:
     """
     Load OpenID config on startup.
     """
+    logger.info("start azure run")
     await azure_auth.openid_config.load_config()
+    logger.info("complete azure run")
