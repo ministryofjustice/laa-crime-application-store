@@ -95,9 +95,11 @@ spec:
                   name: azure-secret
                   key: tenant_id
             - name: SWAGGER_ENDPOINT
-              value: {{ .Values.secrets.swaggerEndpoint | quote}}
+              value: {{ .Values.envVars.swaggerEndpoint | quote}}
+            {{- if not eq .Values.environment "prod" }}
             - name: AUTHENTICATION_REQUIRED
-              value: {{ .Values.secrets.authenticationRequired | quote}}
+              value: {{ .Values.envVars.authenticationRequired | quote}}
+            {{ end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
