@@ -1,5 +1,4 @@
 #!/bin/sh
 cd /code
 
-python ./alembic/generate_db.py
-uvicorn laa_crime_application_store_app.main:app --host 0.0.0.0 --port 8000
+alembic upgrade head && uvicorn laa_crime_application_store_app.main:app --host 0.0.0.0 --port 8000

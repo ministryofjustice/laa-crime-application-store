@@ -36,4 +36,4 @@ ENV APP_BRANCH ${APP_BRANCH}
 
 EXPOSE 8000
 ENTRYPOINT ["./run.sh"]
-# CMD ["uvicorn", "laa_crime_application_store_app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+

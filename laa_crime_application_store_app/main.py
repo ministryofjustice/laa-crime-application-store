@@ -1,6 +1,5 @@
 import json
 import logging.config
-import os
 
 import sentry_sdk
 import structlog
@@ -9,8 +8,6 @@ from fastapi import FastAPI, Security
 from starlette.responses import JSONResponse
 from structlog.stdlib import LoggerFactory
 
-# from alembic.command import upgrade
-# from alembic.config import Config
 from laa_crime_application_store_app.config import logging_config
 from laa_crime_application_store_app.config.app_settings import get_app_settings
 from laa_crime_application_store_app.config.auth_settings import get_auth_settings
@@ -92,27 +89,8 @@ async def validation_exception_handler(request, exc):
 
 
 @app.on_event("startup")
-async def startup() -> None:
-    try:
-        logger.info("start alembic run")
-        logger.info(os.getenv("POSTGRES_USERNAME", "test"))
-        logger.info(os.getenv("POSTGRES_PASSWORD", "pass"))
-        logger.info(os.getenv("POSTGRES_HOSTNAME", "localhost"))
-        logger.info(os.getenv("POSTGRES_NAME", "laa_crime_application_store"))
-
-        # alembic_cfg = Config(f"{os.getcwd()}/alembic.ini")
-        # upgrade(alembic_cfg, "head")
-        logger.info("complete alembic run")
-    except Exception as exc:
-        logger.info("error alembic run")
-        logger.info(exc)
-
-
-@app.on_event("startup")
 async def load_config() -> None:
     """
     Load OpenID config on startup.
     """
-    logger.info("start azure run")
     await azure_auth.openid_config.load_config()
-    logger.info("complete azure run")
