@@ -239,6 +239,8 @@ workflows:
       - build-and-push: {}
       - deploy-dev:
           context: laa-crime-application-store-dev
+          requires:
+            - build-and-push
       - postman-test:
           name: dev postman tests
           context: laa-crime-application-store-dev
