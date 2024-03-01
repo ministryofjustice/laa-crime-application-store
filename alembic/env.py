@@ -1,12 +1,9 @@
 import os
 from logging.config import fileConfig
 
-import structlog
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-
-logger = structlog.getLogger(__name__)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -62,7 +59,6 @@ def run_migrations_online() -> None:
     """
     connectable = config.attributes.get("connection", None)
 
-    logger.info("in migrations")
     if connectable is None:
         postgres_url = "postgresql+psycopg2://{}:{}@{}/{}".format(
             os.getenv("POSTGRES_USERNAME", "test"),
@@ -70,8 +66,6 @@ def run_migrations_online() -> None:
             os.getenv("POSTGRES_HOSTNAME", "localhost"),
             os.getenv("POSTGRES_NAME", "laa_crime_application_store"),
         )
-        logger.info("postgres url")
-        logger.info(postgres_url)
 
         config.set_main_option("sqlalchemy.url", postgres_url)
 
