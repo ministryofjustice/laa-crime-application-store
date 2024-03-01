@@ -1,5 +1,6 @@
 import json
 import logging.config
+import os
 
 import sentry_sdk
 import structlog
@@ -19,8 +20,6 @@ from laa_crime_application_store_app.middleware.secure_headers_middleware import
 from laa_crime_application_store_app.routers import index, ping
 from laa_crime_application_store_app.routers.v1 import application as v1_application
 from laa_crime_application_store_app.services.auth_service import azure_auth_service
-
-# import os
 
 
 def send_event(event, hint):
@@ -96,6 +95,11 @@ async def validation_exception_handler(request, exc):
 async def startup() -> None:
     try:
         logger.info("start alembic run")
+        logger.info(os.getenv("POSTGRES_USERNAME", "test"))
+        logger.info(os.getenv("POSTGRES_PASSWORD", "pass"))
+        logger.info(os.getenv("POSTGRES_HOSTNAME", "localhost"))
+        logger.info(os.getenv("POSTGRES_NAME", "laa_crime_application_store"))
+
         # alembic_cfg = Config(f"{os.getcwd()}/alembic.ini")
         # upgrade(alembic_cfg, "head")
         logger.info("complete alembic run")
