@@ -92,7 +92,7 @@ postgresql:
       cpu: 250m
       memory: 256Mi
   auth:
-    database: nsm_assess_dev
+    database: nsm_store_dev
     enablePostgresUser: true
     postgresPassword: postgres
   postgresqlUsername: postgres
