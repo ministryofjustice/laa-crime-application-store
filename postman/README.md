@@ -18,9 +18,10 @@ kubectl -n laa-claim-non-standard-magistrate-fee-dev get secrets azure-secret -o
 
 Adding the following varibles to the environment config in postman:
 
-* applicationId - from app_client_id
-* tenantId - from tenant_id
-* applicationSecret - from app_client_secret
+* baseUrl -> update to point to new deployed url
+* applicationId -> from app_client_id
+* tenantId -> from tenant_id
+* applicationSecret -> from app_client_secret
 
 > **NOTE:** It is also necessary to ensure the `tokenExpires` variable has a value
 > as if it is left as an empty string the access token **will not** be updated.
