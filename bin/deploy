@@ -26,7 +26,7 @@ deploy_branch() {
 }
 
 deploy_main() {
-  helm upgrade laa-claim-non-standard-magistrate-fee ./helm_deploy/. \
+  helm upgrade laa-crime-application-store ./helm_deploy/. \
                           --install --wait \
                           --namespace=${K8S_NAMESPACE} \
                           --values ./helm_deploy/values-$ENVIRONMENT.yaml \
