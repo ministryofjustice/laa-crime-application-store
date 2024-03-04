@@ -1,5 +1,5 @@
-name: "Delete UAT deployment"
-description: 'Deletes a UAT deployment with a name that matches the merged or closed branch'
+name: "Delete DEV deployment"
+description: 'Deletes a DEV deployment with a name that matches the merged or closed branch'
 inputs:
   k8s_cluster:
     description: "Kubernetes cluster name"
@@ -69,7 +69,7 @@ runs:
         kubectl config set-credentials circleci --token=${K8S_TOKEN}
         kubectl config set-context ${K8S_CLUSTER} --cluster=${K8S_CLUSTER} --user=circleci --namespace=${K8S_NAMESPACE}
         kubectl config use-context ${K8S_CLUSTER}
-    - name: Delete UAT release
+    - name: Delete DEV release
       id: delete_release
       shell: bash
       run: |
@@ -79,7 +79,7 @@ runs:
         then
           helm delete $release_name
           kubectl delete pvc data-$release_name-postgresql-0
-          echo "message=\"Deleted UAT release ${release_name}\"" >> $GITHUB_OUTPUT
+          echo "message=\"Deleted DEV release ${release_name}\"" >> $GITHUB_OUTPUT
         else
-          echo "message=\"UAT release, ${release_name}, not found\"" >> $GITHUB_OUTPUT
+          echo "message=\"DEV release, ${release_name}, not found\"" >> $GITHUB_OUTPUT
         fi
