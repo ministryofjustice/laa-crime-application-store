@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   newman: postman/newman@1.0.0
   snyk: snyk/snyk@1.1.2
-  aws-cli: circleci/aws-cli@4.0.0 # use v4 of this orb
+  aws-cli: circleci/aws-cli@4.1.3 # use v4 of this orb
   aws-ecr: circleci/aws-ecr@9.0.2 # this orb doesn't support OIDC v2, so we use aws-cli to authenticate
 
 references:
@@ -165,20 +165,22 @@ jobs:
       # Authenticate to the ECR repository using the standard command
       - run: |
           aws ecr get-login-password --region $ECR_REGION | docker login --username AWS --password-stdin ${AWS_ECR_REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com
-      # Build and push your Docker image
       - run:
           name: Set ECR_TAGS environment variable for use in next step
           command: |
             [[ "$CIRCLE_BRANCH" == "main" ]] && ECR_TAGS="main-$CIRCLE_SHA1,latest" || ECR_TAGS="branch-$CIRCLE_SHA1"
             echo "export ECR_TAGS=$ECR_TAGS" >> "$BASH_ENV"
+            echo "export APP_BUILD_DATE=$(date +%Y-%m-%dT%H:%M:%S%z)" >> "$BASH_ENV"
             source "$BASH_ENV"
-      - aws-ecr/build_and_push_image:
-          push-image: true
+      # Build and push your Docker image
+      - aws-ecr/build_image:
+          push_image: true
           tag: ${ECR_TAGS}
           region: $ECR_REGION # this will use the env var
           repo: $ECR_REPOSITORY # this will use the env var
+          account_id: $AWS_ECR_REGISTRY_ID
           extra-build-args: >-
-            --build-arg BUILD_DATE=$(date +%Y-%m-%dT%H:%M:%S%z)
+            --build-arg BUILD_DATE=${APP_BUILD_DATE}
             --build-arg BUILD_TAG=${CIRCLE_SHA1}
             --build-arg COMMIT_ID=${CIRCLE_SHA1}
             --build-arg APP_BRANCH=${CIRCLE_BRANCH}
