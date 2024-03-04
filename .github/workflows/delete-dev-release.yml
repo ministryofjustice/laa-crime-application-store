@@ -1,0 +1,24 @@
+name: Delete UAT release
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  delete_dev_job:
+    environment: Development
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Delete temporary release from dev environment
+        id: delete_dev
+        uses: ./.github/actions/delete-dev-release
+        with:
+          k8s_cluster: ${{ secrets.KUBE_CLUSTER }}
+          k8s_cluster_cert: ${{ secrets.KUBE_CERT }}
+          k8s_namespace: ${{ secrets.KUBE_NAMESPACE }}
+          k8s_token: ${{ secrets.KUBE_TOKEN }}
+      - name: Result
+        shell: bash
+        run: echo ${{ steps.delete_dev.outputs.delete-message }}\

@@ -53,6 +53,16 @@ spec:
                 secretKeyRef:
                   name: sentry
                   key: dsn
+          {{ if .Values.postgresql.enabled }}
+            - name: POSTGRES_USERNAME
+              value: {{ .Values.postgresql.postgresqlUsername }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgresql.auth.postgresPassword }}
+            - name: POSTGRES_HOSTNAME
+              value: {{ printf "%s-%s" .Release.Name "postgresql" | trunc 63 | trimSuffix "-" }}
+            - name: POSTGRES_NAME
+              value: {{ .Values.postgresql.auth.database }}
+          {{ else }}
             - name: POSTGRES_NAME
               valueFrom:
                 secretKeyRef:
@@ -73,6 +83,7 @@ spec:
                 secretKeyRef:
                   name: rds-postgresql-instance-output
                   key: rds_instance_address
+          {{ end }}
             - name: APP_CLIENT_ID
               valueFrom:
                 secretKeyRef:

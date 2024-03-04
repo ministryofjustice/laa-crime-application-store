@@ -1,6 +1,5 @@
 import json
 import logging.config
-import os
 
 import sentry_sdk
 import structlog
@@ -9,8 +8,6 @@ from fastapi import FastAPI, Security
 from starlette.responses import JSONResponse
 from structlog.stdlib import LoggerFactory
 
-from alembic.command import upgrade
-from alembic.config import Config
 from laa_crime_application_store_app.config import logging_config
 from laa_crime_application_store_app.config.app_settings import get_app_settings
 from laa_crime_application_store_app.config.auth_settings import get_auth_settings
@@ -46,6 +43,7 @@ structlog.configure(
     wrapper_class=structlog.stdlib.BoundLogger,
     cache_logger_on_first_use=True,
 )
+logger = structlog.getLogger(__name__)
 
 sentry_sdk.init(
     dsn=get_app_settings().sentry_dsn,
@@ -88,12 +86,6 @@ app.include_router(
 async def validation_exception_handler(request, exc):
     structlog.getLogger("AUTH_EVENT").warning("INVALID_AUTH", exception=exc)
     return JSONResponse(status_code=401, content={"detail": exc.detail})
-
-
-@app.on_event("startup")
-async def startup() -> None:
-    alembic_cfg = Config(f"{os.getcwd()}/alembic.ini")
-    upgrade(alembic_cfg, "head")
 
 
 @app.on_event("startup")
