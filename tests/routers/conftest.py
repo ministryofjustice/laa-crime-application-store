@@ -17,6 +17,9 @@ from laa_crime_application_store_app.models.application_schema import Applicatio
 from laa_crime_application_store_app.models.application_version_schema import (
     ApplicationVersion,
 )
+from laa_crime_application_store_app.services.auth_service import (
+    CrimeSingleTenantAzureAuthorizationCodeBearer,
+)
 
 postgres_test_url = "postgresql+psycopg2://{}:{}@{}/{}".format(
     get_database_settings().postgres_username,
@@ -110,3 +113,57 @@ def seed_application(dbsession):
     dbsession.add_all([application, version, version_2])
     dbsession.commit()
     return app_id
+
+
+# these fixtures are used to check the authentication settings
+
+
+@pytest.fixture
+def mock_azure_service_authenticated():
+    from laa_crime_application_store_app.config.auth_settings import get_auth_settings
+
+    mock_settings = get_auth_settings()
+    mock_settings.authentication_required = "True"
+    return CrimeSingleTenantAzureAuthorizationCodeBearer(
+        app_client_id=mock_settings.app_client_id,
+        tenant_id=mock_settings.tenant_id,
+        scopes=mock_settings.scopes,
+    )
+
+
+@pytest.fixture
+def mock_azure_service_unauthenticated():
+    from laa_crime_application_store_app.config.auth_settings import get_auth_settings
+
+    mock_settings = get_auth_settings()
+    mock_settings.authentication_required = "False"
+    return CrimeSingleTenantAzureAuthorizationCodeBearer(
+        app_client_id=mock_settings.app_client_id,
+        tenant_id=mock_settings.tenant_id,
+        scopes=mock_settings.scopes,
+    )
+
+
+@pytest.fixture(scope="function")
+def authenticated_client(mock_azure_service_authenticated, dbsession):
+    from laa_crime_application_store_app.main import (
+        create_app,  # Import only after env created
+    )
+
+    authenticated_app = create_app(mock_azure_service_authenticated)
+    authenticated_app.dependency_overrides[get_db] = lambda: dbsession
+    with TestClient(authenticated_app) as c:
+        yield c
+
+
+@pytest.fixture(scope="function")
+def unauthenticated_client(mock_azure_service_unauthenticated, dbsession):
+    from laa_crime_application_store_app.main import (
+        create_app,  # Import only after env created
+    )
+
+    mock_azure = mock_azure_service_unauthenticated
+    unauthenticated_app = create_app(mock_azure)
+    unauthenticated_app.dependency_overrides[get_db] = lambda: dbsession
+    with TestClient(unauthenticated_app) as c:
+        yield c

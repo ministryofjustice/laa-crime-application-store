@@ -15,6 +15,11 @@ $ pipenv shell
 $ pipenv install --dev
 ```
 
+If you wish to exit the pipenv environment then type
+```shell
+$ exit
+```
+
 If you need to update your python version or reset your virtual environment you can run the following
 ```shell
 $ pipenv --rm
@@ -39,7 +44,7 @@ On the rare occasion you may need to bypass this, you can do so with `git commit
 
 ### Setup environment variables
 
-Copy `.env.sample` to `.env` and amend as neccesary. See sections below for expected
+Copy `.env.sample.dev` to `.env.dev`  and `.env.sample.test` to `.env.test` and amend as necessary. See sections below for expected
 values.
 
 ### Setting up the database
@@ -50,9 +55,11 @@ Information on our usage can be found [here](alembic/README.md)
 
 ### Running the application
 
-Running the application can be done by using the following command from the root of the project
+Running the application can be done by using the following commands from the root of the project.
+Note that this will use the variable in the development .env
+
 ```shell
-pipenv run uvicorn laa_crime_application_store_app.main:app --reload
+PIPENV_DOTENV_LOCATION=.env.dev pipenv run uvicorn laa_crime_application_store_app.main:app --reload
 ```
 The application will reload on code changes to save on rebuild times
 
@@ -88,8 +95,11 @@ To run via a docker container:
 
 #### Unit tests
 Run units tests with the following command from the root of the project
+Note that this will use the variable in the test .env
+NB Having swagger docs set in your .env file will cause one of the tests to fail
+
 ```shell
-pipenv run pytest --cov-report term --cov=laa_crime_application_store_app tests/
+PIPENV_DOTENV_LOCATION=.env.test pipenv run pytest --cov-report term --cov=laa_crime_application_store_app tests/
 ```
 
 #### API Tests

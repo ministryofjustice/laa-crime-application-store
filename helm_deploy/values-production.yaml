@@ -1,7 +1,7 @@
 # Default values for helm_deploy.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-
+environment: "prod"
 replicaCount: 1
 
 image:
@@ -77,10 +77,10 @@ affinity: {}
 service_account:
   name: laa-crime-application-store-production-irsa
 
-secrets:
+envVars:
   swaggerEndpoint:
+  authenticationRequired: True
 
 # Instead of a temporary postgres pod we use RDS
 postgresql:
   enabled: false
-

@@ -10,6 +10,6 @@ def test_main_route_returns_404_when_disabled():
     assert response.status_code == 404
 
 
-def test_main_route_body_returns_hello_world():
+def test_main_route_body_redirects_to_docs():
     response = client.get("/")
     assert response.url.path == "/docs"
