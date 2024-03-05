@@ -103,4 +103,3 @@ async def lifespan():
 
     await azure_auth.openid_config.load_config()
     yield
-
