@@ -35,7 +35,7 @@ service:
 
 ingress:
   enabled: true
-  namespace: laa-crime-application-store-prod
+  namespace: laa-crime-application-store-production
   className: modsec
   annotations:
     nginx.ingress.kubernetes.io/enable-modsecurity: "true"
