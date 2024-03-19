@@ -5,6 +5,7 @@ WORKDIR /code
 RUN apk --update-cache upgrade \
 && apk --no-cache add --upgrade gcc \
     musl-dev \
+    libffi-dev \
     build-base \
     expat>2.6.0-r0
 
