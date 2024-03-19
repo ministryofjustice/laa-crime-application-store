@@ -218,7 +218,7 @@ jobs:
 workflows:
   version: 2
 
-  test:
+  test-opened-pr:
     jobs:
       - lint-app:
           filters:
@@ -236,7 +236,7 @@ workflows:
               ignore:
                 - main
 
-  build-and-deploy:
+  build-and-deploy-open-pr:
     jobs:
       - build-and-push: {}
       - deploy-dev:
@@ -248,33 +248,8 @@ workflows:
           context: laa-crime-application-store-dev
           requires:
             - deploy-dev
-      - hold-uat:
-          type: approval
-          requires:
-            - build-and-push
-          filters:
-            branches:
-              only:
-                - mainx
-      - deploy-uat:
-          context: laa-crime-application-store-uat
-          requires:
-            - hold-uat
-          filters:
-            branches:
-              only:
-                - main
-      - postman-test:
-          name: uat postman tests
-          context: laa-crime-application-store-uat
-          requires:
-            - deploy-uat
-          filters:
-            branches:
-              only:
-                - main
 
-  test-build-deploy-main:
+  test-build-deploy-merged-pr:
     jobs:
       - lint-app:
           filters:
@@ -296,37 +271,32 @@ workflows:
             - lint-app
             - test-app
             - scan-docker-image
-      - hold-dev:
-          type: approval
-          requires:
-            - build-and-push
       - deploy-dev:
           context: laa-crime-application-store-dev
           requires:
-            - hold-dev
+              - build-and-push
       - postman-test:
           name: dev postman tests
           context: laa-crime-application-store-dev
           requires:
             - deploy-dev
-      - hold-uat:
-          type: approval
-          requires:
-            - build-and-push
       - deploy-uat:
           context: laa-crime-application-store-uat
-          requires:
-            - hold-uat
+          filters:
+              branches:
+                  only:
+                      - main
       - postman-test:
           name: uat postman tests
           context: laa-crime-application-store-uat
           requires:
             - deploy-uat
-      - hold-prod:
-          type: approval
-          requires:
-            - build-and-push
       - deploy-prod:
           context: laa-crime-application-store-prod
+          filters:
+              branches:
+                  only:
+                      - main
           requires:
-            - hold-prod
+           - deploy-uat
+
