@@ -133,7 +133,7 @@ class ApplicationService:
             existing_ids = [e["id"] for e in (existing_application.events or [])]
             modified = False
             for event in application.events:
-                if not event["id"] in existing_ids:
+                if event["id"] not in existing_ids:
                     modified = True
                     existing_application.events.append(event)
             if modified:
