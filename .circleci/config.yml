@@ -282,6 +282,8 @@ workflows:
             - deploy-dev
       - deploy-uat:
           context: laa-crime-application-store-uat
+          requires:
+              - build-and-push
           filters:
               branches:
                   only:
