@@ -1,7 +1,6 @@
 import json
 import uuid
 from datetime import datetime, timedelta
-from unittest.mock import patch
 
 import structlog
 from fastapi.testclient import TestClient
@@ -88,11 +87,7 @@ def test_data_selected_version_returns_400(client: TestClient, seed_application)
     assert response.status_code == 400
 
 
-@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
-def test_post_application_returns_200(
-    mock_notify, client: TestClient, dbsession: Session
-):
-    mock_notify.return_value = True
+def test_post_application_returns_200(client: TestClient, dbsession: Session):
     response = client.post(
         "/v1/application/",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
@@ -110,11 +105,9 @@ def test_post_application_returns_200(
     assert dbsession.query(Application).count() == 1
 
 
-@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
 def test_post_application_returns_duplicate_error_if_id_already_exists(
-    mock_notify, client: TestClient, dbsession: Session, seed_application
+    client: TestClient, dbsession: Session, seed_application
 ):
-    mock_notify.return_value = True
     response = client.post(
         "/v1/application/",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
@@ -132,11 +125,9 @@ def test_post_application_returns_duplicate_error_if_id_already_exists(
     assert response.status_code == 409
 
 
-@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
 def test_put_application_returns_200(
-    mock_notify, client: TestClient, dbsession: Session, seed_application
+    client: TestClient, dbsession: Session, seed_application
 ):
-    mock_notify.return_value = True
     response = client.put(
         f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
@@ -154,11 +145,9 @@ def test_put_application_returns_200(
     assert response.status_code == 201
 
 
-@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
 def test_put_application_create_a_new_version(
-    mock_notify, client: TestClient, dbsession: Session, seed_application
+    client: TestClient, dbsession: Session, seed_application
 ):
-    mock_notify.return_value = True
     client.put(
         f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
@@ -178,11 +167,9 @@ def test_put_application_create_a_new_version(
     assert (datetime.now() - application.updated_at) < timedelta(seconds=3)
 
 
-@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
 def test_put_application_create_a_new_application_when_it_doesnt_exist(
-    mock_notify, client: TestClient, dbsession: Session
+    client: TestClient, dbsession: Session
 ):
-    mock_notify.return_value = True
     response = client.put(
         "/v1/application/d7f509e8-309c-4262-a41d-ebbb44deab9e",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
@@ -200,11 +187,9 @@ def test_put_application_create_a_new_application_when_it_doesnt_exist(
     assert response.status_code == 201
 
 
-@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
 def test_put_application_returns_409_when_invalid_data(
-    mock_notify, client: TestClient, dbsession: Session, seed_application
+    client: TestClient, dbsession: Session, seed_application
 ):
-    mock_notify.return_value = True
     response = client.put(
         f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
@@ -222,11 +207,9 @@ def test_put_application_returns_409_when_invalid_data(
     assert response.status_code == 409
 
 
-@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
 def test_put_application_has_no_effect_if_data_is_unchanged(
-    mock_notify, client: TestClient, dbsession: Session, seed_application
+    client: TestClient, dbsession: Session, seed_application
 ):
-    mock_notify.return_value = True
     response = client.put(
         f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
@@ -244,11 +227,9 @@ def test_put_application_has_no_effect_if_data_is_unchanged(
     assert response.status_code == 201
 
 
-@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
 def test_put_application_can_update_state(
-    mock_notify, client: TestClient, dbsession: Session, seed_application
+    client: TestClient, dbsession: Session, seed_application
 ):
-    mock_notify.return_value = True
     client.put(
         f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
@@ -267,11 +248,9 @@ def test_put_application_can_update_state(
     assert application.application_state == "approved"
 
 
-@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
 def test_put_application_changes_to_application_risk_are_ignored(
-    mock_notify, client: TestClient, dbsession: Session, seed_application
+    client: TestClient, dbsession: Session, seed_application
 ):
-    mock_notify.return_value = True
     client.put(
         f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
@@ -289,11 +268,9 @@ def test_put_application_changes_to_application_risk_are_ignored(
     assert application.application_risk == "low"
 
 
-@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
 def test_put_application_changes_to_updated_application_risk_are_applied(
-    mock_notify, client: TestClient, dbsession: Session, seed_application
+    client: TestClient, dbsession: Session, seed_application
 ):
-    mock_notify.return_value = True
     client.put(
         f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
@@ -312,11 +289,9 @@ def test_put_application_changes_to_updated_application_risk_are_applied(
     assert application.application_risk == "high"
 
 
-@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
 def test_put_application_creates_new_event_records(
-    mock_notify, client: TestClient, dbsession: Session, seed_application
+    client: TestClient, dbsession: Session, seed_application
 ):
-    mock_notify.return_value = True
     client.put(
         f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
@@ -334,11 +309,9 @@ def test_put_application_creates_new_event_records(
     assert application.events == [{"id": 11, "value": "alpha"}]
 
 
-@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
 def test_put_application_does_not_delete_existing_events(
-    mock_notify, client: TestClient, dbsession: Session, seed_application_with_events
+    client: TestClient, dbsession: Session, seed_application_with_events
 ):
-    mock_notify.return_value = True
     client.put(
         f"/v1/application/{seed_application_with_events}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
@@ -358,11 +331,9 @@ def test_put_application_does_not_delete_existing_events(
     assert application.events == [{"id": 11, "value": "alpha"}]
 
 
-@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
 def test_put_application_does_not_overwrite_existing_events(
-    mock_notify, client: TestClient, dbsession: Session, seed_application_with_events
+    client: TestClient, dbsession: Session, seed_application_with_events
 ):
-    mock_notify.return_value = True
     client.put(
         f"/v1/application/{seed_application_with_events}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
@@ -382,11 +353,9 @@ def test_put_application_does_not_overwrite_existing_events(
     assert application.events == [{"id": 11, "value": "alpha"}]
 
 
-@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
 def test_put_application_appends_new_events(
-    mock_notify, client: TestClient, dbsession: Session, seed_application_with_events
+    client: TestClient, dbsession: Session, seed_application_with_events
 ):
-    mock_notify.return_value = True
     client.put(
         f"/v1/application/{seed_application_with_events}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
