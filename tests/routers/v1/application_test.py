@@ -1,6 +1,7 @@
 import json
 import uuid
 from datetime import datetime, timedelta
+from unittest.mock import patch
 
 import structlog
 from fastapi.testclient import TestClient
@@ -376,3 +377,26 @@ def test_put_application_appends_new_events(
         {"id": 11, "value": "alpha"},
         {"id": 12, "value": "beta"},
     ]
+
+
+@patch("laa_crime_application_store_app.services.permissions.Permissions.allow_update")
+def test_put_application_without_permitted_role(
+    allow_update, client: TestClient, dbsession: Session, seed_application
+):
+    allow_update.return_value = False
+    response = client.put(
+        f"/v1/application/{seed_application}",
+        headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
+        json={
+            "application_id": str(seed_application),
+            "json_schema_version": 1,
+            "application_state": "submitted",
+            "application_risk": "low",
+            "application_type": "crm7",
+            "application": {"id": 10, "plea": "guilty"},
+            "events": [{"id": 12, "value": "beta"}],
+        },
+    )
+    assert response.status_code == 409
+    application = dbsession.query(Application).first()
+    assert application.events is None

@@ -59,7 +59,7 @@ async def mock_normal_user(request: Request):
     user = User(
         claims={},
         preferred_username="NormalUser",
-        roles=["role1"],
+        roles=[],
         aud="aud",
         tid="tid",
         access_token="123",

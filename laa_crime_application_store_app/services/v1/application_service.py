@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 from uuid import UUID
 
 import structlog
@@ -17,6 +18,7 @@ from laa_crime_application_store_app.schema.basic_application import (
     ApplicationResponse,
     BasicApplication,
 )
+from laa_crime_application_store_app.services.permissions import get_permissions
 
 logger = structlog.getLogger(__name__)
 
@@ -103,7 +105,7 @@ class ApplicationService:
 
     @staticmethod
     def update_existing_application(
-        db: Session, app_id: UUID, application: ApplicationUpdate
+        db: Session, app_id: UUID, application: ApplicationUpdate, roles: List[str]
     ):
         existing_application = ApplicationService.__get_application_by_id(db, app_id)
 
@@ -122,6 +124,9 @@ class ApplicationService:
             in [None, existing_application.application_risk]
         ):
             return existing_application.id
+
+        if not get_permissions().allow_update(existing_application, roles):
+            return None
 
         existing_application.updated_at = datetime.now()
         existing_application.current_version += 1

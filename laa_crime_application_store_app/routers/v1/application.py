@@ -92,7 +92,7 @@ async def put_application(
 ):
     logger.info("UPDATING_APPLICATION", application_id=application.application_id)
     existing_application = ApplicationService.update_existing_application(
-        db, app_id, application
+        db, app_id, application, request.state.user.roles
     )
 
     if existing_application is None:
