@@ -172,7 +172,7 @@ def test_put_application_create_a_new_version(
         },
     )
     assert dbsession.query(ApplicationVersion).count() == 3
-    application = dbsession.query(Application).first()
+    application = dbsession.query(Application).filter_by(id=seed_application).first()
     latest_version = dbsession.query(ApplicationVersion).filter_by(version=3).first()
     assert latest_version.application == {"id": 10, "plea": "guilty"}
     assert (datetime.now() - application.updated_at) < timedelta(seconds=3)
@@ -330,7 +330,7 @@ def test_put_application_creates_new_event_records(
             "events": [{"id": 11, "value": "alpha"}],
         },
     )
-    application = dbsession.query(Application).first()
+    application = dbsession.query(Application).filter_by(id=seed_application).first()
     assert application.events == [{"id": 11, "value": "alpha"}]
 
 
@@ -352,7 +352,9 @@ def test_put_application_does_not_delete_existing_events(
             "events": [],
         },
     )
-    application = dbsession.query(Application).first()
+    application = (
+        dbsession.query(Application).filter_by(id=seed_application_with_events).first()
+    )
     assert application.events == [{"id": 11, "value": "alpha"}]
 
 
@@ -374,7 +376,9 @@ def test_put_application_does_not_overwrite_existing_events(
             "events": [{"id": 11, "value": "beta"}],
         },
     )
-    application = dbsession.query(Application).first()
+    application = (
+        dbsession.query(Application).filter_by(id=seed_application_with_events).first()
+    )
     assert application.events == [{"id": 11, "value": "alpha"}]
 
 
@@ -396,7 +400,9 @@ def test_put_application_appends_new_events(
             "events": [{"id": 12, "value": "beta"}],
         },
     )
-    application = dbsession.query(Application).first()
+    application = (
+        dbsession.query(Application).filter_by(id=seed_application_with_events).first()
+    )
     assert application.events == [
         {"id": 11, "value": "alpha"},
         {"id": 12, "value": "beta"},
