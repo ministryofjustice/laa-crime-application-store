@@ -15,7 +15,6 @@ class Permissions:
 
     def allow_update(self, application: Application, roles: List[str]) -> bool:
         if application.application_state in Permissions.LOCKED_STATES:
-            # Locked once the application is approved
             return False
         elif not roles:
             capture_message("no roles setup for permission logic")
@@ -29,7 +28,7 @@ class Permissions:
             if Permissions.PROVIDER_ROLE not in roles:
                 return False
 
-        # fallback for unknown state
+        # fallback for unknown state raise an error so state list can be updated
         capture_message(
             f"Unknown state {application.application_state} when check permission logic"
         )
