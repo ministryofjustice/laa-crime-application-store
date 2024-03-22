@@ -27,23 +27,30 @@ def test_permission_when_submitted_and_caseworker_role():
         application_type="crm7",
         updated_at=datetime.fromtimestamp(1699443712),
     )
-    roles = ["caseworker"]
+    roles = ["Caseworker"]
     assert get_permissions().allow_update(application, roles)
 
 
 def test_permission_when_submitted_and_provider_role():
     application = Application(application_state="submitted")
-    roles = ["provider"]
+    roles = ["Provider"]
     assert not get_permissions().allow_update(application, roles)
 
 
 def test_permission_when_not_submitted_and_caseworker_role():
     application = Application(application_state="sent_back")
-    roles = ["caseworker"]
+    roles = ["Caseworker"]
     assert not get_permissions().allow_update(application, roles)
 
 
 def test_permission_when_not_submitted_and_provider_role():
     application = Application(application_state="sent_back")
-    roles = ["provider"]
+    roles = ["Provider"]
+    assert get_permissions().allow_update(application, roles)
+
+
+def test_permission_when_roles_and_unknown_state():
+    application = Application(application_state="fancy")
+    roles = ["Provider"]
+
     assert get_permissions().allow_update(application, roles)

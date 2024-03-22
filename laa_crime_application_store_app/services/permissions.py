@@ -10,14 +10,15 @@ class Permissions:
     CASEWORKER_EDITABLE_STATES = ("submitted", "provider_updated")
     PROVIDER_EDITABLE_STATES = ("part_granted", "rejected", "part_grant", "sent_back")
 
-    CASEWORKER_ROLE = "caseworker"
-    PROVIDER_ROLE = "provider"
+    CASEWORKER_ROLE = "Caseworker"
+    PROVIDER_ROLE = "Provider"
 
     def allow_update(self, application: Application, roles: List[str]) -> bool:
         if application.application_state in Permissions.LOCKED_STATES:
             # Locked once the application is approved
             return False
         elif not roles:
+            capture_message("no roles setup for permission logic")
             # TODO: remove this branch once roles have been implemented
             # on Azure accounts
             return True
