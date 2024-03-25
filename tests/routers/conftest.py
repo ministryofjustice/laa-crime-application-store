@@ -12,7 +12,7 @@ from laa_crime_application_store_app.config.database_settings import (
     get_database_settings,
 )
 from laa_crime_application_store_app.data.database import Base, get_db
-from laa_crime_application_store_app.main import app, azure_auth
+from laa_crime_application_store_app.main import app, azure_schema
 from laa_crime_application_store_app.models.application_schema import Application
 from laa_crime_application_store_app.models.application_version_schema import (
     ApplicationVersion,
@@ -82,7 +82,7 @@ async def mock_normal_user(request: Request):
 @pytest.fixture(scope="function")
 def client(dbsession):
     app.dependency_overrides[get_db] = lambda: dbsession
-    app.dependency_overrides[azure_auth] = mock_normal_user
+    app.dependency_overrides[azure_schema] = mock_normal_user
 
     yield TestClient(app)
 

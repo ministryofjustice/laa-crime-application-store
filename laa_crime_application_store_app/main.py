@@ -84,9 +84,9 @@ sentry_sdk.init(
     before_send=send_event,
 )
 
-azure_auth = azure_auth_service()
+azure_schema = azure_auth_service()
 
-app = create_app(azure_auth)
+app = create_app(azure_schema)
 
 
 @app.exception_handler(401)

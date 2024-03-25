@@ -13,6 +13,7 @@ from laa_crime_application_store_app.schema.application import Application as Ap
 from laa_crime_application_store_app.schema.application_new import ApplicationNew
 from laa_crime_application_store_app.schema.application_update import ApplicationUpdate
 from laa_crime_application_store_app.schema.basic_application import ApplicationResponse
+from laa_crime_application_store_app.services.permissions import UserWithPermissions
 from laa_crime_application_store_app.services.v1.application_service import (
     ApplicationService,
 )
@@ -88,11 +89,12 @@ async def put_application(
     request: Request,
     app_id: UUID,
     application: ApplicationUpdate,
+    # user: UserWithPermissions,
     db: Session = Depends(get_db),
 ):
     logger.info("UPDATING_APPLICATION", application_id=application.application_id)
     existing_application = ApplicationService.update_existing_application(
-        db, app_id, application, request.state.user.roles
+        db, app_id, application  # , user
     )
 
     if existing_application is None:
