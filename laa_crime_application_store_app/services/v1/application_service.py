@@ -4,6 +4,7 @@ from uuid import UUID
 import structlog
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 
 from laa_crime_application_store_app.models.application_schema import Application
 from laa_crime_application_store_app.models.application_version_schema import (
@@ -125,7 +126,20 @@ class ApplicationService:
         existing_application.updated_at = datetime.now()
         existing_application.current_version += 1
         existing_application.application_state = application.application_state
-        existing_application.events = application.events
+
+        if existing_application.events is None:
+            existing_application.events = application.events
+        else:
+            existing_ids = [e["id"] for e in (existing_application.events or [])]
+            modified = False
+            for event in application.events:
+                if event["id"] not in existing_ids:
+                    modified = True
+                    existing_application.events.append(event)
+            if modified:
+                # We need to manually set the modified flag here as otherwise the
+                # changes are silently dropped on save.
+                flag_modified(existing_application, "events")
 
         logger.info("UPDATED APPLICATION: ")
 

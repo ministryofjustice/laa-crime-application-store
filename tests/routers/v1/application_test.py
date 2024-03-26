@@ -172,7 +172,7 @@ def test_put_application_create_a_new_version(
         },
     )
     assert dbsession.query(ApplicationVersion).count() == 3
-    application = dbsession.query(Application).first()
+    application = dbsession.query(Application).filter_by(id=seed_application).first()
     latest_version = dbsession.query(ApplicationVersion).filter_by(version=3).first()
     assert latest_version.application == {"id": 10, "plea": "guilty"}
     assert (datetime.now() - application.updated_at) < timedelta(seconds=3)
@@ -310,3 +310,100 @@ def test_put_application_changes_to_updated_application_risk_are_applied(
 
     application = dbsession.query(Application).filter_by(id=seed_application).first()
     assert application.application_risk == "high"
+
+
+@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
+def test_put_application_creates_new_event_records(
+    mock_notify, client: TestClient, dbsession: Session, seed_application
+):
+    mock_notify.return_value = True
+    client.put(
+        f"/v1/application/{seed_application}",
+        headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
+        json={
+            "application_id": str(seed_application),
+            "json_schema_version": 1,
+            "application_state": "submitted",
+            "application_risk": "low",
+            "application_type": "crm7",
+            "application": {"id": 10, "plea": "guilty"},
+            "events": [{"id": 11, "value": "alpha"}],
+        },
+    )
+    application = dbsession.query(Application).filter_by(id=seed_application).first()
+    assert application.events == [{"id": 11, "value": "alpha"}]
+
+
+@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
+def test_put_application_does_not_delete_existing_events(
+    mock_notify, client: TestClient, dbsession: Session, seed_application_with_events
+):
+    mock_notify.return_value = True
+    client.put(
+        f"/v1/application/{seed_application_with_events}",
+        headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
+        json={
+            "application_id": str(seed_application_with_events),
+            "json_schema_version": 1,
+            "application_state": "submitted",
+            "application_risk": "low",
+            "application_type": "crm7",
+            "application": {"id": 10, "plea": "guilty"},
+            "events": [],
+        },
+    )
+    application = (
+        dbsession.query(Application).filter_by(id=seed_application_with_events).first()
+    )
+    assert application.events == [{"id": 11, "value": "alpha"}]
+
+
+@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
+def test_put_application_does_not_overwrite_existing_events(
+    mock_notify, client: TestClient, dbsession: Session, seed_application_with_events
+):
+    mock_notify.return_value = True
+    client.put(
+        f"/v1/application/{seed_application_with_events}",
+        headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
+        json={
+            "application_id": str(seed_application_with_events),
+            "json_schema_version": 1,
+            "application_state": "submitted",
+            "application_risk": "low",
+            "application_type": "crm7",
+            "application": {"id": 10, "plea": "guilty"},
+            "events": [{"id": 11, "value": "beta"}],
+        },
+    )
+    application = (
+        dbsession.query(Application).filter_by(id=seed_application_with_events).first()
+    )
+    assert application.events == [{"id": 11, "value": "alpha"}]
+
+
+@patch("laa_crime_application_store_app.internal.notifier.Notifier.notify")
+def test_put_application_appends_new_events(
+    mock_notify, client: TestClient, dbsession: Session, seed_application_with_events
+):
+    mock_notify.return_value = True
+    client.put(
+        f"/v1/application/{seed_application_with_events}",
+        headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
+        json={
+            "application_id": str(seed_application_with_events),
+            "json_schema_version": 1,
+            "application_state": "submitted",
+            "application_risk": "low",
+            "application_type": "crm7",
+            "application": {"id": 10, "plea": "guilty"},
+            "events": [{"id": 12, "value": "beta"}],
+        },
+    )
+    application = (
+        dbsession.query(Application).filter_by(id=seed_application_with_events).first()
+    )
+    assert application.events == [
+        {"id": 11, "value": "alpha"},
+        {"id": 12, "value": "beta"},
+    ]

@@ -1,4 +1,5 @@
-from sqlalchemy import JSON, UUID, Column, DateTime, Integer, Text
+from sqlalchemy import UUID, Column, DateTime, Integer, Text
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
 from laa_crime_application_store_app.data.database import Base
@@ -13,5 +14,5 @@ class Application(Base):
     application_risk = Column(Text, nullable=False)
     application_type = Column(Text, nullable=False)
     versions = relationship("ApplicationVersion", back_populates="application_record")
-    events = Column(JSON)
+    events = Column(JSONB)
     updated_at = Column(DateTime, nullable=False)
