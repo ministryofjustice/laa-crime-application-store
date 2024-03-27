@@ -1,0 +1,16 @@
+locked:
+  - granted
+  - expired
+  - auto_grant
+casework_editable:
+  - submitted
+  - provider_updated
+provider_editable:
+  - part_grant
+  - rejected
+  - further_info
+  - provider_requested
+all_editable:
+  - sent_back
+casework_role: "Caseworker"
+provider_role: "Provider"

@@ -22,9 +22,8 @@ class CrimeSingleTenantAzureAuthorizationCodeBearer(
         await super().__call__(request, security_scopes)
 
 
-def azure_auth_service():
-    return CrimeSingleTenantAzureAuthorizationCodeBearer(
-        app_client_id=settings.app_client_id,
-        tenant_id=settings.tenant_id,
-        scopes=settings.scopes,
-    )
+azure_schema = CrimeSingleTenantAzureAuthorizationCodeBearer(
+    app_client_id=settings.app_client_id,
+    tenant_id=settings.tenant_id,
+    scopes=settings.scopes,
+)
