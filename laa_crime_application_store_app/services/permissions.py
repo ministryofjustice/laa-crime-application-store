@@ -13,7 +13,7 @@ permissins = get_permissions()
 def validate_can_create(user: User = Depends(azure_schema)) -> None:
     if user is None or not user.roles:
         capture_message("No roles setup for permission logic")
-        # TODO: remove this branch once roles have been implemented
+        # remove this branch once roles have been implemented
         # on Azure accounts
     elif permissins.provider_role not in user.roles:
         raise InvalidAuth("User not permitted to create application")
@@ -25,9 +25,15 @@ def validate_can_update(
     if application.application_state in permissins.locked:
         raise InvalidAuth("Application in locked state")
     elif not user.roles:
-        # TODO: remove this branch once roles have been implemented
+        # remove this branch once roles have been implemented
         # on Azure accounts
         capture_message("no roles setup for permission logic")
+    elif application.application_state in permissins.all_editable:
+        if (
+            permissins.casework_role not in user.roles
+            and permissins.provider_role not in user.roles
+        ):
+            raise InvalidAuth("User not permitted to update application")
     elif application.application_state in permissins.casework_editable:
         if permissins.casework_role not in user.roles:
             raise InvalidAuth("User not permitted to update application")

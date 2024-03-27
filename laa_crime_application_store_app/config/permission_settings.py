@@ -14,6 +14,7 @@ class PermissionSettings(YamlBaseSettings):
     locked: List[str]
     casework_editable: List[str]
     provider_editable: List[str]
+    all_editable: List[str]
     casework_role: str
     provider_role: str
 

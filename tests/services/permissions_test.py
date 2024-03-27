@@ -18,8 +18,9 @@ def test_can_create_when_no_roles(normal_user):
 
 def test_can_create_when_caseworker_role(normal_user):
     normal_user.roles = ["Caseworker"]
-    with pytest.raises(InvalidAuth) as e:
-        assert validate_can_create(normal_user)
+    with pytest.raises(Exception) as e:
+        validate_can_create(normal_user)
+    assert e.type == InvalidAuth
     assert str(e.value) == "401: User not permitted to create application"
 
 
@@ -37,8 +38,9 @@ def test_can_update_when_no_roles(normal_user):
 def test_can_update_when_locked_state(normal_user):
     application = Application(application_state="granted")
     normal_user.roles = []
-    with pytest.raises(InvalidAuth) as e:
-        assert validate_can_update(application, normal_user)
+    with pytest.raises(Exception) as e:
+        validate_can_update(application, normal_user)
+    assert e.type == InvalidAuth
     assert str(e.value) == "401: Application in locked state"
 
 
@@ -59,23 +61,46 @@ def test_can_update_when_submitted_and_caseworker_role(normal_user):
 def test_can_update_when_submitted_and_provider_role(normal_user):
     application = Application(application_state="submitted")
     normal_user.roles = ["Provider"]
-    with pytest.raises(InvalidAuth) as e:
-        assert validate_can_update(application, normal_user)
+    with pytest.raises(Exception) as e:
+        validate_can_update(application, normal_user)
+    assert e.type == InvalidAuth
     assert str(e.value) == "401: User not permitted to update application"
 
 
 def test_can_update_when_not_submitted_and_caseworker_role(normal_user):
-    application = Application(application_state="sent_back")
+    application = Application(application_state="part_grant")
     normal_user.roles = ["Caseworker"]
-    with pytest.raises(InvalidAuth) as e:
-        assert validate_can_update(application, normal_user)
+    with pytest.raises(Exception) as e:
+        validate_can_update(application, normal_user)
+    assert e.type == InvalidAuth
     assert str(e.value) == "401: User not permitted to update application"
 
 
 def test_can_update_when_not_submitted_and_provider_role(normal_user):
+    application = Application(application_state="part_grant")
+    normal_user.roles = ["Provider"]
+    assert validate_can_update(application, normal_user) is None
+
+
+def test_can_update_when_sent_back_and_caseworker_role(normal_user):
+    application = Application(application_state="sent_back")
+    normal_user.roles = ["Caseworker"]
+    assert validate_can_update(application, normal_user) is None
+
+
+def test_can_update_when_sent_back_and_provider_role(normal_user):
     application = Application(application_state="sent_back")
     normal_user.roles = ["Provider"]
     assert validate_can_update(application, normal_user) is None
+
+
+def test_can_update_when_sent_back_and_other_role(normal_user):
+    application = Application(application_state="sent_back")
+    normal_user.roles = ["Other"]
+    with pytest.raises(Exception) as e:
+        validate_can_update(application, normal_user)
+    assert e.type == InvalidAuth
+    assert str(e.value) == "401: User not permitted to update application"
 
 
 def test_can_update_when_roles_and_unknown_state(normal_user):
