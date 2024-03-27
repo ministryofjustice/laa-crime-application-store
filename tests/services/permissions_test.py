@@ -1,23 +1,48 @@
 import uuid
 from datetime import datetime
 
+import pytest
+from fastapi_azure_auth.exceptions import InvalidAuth
+
 from laa_crime_application_store_app.models.application_schema import Application
-from laa_crime_application_store_app.services.permissions import get_permissions
+from laa_crime_application_store_app.services.permissions import (
+    validate_can_create,
+    validate_can_update,
+)
 
 
-def test_permission_when_no_roles():
+def test_can_create_when_no_roles(normal_user):
+    normal_user.roles = []
+    assert validate_can_create(normal_user) is None
+
+
+def test_can_create_when_caseworker_role(normal_user):
+    normal_user.roles = ["Caseworker"]
+    with pytest.raises(InvalidAuth) as e:
+        assert validate_can_create(normal_user)
+    assert str(e.value) == "401: User not permitted to create application"
+
+
+def test_can_create_when_provider_role(normal_user):
+    normal_user.roles = ["Provider"]
+    assert validate_can_create(normal_user) is None
+
+
+def test_can_update_when_no_roles(normal_user):
     application = Application(application_state="submitted")
-    roles = []
-    assert get_permissions().allow_update(application, roles)
+    normal_user.roles = []
+    assert validate_can_update(application, normal_user) is None
 
 
-def test_permission_when_locked_state():
+def test_can_update_when_locked_state(normal_user):
     application = Application(application_state="granted")
-    roles = []
-    assert not get_permissions().allow_update(application, roles)
+    normal_user.roles = []
+    with pytest.raises(InvalidAuth) as e:
+        assert validate_can_update(application, normal_user)
+    assert str(e.value) == "401: Application in locked state"
 
 
-def test_permission_when_submitted_and_caseworker_role():
+def test_can_update_when_submitted_and_caseworker_role(normal_user):
     app_id = uuid.uuid4()
     application = Application(
         id=app_id,
@@ -27,30 +52,33 @@ def test_permission_when_submitted_and_caseworker_role():
         application_type="crm7",
         updated_at=datetime.fromtimestamp(1699443712),
     )
-    roles = ["Caseworker"]
-    assert get_permissions().allow_update(application, roles)
+    normal_user.roles = ["Caseworker"]
+    assert validate_can_update(application, normal_user) is None
 
 
-def test_permission_when_submitted_and_provider_role():
+def test_can_update_when_submitted_and_provider_role(normal_user):
     application = Application(application_state="submitted")
-    roles = ["Provider"]
-    assert not get_permissions().allow_update(application, roles)
+    normal_user.roles = ["Provider"]
+    with pytest.raises(InvalidAuth) as e:
+        assert validate_can_update(application, normal_user)
+    assert str(e.value) == "401: User not permitted to update application"
 
 
-def test_permission_when_not_submitted_and_caseworker_role():
+def test_can_update_when_not_submitted_and_caseworker_role(normal_user):
     application = Application(application_state="sent_back")
-    roles = ["Caseworker"]
-    assert not get_permissions().allow_update(application, roles)
+    normal_user.roles = ["Caseworker"]
+    with pytest.raises(InvalidAuth) as e:
+        assert validate_can_update(application, normal_user)
+    assert str(e.value) == "401: User not permitted to update application"
 
 
-def test_permission_when_not_submitted_and_provider_role():
+def test_can_update_when_not_submitted_and_provider_role(normal_user):
     application = Application(application_state="sent_back")
-    roles = ["Provider"]
-    assert get_permissions().allow_update(application, roles)
+    normal_user.roles = ["Provider"]
+    assert validate_can_update(application, normal_user) is None
 
 
-def test_permission_when_roles_and_unknown_state():
+def test_can_update_when_roles_and_unknown_state(normal_user):
     application = Application(application_state="fancy")
-    roles = ["Provider"]
-
-    assert get_permissions().allow_update(application, roles)
+    normal_user.roles = ["Provider"]
+    assert validate_can_update(application, normal_user) is None

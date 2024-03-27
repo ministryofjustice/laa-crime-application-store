@@ -2,6 +2,7 @@ from uuid import UUID
 
 import structlog
 from fastapi import APIRouter, Depends, Request
+from fastapi_azure_auth.user import User
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
@@ -13,6 +14,7 @@ from laa_crime_application_store_app.schema.application import Application as Ap
 from laa_crime_application_store_app.schema.application_new import ApplicationNew
 from laa_crime_application_store_app.schema.application_update import ApplicationUpdate
 from laa_crime_application_store_app.schema.basic_application import ApplicationResponse
+from laa_crime_application_store_app.services.auth_service import azure_schema
 from laa_crime_application_store_app.services.v1.application_service import (
     ApplicationService,
 )
@@ -67,10 +69,13 @@ async def get_application(
 @router.post("/application/", status_code=201, responses=responses)
 @auth_logger
 async def post_application(
-    request: Request, application: ApplicationNew, db: Session = Depends(get_db)
+    request: Request,
+    application: ApplicationNew,
+    db: Session = Depends(get_db),
+    user: User = Depends(azure_schema),
 ):
     logger.info("CREATING_APPLICATION", application_id=application.application_id)
-    new_application = ApplicationService().create_new_application(db, application)
+    new_application = ApplicationService().create_new_application(db, application, user)
 
     if new_application is None:
         logger.info(
@@ -89,10 +94,11 @@ async def put_application(
     app_id: UUID,
     application: ApplicationUpdate,
     db: Session = Depends(get_db),
+    user: User = Depends(azure_schema),
 ):
     logger.info("UPDATING_APPLICATION", application_id=application.application_id)
     existing_application = ApplicationService.update_existing_application(
-        db, app_id, application, request.state.user.roles
+        db, app_id, application, user
     )
 
     if existing_application is None:

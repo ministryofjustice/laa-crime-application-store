@@ -17,7 +17,7 @@ from laa_crime_application_store_app.middleware.secure_headers_middleware import
 )
 from laa_crime_application_store_app.routers import index, ping
 from laa_crime_application_store_app.routers.v1 import application as v1_application
-from laa_crime_application_store_app.services.auth_service import azure_auth_service
+from laa_crime_application_store_app.services.auth_service import azure_schema
 
 
 def create_app(azure_schema):
@@ -84,9 +84,7 @@ sentry_sdk.init(
     before_send=send_event,
 )
 
-azure_auth = azure_auth_service()
-
-app = create_app(azure_auth)
+app = create_app(azure_schema)
 
 
 @app.exception_handler(401)
@@ -101,5 +99,5 @@ async def lifespan():
     Load OpenID configs on startup.
     """
 
-    await azure_auth.openid_config.load_config()
+    await azure_schema.openid_config.load_config()
     yield

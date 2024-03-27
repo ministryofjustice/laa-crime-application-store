@@ -12,13 +12,14 @@ from laa_crime_application_store_app.config.database_settings import (
     get_database_settings,
 )
 from laa_crime_application_store_app.data.database import Base, get_db
-from laa_crime_application_store_app.main import app, azure_auth
+from laa_crime_application_store_app.main import app
 from laa_crime_application_store_app.models.application_schema import Application
 from laa_crime_application_store_app.models.application_version_schema import (
     ApplicationVersion,
 )
 from laa_crime_application_store_app.services.auth_service import (
     CrimeSingleTenantAzureAuthorizationCodeBearer,
+    azure_schema,
 )
 
 postgres_test_url = "postgresql+psycopg2://{}:{}@{}/{}".format(
@@ -55,11 +56,11 @@ def dbsession(engine, tables):
     connection.close()
 
 
-async def mock_normal_user(request: Request):
-    user = User(
+def build_user(roles=[]):
+    return User(
         claims={},
         preferred_username="NormalUser",
-        roles=[],
+        roles=roles,
         aud="aud",
         tid="tid",
         access_token="123",
@@ -75,6 +76,16 @@ async def mock_normal_user(request: Request):
         rh="rh",
         ver="2.0",
     )
+
+
+async def mock_normal_user(request: Request):
+    user = build_user()
+    request.state.user = user
+    return user
+
+
+async def mock_provider_user(request: Request):
+    user = build_user(["Provider"])
     request.state.user = user
     return user
 
@@ -82,7 +93,15 @@ async def mock_normal_user(request: Request):
 @pytest.fixture(scope="function")
 def client(dbsession):
     app.dependency_overrides[get_db] = lambda: dbsession
-    app.dependency_overrides[azure_auth] = mock_normal_user
+    app.dependency_overrides[azure_schema] = mock_normal_user
+
+    yield TestClient(app)
+
+
+@pytest.fixture(scope="function")
+def provider_client(dbsession):
+    app.dependency_overrides[get_db] = lambda: dbsession
+    app.dependency_overrides[azure_schema] = mock_provider_user
 
     yield TestClient(app)
 
