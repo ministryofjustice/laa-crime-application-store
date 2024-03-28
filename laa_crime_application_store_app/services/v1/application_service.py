@@ -177,7 +177,12 @@ class ApplicationService:
 
     @staticmethod
     def __get_application_by_id(db: Session, app_id: UUID):
-        return db.query(Application).filter(Application.id == app_id).first()
+        return (
+            db.query(Application)
+            .filter(Application.id == app_id)
+            .with_for_update()
+            .first()
+        )
 
     @staticmethod
     def __get_application_version(db: Session, app_id: UUID, version: int):
