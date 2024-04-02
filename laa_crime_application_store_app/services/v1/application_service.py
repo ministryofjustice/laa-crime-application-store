@@ -61,7 +61,6 @@ class ApplicationService:
 
     @staticmethod
     def get_applications(db: Session, since: int | None = None, count: int | None = 20):
-        validate_can_create()
         applications = (
             db.query(Application)
             .filter(Application.updated_at > datetime.fromtimestamp(since or 0))
