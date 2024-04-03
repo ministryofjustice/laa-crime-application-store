@@ -2,7 +2,6 @@ from datetime import datetime
 from uuid import UUID
 
 import structlog
-from fastapi_azure_auth.user import User
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
@@ -18,7 +17,7 @@ from laa_crime_application_store_app.schema.basic_application import (
     ApplicationResponse,
     BasicApplication,
 )
-from laa_crime_application_store_app.services.permissions import (
+from laa_crime_application_store_app.services.auth_service import (
     validate_can_create,
     validate_can_update,
 )
@@ -76,9 +75,8 @@ class ApplicationService:
         return ApplicationResponse(applications=application_list)
 
     @staticmethod
-    def create_new_application(db: Session, application: ApplicationNew, user: User):
-        validate_can_create(user)
-
+    def create_new_application(db: Session, application: ApplicationNew):
+        validate_can_create()
         new_application = Application(
             id=application.application_id,
             current_version=1,
@@ -110,12 +108,12 @@ class ApplicationService:
 
     @staticmethod
     def update_existing_application(
-        db: Session, app_id: UUID, application: ApplicationUpdate, user: User
+        db: Session, app_id: UUID, application: ApplicationUpdate
     ):
         existing_application = ApplicationService.__get_application_by_id(db, app_id)
 
         if existing_application is None:
-            return ApplicationService.create_new_application(db, application, user)
+            return ApplicationService.create_new_application(db, application)
 
         existing_application_version = ApplicationService.__get_application_version(
             db, app_id, existing_application.current_version
@@ -130,7 +128,7 @@ class ApplicationService:
         ):
             return existing_application.id
 
-        validate_can_update(existing_application, user)
+        validate_can_update(existing_application)
 
         existing_application.updated_at = datetime.now()
         existing_application.current_version += 1

@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 import sentry_sdk
 import structlog
 from asgi_correlation_id import CorrelationIdMiddleware
-from fastapi import FastAPI, Security
+from fastapi import Depends, FastAPI, Security
 from starlette.responses import JSONResponse
 from structlog.stdlib import LoggerFactory
 
@@ -17,10 +17,13 @@ from laa_crime_application_store_app.middleware.secure_headers_middleware import
 )
 from laa_crime_application_store_app.routers import index, ping
 from laa_crime_application_store_app.routers.v1 import application as v1_application
-from laa_crime_application_store_app.services.auth_service import azure_schema
+from laa_crime_application_store_app.services.auth_service import (
+    azure_schema,
+    current_user_roles,
+)
 
 
-def create_app(azure_schema):
+def create_app():
     fastapi_app = FastAPI(
         docs_url=get_app_settings().swagger_endpoint,
         redoc_url=None,
@@ -41,7 +44,7 @@ def create_app(azure_schema):
     fastapi_app.include_router(ping.router)
 
     fastapi_app.include_router(
-        v1_application.router, prefix="/v1", dependencies=[Security(azure_schema)]
+        v1_application.router, prefix="/v1", dependencies=[Depends(current_user_roles)]
     )
 
     fastapi_app.add_middleware(CorrelationIdMiddleware)
@@ -84,7 +87,8 @@ sentry_sdk.init(
     before_send=send_event,
 )
 
-app = create_app(azure_schema)
+
+app = create_app()
 
 
 @app.exception_handler(401)

@@ -5,7 +5,7 @@ import pytest
 from fastapi_azure_auth.exceptions import InvalidAuth
 
 from laa_crime_application_store_app.models.application_schema import Application
-from laa_crime_application_store_app.services.permissions import (
+from laa_crime_application_store_app.services.auth_service import (
     validate_can_create,
     validate_can_update,
 )
