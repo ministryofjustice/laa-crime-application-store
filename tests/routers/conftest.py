@@ -17,6 +17,7 @@ from laa_crime_application_store_app.models.application_schema import Applicatio
 from laa_crime_application_store_app.models.application_version_schema import (
     ApplicationVersion,
 )
+from laa_crime_application_store_app.models.subscriber_schema import Subscriber
 from laa_crime_application_store_app.services.auth_service import (
     CrimeSingleTenantAzureAuthorizationCodeBearer,
 )
@@ -177,3 +178,13 @@ def unauthenticated_client(mock_azure_service_unauthenticated, dbsession):
     unauthenticated_app.dependency_overrides[get_db] = lambda: dbsession
     with TestClient(unauthenticated_app) as c:
         yield c
+
+
+@pytest.fixture
+def seed_subscriber(dbsession):
+    subscriber = Subscriber(
+        webhook_url="https://example.com/webhook", subscriber_type="provider"
+    )
+    dbsession.add(subscriber)
+    dbsession.commit()
+    return subscriber
