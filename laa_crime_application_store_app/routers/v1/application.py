@@ -119,11 +119,11 @@ async def post_subscriber(
     db: Session = Depends(get_db),
 ):
     logger.info("CREATING_SUBSCRIBER")
-    existing_subscriber = NotificationService.subscribe(
+    new_subscriber = NotificationService.subscribe(
         db, subscriber.subscriber_type, subscriber.webhook_url
     )
 
-    if existing_subscriber is None:
+    if new_subscriber is not None:
         logger.info("SUBSCRIBER_CREATED")
         return Response(status_code=201)
     else:

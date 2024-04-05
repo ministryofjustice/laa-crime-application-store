@@ -17,7 +17,7 @@ class NotificationService:
             db.query(Subscriber).filter(Subscriber.webhook_url == webhook_url).first()
         )
         if existing_subscriber is not None:
-            return existing_subscriber
+            return None
 
         new_subscriber = Subscriber(
             subscriber_type=subscriber_type,
@@ -26,7 +26,7 @@ class NotificationService:
         db.add(new_subscriber)
         db.commit()
 
-        return None
+        return new_subscriber
 
     @staticmethod
     def unsubscribe(db: Session, subscriber_type: str, webhook_url: str):
