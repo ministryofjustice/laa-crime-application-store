@@ -36,7 +36,7 @@ class NotificationService:
                 Subscriber.webhook_url == webhook_url,
                 Subscriber.subscriber_type == subscriber_type,
             )
-            .with_for_update()
+            .with_for_update()  # Lock this record so it's definitely still available when we try to delete it
             .first()
         )
         if existing_subscriber is None:
