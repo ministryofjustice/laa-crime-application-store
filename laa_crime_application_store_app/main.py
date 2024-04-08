@@ -17,6 +17,7 @@ from laa_crime_application_store_app.middleware.secure_headers_middleware import
 )
 from laa_crime_application_store_app.routers import index, ping
 from laa_crime_application_store_app.routers.v1 import application as v1_application
+from laa_crime_application_store_app.routers.v1 import subscriber as v1_subscriber
 from laa_crime_application_store_app.services.auth_service import azure_auth_service
 
 
@@ -42,6 +43,10 @@ def create_app(azure_schema):
 
     fastapi_app.include_router(
         v1_application.router, prefix="/v1", dependencies=[Security(azure_schema)]
+    )
+
+    fastapi_app.include_router(
+        v1_subscriber.router, prefix="/v1", dependencies=[Security(azure_schema)]
     )
 
     fastapi_app.add_middleware(CorrelationIdMiddleware)

@@ -36,6 +36,7 @@ class NotificationService:
                 Subscriber.webhook_url == webhook_url,
                 Subscriber.subscriber_type == subscriber_type,
             )
+            .with_for_update()
             .first()
         )
         if existing_subscriber is None:
