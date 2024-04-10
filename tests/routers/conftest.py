@@ -129,7 +129,7 @@ def client(request, dbsession):
     else:
         new_app.dependency_overrides[azure_auth] = mock_azure_service
 
-    yield new_app
+    yield TestClient(new_app)
 
 
 @pytest.fixture
