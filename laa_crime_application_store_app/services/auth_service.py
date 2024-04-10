@@ -1,7 +1,6 @@
 from typing import List, Optional
 
 import structlog
-from fastapi import Depends, FastAPI, Security
 from fastapi.security import SecurityScopes
 from fastapi_azure_auth import SingleTenantAzureAuthorizationCodeBearer
 from fastapi_azure_auth.exceptions import InvalidAuth
@@ -32,7 +31,7 @@ class CrimeSingleTenantAzureAuthorizationCodeBearer(
     async def __call__(
         self, request: Request, security_scopes: SecurityScopes
     ) -> Optional[User]:
-        if settings.authentication_required.lower() != "true":
+        if settings.x.lower() != "true":
             return None
         await super().__call__(request, security_scopes)
 
@@ -52,21 +51,20 @@ def current_user_roles(user: User = Depends(azure_schema)) -> Optional[str]:
             # on Azure accounts
             capture_message("feature flag not enabled")
             logger.info("feature flag not enabled")
-            return ["caseworker", "provider"]
+            return ["Caseworker", "Provider"]
         if user.roles:
-            capture_message("we have user roles")
             logger.info("we have user roles")
             return user.roles
         else:
             logger.info("no roles setup for permission logic")
             raise InvalidAuth("Roles not set-up")
     else:
-        return ["unauthenticated", "caseworker", "provider"]
+        return ["authentication_not_required"]
 
 
 def validate_can_create(create_user_roles: List[str] = current_user_roles()) -> None:
     logger.info("create_user_roles currently set to:{0}".format(create_user_roles))
-    if "unauthenticated" in create_user_roles:
+    if "authentication_not_required" in create_user_roles:
         capture_message("No roles setup for permission logic")
         # remove this branch once roles have been implemented
         # on Azure accounts
@@ -79,14 +77,14 @@ def validate_can_update(
     application: Application, update_user_roles: [str] == current_user_roles()
 ) -> None:
     logger.info("update_user_roles currently set to:{0}".format(update_user_roles))
-    if "unauthenticated" in update_user_roles:
+    if application.application_state in permissins.locked:
+        raise InvalidAuth("Application in locked state")
+    if "authentication_not_required" in update_user_roles:
         logger.info("VALIDATE_CAN_UPDATE client unauthenticated: Can access all roles")
         capture_message(
             "VALIDATE_CAN_UPDATE client unauthenticated: Can access all roles"
         )
         return None
-    if application.application_state in permissins.locked:
-        raise InvalidAuth("Application in locked state")
     if application.application_state in permissins.all_editable:
         if (
             permissins.casework_role not in update_user_roles

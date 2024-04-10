@@ -19,8 +19,11 @@ from laa_crime_application_store_app.models.application_version_schema import (
 )
 from laa_crime_application_store_app.services.auth_service import (
     CrimeSingleTenantAzureAuthorizationCodeBearer,
-    azure_schema,
 )
+from laa_crime_application_store_app.services.auth_service import (
+    azure_schema as azure_auth,
+)
+from laa_crime_application_store_app.services.auth_service import current_user_roles
 
 postgres_test_url = "postgresql+psycopg2://{}:{}@{}/{}".format(
     get_database_settings().postgres_username,
@@ -56,8 +59,35 @@ def dbsession(engine, tables):
     connection.close()
 
 
-def build_user(roles=[]):
-    return User(
+@pytest.fixture
+def mock_azure_service():
+    from laa_crime_application_store_app.config.auth_settings import get_auth_settings
+
+    mock_settings = get_auth_settings()
+    mock_settings.authentication_required = "True"
+    return CrimeSingleTenantAzureAuthorizationCodeBearer(
+        app_client_id=mock_settings.app_client_id,
+        tenant_id=mock_settings.tenant_id,
+        scopes=mock_settings.scopes,
+    )
+
+
+# @pytest.fixture
+async def mock_user_roles(request: Request):
+    roles = []
+    mark = shared_node.get_closest_marker("roles")
+    if mark:
+        roles = mark.args
+    return roles
+
+
+async def mock_user(request: Request):
+    roles = []
+    mark = shared_node.get_closest_marker("roles")
+    if mark:
+        roles = mark.args
+
+    user = User(
         claims={},
         preferred_username="NormalUser",
         roles=roles,
@@ -76,32 +106,24 @@ def build_user(roles=[]):
         rh="rh",
         ver="2.0",
     )
-
-
-async def mock_normal_user(request: Request):
-    user = build_user()
     request.state.user = user
     return user
 
 
-async def mock_provider_user(request: Request):
-    user = build_user(["Provider"])
-    request.state.user = user
-    return user
+shared_node = None
 
 
 @pytest.fixture(scope="function")
-def client(dbsession):
+def client(request, dbsession):
+    global shared_node
+    shared_node = request.node
+    mark = shared_node.get_closest_marker("auth")
     app.dependency_overrides[get_db] = lambda: dbsession
-    app.dependency_overrides[azure_schema] = mock_normal_user
-
-    yield TestClient(app)
-
-
-@pytest.fixture(scope="function")
-def provider_client(dbsession):
-    app.dependency_overrides[get_db] = lambda: dbsession
-    app.dependency_overrides[azure_schema] = mock_provider_user
+    if mark is None:
+        # app.dependency_overrides[azure_auth] = mock_user
+        app.dependency_overrides[current_user_roles] = mock_user_roles
+    else:
+        app.dependency_overrides[azure_auth] = mock_azure_service
 
     yield TestClient(app)
 
@@ -194,5 +216,8 @@ def unauthenticated_client(mock_azure_service_unauthenticated, dbsession):
     mock_azure = mock_azure_service_unauthenticated
     unauthenticated_app = create_app(mock_azure)
     unauthenticated_app.dependency_overrides[get_db] = lambda: dbsession
+
+    app.dependency_overrides[azure_auth] = mock_azure_service_unauthenticated
+
     with TestClient(unauthenticated_app) as c:
         yield c

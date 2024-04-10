@@ -1,7 +1,9 @@
 import json
 import uuid
 from datetime import datetime, timedelta
+from unittest.mock import patch
 
+import pytest
 import structlog
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -14,13 +16,15 @@ from laa_crime_application_store_app.models.application_version_schema import (
 logger = structlog.getLogger(__name__)
 
 
-def test_applications_returns_401_when_authentication_required(authenticated_client):
-    response = authenticated_client.get("/v1/applications")
+@pytest.mark.auth("False")
+def test_applications_returns_401_when_authentication_required(client):
+    response = client.get("/v1/applications")
     assert response.status_code == 401
 
 
-def test_applications_returns_200_when_unauthenticated(unauthenticated_client):
-    response = unauthenticated_client.get("/v1/applications")
+@pytest.mark.auth("True")
+def test_applications_returns_200_when_unauthenticated(client):
+    response = client.get("/v1/applications")
     assert response.status_code == 200
 
 
