@@ -5,7 +5,6 @@ from unittest.mock import patch, Mock, PropertyMock
 
 
 import pytest
-import structlog
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
@@ -13,8 +12,6 @@ from laa_crime_application_store_app.models.application_schema import Applicatio
 from laa_crime_application_store_app.models.application_version_schema import (
     ApplicationVersion,
 )
-
-logger = structlog.getLogger(__name__)
 
 
 @pytest.mark.auth("False")
@@ -145,7 +142,6 @@ def test_put_application_returns_200(
             "application": {"id": 10},
         },
     )
-
     assert dbsession.query(Application).count() == 1
     assert response.status_code == 201
 

@@ -1,5 +1,5 @@
 from uuid import UUID
-
+from typing import List
 import structlog
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
@@ -16,6 +16,7 @@ from laa_crime_application_store_app.schema.basic_application import Application
 from laa_crime_application_store_app.services.v1.application_service import (
     ApplicationService,
 )
+from laa_crime_application_store_app.services.auth_service import current_user_roles, validate_can_create
 
 router = APIRouter()
 logger = structlog.getLogger(__name__)
@@ -64,12 +65,12 @@ async def get_application(
     return application
 
 
-@router.post("/application/", status_code=201, responses=responses)
+@router.post("/application/", status_code=201, responses=responses, dependencies=[Depends(validate_can_create)])
 @auth_logger
 async def post_application(
     request: Request,
     application: ApplicationNew,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db)
 ):
     logger.info("CREATING_APPLICATION", application_id=application.application_id)
     new_application = ApplicationService().create_new_application(db, application)
@@ -90,11 +91,11 @@ async def put_application(
     request: Request,
     app_id: UUID,
     application: ApplicationUpdate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db), roles: List[str] = [Depends(current_user_roles)]
 ):
     logger.info("UPDATING_APPLICATION", application_id=application.application_id)
     existing_application = ApplicationService.update_existing_application(
-        db, app_id, application
+        db, app_id, application, roles
     )
 
     if existing_application is None:

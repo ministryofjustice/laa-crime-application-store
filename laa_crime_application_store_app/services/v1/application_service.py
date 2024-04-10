@@ -1,6 +1,6 @@
 from datetime import datetime
 from uuid import UUID
-
+from typing import List
 import structlog
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -18,7 +18,6 @@ from laa_crime_application_store_app.schema.basic_application import (
     BasicApplication,
 )
 from laa_crime_application_store_app.services.auth_service import (
-    validate_can_create,
     validate_can_update,
 )
 
@@ -76,7 +75,6 @@ class ApplicationService:
 
     @staticmethod
     def create_new_application(db: Session, application: ApplicationNew):
-        validate_can_create()
         new_application = Application(
             id=application.application_id,
             current_version=1,
@@ -108,7 +106,7 @@ class ApplicationService:
 
     @staticmethod
     def update_existing_application(
-        db: Session, app_id: UUID, application: ApplicationUpdate
+        db: Session, app_id: UUID, application: ApplicationUpdate, roles: List[str]
     ):
         existing_application = ApplicationService.__get_application_by_id(db, app_id)
 
@@ -128,7 +126,7 @@ class ApplicationService:
         ):
             return existing_application.id
 
-        validate_can_update(existing_application)
+        validate_can_update(existing_application, roles)
 
         existing_application.updated_at = datetime.now()
         existing_application.current_version += 1
