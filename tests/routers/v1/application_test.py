@@ -1,7 +1,8 @@
 import json
 import uuid
 from datetime import datetime, timedelta
-from unittest.mock import patch
+from unittest.mock import patch, Mock, PropertyMock
+
 
 import pytest
 import structlog
@@ -11,6 +12,9 @@ from sqlalchemy.orm import Session
 from laa_crime_application_store_app.models.application_schema import Application
 from laa_crime_application_store_app.models.application_version_schema import (
     ApplicationVersion,
+)
+from laa_crime_application_store_app.main import (
+    create_app,  # Import only after env created
 )
 
 logger = structlog.getLogger(__name__)
@@ -381,11 +385,52 @@ def test_put_application_appends_new_events(
         {"id": 12, "value": "beta"},
     ]
 
+from laa_crime_application_store_app.data.database import Base, get_db
+from laa_crime_application_store_app.services.auth_service import (
+    azure_schema as azure_auth,
+)
+from fastapi_azure_auth.user import User
+
+async def mock_user(request):
+
+    user = User(
+        claims={},
+        preferred_username="NormalUser",
+        roles=['Provider'],
+        aud="aud",
+        tid="tid",
+        access_token="123",
+        is_guest=False,
+        iat=1537231048,
+        nbf=1537231048,
+        exp=1537234948,
+        iss="iss",
+        aio="aio",
+        sub="sub",
+        oid="oid",
+        uti="uti",
+        rh="rh",
+        ver="2.0",
+    )
+    request.state.user = user
+    return user
+
 
 @pytest.mark.roles("Provider")
+@patch('laa_crime_application_store_app.services.auth_service.settings')
+@patch('laa_crime_application_store_app.services.auth_service.feature_flags')
 def test_put_application_without_permitted_role(
-    client: TestClient, dbsession: Session, seed_application
+    roles_enabled, auth_required, dbsession: Session, seed_application
 ):
+    auth_required.authentication_required = 'True'
+    roles_enabled.roles_enabled = 'True'
+
+    new_app = create_app()
+    new_app.dependency_overrides[get_db] = lambda: dbsession
+    new_app.dependency_overrides[azure_auth] = mock_user
+
+
+    client = TestClient(new_app)
     response = client.put(
         f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},

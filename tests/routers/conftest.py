@@ -24,6 +24,9 @@ from laa_crime_application_store_app.services.auth_service import (
     azure_schema as azure_auth,
 )
 from laa_crime_application_store_app.services.auth_service import current_user_roles
+from laa_crime_application_store_app.main import (
+    create_app,  # Import only after env created
+)
 
 postgres_test_url = "postgresql+psycopg2://{}:{}@{}/{}".format(
     get_database_settings().postgres_username,
@@ -118,14 +121,15 @@ def client(request, dbsession):
     global shared_node
     shared_node = request.node
     mark = shared_node.get_closest_marker("auth")
-    app.dependency_overrides[get_db] = lambda: dbsession
+    new_app = create_app()
+    new_app.dependency_overrides[get_db] = lambda: dbsession
     if mark is None:
-        # app.dependency_overrides[azure_auth] = mock_user
-        app.dependency_overrides[current_user_roles] = mock_user_roles
+        new_app.dependency_overrides[azure_auth] = mock_user
+        # app.dependency_overrides[current_user_roles] = mock_user_roles
     else:
-        app.dependency_overrides[azure_auth] = mock_azure_service
+        new_app.dependency_overrides[azure_auth] = mock_azure_service
 
-    yield TestClient(app)
+    yield new_app
 
 
 @pytest.fixture
@@ -209,9 +213,6 @@ def authenticated_client(mock_azure_service_authenticated, dbsession):
 
 @pytest.fixture(scope="function")
 def unauthenticated_client(mock_azure_service_unauthenticated, dbsession):
-    from laa_crime_application_store_app.main import (
-        create_app,  # Import only after env created
-    )
 
     mock_azure = mock_azure_service_unauthenticated
     unauthenticated_app = create_app(mock_azure)
