@@ -8,6 +8,7 @@ from fastapi_azure_auth.exceptions import InvalidAuth
 from fastapi_azure_auth.user import User
 from sentry_sdk import capture_message
 from starlette.requests import Request
+from fastapi import Request
 
 from laa_crime_application_store_app.config.auth_settings import get_auth_settings
 from laa_crime_application_store_app.config.feature_flag_settings import (
@@ -44,7 +45,7 @@ azure_schema = CrimeSingleTenantAzureAuthorizationCodeBearer(
 )
 
 
-def current_user_roles(user: User = Depends(azure_schema)) -> Optional[str]:
+def current_user_roles(request: Request, user: User = Depends(azure_schema)) -> Optional[str]:
     if settings.authentication_required.lower() == "true":
         # return the roles here
         if not feature_flags.roles_enabled.lower() == "true":
@@ -52,18 +53,22 @@ def current_user_roles(user: User = Depends(azure_schema)) -> Optional[str]:
             # on Azure accounts
             capture_message("feature flag not enabled")
             logger.info("feature flag not enabled")
-            return ["Caseworker", "Provider"]
+            request.state.roles = ["Caseworker", "Provider"]
         if user.roles:
             logger.info("we have user roles")
-            return user.roles
+            request.state.roles = user.roles
         else:
             logger.info("no roles setup for permission logic")
             raise InvalidAuth("Roles not set-up")
     else:
-        return ["authentication_not_required"]
+        request.state.roles = ["authentication_not_required"]
 
 
-def validate_can_create(create_user_roles: List[str] = current_user_roles()) -> None:
+def validate_can_create(
+    request: Request
+    # create_user_roles: List[str] = current_user_roles()
+) -> None:
+    create_user_roles = request.state.roles
     logger.info("create_user_roles currently set to:{0}".format(create_user_roles))
     if "authentication_not_required" in create_user_roles:
         capture_message("No roles setup for permission logic")
@@ -75,8 +80,11 @@ def validate_can_create(create_user_roles: List[str] = current_user_roles()) -> 
 
 
 def validate_can_update(
-    application: Application, update_user_roles: List[str] = current_user_roles()
+    application: Application,
+    request: Request
+    # update_user_roles: List[str] = current_user_roles()
 ) -> None:
+    update_user_roles = request.state.roles
     logger.info("update_user_roles currently set to:{0}".format(update_user_roles))
     if application.application_state in permissins.locked:
         raise InvalidAuth("Application in locked state")
