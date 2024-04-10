@@ -129,7 +129,6 @@ def test_post_application_returns_duplicate_error_if_id_already_exists(
 def test_post_application_notifies_subscribers(
     client: TestClient, dbsession: Session, seed_subscriber
 ):
-    seed_subscriber
     client.post(
         "/v1/application/",
         headers={"Content-Type": "application/json"},
@@ -401,7 +400,6 @@ def test_put_application_appends_new_events(
 def test_put_application_notifies_subscribers(
     client: TestClient, dbsession: Session, seed_application, seed_subscriber
 ):
-    seed_subscriber
     client.put(
         f"/v1/application/{seed_application}",
         headers={"Content-Type": "application/json"},

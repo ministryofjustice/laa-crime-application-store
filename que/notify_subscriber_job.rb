@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require './token_provider'
+require "./token_provider"
 
 # This job attempts to notify a subscriber about a new or updated submission
 class NotifySubscriberJob < Que::Job

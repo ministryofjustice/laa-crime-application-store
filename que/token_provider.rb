@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'singleton'
-require 'oauth2'
+require "singleton"
+require "oauth2"
 
 # This class does the heavy lifting of creating a JWT that can be used as a bearer token
 class TokenProvider
@@ -15,7 +15,7 @@ class TokenProvider
     @oauth_client ||= OAuth2::Client.new(
       client_id,
       client_secret,
-      token_url: "https://login.microsoftonline.com/#{tenant_id}/oauth2/v2.0/token"
+      token_url: "https://login.microsoftonline.com/#{tenant_id}/oauth2/v2.0/token",
     )
   end
 
@@ -32,21 +32,21 @@ class TokenProvider
     !tenant_id.nil?
   end
 
-  private
+private
 
   def new_access_token
     oauth_client.client_credentials.get_token(scope: "api://#{client_id}/.default")
   end
 
   def client_id
-    ENV.fetch('CLIENT_ID', nil)
+    ENV.fetch("CLIENT_ID", nil)
   end
 
   def tenant_id
-    ENV.fetch('APP_STORE_TENANT_ID', nil)
+    ENV.fetch("APP_STORE_TENANT_ID", nil)
   end
 
   def client_secret
-    ENV.fetch('CASEWORKER_CLIENT_SECRET', nil)
+    ENV.fetch("CASEWORKER_CLIENT_SECRET", nil)
   end
 end

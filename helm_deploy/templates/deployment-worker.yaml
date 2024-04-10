@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "laa-submit-crime-forms.fullname" . }}-worker
+  labels:
+    {{- include "laa-submit-crime-forms.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "laa-submit-crime-forms.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "laa-submit-crime-forms.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.service_account.name }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-worker
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}-worker"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop: [ "ALL" ]
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.workerPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.workerPort }}
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.workerPort }}
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: ENV
+              value: 'production'
+          {{ if .Values.postgresql.enabled }}
+            - name: POSTGRES_USERNAME
+              value: {{ .Values.postgresql.postgresqlUsername }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgresql.auth.postgresPassword }}
+            - name: POSTGRES_HOSTNAME
+              value: {{ printf "%s-%s" .Release.Name "postgresql" | trunc 63 | trimSuffix "-" }}
+            - name: POSTGRES_NAME
+              value: {{ .Values.postgresql.auth.database }}
+          {{ else }}
+            - name: POSTGRES_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: database_name
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: database_username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: database_password
+            - name: POSTGRES_HOSTNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: rds_instance_address
+          {{ end }}
+            - name: APP_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: azure-secret
+                  key: app_client_id
+            - name: TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: azure-secret
+                  key: tenant_id
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
