@@ -16,6 +16,9 @@ from laa_crime_application_store_app.schema.basic_application import Application
 from laa_crime_application_store_app.services.v1.application_service import (
     ApplicationService,
 )
+from laa_crime_application_store_app.services.v1.notification_service import (
+    NotificationService,
+)
 
 router = APIRouter()
 logger = structlog.getLogger(__name__)
@@ -79,6 +82,7 @@ async def post_application(
         return Response(status_code=409)
 
     logger.info("APPLICATION_CREATED", application_id=application.application_id)
+    NotificationService().notify(db, request, application.application_id)
     return Response(status_code=201)
 
 
@@ -102,4 +106,5 @@ async def put_application(
         return Response(status_code=409)
 
     logger.info("APPLICATION_UPDATED", application_id=application.application_id)
+    NotificationService().notify(db, request, application.application_id)
     return Response(status_code=201)
