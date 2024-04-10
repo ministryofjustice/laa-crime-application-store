@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 import structlog
+from fastapi import Depends
 from fastapi.security import SecurityScopes
 from fastapi_azure_auth import SingleTenantAzureAuthorizationCodeBearer
 from fastapi_azure_auth.exceptions import InvalidAuth
@@ -74,7 +75,7 @@ def validate_can_create(create_user_roles: List[str] = current_user_roles()) -> 
 
 
 def validate_can_update(
-    application: Application, update_user_roles: [str] == current_user_roles()
+    application: Application, update_user_roles: List[str] = current_user_roles()
 ) -> None:
     logger.info("update_user_roles currently set to:{0}".format(update_user_roles))
     if application.application_state in permissins.locked:

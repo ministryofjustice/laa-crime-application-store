@@ -382,10 +382,11 @@ def test_put_application_appends_new_events(
     ]
 
 
+@pytest.mark.roles("Provider")
 def test_put_application_without_permitted_role(
-    provider_client: TestClient, dbsession: Session, seed_application
+    client: TestClient, dbsession: Session, seed_application
 ):
-    response = provider_client.put(
+    response = client.put(
         f"/v1/application/{seed_application}",
         headers={"X-Token": "coneofsilence", "Content-Type": "application/json"},
         json={
