@@ -1,10 +1,9 @@
 from uuid import UUID
 
-import httpx
 import structlog
-from fastapi import Request
 from sqlalchemy.orm import Session
 
+from laa_crime_application_store_app.models.queued_job_schema import QueuedJob
 from laa_crime_application_store_app.models.subscriber_schema import Subscriber
 
 logger = structlog.getLogger(__name__)
@@ -48,18 +47,14 @@ class NotificationService:
         return True
 
     @staticmethod
-    def notify(db: Session, request: Request, app_id: UUID):
+    def notify(db: Session, app_id: UUID):
         # TODO: When we have roles, filter out subscribers with the same role
         subscribers = db.query(Subscriber)
-        # TODO: Run this method via Celery to allow for retrying on failure
         for subscriber in subscribers:
-            NotificationService.__notify_subscriber(
-                subscriber, app_id, request.headers.get("authorization")
+            job = QueuedJob(
+                job_class="NotifySubscriberJob",
+                args=[subscriber.webhook_url, str(app_id)],
             )
+            db.add(job)
 
-    @staticmethod
-    def __notify_subscriber(subscriber: Subscriber, app_id: UUID, auth_header: str):
-        headers = {"authorization": auth_header} if auth_header else {}
-        httpx.post(
-            subscriber.webhook_url, data={"submission_id": app_id}, headers=headers
-        )
+        db.commit()

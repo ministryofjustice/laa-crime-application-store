@@ -166,3 +166,5 @@ cython_debug/
 /coverage
 .vscode
 coverage.lcov
+
+que/.byebug_history

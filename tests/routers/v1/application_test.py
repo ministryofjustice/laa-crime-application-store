@@ -10,6 +10,7 @@ from laa_crime_application_store_app.models.application_schema import Applicatio
 from laa_crime_application_store_app.models.application_version_schema import (
     ApplicationVersion,
 )
+from laa_crime_application_store_app.models.queued_job_schema import QueuedJob
 
 logger = structlog.getLogger(__name__)
 
@@ -126,11 +127,9 @@ def test_post_application_returns_duplicate_error_if_id_already_exists(
 
 
 def test_post_application_notifies_subscribers(
-    client: TestClient, dbsession: Session, seed_subscriber, httpx_mock
+    client: TestClient, dbsession: Session, seed_subscriber
 ):
-    # This will throw an AssertionError if the url specified has not been called by the time the test ends
-    httpx_mock.add_response(url=seed_subscriber.webhook_url)
-
+    seed_subscriber
     client.post(
         "/v1/application/",
         headers={"Content-Type": "application/json"},
@@ -143,6 +142,7 @@ def test_post_application_notifies_subscribers(
             "application": {"id": 10},
         },
     )
+    assert dbsession.query(QueuedJob).count() == 1
 
 
 def test_put_application_returns_200(
@@ -399,15 +399,9 @@ def test_put_application_appends_new_events(
 
 
 def test_put_application_notifies_subscribers(
-    client: TestClient,
-    dbsession: Session,
-    seed_application,
-    seed_subscriber,
-    httpx_mock,
+    client: TestClient, dbsession: Session, seed_application, seed_subscriber
 ):
-    # This will throw an AssertionError if the url specified has not been called by the time the test ends
-    httpx_mock.add_response(url=seed_subscriber.webhook_url)
-
+    seed_subscriber
     client.put(
         f"/v1/application/{seed_application}",
         headers={"Content-Type": "application/json"},
@@ -420,3 +414,5 @@ def test_put_application_notifies_subscribers(
             "application": {"id": 10},
         },
     )
+
+    assert dbsession.query(QueuedJob).count() == 1

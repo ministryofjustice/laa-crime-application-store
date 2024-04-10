@@ -82,7 +82,7 @@ async def post_application(
         return Response(status_code=409)
 
     logger.info("APPLICATION_CREATED", application_id=application.application_id)
-    NotificationService().notify(db, request, application.application_id)
+    NotificationService().notify(db, application.application_id)
     return Response(status_code=201)
 
 
@@ -106,5 +106,5 @@ async def put_application(
         return Response(status_code=409)
 
     logger.info("APPLICATION_UPDATED", application_id=application.application_id)
-    NotificationService().notify(db, request, application.application_id)
+    NotificationService().notify(db, application.application_id)
     return Response(status_code=201)
