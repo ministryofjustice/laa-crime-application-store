@@ -102,6 +102,11 @@ spec:
                 secretKeyRef:
                   name: azure-secret
                   key: tenant_id
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: sentry-dsn
+                  key: url
 
       {{- with .Values.nodeSelector }}
       nodeSelector:
