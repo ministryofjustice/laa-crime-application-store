@@ -10,6 +10,7 @@ gem "oauth2"
 gem "pg"
 gem "pond"
 gem "que"
+gem "sentry-ruby"
 
 group :development, :test do
   gem "byebug"
