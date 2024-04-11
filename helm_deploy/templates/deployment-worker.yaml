@@ -42,18 +42,18 @@ spec:
               drop: [ "ALL" ]
           ports:
             - name: http
-              containerPort: {{ .Values.service.workerPort }}
+              containerPort: 7433
               protocol: TCP
           livenessProbe:
             httpGet:
               path: /
-              port: {{ .Values.service.workerPort }}
+              port: 7433
             initialDelaySeconds: 20
             periodSeconds: 30
           readinessProbe:
             httpGet:
               path: /
-              port: {{ .Values.service.workerPort }}
+              port: 7433
             initialDelaySeconds: 20
             periodSeconds: 30
           resources:
