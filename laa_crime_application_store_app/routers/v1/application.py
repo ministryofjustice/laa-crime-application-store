@@ -91,7 +91,7 @@ async def put_application(
     request: Request,
     app_id: UUID,
     application: ApplicationUpdate,
-    db: Session = Depends(get_db), roles: List[str] = [Depends(current_user_roles)]
+    db: Session = Depends(get_db), roles: List[str] = Depends(current_user_roles)
 ):
     logger.info("UPDATING_APPLICATION", application_id=application.application_id)
     existing_application = ApplicationService.update_existing_application(
