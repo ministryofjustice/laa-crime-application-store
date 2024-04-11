@@ -40,22 +40,22 @@ spec:
               type: RuntimeDefault
             capabilities:
               drop: [ "ALL" ]
-          ports:
-            - name: http
-              containerPort: 7433
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 7433
-            initialDelaySeconds: 20
-            periodSeconds: 30
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 7433
-            initialDelaySeconds: 20
-            periodSeconds: 30
+        #   ports:
+        #     - name: http
+        #       containerPort: 7433
+        #       protocol: TCP
+        #   livenessProbe:
+        #     httpGet:
+        #       path: /
+        #       port: 7433
+        #     initialDelaySeconds: 20
+        #     periodSeconds: 30
+        #   readinessProbe:
+        #     httpGet:
+        #       path: /
+        #       port: 7433
+        #     initialDelaySeconds: 20
+        #     periodSeconds: 30
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
