@@ -110,8 +110,8 @@ spec:
             - name: SENTRY_DSN
               valueFrom:
                 secretKeyRef:
-                  name: sentry-dsn
-                  key: url
+                  name: sentry
+                  key: dsn
 
       {{- with .Values.nodeSelector }}
       nodeSelector:
