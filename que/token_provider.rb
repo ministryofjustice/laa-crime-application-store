@@ -39,14 +39,14 @@ private
   end
 
   def client_id
-    ENV.fetch("CLIENT_ID", nil)
+    ENV.fetch("APP_CLIENT_ID", nil)
   end
 
   def tenant_id
-    ENV.fetch("APP_STORE_TENANT_ID", nil)
+    ENV.fetch("TENANT_ID", nil)
   end
 
   def client_secret
-    ENV.fetch("CASEWORKER_CLIENT_SECRET", nil)
+    ENV.fetch("ENTRA_CLIENT_SECRET", nil)
   end
 end

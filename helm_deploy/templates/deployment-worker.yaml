@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "laa-submit-crime-forms.fullname" . }}-worker
+  name: {{ include "laa-crime-application-store.fullname" . }}-worker
   labels:
-    {{- include "laa-submit-crime-forms.labels" . | nindent 4 }}
+    {{- include "laa-crime-application-store.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "laa-submit-crime-forms.selectorLabels" . | nindent 6 }}
+      {{- include "laa-crime-application-store.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,7 +18,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "laa-submit-crime-forms.selectorLabels" . | nindent 8 }}
+        {{- include "laa-crime-application-store.selectorLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ .Values.service_account.name }}
       {{- with .Values.imagePullSecrets }}
@@ -102,6 +102,11 @@ spec:
                 secretKeyRef:
                   name: azure-secret
                   key: tenant_id
+            - name: ENTRA_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: azure-secret
+                  key: client_secret
             - name: SENTRY_DSN
               valueFrom:
                 secretKeyRef:

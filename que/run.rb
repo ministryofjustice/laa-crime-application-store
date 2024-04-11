@@ -23,7 +23,7 @@ Que.connection = Pond.new(maximum_size: 10) do
     host: ENV["POSTGRES_HOSTNAME"],
     user: ENV["POSTGRES_USERNAME"],
     password: ENV["POSTGRES_PASSWORD"],
-    port: ENV["POSTGRES_PORT"] || 5432,
+    port: ENV.fetch("POSTGRES_PORT", 5432),
     dbname: ENV["POSTGRES_NAME"],
   )
 end
