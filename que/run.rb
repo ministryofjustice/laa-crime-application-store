@@ -2,7 +2,7 @@ require "pond"
 require "que"
 require "pg"
 require "httparty"
-require "sentry"
+require "sentry-ruby"
 require_relative "./notify_subscriber_job"
 
 unless ENV["ENV"] == "production"
