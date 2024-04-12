@@ -20,7 +20,6 @@ gem "bootsnap", require: false
 
 gem "httparty"
 gem "jwt", "~> 2.7.1"
-gem "nokogiri", "~> 1.15.5"
 gem "oauth2"
 
 group :development, :test do

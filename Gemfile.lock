@@ -316,7 +316,6 @@ DEPENDENCIES
   factory_bot_rails (>= 6.2.0)
   httparty
   jwt (~> 2.7.1)
-  nokogiri (~> 1.15.5)
   oauth2
   pg (~> 1.1)
   pry-nav

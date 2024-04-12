@@ -1,6 +1,8 @@
 require "rails_helper"
 
 RSpec.describe "POST /v1/subscribers" do
+  before { allow(Tokens::VerificationService).to receive(:call).and_return(true) }
+
   it "creates a record" do
     post "/v1/subscribers", params: { webhook_url: "a", subscriber_type: "b" }
     expect(response).to have_http_status(:created)

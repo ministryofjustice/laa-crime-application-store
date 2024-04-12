@@ -1,7 +1,5 @@
 module V1
   class SubmissionsController < ApplicationController
-    before_action :authenticate!
-
     def index
       applications = Submissions::ListService.call(params)
       render json: { applications: }

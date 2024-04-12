@@ -14,4 +14,5 @@ Rails.application.routes.draw do
   end
 
   root to: "v1/submissions#index"
+  get :ping, to: "health#show"
 end

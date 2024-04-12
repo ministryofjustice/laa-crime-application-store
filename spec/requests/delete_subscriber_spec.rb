@@ -1,6 +1,8 @@
 require "rails_helper"
 
 RSpec.describe "DELETE /v1/subscribers" do
+  before { allow(Tokens::VerificationService).to receive(:call).and_return(true) }
+
   it "deletes a record" do
     subscriber = create :subscriber
     delete "/v1/subscribers", params: { webhook_url: subscriber.webhook_url, subscriber_type: subscriber.subscriber_type }

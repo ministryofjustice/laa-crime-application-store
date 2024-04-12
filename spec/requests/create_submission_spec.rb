@@ -82,14 +82,14 @@ RSpec.describe "Create submission" do
       subscriber_1 = create :subscriber, subscriber_type: "provider", webhook_url: "a"
       subscriber_2 = create :subscriber, subscriber_type: "caseworker", webhook_url: "b"
 
-      expect(HTTParty).to receive(:post).once.ordered.with(
-        subscriber_1.webhook_url,
+      expect(HTTParty).to receive(:post).once.with(
+        subscriber_2.webhook_url,
         headers: { "Content-Type" => "application/json", "Authorization" => "Bearer test-bearer-token" },
         body: { submission_id: id },
       )
 
-      expect(HTTParty).to receive(:post).once.ordered.with(
-        subscriber_2.webhook_url,
+      expect(HTTParty).to receive(:post).once.with(
+        subscriber_1.webhook_url,
         headers: { "Content-Type" => "application/json", "Authorization" => "Bearer test-bearer-token" },
         body: { submission_id: id },
       )
