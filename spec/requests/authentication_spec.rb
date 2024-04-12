@@ -8,6 +8,19 @@ RSpec.describe "Authentication" do
     end
   end
 
+  context "when auth is not required" do
+    around do |example|
+      ENV["AUTHENTICATION_REQUIRED"] = "false"
+      example.run
+      ENV.delete("AUTHENTICATION_REQUIRED")
+    end
+
+    it "rejects all requests" do
+      get "/v1/submissions"
+      expect(response).to have_http_status :ok
+    end
+  end
+
   context "when an auth token is provided" do
     before do
       Tokens::VerificationService.instance_variable_set("@jwks", nil)

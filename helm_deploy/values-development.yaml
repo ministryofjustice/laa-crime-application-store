@@ -20,18 +20,18 @@ podSecurityContext: {}
   # fsGroup: 2000
 
 securityContext:
-   capabilities:
-     drop:
-     - ALL
-   readOnlyRootFilesystem: true
-   runAsNonRoot: true
-   runAsUser: 10000
-   allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  seccompProfile:
+    type: RuntimeDefault
+  capabilities:
+    drop: [ "ALL" ]
+
 
 service:
   type: ClusterIP
   port: 80
-  internalPort: 8000
+  internalPort: 3000
 
 ingress:
   enabled: true
@@ -67,12 +67,6 @@ autoscaling:
   maxReplicas: 5
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
 
 
 service_account:

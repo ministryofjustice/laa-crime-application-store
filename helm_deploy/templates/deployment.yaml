@@ -25,8 +25,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -47,6 +45,10 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-c", "sleep 30"] # Workaround for occasional lost requests - see https://github.com/puma/puma/blob/master/docs/kubernetes.md#running-puma-in-kubernetes
           env:
             - name: SENTRY_DSN
               valueFrom:
@@ -94,12 +96,28 @@ spec:
                 secretKeyRef:
                   name: azure-secret
                   key: tenant_id
+            - name: ENTRA_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: azure-secret
+                  key: client_secret
             - name: SWAGGER_ENDPOINT
               value: {{ .Values.envVars.swaggerEndpoint | quote}}
             {{- if not (eq .Values.environment "prod") }}
             - name: AUTHENTICATION_REQUIRED
               value: {{ .Values.envVars.authenticationRequired | quote}}
             {{ end }}
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: secret_key_base
+            - name: RACK_ENV
+              value: 'production'
+            - name: RAILS_ENV
+              value: 'production'
+            - name: RAILS_LOG_TO_STDOUT
+              value: enabled
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

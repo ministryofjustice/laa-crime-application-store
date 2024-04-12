@@ -2,6 +2,8 @@ module Tokens
   class VerificationService
     class << self
       def call(headers)
+        return true if ENV.fetch("AUTHENTICATION_REQUIRED", "true") == "false"
+
         jwt = headers["Authorization"].gsub(/^Bearer /, "")
         data = parse(jwt)
         valid?(data)

@@ -1,7 +1,9 @@
 FROM ruby:3.3.0-alpine3.19 AS base
 LABEL maintainer="Non-standard magistrates' court payment team"
 
-RUN apk update && apk upgrade --no-cache libcrypto3 libssl3 openssl g++ gcc libxslt-dev libxml2
+# TODO: is this still needed?
+# temp fix to security issue in base image: ruby:3.2.2-alpine3.18
+RUN apk update && apk upgrade --no-cache libcrypto3 libssl3 openssl
 
 # dependencies required both at runtime and build time
 RUN apk add --update \
@@ -10,6 +12,13 @@ RUN apk add --update \
   gcompat \
   tzdata \
   yarn
+
+# Alpine does not have a glibc, and this is needed for dart-sass
+# Refer to: https://github.com/sgerrand/alpine-pkg-glibc
+ARG GLIBC_VERSION=2.34-r0
+RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
+RUN wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/$GLIBC_VERSION/glibc-$GLIBC_VERSION.apk
+RUN apk add --force-overwrite glibc-$GLIBC_VERSION.apk
 
 FROM base AS dependencies
 
