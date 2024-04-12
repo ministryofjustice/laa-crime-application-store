@@ -1,0 +1,12 @@
+require:
+  - rubocop-performance
+
+inherit_gem:
+  rubocop-govuk:
+    - config/default.yml
+    - config/rails.yml
+    - config/rspec.yml
+
+inherit_mode:
+  merge:
+    - Exclude

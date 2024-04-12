@@ -1,0 +1,23 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+
+development:
+  primary:
+    <<: *default
+    database: laa_crime_application_store
+
+test:
+  primary:
+    <<: *default
+    database: laa_crime_application_store_test
+
+production:
+  primary:
+    <<: *default
+    host: <%= ENV['POSTGRES_HOST'] %>
+    username: <%= ENV['POSTGRES_USER'] %>
+    password: <%= ENV['POSTGRES_PASSWORD'] %>
+    database: <%= ENV['POSTGRES_DATABASE'] %>
