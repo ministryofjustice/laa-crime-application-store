@@ -100,3 +100,26 @@ postgresql:
         type: RuntimeDefault
       capabilities:
         drop: [ "ALL" ]
+
+# see https://artifacthub.io/packages/helm/bitnami/redis for parameters
+redis:
+  enabled: true
+  architecture: standalone
+  master:
+    resources:
+      limits:
+        cpu: 250m
+        memory: 256Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
+    containerSecurityContext:
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop: [ "ALL" ]
+  auth:
+    enabled: true
+    password: redis

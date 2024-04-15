@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "laa-crime-application-store.fullname" . }}
+  name: {{ include "laa-crime-application-store.fullname" . }}-worker
   labels:
     {{- include "laa-crime-application-store.labels" . | nindent 4 }}
 spec:
@@ -26,29 +26,34 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Chart.Name }}-worker
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - bundle
+            - exec
+            - sidekiq
+          # SidekiqAlive runs on port 7433 to allow health checking
           ports:
             - name: http
-              containerPort: {{ .Values.service.internalPort }}
+              containerPort: 7433
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /ping
-              port: http
+              path: /
+              port: 7433
+            initialDelaySeconds: 20
+            periodSeconds: 30
           readinessProbe:
             httpGet:
-              path: /ping
-              port: http
+              path: /
+              port: 7433
+            initialDelaySeconds: 20
+            periodSeconds: 30
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          lifecycle:
-            preStop:
-              exec:
-                command: ["sh", "-c", "sleep 30"] # Workaround for occasional lost requests - see https://github.com/puma/puma/blob/master/docs/kubernetes.md#running-puma-in-kubernetes
           env:
             - name: SENTRY_DSN
               valueFrom:
