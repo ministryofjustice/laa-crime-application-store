@@ -145,6 +145,8 @@ spec:
                   name: crm-elasticache
                   key: auth_token
           {{ end }}
+            - name: SUBSCRIBER_FAILED_ATTEMPT_DELETION_THRESHOLD
+              value: '{{ .Values.envVars.subscriberFailedAttemptDeletionThreshold }}'
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -15,14 +15,14 @@ module Submissions
       def add_events(submission, params)
         submission.events ||= []
         params[:events]&.each do |event|
-          next if submission.events.find { _1["id"] == event["id"] }
+          next if submission.events.any? { _1["id"] == event["id"] }
 
           submission.events << event.as_json
         end
       end
 
       def add_new_version(submission, params)
-        submission.submission_versions.create!(
+        submission.ordered_submission_versions.create!(
           json_schema_version: params[:json_schema_version],
           application: params[:application],
           version: submission.current_version,

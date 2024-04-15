@@ -1,15 +1,16 @@
 class Submission < ApplicationRecord
   self.table_name = "application"
-  has_many :submission_versions, dependent: :destroy, foreign_key: "application_id"
+  has_many :ordered_submission_versions, -> { order(version: :desc) },
+           dependent: :destroy,
+           foreign_key: "application_id",
+           class_name: "SubmissionVersion"
 
   validates :application_state, presence: true
   validates :application_type, presence: true
   validates :application_risk, presence: true
 
   def latest_version
-    # Optimisation: When pulling lists of submissions, this allows a single DB lookup using #includes,
-    # instead of going back to the database for every submission
-    submission_versions.max_by(&:version)
+    ordered_submission_versions.first
   end
 
   def as_json(*)

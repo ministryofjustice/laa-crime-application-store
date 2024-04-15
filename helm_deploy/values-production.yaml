@@ -79,6 +79,7 @@ service_account:
 envVars:
   swaggerEndpoint:
   authenticationRequired: True
+  subscriberFailedAttemptDeletionThreshold: ''
 
 # Instead of a temporary postgres pod we use RDS
 postgresql:

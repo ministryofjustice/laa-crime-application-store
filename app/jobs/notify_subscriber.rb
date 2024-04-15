@@ -2,9 +2,11 @@ class NotifySubscriber < ApplicationJob
   ClientResponseError = Class.new(StandardError)
   retry_on ClientResponseError, wait: :polynomially_longer, attempts: 10
 
-  def perform(webhook_url, submission_id)
+  def perform(subscriber_id, submission_id)
+    subscriber = Subscriber.find(subscriber_id)
+
     response = HTTParty.post(
-      webhook_url,
+      subscriber.webhook_url,
       headers:,
       body: {
         submission_id:,
@@ -13,7 +15,22 @@ class NotifySubscriber < ApplicationJob
 
     return if response.code == 200
 
-    raise ClientResponseError, "Failed to notify subscriber about #{submission_id} - #{webhook_url} returned #{response.code}"
+    subscriber.with_lock do
+      subscriber.failed_attempts += 1
+      subscriber.save!
+    end
+
+    return if delete_subscriber(subscriber)
+
+    raise ClientResponseError, "Failed to notify subscriber about #{submission_id} - #{subscriber.webhook_url} returned #{response.code}"
+  end
+
+  def delete_subscriber(subscriber)
+    deletion_threshold = ENV["SUBSCRIBER_FAILED_ATTEMPT_DELETION_THRESHOLD"]
+
+    return unless deletion_threshold&.to_i&.positive? && deletion_threshold.to_i <= subscriber.failed_attempts
+
+    subscriber.destroy!
   end
 
   def headers

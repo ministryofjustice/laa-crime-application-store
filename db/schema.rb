@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_04_12_114928) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_15_143554) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -32,7 +32,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_12_114928) do
 
   create_table "subscriber", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "subscriber_type", limit: 50, null: false
-    t.string "webhook_url", limit: 250, null: false
+    t.text "webhook_url", null: false
+    t.integer "failed_attempts", default: 0
     t.index ["webhook_url", "subscriber_type"], name: "unique_subcribers", unique: true
   end
 

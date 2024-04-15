@@ -11,7 +11,7 @@ module Submissions
     attr_reader :params
 
     def call
-      Submission.includes(:submission_versions)
+      Submission.includes(:ordered_submission_versions)
                 .yield_self { apply_since_param(_1) }
                 .order(:updated_at)
                 .limit(params.fetch(:count, 20))

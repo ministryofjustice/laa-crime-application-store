@@ -7,7 +7,7 @@ module Submissions
 
         Submission.transaction do
           submission = Submission.create!(initial_data(params))
-          submission.submission_versions.create!(
+          submission.ordered_submission_versions.create!(
             json_schema_version: params[:json_schema_version],
             application: params[:application],
             version: 1,
