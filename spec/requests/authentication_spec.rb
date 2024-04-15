@@ -22,9 +22,15 @@ RSpec.describe "Authentication" do
   end
 
   context "when an auth token is provided" do
+    around do |example|
+      ENV["TENANT_ID"] = "TENANT"
+      example.run
+      ENV["TENANT_ID"] = nil
+    end
+
     before do
       Tokens::VerificationService.instance_variable_set("@jwks", nil)
-      stub_request(:get, "https://login.microsoftonline.com/UNDEFINED_APP_STORE_TENANT_ID/.well-known/openid-configuration")
+      stub_request(:get, "https://login.microsoftonline.com/TENANT/.well-known/openid-configuration")
         .to_return(status: 200,
                    body: { jwks_uri: "https://example.com/jwks" }.to_json,
                    headers: { "Content-type" => "application/json" })
@@ -44,17 +50,20 @@ RSpec.describe "Authentication" do
     context "when the token is valid" do
       let(:jwks) { instance_double(JWT::JWK::Set) }
       let(:decoded) do
-        [{ "aud" => client_id,
-           "iss" => "https://login.microsoftonline.com/UNDEFINED_APP_STORE_TENANT_ID/v2.0",
+        [{ "azp" => client_id,
+           "aud" => "APP_STORE",
+           "iss" => "https://login.microsoftonline.com/TENANT/v2.0",
            "exp" => 1.hour.from_now.to_i }]
       end
 
       around do |example|
         ENV["PROVIDER_CLIENT_ID"] = "PROVIDER"
         ENV["CASEWORKER_CLIENT_ID"] = "CASEWORKER"
+        ENV["APP_CLIENT_ID"] = "APP_STORE"
         example.run
         ENV["PROVIDER_CLIENT_ID"] = nil
         ENV["CASEWORKER_CLIENT_ID"] = nil
+        ENV["APP_CLIENT_ID"] = nil
       end
 
       before do

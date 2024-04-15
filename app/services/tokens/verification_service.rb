@@ -18,7 +18,8 @@ module Tokens
       end
 
       def valid?(data)
-        data[0]["iss"] == "https://login.microsoftonline.com/#{tenant_id}/v2.0" &&
+        data[0]["aud"] == client_id &&
+          data[0]["iss"] == "https://login.microsoftonline.com/#{tenant_id}/v2.0" &&
           Time.zone.at(data[0]["exp"]) > Time.zone.now
       end
 
@@ -39,8 +40,12 @@ module Tokens
         ENV.fetch("TENANT_ID", "UNDEFINED_APP_STORE_TENANT_ID")
       end
 
+      def client_id
+        ENV.fetch("APP_CLIENT_ID", "UNDEFINED_APP_CLIENT_ID")
+      end
+
       def role_from(data)
-        case data[0]["aud"]
+        case data[0]["azp"]
         when ENV.fetch("PROVIDER_CLIENT_ID")
           :provider
         when ENV.fetch("CASEWORKER_CLIENT_ID")
