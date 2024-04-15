@@ -111,6 +111,7 @@ spec:
                 secretKeyRef:
                   name: azure-secret
                   key: caseworker_client_id
+            {{- if not (eq .Values.environment "prod") }}
             - name: AUTHENTICATION_REQUIRED
               value: {{ .Values.envVars.authenticationRequired | quote}}
             {{ end }}
