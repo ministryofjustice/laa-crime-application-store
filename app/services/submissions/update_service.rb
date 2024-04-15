@@ -13,6 +13,7 @@ module Submissions
       end
 
       def add_events(submission, params)
+        submission.events ||= []
         params[:events]&.each do |event|
           next if submission.events.find { _1["id"] == event["id"] }
 
