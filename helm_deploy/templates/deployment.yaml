@@ -101,9 +101,16 @@ spec:
                 secretKeyRef:
                   name: azure-secret
                   key: client_secret
-            - name: SWAGGER_ENDPOINT
-              value: {{ .Values.envVars.swaggerEndpoint | quote}}
-            {{- if not (eq .Values.environment "prod") }}
+            - name: PROVIDER_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: azure-secret
+                  key: provider_client_id
+            - name: CASEWORKER_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: azure-secret
+                  key: caseworker_client_id
             - name: AUTHENTICATION_REQUIRED
               value: {{ .Values.envVars.authenticationRequired | quote}}
             {{ end }}

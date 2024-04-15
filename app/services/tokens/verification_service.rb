@@ -36,7 +36,7 @@ module Tokens
       end
 
       def tenant_id
-        ENV.fetch("APP_STORE_TENANT_ID", "UNDEFINED_APP_STORE_TENANT_ID")
+        ENV.fetch("TENANT_ID", "UNDEFINED_APP_STORE_TENANT_ID")
       end
 
       def role_from(data)
