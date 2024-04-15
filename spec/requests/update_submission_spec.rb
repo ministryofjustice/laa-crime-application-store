@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "Update submission" do
-  before { allow(Tokens::VerificationService).to receive(:call).and_return(true) }
+  before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider) }
 
   it "lets me update data by creating a new version" do
     submission = create :submission
@@ -17,7 +17,7 @@ RSpec.describe "Update submission" do
           params: {
             events: [
               {
-                event_type: "edit",
+                id: "123",
                 details: "foo",
               },
             ],
@@ -25,8 +25,26 @@ RSpec.describe "Update submission" do
 
     expect(submission.reload.events.count).to eq 1
     expect(submission.reload.events.first).to include(
-      "event_type" => "edit",
+      "id" => "123",
       "details" => "foo",
+    )
+  end
+
+  it "does not allow overwriting events" do
+    submission = create :submission, events: [{ id: "A", details: "original version" }]
+    patch "/v1/submissions/#{submission.id}",
+          params: {
+            events: [
+              {
+                id: "A",
+                details: "rewriting history",
+              },
+            ],
+          }
+
+    expect(submission.reload.events.count).to eq 1
+    expect(submission.reload.events.first).to include(
+      "details" => "original version",
     )
   end
 
@@ -48,20 +66,28 @@ RSpec.describe "Update submission" do
     expect(response).to have_http_status(:unprocessable_entity)
   end
 
-  it "triggers a notification to subscribers" do
-    submission = create :submission
-    subscriber = create :subscriber
+  context "when webhook authentication is not required" do
+    around do |example|
+      ENV["AUTHENTICATION_REQUIRED"] = "false"
+      example.run
+      ENV["AUTHENTICATION_REQUIRED"] = nil
+    end
 
-    expect(HTTParty).to receive(:post).with(
-      subscriber.webhook_url,
-      headers: { "Content-Type" => "application/json" },
-      body: { submission_id: submission.id },
-    )
+    it "triggers a notification to subscribers" do
+      submission = create :submission
+      subscriber = create :subscriber
 
-    patch "/v1/submissions/#{submission.id}",
-          params: {
-            application_state: "sent_back",
-            application_risk: "medium-rare",
-          }
+      expect(HTTParty).to receive(:post).with(
+        subscriber.webhook_url,
+        headers: { "Content-Type" => "application/json" },
+        body: { submission_id: submission.id },
+      )
+
+      patch "/v1/submissions/#{submission.id}",
+            params: {
+              application_state: "sent_back",
+              application_risk: "medium-rare",
+            }
+    end
   end
 end

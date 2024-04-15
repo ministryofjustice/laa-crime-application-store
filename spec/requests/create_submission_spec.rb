@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "Create submission" do
-  before { allow(Tokens::VerificationService).to receive(:call).and_return(true) }
+  before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider) }
 
   let(:created_record) { Submission.last }
 
@@ -45,23 +45,45 @@ RSpec.describe "Create submission" do
     expect(response).to have_http_status :conflict
   end
 
-  it "triggers a notification to subscribers" do
-    id = SecureRandom.uuid
-    subscriber = create :subscriber
+  context "when webhook authentication is not required" do
+    around do |example|
+      ENV["AUTHENTICATION_REQUIRED"] = "false"
+      example.run
+      ENV["AUTHENTICATION_REQUIRED"] = nil
+    end
 
-    expect(HTTParty).to receive(:post).with(
-      subscriber.webhook_url,
-      headers: { "Content-Type" => "application/json" },
-      body: { submission_id: id },
-    )
+    it "triggers a notification to subscribers" do
+      id = SecureRandom.uuid
+      subscriber = create :subscriber
 
-    post "/v1/submissions", params: {
-      application_id: id,
-      application_type: "crm4",
-      application_risk: "low",
-      json_schema_version: 1,
-      application: { foo: :bar },
-    }
+      expect(HTTParty).to receive(:post).with(
+        subscriber.webhook_url,
+        headers: { "Content-Type" => "application/json" },
+        body: { submission_id: id },
+      )
+
+      post "/v1/submissions", params: {
+        application_id: id,
+        application_type: "crm4",
+        application_risk: "low",
+        json_schema_version: 1,
+        application: { foo: :bar },
+      }
+    end
+
+    it "does not trigger for subscribers matching role of client" do
+      create :subscriber, subscriber_type: "provider"
+
+      expect(HTTParty).not_to receive(:post)
+
+      post "/v1/submissions", params: {
+        application_id: SecureRandom.uuid,
+        application_type: "crm4",
+        application_risk: "low",
+        json_schema_version: 1,
+        application: { foo: :bar },
+      }
+    end
   end
 
   context "when webhook authentication is required" do
@@ -79,7 +101,7 @@ RSpec.describe "Create submission" do
       )
 
       id = SecureRandom.uuid
-      subscriber_1 = create :subscriber, subscriber_type: "provider", webhook_url: "a"
+      subscriber_1 = create :subscriber, subscriber_type: "caseworker", webhook_url: "a"
       subscriber_2 = create :subscriber, subscriber_type: "caseworker", webhook_url: "b"
 
       expect(HTTParty).to receive(:post).once.with(

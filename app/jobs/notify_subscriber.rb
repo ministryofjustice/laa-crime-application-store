@@ -12,7 +12,7 @@ class NotifySubscriber < ApplicationJob
   def headers
     basic = { "Content-Type" => "application/json" }
 
-    return basic unless Tokens::GenerationService.authentication_configured?
+    return basic unless Tokens::GenerationService.authentication_required?
 
     basic.merge(
       "Authorization" => "Bearer #{Tokens::GenerationService.call}",

@@ -5,8 +5,8 @@ module Tokens
         access_token.token
       end
 
-      def authentication_configured?
-        !tenant_id.nil?
+      def authentication_required?
+        ENV.fetch("AUTHENTICATION_REQUIRED", "true") == "true"
       end
 
     private

@@ -2,13 +2,13 @@ module Tokens
   class VerificationService
     class << self
       def call(headers)
-        return true if ENV.fetch("AUTHENTICATION_REQUIRED", "true") == "false"
+        return { valid: true, role: :unknown } if ENV.fetch("AUTHENTICATION_REQUIRED", "true") == "false"
 
         jwt = headers["Authorization"].gsub(/^Bearer /, "")
         data = parse(jwt)
-        valid?(data)
+        { valid: valid?(data), role: role_from(data) }
       rescue StandardError
-        false
+        { valid: false, role: nil }
       end
 
     private
@@ -18,8 +18,7 @@ module Tokens
       end
 
       def valid?(data)
-        data[0]["aud"] == client_id &&
-          data[0]["iss"] == "https://login.microsoftonline.com/#{tenant_id}/v2.0" &&
+        data[0]["iss"] == "https://login.microsoftonline.com/#{tenant_id}/v2.0" &&
           Time.zone.at(data[0]["exp"]) > Time.zone.now
       end
 
@@ -40,8 +39,15 @@ module Tokens
         ENV.fetch("APP_STORE_TENANT_ID", "UNDEFINED_APP_STORE_TENANT_ID")
       end
 
-      def client_id
-        ENV.fetch("APP_STORE_CLIENT_ID", "UNDEFINED_APP_STORE_CLIENT_ID")
+      def role_from(data)
+        case data[0]["aud"]
+        when ENV.fetch("PROVIDER_CLIENT_ID")
+          :provider
+        when ENV.fetch("CASEWORKER_CLIENT_ID")
+          :caseworker
+        else
+          raise "Unrecognised client ID #{data[0]['aud']}"
+        end
       end
     end
   end

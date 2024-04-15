@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "Show submission" do
-  before { allow(Tokens::VerificationService).to receive(:call).and_return(true) }
+  before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider) }
 
   it "returns a submission" do
     submission = create :submission

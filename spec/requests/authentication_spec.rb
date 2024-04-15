@@ -15,7 +15,7 @@ RSpec.describe "Authentication" do
       ENV.delete("AUTHENTICATION_REQUIRED")
     end
 
-    it "rejects all requests" do
+    it "allows all requests" do
       get "/v1/submissions"
       expect(response).to have_http_status :ok
     end
@@ -44,19 +44,48 @@ RSpec.describe "Authentication" do
     context "when the token is valid" do
       let(:jwks) { instance_double(JWT::JWK::Set) }
       let(:decoded) do
-        [{ "aud" => "UNDEFINED_APP_STORE_CLIENT_ID",
+        [{ "aud" => client_id,
            "iss" => "https://login.microsoftonline.com/UNDEFINED_APP_STORE_TENANT_ID/v2.0",
            "exp" => 1.hour.from_now.to_i }]
+      end
+
+      around do |example|
+        ENV["PROVIDER_CLIENT_ID"] = "PROVIDER"
+        ENV["CASEWORKER_CLIENT_ID"] = "CASEWORKER"
+        example.run
+        ENV["PROVIDER_CLIENT_ID"] = nil
+        ENV["CASEWORKER_CLIENT_ID"] = nil
       end
 
       before do
         allow(JWT::JWK::Set).to receive(:new).with("keys").and_return(jwks)
         allow(JWT).to receive(:decode).with("ABC", nil, true, { algorithms: "RS256", jwks: }).and_return(decoded)
+
+        get "/v1/submissions", headers: { "Authorization" => "Bearer ABC" }
       end
 
-      it "allows the request" do
-        get "/v1/submissions", headers: { "Authorization" => "Bearer ABC" }
-        expect(response).to have_http_status :ok
+      context "when caseworker client id is provided" do
+        let(:client_id) { "CASEWORKER" }
+
+        it "allows the request" do
+          expect(response).to have_http_status :ok
+        end
+      end
+
+      context "when provider client id is provided" do
+        let(:client_id) { "PROVIDER" }
+
+        it "allows the request" do
+          expect(response).to have_http_status :ok
+        end
+      end
+
+      context "when unknown client id is provided" do
+        let(:client_id) { "UNKNOWN" }
+
+        it "rejects the request" do
+          expect(response).to have_http_status :unauthorized
+        end
       end
     end
   end

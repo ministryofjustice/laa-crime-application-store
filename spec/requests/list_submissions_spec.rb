@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "List submissions" do
-  before { allow(Tokens::VerificationService).to receive(:call).and_return(true) }
+  before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider) }
 
   let(:returned_ids) { response.parsed_body["applications"].map { _1["application_id"] } }
 

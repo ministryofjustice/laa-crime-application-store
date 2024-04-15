@@ -2,7 +2,7 @@ module Submissions
   class CreationService
     AlreadyExistsError = Class.new(StandardError)
     class << self
-      def call(params)
+      def call(params, role)
         raise AlreadyExistsError if Submission.find_by(id: params[:application_id])
 
         Submission.transaction do
@@ -13,7 +13,7 @@ module Submissions
             version: 1,
           )
         end
-        NotificationService.call(params[:application_id])
+        NotificationService.call(params[:application_id], role)
       end
 
       def initial_data(params)

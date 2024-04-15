@@ -296,6 +296,12 @@ GEM
     rubocop-rspec_rails (2.28.3)
       rubocop (~> 1.40)
     ruby-progressbar (1.13.0)
+    sentry-rails (5.17.2)
+      railties (>= 5.0)
+      sentry-ruby (~> 5.17.2)
+    sentry-ruby (5.17.2)
+      bigdecimal
+      concurrent-ruby (~> 1.0, >= 1.0.2)
     simplecov (0.22.0)
       docile (~> 1.1)
       simplecov-html (~> 0.11)
@@ -347,6 +353,8 @@ DEPENDENCIES
   rspec_junit_formatter
   rubocop-govuk
   rubocop-performance
+  sentry-rails (>= 5.17.2)
+  sentry-ruby
   simplecov
   tzinfo-data
   webmock (>= 3.13.0)

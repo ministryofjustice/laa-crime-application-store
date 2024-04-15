@@ -6,7 +6,7 @@ module V1
     end
 
     def create
-      Submissions::CreationService.call(params)
+      Submissions::CreationService.call(params, current_client_role)
       head :created
     rescue Submissions::CreationService::AlreadyExistsError
       head :conflict
@@ -19,7 +19,7 @@ module V1
     end
 
     def update
-      Submissions::UpdateService.call(params)
+      Submissions::UpdateService.call(params, current_client_role)
       head :created
     rescue ActiveRecord::RecordInvalid
       head :unprocessable_entity
