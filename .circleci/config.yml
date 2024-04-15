@@ -35,9 +35,8 @@ executors:
     docker:
       - image: ministryofjustice/cloud-platform-tools
         environment:
-          GITHUB_TEAM_NAME_SLUG: laa-assess-a-claim
-          REPO_NAME: laa-court-data-api
-
+          GITHUB_TEAM_NAME_SLUG: laa-crime-forms-team
+          REPO_NAME: laa-crime-application-store
   test-executor:
     docker:
       - image: cimg/python:3.12.1
