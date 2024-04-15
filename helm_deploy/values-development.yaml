@@ -34,7 +34,7 @@ service:
   internalPort: 8000
 
 ingress:
-  enabled: true
+  enabled: false
   namespace: laa-crime-application-store-dev
   className: modsec
   annotations:
