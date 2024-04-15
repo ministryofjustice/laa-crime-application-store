@@ -1,0 +1,339 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "laa-crime-application-store.fullname" . }}-worker
+  labels:
+    {{- include "laa-crime-application-store.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "laa-crime-application-store.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "laa-crime-application-store.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.service_account.name }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}-worker
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - bundle
+            - exec
+            - sidekiq
+          # SidekiqAlive runs on port 7433 to allow health checking
+          ports:
+            - name: http
+              containerPort: 7433
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 7433
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 7433
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: sentry
+                  key: dsn
+          {{ if .Values.postgresql.enabled }}
+            - name: POSTGRES_USERNAME
+              value: {{ .Values.postgresql.postgresqlUsername }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgresql.auth.postgresPassword }}
+            - name: POSTGRES_HOSTNAME
+              value: {{ printf "%s-%s" .Release.Name "postgresql" | trunc 63 | trimSuffix "-" }}
+            - name: POSTGRES_NAME
+              value: {{ .Values.postgresql.auth.database }}
+          {{ else }}
+            - name: POSTGRES_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: database_name
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: database_username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: database_password
+            - name: POSTGRES_HOSTNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: rds_instance_address
+          {{ end }}
+            - name: APP_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: azure-secret
+                  key: app_client_id
+            - name: TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: azure-secret
+                  key: tenant_id
+            - name: ENTRA_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: azure-secret
+                  key: client_secret
+            - name: SWAGGER_ENDPOINT
+              value: {{ .Values.envVars.swaggerEndpoint | quote}}
+            {{- if not (eq .Values.environment "prod") }}
+            - name: AUTHENTICATION_REQUIRED
+              value: {{ .Values.envVars.authenticationRequired | quote}}
+            {{ end }}
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: secret_key_base
+            - name: RACK_ENV
+              value: 'production'
+            - name: RAILS_ENV
+              value: 'production'
+            - name: RAILS_LOG_TO_STDOUT
+              value: enabled
+            {{ if .Values.redis.enabled }}
+            - name: REDIS_PROTOCOL
+              value: "redis"
+            - name: REDIS_HOST
+              value: {{ template "laa-crime-application-store.redisDevHost" . }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.redis.auth.password }}
+          {{ else }}
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: crm-elasticache
+                  key: primary_endpoint_address
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: crm-elasticache
+                  key: auth_token
+          {{ end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "helm_deploy.fullname" . }}-worker
+  labels:
+    {{- include "helm_deploy.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "helm_deploy.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "helm_deploy.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.service_account.name }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}-worker
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - bundle
+            - exec
+            - sidekiq
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.workerPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.workerPort }}
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.workerPort }}
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+          {{ if .Values.redis.enabled }}
+            - name: REDIS_PROTOCOL
+              value: "redis"
+            - name: REDIS_HOST
+              value: {{ template "helm_deploy.redisUatHost" . }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.redis.auth.password }}
+          {{ else }}
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: crm-elasticache
+                  key: primary_endpoint_address
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: crm-elasticache
+                  key: auth_token
+          {{ end }}
+          {{ if .Values.postgresql.enabled }}
+            - name: POSTGRES_USER
+              value: {{ .Values.postgresql.postgresqlUsername }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgresql.auth.postgresPassword }}
+            - name: POSTGRES_HOST
+              value: {{ printf "%s-%s" .Release.Name "postgresql" | trunc 63 | trimSuffix "-" }}
+            - name: POSTGRES_DATABASE
+              value: {{ .Values.postgresql.auth.database }}
+          {{ else }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: url
+          {{ end }}
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: secret_key_base
+            - name: APP_STORE_URL
+              value: {{ .Values.variables.appStoreUrl}}
+            - name: OMNIAUTH_AZURE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: azure-auth
+                  key: client_id
+            - name: OMNIAUTH_AZURE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: azure-auth
+                  key: client_secret
+            - name: OMNIAUTH_AZURE_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: azure-auth
+                  key: redirect_uri
+            - name: OMNIAUTH_AZURE_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: azure-auth
+                  key: tenant_id
+            - name: APP_STORE_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-store-auth
+                  key: tenant_id
+            - name: APP_STORE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-store-auth
+                  key: app_client_id
+            - name: CASEWORKER_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-store-auth
+                  key: caseworker_client_id
+            - name: CASEWORKER_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-store-auth
+                  key:
+                    caseworker_client_secret
+            - name: RACK_ENV
+              value: 'production'
+            - name: RAILS_ENV
+              value: 'production'
+            - name: RAILS_LOG_TO_STDOUT
+              value: enabled
+            - name: ENV
+              value: {{ .Values.variables.environment}}
+            - name: IS_LOCAL_DOCKER_ENV
+              value: 'true'
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: sentry-dsn
+                  key: url
+            - name: GOVUK_NOTIFY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: notify-key
+                  key: notify_key
+            - name: ANALYTICS_TRACKING_ID
+              valueFrom:
+                secretKeyRef:
+                  name: google-analytics
+                  key: tracking_key
+            - name: APP_STORE_WAIT_SECS
+              value: '30'
+            - name: OS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ordnance-survey
+                  key: api-key
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

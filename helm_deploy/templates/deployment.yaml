@@ -118,6 +118,25 @@ spec:
               value: 'production'
             - name: RAILS_LOG_TO_STDOUT
               value: enabled
+            {{ if .Values.redis.enabled }}
+            - name: REDIS_PROTOCOL
+              value: "redis"
+            - name: REDIS_HOST
+              value: {{ template "laa-crime-application-store.redisDevHost" . }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.redis.auth.password }}
+          {{ else }}
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: crm-elasticache
+                  key: primary_endpoint_address
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: crm-elasticache
+                  key: auth_token
+          {{ end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
