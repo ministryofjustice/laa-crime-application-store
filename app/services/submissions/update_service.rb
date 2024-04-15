@@ -6,11 +6,7 @@ module Submissions
         submission.with_lock do
           add_events(submission, params)
           submission.current_version += 1 if params[:application]
-          if params.permit(:application_state, :application_risk).keys.any?
-            submission.update!(params.permit(:application_state, :application_risk))
-          else
-            submission.save!
-          end
+          submission.update!(params.permit(:application_state, :application_risk))
           add_new_version(submission, params) if params[:application]
         end
         NotificationService.call(params[:id], role)
@@ -18,7 +14,9 @@ module Submissions
 
       def add_events(submission, params)
         params[:events]&.each do |event|
-          submission.events << event unless submission.events.find { _1["id"] == event["id"] }
+          next if submission.events.find { _1["id"] == event["id"] }
+
+          submission.events << event.as_json
         end
       end
 
