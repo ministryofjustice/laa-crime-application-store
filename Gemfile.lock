@@ -116,6 +116,7 @@ GEM
       net-http
     globalid (1.2.1)
       activesupport (>= 6.1)
+    gserver (0.0.1)
     hashdiff (1.1.0)
     hashie (5.0.0)
     httparty (0.21.0)
@@ -232,6 +233,8 @@ GEM
     rake (13.2.1)
     rdoc (6.6.3.1)
       psych (>= 4.0.0)
+    redis-client (0.20.0)
+      connection_pool
     regexp_parser (2.9.0)
     reline (0.5.1)
       io-console (~> 0.5)
@@ -302,6 +305,14 @@ GEM
     sentry-ruby (5.17.2)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
+    sidekiq (7.2.2)
+      concurrent-ruby (< 2)
+      connection_pool (>= 2.3.0)
+      rack (>= 2.2.4)
+      redis-client (>= 0.19.0)
+    sidekiq_alive (2.4.0)
+      gserver (~> 0.0.1)
+      sidekiq (>= 5, < 8)
     simplecov (0.22.0)
       docile (~> 1.1)
       simplecov-html (~> 0.11)
@@ -355,6 +366,8 @@ DEPENDENCIES
   rubocop-performance
   sentry-rails (>= 5.17.2)
   sentry-ruby
+  sidekiq (~> 7.2)
+  sidekiq_alive (~> 2.4)
   simplecov
   tzinfo-data
   webmock (>= 3.13.0)

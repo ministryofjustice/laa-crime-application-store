@@ -66,28 +66,14 @@ RSpec.describe "Update submission" do
     expect(response).to have_http_status(:unprocessable_entity)
   end
 
-  context "when webhook authentication is not required" do
-    around do |example|
-      ENV["AUTHENTICATION_REQUIRED"] = "false"
-      example.run
-      ENV["AUTHENTICATION_REQUIRED"] = nil
-    end
+  it "enqueues a notification to subscribers" do
+    submission = create :submission
+    create :subscriber, subscriber_type: "caseworker"
 
-    it "triggers a notification to subscribers" do
-      submission = create :submission
-      subscriber = create :subscriber
-
-      expect(HTTParty).to receive(:post).with(
-        subscriber.webhook_url,
-        headers: { "Content-Type" => "application/json" },
-        body: { submission_id: submission.id },
-      )
-
-      patch "/v1/submissions/#{submission.id}",
-            params: {
-              application_state: "sent_back",
-              application_risk: "medium-rare",
-            }
-    end
+    params = {
+      application_state: "sent_back",
+      application_risk: "medium-rare",
+    }
+    expect { patch("/v1/submissions/#{submission.id}", params:) }.to have_enqueued_job
   end
 end
