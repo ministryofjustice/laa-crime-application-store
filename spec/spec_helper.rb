@@ -3,6 +3,7 @@ unless ENV["NOCOVERAGE"]
   SimpleCov.start do
     add_filter "spec/"
     add_filter "config/initializers/sentry.rb"
+    add_filter "config/initializers/sidekiq.rb"
 
     enable_coverage :branch
     primary_coverage :branch
