@@ -2,7 +2,9 @@ module Tokens
   class VerificationService
     class << self
       def call(headers)
-        return { valid: true, role: :unknown } if ENV.fetch("AUTHENTICATION_REQUIRED", "true") == "false"
+        if ENV.fetch("AUTHENTICATION_REQUIRED", "true") == "false"
+          return { valid: true, role: headers.fetch("X-Client-Type", "unknown").to_sym }
+        end
 
         jwt = headers["Authorization"].gsub(/^Bearer /, "")
         data = parse(jwt)
