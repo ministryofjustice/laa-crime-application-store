@@ -1,4 +1,4 @@
 #!/bin/sh
-cd /code
+cd /usr/src/app
 
-alembic upgrade head && uvicorn laa_crime_application_store_app.main:app --host 0.0.0.0 --port 8000
+bundle exec bin/rails db:prepare && bundle exec pumactl -F config/puma.rb start

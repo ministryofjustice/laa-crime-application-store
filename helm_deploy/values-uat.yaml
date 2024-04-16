@@ -23,7 +23,6 @@ securityContext:
    capabilities:
      drop:
      - ALL
-   readOnlyRootFilesystem: true
    runAsNonRoot: true
    runAsUser: 10000
    allowPrivilegeEscalation: false
@@ -31,7 +30,7 @@ securityContext:
 service:
   type: ClusterIP
   port: 80
-  internalPort: 8000
+  internalPort: 3000
 
 ingress:
   enabled: true
@@ -80,7 +79,12 @@ service_account:
 envVars:
   swaggerEndpoint: /docs
   authenticationRequired: True
+  subscriberFailedAttemptDeletionThreshold: ''
 
 # Instead of a temporary postgres pod we use RDS
 postgresql:
+  enabled: false
+
+# Instead of a temporary redis pod we use Elasticache
+redis:
   enabled: false
