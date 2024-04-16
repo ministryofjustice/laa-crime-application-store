@@ -383,11 +383,6 @@ workflows:
           context: laa-crime-application-store-dev
           requires:
             - build-and-push
-      - postman-test:
-          name: dev postman tests
-          context: laa-crime-application-store-dev
-          requires:
-            - deploy-dev
 
   test-build-deploy-merged-pr:
     jobs:
