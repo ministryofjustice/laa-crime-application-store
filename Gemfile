@@ -19,7 +19,7 @@ gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 gem "bootsnap", require: false
 
 gem "httparty"
-gem "jwt", "~> 2.7.1"
+gem "jwt", "~> 2.8.1"
 gem "oauth2"
 gem "sentry-rails", ">= 5.17.2"
 gem "sentry-ruby"
