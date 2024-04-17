@@ -154,10 +154,10 @@ commands:
           name: Compile Docker Image
           command: |
               docker build \
-                --build-arg BUILD_DATE=$(date +%Y-%m-%dT%H:%M:%S%z) \
-                --build-arg COMMIT_ID=${CIRCLE_SHA1} \
-                --build-arg BUILD_TAG="app-${CIRCLE_SHA1}" \
-                --build-arg APP_BRANCH=${CIRCLE_BRANCH} \
+                --build-arg APP_BUILD_DATE=$(date +%Y-%m-%dT%H:%M:%S%z) \
+                --build-arg APP_GIT_COMMIT=${CIRCLE_SHA1} \
+                --build-arg APP_BUILD_TAG="app-${CIRCLE_SHA1}" \
+                --build-arg APP_BRANCH_NAME=${CIRCLE_BRANCH} \
                 --pull \
                 --tag app \
                 --file Dockerfile .
@@ -295,10 +295,10 @@ jobs:
           repo: $ECR_REPOSITORY # this will use the env var
           account_id: $AWS_ECR_REGISTRY_ID
           extra_build_args: >-
-            --build-arg BUILD_DATE=${APP_BUILD_DATE}
-            --build-arg BUILD_TAG=${CIRCLE_SHA1}
-            --build-arg COMMIT_ID=${CIRCLE_SHA1}
-            --build-arg APP_BRANCH=${CIRCLE_BRANCH}
+            --build-arg APP_BUILD_DATE=${APP_BUILD_DATE}
+            --build-arg APP_BUILD_TAG=${CIRCLE_SHA1}
+            --build-arg APP_GIT_COMMIT=${CIRCLE_SHA1}
+            --build-arg APP_BRANCH_NAME=${CIRCLE_BRANCH}
 
           # ========================================================================== #
           # If you want to deploy the python implementation, uncomment the below lines #
@@ -374,16 +374,19 @@ workflows:
 
   build-and-deploy-open-pr:
     jobs:
-      - build-and-push: {}
+      - build-and-push:
+          filters:
+            branches:
+              ignore:
+                - main
       - deploy-dev:
           context: laa-crime-application-store-dev
+          filters:
+            branches:
+              ignore:
+                - main
           requires:
             - build-and-push
-      - postman-test:
-          name: dev postman tests
-          context: laa-crime-application-store-dev
-          requires:
-            - deploy-dev
 
   test-build-deploy-merged-pr:
     jobs:

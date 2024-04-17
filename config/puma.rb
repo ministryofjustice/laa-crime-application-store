@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# If this is set to a positive number, Puma will launch in cluster mode.
+# Note that on Mac you may need to also have env var `OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES`
+workers ENV.fetch("WORKERS", 0)
+
 # Puma can serve each request in a thread from an internal thread pool.
 # The `threads` method setting takes two numbers: a minimum and maximum.
 # Any libraries that use thread pools should be configured to match
