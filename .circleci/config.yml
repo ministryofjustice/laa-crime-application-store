@@ -375,12 +375,16 @@ workflows:
   build-and-deploy-open-pr:
     jobs:
       - build-and-push:
-        filters:
+          filters:
             branches:
               ignore:
                 - main
       - deploy-dev:
           context: laa-crime-application-store-dev
+          filters:
+            branches:
+              ignore:
+                - main
           requires:
             - build-and-push
 

@@ -22,14 +22,14 @@ RSpec.describe NotifySubscriber do
       expect(stub).to have_been_requested
     end
 
-    context "when the job fails" do
+    context "when the job fails due to client experiencing error" do
       before do
         stub_request(:post, subscriber.webhook_url).with(
           body: { submission_id: },
         ).to_return(status: 503)
       end
 
-      it "raises an error if a non-200 status is requested" do
+      it "raises an error if a non-200 status is returned" do
         expect { job.perform(subscriber.id, submission_id) }.to raise_error NotifySubscriber::ClientResponseError
       end
 
@@ -62,6 +62,16 @@ RSpec.describe NotifySubscriber do
             expect(Subscriber.find_by(id: subscriber.id)).to be_nil
           end
         end
+      end
+    end
+
+    context "when the job fails due to client no longer existing" do
+      before do
+        allow(HTTParty).to receive(:post).and_raise(Socket::ResolutionError)
+      end
+
+      it "raises an appropriate error" do
+        expect { job.perform(subscriber.id, submission_id) }.to raise_error NotifySubscriber::ClientResponseError
       end
     end
   end
