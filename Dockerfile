@@ -1,41 +1,89 @@
-FROM python:3.12-alpine3.18
+FROM ruby:3.3.0-alpine3.19 AS base
+LABEL maintainer="Non-standard magistrates' court payment team"
 
-WORKDIR /code
+# TODO: is this still needed?
+# temp fix to security issue in base image: ruby:3.2.2-alpine3.18
+RUN apk update && apk upgrade --no-cache libcrypto3 libssl3 openssl
 
-RUN apk --update-cache upgrade \
-&& apk --no-cache add --upgrade gcc \
-    musl-dev \
-    libffi-dev \
-    build-base \
-    expat>2.6.0-r0
+# dependencies required both at runtime and build time
+RUN apk add --update \
+  build-base \
+  postgresql-dev \
+  gcompat \
+  tzdata \
+  yarn
 
-COPY ./Pipfile /code/Pipfile
-COPY ./Pipfile.lock /code/Pipfile.lock
-COPY ./laa_crime_application_store_app /code/laa_crime_application_store_app
-COPY ./alembic.ini /code/alembic.ini
-COPY ./alembic /code/alembic
-COPY ./run.sh /code/run.sh
-RUN chmod a+x /code/run.sh
+# Alpine does not have a glibc, and this is needed for dart-sass
+# Refer to: https://github.com/sgerrand/alpine-pkg-glibc
+ARG GLIBC_VERSION=2.34-r0
+RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
+RUN wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/$GLIBC_VERSION/glibc-$GLIBC_VERSION.apk
+RUN apk add --force-overwrite glibc-$GLIBC_VERSION.apk
 
-RUN pip install --upgrade pip pipenv
+FROM base AS dependencies
 
-RUN PIPENV_PIPFILE="/code/Pipfile" pipenv install --system --deploy
+# system dependencies required to build some gems
+RUN apk add --update \
+  git
 
-RUN addgroup -g 1001 -S appuser && adduser -u 1001 -S appuser -G appuser
-RUN chown -R appuser:appuser /code
-USER 1001
+COPY Gemfile Gemfile.lock .ruby-version ./
 
-ARG COMMIT_ID
-ENV COMMIT_ID ${COMMIT_ID}
+RUN bundle config set frozen 'true' && \
+  bundle config set without test:development && \
+  bundle install --jobs 5 --retry 3
 
-ARG BUILD_DATE
-ENV BUILD_DATE ${BUILD_DATE}
+RUN yarn install --frozen-lockfile --ignore-scripts
 
-ARG BUILD_TAG
-ENV BUILD_TAG ${BUILD_TAG}
+FROM base
 
-ARG APP_BRANCH
-ENV APP_BRANCH ${APP_BRANCH}
+# add non-root user and group with alpine first available uid, 1000
 
-EXPOSE 8000
+RUN addgroup -g 1000 -S appgroup && \
+  adduser -u 1000 -S appuser -G appgroup
+
+# create some required directories
+RUN mkdir -p /usr/src/app && \
+  mkdir -p /usr/src/app/log && \
+  mkdir -p /usr/src/app/tmp && \
+  mkdir -p /usr/src/app/tmp/pids
+
+WORKDIR /usr/src/app
+
+# copy over gems from the dependencies stage
+COPY --from=dependencies /usr/local/bundle/ /usr/local/bundle/
+
+# copy over the remaning files and code
+COPY . .
+
+# non-root user should own these directories
+RUN chown -R appuser:appgroup /usr/src/app
+RUN chown -R appuser:appgroup log tmp db
+RUN chmod +x run.sh
+
+# Download RDS certificates bundle -- needed for SSL verification
+# We set the path to the bundle in the ENV, and use it in `/config/database.yml`
+#
+ENV RDS_COMBINED_CA_BUNDLE /usr/src/app/config/rds-combined-ca-bundle.pem
+ADD https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem $RDS_COMBINED_CA_BUNDLE
+RUN chmod +r $RDS_COMBINED_CA_BUNDLE
+
+ARG APP_BRANCH_NAME
+ENV APP_BRANCH_NAME ${APP_BRANCH_NAME}
+
+ARG APP_BUILD_DATE
+ENV APP_BUILD_DATE ${APP_BUILD_DATE}
+
+ARG APP_BUILD_TAG
+ENV APP_BUILD_TAG ${APP_BUILD_TAG}
+
+ARG APP_GIT_COMMIT
+ENV APP_GIT_COMMIT ${APP_GIT_COMMIT}
+
+# switch to non-root user
+ENV APPUID 1000
+USER $APPUID
+
+ENV PORT 3000
+EXPOSE $PORT
+
 ENTRYPOINT ["./run.sh"]

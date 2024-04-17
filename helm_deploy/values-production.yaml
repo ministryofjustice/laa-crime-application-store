@@ -20,18 +20,17 @@ podSecurityContext: {}
   # fsGroup: 2000
 
 securityContext:
-   capabilities:
-     drop:
-     - ALL
-   readOnlyRootFilesystem: true
-   runAsNonRoot: true
-   runAsUser: 10000
-   allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  seccompProfile:
+    type: RuntimeDefault
+  capabilities:
+    drop: [ "ALL" ]
 
 service:
   type: ClusterIP
   port: 80
-  internalPort: 8000
+  internalPort: 3000
 
 ingress:
   enabled: true
@@ -56,10 +55,10 @@ ingress:
 resources:
   limits:
     cpu: 500m
-    memory: 128Mi
+    memory: 500Mi
   requests:
     cpu: 10m
-    memory: 128Mi
+    memory: 500Mi
 
 autoscaling:
   enabled: false
@@ -80,7 +79,12 @@ service_account:
 envVars:
   swaggerEndpoint:
   authenticationRequired: True
+  subscriberFailedAttemptDeletionThreshold: ''
 
 # Instead of a temporary postgres pod we use RDS
 postgresql:
+  enabled: false
+
+# Instead of a temporary redis pod we use Elasticache
+redis:
   enabled: false

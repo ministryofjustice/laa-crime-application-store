@@ -20,18 +20,18 @@ podSecurityContext: {}
   # fsGroup: 2000
 
 securityContext:
-   capabilities:
-     drop:
-     - ALL
-   readOnlyRootFilesystem: true
-   runAsNonRoot: true
-   runAsUser: 10000
-   allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  seccompProfile:
+    type: RuntimeDefault
+  capabilities:
+    drop: [ "ALL" ]
+
 
 service:
   type: ClusterIP
   port: 80
-  internalPort: 8000
+  internalPort: 3000
 
 ingress:
   enabled: false
@@ -56,10 +56,10 @@ ingress:
 resources:
   limits:
     cpu: 500m
-    memory: 128Mi
+    memory: 500Mi
   requests:
     cpu: 10m
-    memory: 128Mi
+    memory: 500Mi
 
 autoscaling:
   enabled: false
@@ -68,12 +68,6 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
 
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
-
 
 service_account:
   name: laa-crime-application-store-dev-irsa
@@ -81,6 +75,7 @@ service_account:
 envVars:
   swaggerEndpoint: /docs
   authenticationRequired: True
+  subscriberFailedAttemptDeletionThreshold: '100'
 # This is used to configure the temporary non-RDS postgres DB
 postgresql:
   enabled: true
@@ -106,3 +101,26 @@ postgresql:
         type: RuntimeDefault
       capabilities:
         drop: [ "ALL" ]
+
+# see https://artifacthub.io/packages/helm/bitnami/redis for parameters
+redis:
+  enabled: true
+  architecture: standalone
+  master:
+    resources:
+      limits:
+        cpu: 250m
+        memory: 256Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
+    containerSecurityContext:
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop: [ "ALL" ]
+  auth:
+    enabled: true
+    password: redis
