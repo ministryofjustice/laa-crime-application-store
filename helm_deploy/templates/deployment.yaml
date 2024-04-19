@@ -105,6 +105,16 @@ spec:
             - name: AUTHENTICATION_REQUIRED
               value: {{ .Values.envVars.authenticationRequired | quote}}
             {{ end }}
+            - name: SIDEKIQ_WEB_UI_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: sidekiq-auth
+                  key: username
+            - name: SIDEKIQ_WEB_UI_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sidekiq-auth
+                  key: password
             - name: SECRET_KEY_BASE
               valueFrom:
                 secretKeyRef:
