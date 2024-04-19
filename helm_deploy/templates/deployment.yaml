@@ -101,16 +101,6 @@ spec:
                 secretKeyRef:
                   name: azure-secret
                   key: client_secret
-            - name: PROVIDER_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: azure-secret
-                  key: provider_client_id
-            - name: CASEWORKER_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: azure-secret
-                  key: caseworker_client_id
             {{- if not (eq .Values.environment "prod") }}
             - name: AUTHENTICATION_REQUIRED
               value: {{ .Values.envVars.authenticationRequired | quote}}
