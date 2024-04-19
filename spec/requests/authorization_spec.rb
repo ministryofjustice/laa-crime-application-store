@@ -42,15 +42,7 @@ RSpec.describe "Authorization" do
   end
 
   context "when a valid auth token is provided" do
-    let(:decoded) { [{ "azp" => client_id }] }
-
-    around do |example|
-      ENV["PROVIDER_CLIENT_ID"] = "PROVIDER"
-      ENV["CASEWORKER_CLIENT_ID"] = "CASEWORKER"
-      example.run
-      ENV["PROVIDER_CLIENT_ID"] = nil
-      ENV["CASEWORKER_CLIENT_ID"] = nil
-    end
+    let(:decoded) { [{ "roles" => [role] }] }
 
     before do
       allow(Tokens::VerificationService).to receive(:parse).and_return(decoded)
@@ -58,7 +50,7 @@ RSpec.describe "Authorization" do
     end
 
     context "when client is doing something it is allowed to based on its token" do
-      let(:client_id) { "CASEWORKER" }
+      let(:role) { "Caseworker" }
 
       it "allows them to do it" do
         submission = create(:submission, application_state: "submitted")
@@ -70,7 +62,7 @@ RSpec.describe "Authorization" do
     end
 
     context "when client is doing something it is not allowed to based on its token" do
-      let(:client_id) { "PROVIDER" }
+      let(:role) { "Provider" }
 
       it "does not allow them to do it" do
         submission = create(:submission, application_state: "submitted")

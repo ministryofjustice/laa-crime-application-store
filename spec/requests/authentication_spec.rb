@@ -24,8 +24,10 @@ RSpec.describe "Authentication" do
   context "when an auth token is provided" do
     around do |example|
       ENV["TENANT_ID"] = "TENANT"
+      ENV["APP_CLIENT_ID"] = "APP_STORE"
       example.run
       ENV["TENANT_ID"] = nil
+      ENV["APP_CLIENT_ID"] = nil
     end
 
     before do
@@ -50,20 +52,10 @@ RSpec.describe "Authentication" do
     context "when the token is valid" do
       let(:jwks) { instance_double(JWT::JWK::Set) }
       let(:decoded) do
-        [{ "azp" => client_id,
+        [{ "roles" => [role],
            "aud" => "APP_STORE",
            "iss" => "https://login.microsoftonline.com/TENANT/v2.0",
            "exp" => 1.hour.from_now.to_i }]
-      end
-
-      around do |example|
-        ENV["PROVIDER_CLIENT_ID"] = "PROVIDER"
-        ENV["CASEWORKER_CLIENT_ID"] = "CASEWORKER"
-        ENV["APP_CLIENT_ID"] = "APP_STORE"
-        example.run
-        ENV["PROVIDER_CLIENT_ID"] = nil
-        ENV["CASEWORKER_CLIENT_ID"] = nil
-        ENV["APP_CLIENT_ID"] = nil
       end
 
       before do
@@ -74,7 +66,7 @@ RSpec.describe "Authentication" do
       end
 
       context "when caseworker client id is provided" do
-        let(:client_id) { "CASEWORKER" }
+        let(:role) { "Caseworker" }
 
         it "allows the request" do
           expect(response).to have_http_status :ok
@@ -82,7 +74,7 @@ RSpec.describe "Authentication" do
       end
 
       context "when provider client id is provided" do
-        let(:client_id) { "PROVIDER" }
+        let(:role) { "Provider" }
 
         it "allows the request" do
           expect(response).to have_http_status :ok
@@ -90,7 +82,7 @@ RSpec.describe "Authentication" do
       end
 
       context "when unknown client id is provided" do
-        let(:client_id) { "UNKNOWN" }
+        let(:role) { "UNKNOWN" }
 
         it "rejects the request" do
           expect(response).to have_http_status :unauthorized
