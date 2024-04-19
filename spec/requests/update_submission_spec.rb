@@ -1,11 +1,11 @@
 require "rails_helper"
 
 RSpec.describe "Update submission" do
-  before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider) }
+  before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker) }
 
   it "lets me update data by creating a new version" do
     submission = create :submission
-    patch "/v1/submissions/#{submission.id}", params: { application: { new: :data }, json_schema_version: 1 }
+    patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
     expect(response).to have_http_status(:created)
     expect(submission.reload.current_version).to eq 2
     expect(submission.reload.latest_version.application).to eq({ "new" => "data" })
@@ -15,6 +15,7 @@ RSpec.describe "Update submission" do
     submission = create :submission
     patch "/v1/submissions/#{submission.id}",
           params: {
+            application_state: "granted",
             events: [
               {
                 id: "123",
@@ -34,6 +35,7 @@ RSpec.describe "Update submission" do
     submission = create :submission, events: [{ id: "A", details: "original version" }]
     patch "/v1/submissions/#{submission.id}",
           params: {
+            application_state: "granted",
             events: [
               {
                 id: "A",
@@ -62,13 +64,13 @@ RSpec.describe "Update submission" do
 
   it "validates" do
     submission = create :submission
-    patch "/v1/submissions/#{submission.id}", params: { application: { new: :data }, json_schema_version: nil }
+    patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: nil }
     expect(response).to have_http_status(:unprocessable_entity)
   end
 
   it "enqueues a notification to subscribers" do
     submission = create :submission
-    create :subscriber, subscriber_type: "caseworker"
+    create :subscriber, subscriber_type: "provider"
 
     params = {
       application_state: "sent_back",
