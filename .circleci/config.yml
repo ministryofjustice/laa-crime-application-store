@@ -7,10 +7,10 @@ orbs:
   aws-ecr: circleci/aws-ecr@9.0.2 # this orb doesn't support OIDC v2, so we use aws-cli to authenticate
 
 executors:
-  python-build-image-executor:
-    resource_class: small
-    docker:
-      - image: cimg/python:3.12.1
+  # python-build-image-executor:
+  #   resource_class: small
+  #   docker:
+  #     - image: cimg/python:3.12.1
 
   cloud-platform-executor:
     resource_class: small
@@ -20,21 +20,21 @@ executors:
           GITHUB_TEAM_NAME_SLUG: laa-assess-a-claim
           REPO_NAME: laa-court-data-api
 
-  python-test-executor:
-    working_directory: ~/repo/legacy_implementation
-    docker:
-      - image: cimg/python:3.12.1
-        environment:
-          POSTGRES_USERNAME: postgres
-          POSTGRES_PASSWORD: circleci
-          POSTGRES_NAME: laa_crime_application_store
-          POSTGRES_HOSTNAME: 127.0.0.1
-          TZ: Europe/London
-      - image: cimg/postgres:14.9
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: "circleci"
-          POSTGRES_DB: laa_crime_application_store_test
+  # python-test-executor:
+  #   working_directory: ~/repo/legacy_implementation
+  #   docker:
+  #     - image: cimg/python:3.12.1
+  #       environment:
+  #         POSTGRES_USERNAME: postgres
+  #         POSTGRES_PASSWORD: circleci
+  #         POSTGRES_NAME: laa_crime_application_store
+  #         POSTGRES_HOSTNAME: 127.0.0.1
+  #         TZ: Europe/London
+  #     - image: cimg/postgres:14.9
+  #       environment:
+  #         POSTGRES_USER: postgres
+  #         POSTGRES_PASSWORD: "circleci"
+  #         POSTGRES_DB: laa_crime_application_store_test
   test-executor:
     working_directory: ~/repo
     docker:
@@ -51,19 +51,19 @@ executors:
           POSTGRES_DB: laa_crime_application_store_test
 
 commands:
-  install-python-requirements:
-    steps:
-      - save_cache:
-          key: deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-          paths:
-            - ".venv"
-      - restore_cache:
-          keys:
-            - deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-            - deps-{{ .Branch }}
-      - run:
-          name: Install Requirements
-          command: pipenv install --dev
+  # install-python-requirements:
+  #   steps:
+  #     - save_cache:
+  #         key: deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+  #         paths:
+  #           - ".venv"
+  #     - restore_cache:
+  #         keys:
+  #           - deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+  #           - deps-{{ .Branch }}
+  #     - run:
+  #         name: Install Requirements
+  #         command: pipenv install --dev
 
   install-requirements:
     steps:
@@ -86,15 +86,15 @@ commands:
             - ~/.bundle
             - vendor/bundle
 
-  run-python-tests:
-    steps:
-      - run:
-          name: Run pytest
-          command: pipenv run pytest --cov-report term --junitxml=test-results/junit.xml --cov=laa_crime_application_store_app tests
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: coverage
+  # run-python-tests:
+  #   steps:
+  #     - run:
+  #         name: Run pytest
+  #         command: pipenv run pytest --cov-report term --junitxml=test-results/junit.xml --cov=laa_crime_application_store_app tests
+  #     - store_test_results:
+  #         path: test-results
+  #     - store_artifacts:
+  #         path: coverage
 
   db-setup:
     steps:
@@ -135,11 +135,11 @@ commands:
           path: ~/repo/coverage
           destination: coverage
 
-  run-python-linting:
-    steps:
-      - run:
-          name: Check styling
-          command: pipenv run flake8
+  # run-python-linting:
+  #   steps:
+  #     - run:
+  #         name: Check styling
+  #         command: pipenv run flake8
 
   run-linting:
     steps:
@@ -192,15 +192,15 @@ commands:
               ./bin/deploy << parameters.environment >>
 
 jobs:
-  lint-python-app:
-    working_directory: ~/repo/legacy_implementation
-    executor: python-build-image-executor
-    parallelism:
-    steps:
-      - checkout:
-          path: ~/repo
-      - install-python-requirements
-      - run-python-linting
+  # lint-python-app:
+  #   working_directory: ~/repo/legacy_implementation
+  #   executor: python-build-image-executor
+  #   parallelism:
+  #   steps:
+  #     - checkout:
+  #         path: ~/repo
+  #     - install-python-requirements
+  #     - run-python-linting
 
   lint-app:
     working_directory: ~/repo
@@ -211,15 +211,15 @@ jobs:
       - install-requirements
       - run-linting
 
-  test-python-app:
-    working_directory: ~/repo/legacy_implementation
-    executor: python-test-executor
-    parallelism: 1
-    steps:
-      - checkout:
-          path: ~/repo
-      - install-python-requirements
-      - run-python-tests
+  # test-python-app:
+  #   working_directory: ~/repo/legacy_implementation
+  #   executor: python-test-executor
+  #   parallelism: 1
+  #   steps:
+  #     - checkout:
+  #         path: ~/repo
+  #     - install-python-requirements
+  #     - run-python-tests
 
   test-app:
     working_directory: ~/repo
@@ -230,24 +230,24 @@ jobs:
       - install-requirements
       - run-tests
 
-  scan-python-docker-image:
-    working_directory: ~/repo/legacy_implementation
-    executor: python-build-image-executor
-    parallelism: 1
-    steps:
-      - checkout:
-          path: ~/repo
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - build-docker-image
-      - snyk/scan:
-          token-variable: SNYK_TOKEN
-          docker-image-name: app
-          target-file: ./Dockerfile
-          organization: 'legal-aid-agency'
-          project: ministryofjustice/laa-crime-application-store
-          severity-threshold: "high"
-          fail-on-issues: true
+  # scan-python-docker-image:
+  #   working_directory: ~/repo/legacy_implementation
+  #   executor: python-build-image-executor
+  #   parallelism: 1
+  #   steps:
+  #     - checkout:
+  #         path: ~/repo
+  #     - setup_remote_docker:
+  #         docker_layer_caching: true
+  #     - build-docker-image
+  #     - snyk/scan:
+  #         token-variable: SNYK_TOKEN
+  #         docker-image-name: app
+  #         target-file: ./Dockerfile
+  #         organization: 'legal-aid-agency'
+  #         project: ministryofjustice/laa-crime-application-store
+  #         severity-threshold: "high"
+  #         fail-on-issues: true
 
   scan-docker-image:
     working_directory: ~/repo
@@ -340,21 +340,21 @@ workflows:
 
   test-opened-pr:
     jobs:
-      - lint-python-app:
-          filters:
-            branches:
-              ignore:
-                - main
-      - test-python-app:
-          filters:
-            branches:
-              ignore:
-                - main
-      - scan-python-docker-image:
-          filters:
-            branches:
-              ignore:
-                - main
+      # - lint-python-app:
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - main
+      # - test-python-app:
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - main
+      # - scan-python-docker-image:
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - main
       - lint-app:
           filters:
             branches:
@@ -389,21 +389,21 @@ workflows:
 
   test-build-deploy-merged-pr:
     jobs:
-      - lint-python-app:
-          filters:
-            branches:
-              only:
-                - main
-      - test-python-app:
-          filters:
-            branches:
-              only:
-                - main
-      - scan-python-docker-image:
-          filters:
-            branches:
-              only:
-                - main
+      # - lint-python-app:
+      #     filters:
+      #       branches:
+      #         only:
+      #           - main
+      # - test-python-app:
+      #     filters:
+      #       branches:
+      #         only:
+      #           - main
+      # - scan-python-docker-image:
+      #     filters:
+      #       branches:
+      #         only:
+      #           - main
       - lint-app:
           filters:
             branches:
@@ -421,9 +421,9 @@ workflows:
                 - main
       - build-and-push:
           requires:
-            - lint-python-app
-            - test-python-app
-            - scan-python-docker-image
+            # - lint-python-app
+            # - test-python-app
+            # - scan-python-docker-image
             - lint-app
             - test-app
             - scan-docker-image
