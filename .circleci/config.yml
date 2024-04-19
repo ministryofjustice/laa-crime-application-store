@@ -205,7 +205,6 @@ jobs:
   lint-app:
     working_directory: ~/repo
     executor: test-executor
-    parallelism:
     steps:
       - checkout
       - install-requirements
@@ -224,7 +223,6 @@ jobs:
   test-app:
     working_directory: ~/repo
     executor: test-executor
-    parallelism: 1
     steps:
       - checkout
       - install-requirements
@@ -252,7 +250,6 @@ jobs:
   scan-docker-image:
     working_directory: ~/repo
     executor: test-executor
-    parallelism: 1
     steps:
       - checkout:
           path: ~/repo
