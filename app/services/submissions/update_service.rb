@@ -1,8 +1,7 @@
 module Submissions
   class UpdateService
     class << self
-      def call(params, role)
-        submission = Submission.find(params[:id])
+      def call(submission, params, role)
         submission.with_lock do
           add_events(submission, params)
           submission.current_version += 1 if params[:application]

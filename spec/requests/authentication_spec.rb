@@ -16,7 +16,7 @@ RSpec.describe "Authentication" do
     end
 
     it "allows all requests" do
-      get "/v1/submissions"
+      get "/v1/submissions", headers: { "X-Client-Type" => "provider" }
       expect(response).to have_http_status :ok
     end
   end

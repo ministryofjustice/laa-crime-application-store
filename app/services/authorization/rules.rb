@@ -1,0 +1,54 @@
+module Authorization
+  module Rules
+    PERMISSIONS = {
+      provider: {
+        subscribers: {
+          create: true,
+          destroy: ->(object, _) { !object || object.subscriber_type == "provider" },
+        },
+        submissions: {
+          index: true,
+          show: true,
+          create: true,
+          update: ->(object, params) { state_pair_allowed?(object, params, PERMITTED_SUBMISSION_STATE_CHANGES[:provider]) },
+        },
+      },
+      caseworker: {
+        subscribers: {
+          create: true,
+          destroy: ->(object, _) { !object || object.subscriber_type == "caseworker" },
+        },
+        submissions: {
+          index: true,
+          show: true,
+          update: ->(object, params) { state_pair_allowed?(object, params, PERMITTED_SUBMISSION_STATE_CHANGES[:caseworker]) },
+        },
+      },
+    }.freeze
+
+    PERMITTED_SUBMISSION_STATE_CHANGES = {
+      provider: [
+        { pre: %w[sent_back], post: %w[provider_updated] },
+      ],
+      caseworker: [
+        { pre: %w[sent_back], post: %w[expired] },
+        {
+          pre: %w[submitted provider_updated],
+          post: %w[granted
+                   auto_grant
+                   part_grant
+                   rejected
+                   further_info
+                   provider_requested
+                   sent_back],
+        },
+      ],
+    }.freeze
+
+    def self.state_pair_allowed?(object, params, pairs)
+      pairs.any? do |pair|
+        object.application_state.in?(pair[:pre]) && params[:application_state].in?(pair[:post])
+      end
+    end
+  end
+end
