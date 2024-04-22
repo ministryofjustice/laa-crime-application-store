@@ -15,14 +15,22 @@ module V1
     end
 
     def show
-      render json: Submission.find(params[:id])
+      render json: current_submission
     end
 
     def update
-      Submissions::UpdateService.call(params, current_client_role)
+      Submissions::UpdateService.call(current_submission, params, current_client_role)
       head :created
     rescue ActiveRecord::RecordInvalid
       head :unprocessable_entity
+    end
+
+    def current_submission
+      @current_submission ||= Submission.find(params[:id])
+    end
+
+    def authorization_object
+      current_submission if action_name == "update"
     end
   end
 end

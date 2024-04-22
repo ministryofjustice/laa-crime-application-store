@@ -12,10 +12,18 @@ module V1
     end
 
     def destroy
-      Subscriber.find_by(params.permit(:webhook_url, :subscriber_type)).destroy!
+      current_subscriber.destroy!
       head :no_content
     rescue ActiveRecord::StatementInvalid, NoMethodError
       head :not_found
+    end
+
+    def current_subscriber
+      @current_subscriber = Subscriber.find_by(params.permit(:webhook_url, :subscriber_type))
+    end
+
+    def authorization_object
+      current_subscriber if action_name == "destroy"
     end
   end
 end
