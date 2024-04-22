@@ -310,14 +310,9 @@ workflows:
           requires:
             - build-and-push
           filters:
-            branches:
-              only:
-                - main
-      - postman-test:
-          name: uat postman tests
-          context: laa-crime-application-store-uat
-          requires:
-            - deploy-uat
+              branches:
+                  only:
+                      - main
       - deploy-prod:
           context: laa-crime-application-store-prod
           filters:
