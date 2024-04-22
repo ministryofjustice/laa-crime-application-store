@@ -47,13 +47,13 @@ module Tokens
       end
 
       def role_from(data)
-        case data[0]["azp"]
-        when ENV.fetch("PROVIDER_CLIENT_ID")
+        case data.dig(0, "roles", 0)
+        when "Provider"
           :provider
-        when ENV.fetch("CASEWORKER_CLIENT_ID")
+        when "Caseworker"
           :caseworker
         else
-          raise "Unrecognised client ID #{data[0]['aud']}"
+          raise "Unrecognised roles #{data[0]['roles']}"
         end
       end
     end
