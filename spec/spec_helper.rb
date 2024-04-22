@@ -2,6 +2,7 @@ require "simplecov"
 unless ENV["NOCOVERAGE"]
   SimpleCov.start do
     add_filter "spec/"
+    add_filter "config/routes.rb"
     add_filter "config/initializers/sentry.rb"
     add_filter "config/initializers/sidekiq.rb"
 

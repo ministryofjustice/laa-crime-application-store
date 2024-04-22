@@ -1,0 +1,2 @@
+web: RUN_SIDEKIQ_IN_TEST_MODE=false bin/rails server -p 8000
+sidekiq: DISABLE_SIDEKIQ_ALIVE=true bundle exec sidekiq
