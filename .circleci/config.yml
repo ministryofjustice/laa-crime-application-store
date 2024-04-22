@@ -441,11 +441,6 @@ workflows:
               branches:
                   only:
                       - main
-      - postman-test:
-          name: uat postman tests
-          context: laa-crime-application-store-uat
-          requires:
-            - deploy-uat
       - deploy-prod:
           context: laa-crime-application-store-prod
           filters:
