@@ -8,6 +8,7 @@ module Redacting
     end
 
     def process!
+      # Commented this method out for now as not sure if relevant for NSCC
       # process_metadata!
 
       # The redacting of the payload is only needed once, on creation
@@ -37,13 +38,13 @@ module Redacting
     end
     # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
-    def process_metadata!
-      redacted_record.metadata.merge!(
-        MetadataWrapper.new(record).metadata,
-      )
+    # def process_metadata!
+    #   redacted_record.metadata.merge!(
+    #     MetadataWrapper.new(record).metadata,
+    #   )
 
-      true
-    end
+    #   true
+    # end
 
   private
 

@@ -76,6 +76,39 @@ RSpec.describe "Create submission" do
 
       expect { post("/v1/submissions", params:) }.not_to have_enqueued_job
     end
+
+    context "when redacting application data" do
+      it "redacts data correctly" do
+        id = SecureRandom.uuid
+        post "/v1/submissions", params: {
+          application_id: id,
+          application_type: "crm4",
+          application_risk: "low",
+          json_schema_version: 1,
+          application: { defendant: { date_of_birth: "2005-10-10", first_name: "some name", last_name: "last" },
+                         some_array: [{ item_one: "hello" }, { item_one: "world" }],
+                         some_string: "secret info" },
+        }
+
+        expect(created_record.latest_version).to have_attributes(
+          json_schema_version: 1,
+          application: { "defendant" => { "date_of_birth" => "2005-10-10",
+                                          "first_name" => "some name",
+                                          "last_name" => "last" },
+                         "some_array" => [{ "item_one" => "hello" }, { "item_one" => "world" }],
+                         "some_string" => "secret info" },
+        )
+
+        expect(created_record.latest_version.redacted_submission_version).to have_attributes(
+          json_schema_version: 1,
+          application: { "defendant" => { "date_of_birth" => "__redacted__",
+                                          "first_name" => "__redacted__",
+                                          "last_name" => "__redacted__" },
+                         "some_array" => [{ "item_one" => "__redacted__" }, { "item_one" => "__redacted__" }],
+                         "some_string" => "__redacted__" },
+        )
+      end
+    end
   end
 
   context "when not using token" do

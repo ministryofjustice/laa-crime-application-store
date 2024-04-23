@@ -3,11 +3,16 @@ module Redacting
     REDACTED_KEYWORD = "__redacted__".freeze
 
     PII_ATTRIBUTES = {
-      "case_details.codefendants" => {
-        redact: %w[first_name last_name],
+      "defendant" => {
+        redact: %w[date_of_birth first_name last_name],
+        # I've said this data is an object and constructed as so but it may infact be an array
+        type: :object,
+      },
+      "some_array" => {
+        redact: %w[item_one],
         type: :array, # [{}, {}, ...]
       },
-      "additional_information" => {
+      "some_string" => {
         redact: :value,
         type: :string,
       },
