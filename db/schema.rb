@@ -30,11 +30,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_19_150436) do
     t.jsonb "application", null: false
   end
 
-  create_table "redacted_application_versions", force: :cascade do |t|
-    t.uuid "application_id", null: false
-    t.integer "version", null: false
-    t.integer "json_schema_version", null: false
-    t.jsonb "application", null: false
+  create_table "redacted_application_versions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "submission_id"
+    t.uuid "submission_version_id"
+    t.integer "version"
+    t.integer "json_schema_version"
+    t.jsonb "application"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

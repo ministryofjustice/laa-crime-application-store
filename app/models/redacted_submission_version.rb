@@ -1,5 +1,6 @@
 class RedactedSubmissionVersion < ApplicationRecord
   belongs_to :submission_version
+  belongs_to :submission
 
   self.table_name = "redacted_application_versions"
 

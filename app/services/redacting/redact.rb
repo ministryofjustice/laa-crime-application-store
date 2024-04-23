@@ -1,14 +1,14 @@
 module Redacting
   class Redact < BaseRedacting
     def initialize(record)
-      raise ArgumentError, "expected `CrimeApplication` instance, got `#{record.class}`" unless
-        record.is_a?(CrimeApplication)
+      raise ArgumentError, "expected `SubmissionVersion` instance, got `#{record.class}`" unless
+        record.is_a?(SubmissionVersion)
 
       super(record)
     end
 
     def process!
-      process_metadata!
+      # process_metadata!
 
       # The redacting of the payload is only needed once, on creation
       return true if redacted_record.persisted?

@@ -23,15 +23,15 @@ module Redacting
     end
 
     def original_payload
-      record.submitted_application
+      record.application
     end
 
     def redacted_payload
-      redacted_record.submitted_application
+      redacted_record.application
     end
 
     def redacted_record
-      @redacted_record ||= record.redacted_crime_application || record.build_redacted_crime_application
+      @redacted_record ||= record.redacted_submission_version || record.build_redacted_submission_version(application: {})
     end
   end
 end
