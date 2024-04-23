@@ -29,6 +29,11 @@ RSpec.describe "Create submission" do
         json_schema_version: 1,
         application: { "foo" => "bar" },
       )
+
+      expect(created_record.latest_version.redacted_submission_version).to have_attributes(
+        json_schema_version: 1,
+        application: { "foo" => "bar" },
+      )
     end
 
     it "validates what I send" do

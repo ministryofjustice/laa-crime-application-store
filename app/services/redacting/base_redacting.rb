@@ -31,7 +31,12 @@ module Redacting
     end
 
     def redacted_record
-      @redacted_record ||= record.redacted_submission_version || record.build_redacted_submission_version(application: {})
+      @redacted_record ||= record.redacted_submission_version || record.build_redacted_submission_version(
+        submission_id: record.application_id,
+        version: record.version,
+        json_schema_version: record.json_schema_version,
+        application: {},
+      )
     end
   end
 end
