@@ -126,6 +126,8 @@ spec:
               value: 'production'
             - name: RAILS_LOG_TO_STDOUT
               value: enabled
+            - name: ENV
+              value: { { .Values.envVars.environment } }
             {{ if .Values.redis.enabled }}
             - name: REDIS_PROTOCOL
               value: "redis"
