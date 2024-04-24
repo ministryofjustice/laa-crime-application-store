@@ -1,4 +1,4 @@
-FROM ruby:3.3.0-alpine3.19 AS base
+FROM ruby:3.3.1-alpine3.19 AS base
 LABEL maintainer="Non-standard magistrates' court payment team"
 
 # TODO: is this still needed?
