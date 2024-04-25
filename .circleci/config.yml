@@ -6,30 +6,7 @@ orbs:
   aws-cli: circleci/aws-cli@4.1.3 # use v4 of this orb
   aws-ecr: circleci/aws-ecr@9.0.2 # this orb doesn't support OIDC v2, so we use aws-cli to authenticate
 
-references:
-  _save-requirements: &save-requirements
-    save_cache:
-      key: deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-      paths:
-        - ".venv"
-
-  _restore-requirements: &restore-requirements
-    restore_cache:
-      keys:
-        - deps-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-        - deps-{{ .Branch }}
-
-  _install-requirements: &install-requirements
-    run:
-      name: Install Requirements
-      command: pipenv install --dev
-
 executors:
-  build-image-executor:
-    resource_class: small
-    docker:
-      - image: cimg/python:3.12.1
-
   cloud-platform-executor:
     resource_class: small
     docker:
@@ -38,15 +15,15 @@ executors:
           GITHUB_TEAM_NAME_SLUG: laa-crime-forms-team
           REPO_NAME: laa-crime-application-store
   test-executor:
+    working_directory: ~/repo
     docker:
-      - image: cimg/python:3.12.1
+      - image: cimg/ruby:3.3.0-browsers
         environment:
-          POSTGRES_USERNAME: postgres
-          POSTGRES_PASSWORD: circleci
-          POSTGRES_NAME: laa_crime_application_store
-          POSTGRES_HOSTNAME: 127.0.0.1
+          RACK_ENV: test
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:circleci@127.0.0.1:5432/laa_crime_application_store_test
           TZ: Europe/London
-      - image: cimg/postgres:14.9
+      - image: cimg/postgres:13.12-postgis
         environment:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: "circleci"
@@ -55,25 +32,69 @@ executors:
 commands:
   install-requirements:
     steps:
-      - *restore-requirements
-      - *install-requirements
-      - *save-requirements
+      - restore_cache:
+          keys:
+            - v1-bundle-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-bundle-
+      - run:
+          name: Install gems
+          command: |
+            bundler_version=$(cat Gemfile.lock | tail -1 | tr -d " ")
+            gem install bundler -v $bundler_version
+            bundle config set path 'vendor/bundle'
+            bundle check || bundle install --jobs=4 --retry=3
+            bundle clean --force
+      - save_cache:
+          key: v1-bundle-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+          paths:
+            - ~/.bundle
+            - vendor/bundle
+
+  db-setup:
+    steps:
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: Database setup
+          command: |
+            RUBYOPT=-W:no-deprecated \
+            bundle exec rails db:prepare --trace
 
   run-tests:
     steps:
+      - db-setup
       - run:
-          name: Run pytest
-          command: pipenv run pytest --cov-report term --junitxml=test-results/junit.xml --cov=laa_crime_application_store_app tests
+          name: Run rspec tests
+          command: |
+            TESTFILES=$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings --timings-type=filename)
+            RUBYOPT=-W:no-deprecated \
+            bundle exec rspec \
+              --format progress \
+              --format RspecJunitFormatter \
+              --out /tmp/test-results/rspec/rspec.xml \
+              -- ${TESTFILES}
       - store_test_results:
-          path: test-results
+          path: /tmp/test-results/rspec
+      - run:
+          name: Stash coverage results
+          command: |
+            mkdir coverage_results
+            cp -R coverage/.resultset.json coverage_results/.resultset-${CIRCLE_NODE_INDEX}.json
+      - persist_to_workspace:
+          root: .
+          paths:
+            - coverage_results
       - store_artifacts:
-          path: coverage
+          path: ~/repo/coverage
+          destination: coverage
 
   run-linting:
     steps:
       - run:
-          name: Check styling
-          command: pipenv run flake8
+          name: Run rubocop
+          command: bundle exec rubocop
 
   build-docker-image:
     steps:
@@ -81,10 +102,10 @@ commands:
           name: Compile Docker Image
           command: |
               docker build \
-                --build-arg BUILD_DATE=$(date +%Y-%m-%dT%H:%M:%S%z) \
-                --build-arg COMMIT_ID=${CIRCLE_SHA1} \
-                --build-arg BUILD_TAG="app-${CIRCLE_SHA1}" \
-                --build-arg APP_BRANCH=${CIRCLE_BRANCH} \
+                --build-arg APP_BUILD_DATE=$(date +%Y-%m-%dT%H:%M:%S%z) \
+                --build-arg APP_GIT_COMMIT=${CIRCLE_SHA1} \
+                --build-arg APP_BUILD_TAG="app-${CIRCLE_SHA1}" \
+                --build-arg APP_BRANCH_NAME=${CIRCLE_BRANCH} \
                 --pull \
                 --tag app \
                 --file Dockerfile .
@@ -121,26 +142,27 @@ commands:
 
 jobs:
   lint-app:
-    executor: build-image-executor
-    parallelism:
+    working_directory: ~/repo
+    executor: test-executor
     steps:
       - checkout
       - install-requirements
       - run-linting
 
   test-app:
+    working_directory: ~/repo
     executor: test-executor
-    parallelism: 1
     steps:
       - checkout
       - install-requirements
       - run-tests
 
   scan-docker-image:
-    executor: build-image-executor
-    parallelism: 1
+    working_directory: ~/repo
+    executor: test-executor
     steps:
-      - checkout
+      - checkout:
+          path: ~/repo
       - setup_remote_docker:
           docker_layer_caching: true
       - build-docker-image
@@ -179,10 +201,10 @@ jobs:
           repo: $ECR_REPOSITORY # this will use the env var
           account_id: $AWS_ECR_REGISTRY_ID
           extra_build_args: >-
-            --build-arg BUILD_DATE=${APP_BUILD_DATE}
-            --build-arg BUILD_TAG=${CIRCLE_SHA1}
-            --build-arg COMMIT_ID=${CIRCLE_SHA1}
-            --build-arg APP_BRANCH=${CIRCLE_BRANCH}
+            --build-arg APP_BUILD_DATE=${APP_BUILD_DATE}
+            --build-arg APP_BUILD_TAG=${CIRCLE_SHA1}
+            --build-arg APP_GIT_COMMIT=${CIRCLE_SHA1}
+            --build-arg APP_BRANCH_NAME=${CIRCLE_BRANCH}
 
   deploy-dev:
     executor: cloud-platform-executor
@@ -237,16 +259,19 @@ workflows:
 
   build-and-deploy-open-pr:
     jobs:
-      - build-and-push: {}
+      - build-and-push:
+          filters:
+            branches:
+              ignore:
+                - main
       - deploy-dev:
           context: laa-crime-application-store-dev
+          filters:
+            branches:
+              ignore:
+                - main
           requires:
             - build-and-push
-      - postman-test:
-          name: dev postman tests
-          context: laa-crime-application-store-dev
-          requires:
-            - deploy-dev
 
   test-build-deploy-merged-pr:
     jobs:
@@ -282,22 +307,16 @@ workflows:
       - deploy-uat:
           context: laa-crime-application-store-uat
           requires:
-              - build-and-push
+            - build-and-push
           filters:
               branches:
                   only:
                       - main
-      - postman-test:
-          name: uat postman tests
-          context: laa-crime-application-store-uat
-          requires:
-            - deploy-uat
       - deploy-prod:
           context: laa-crime-application-store-prod
           filters:
-              branches:
-                  only:
-                      - main
+            branches:
+              only:
+                - main
           requires:
-           - deploy-uat
-
+            - deploy-uat

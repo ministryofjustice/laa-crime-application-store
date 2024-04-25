@@ -1,0 +1,159 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "laa-crime-application-store.fullname" . }}-worker
+  labels:
+    {{- include "laa-crime-application-store.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app:  {{ include "laa-crime-application-store.fullname" . }}-worker
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app:  {{ include "laa-crime-application-store.fullname" . }}-worker
+    spec:
+      serviceAccountName: {{ .Values.service_account.name }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}-worker
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - bundle
+            - exec
+            - sidekiq
+          # SidekiqAlive runs on port 7433 to allow health checking
+          ports:
+            - name: http
+              containerPort: 7433
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 7433
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 7433
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: sentry
+                  key: dsn
+          {{ if .Values.postgresql.enabled }}
+            - name: POSTGRES_USERNAME
+              value: {{ .Values.postgresql.postgresqlUsername }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgresql.auth.postgresPassword }}
+            - name: POSTGRES_HOSTNAME
+              value: {{ printf "%s-%s" .Release.Name "postgresql" | trunc 63 | trimSuffix "-" }}
+            - name: POSTGRES_NAME
+              value: {{ .Values.postgresql.auth.database }}
+          {{ else }}
+            - name: POSTGRES_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: database_name
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: database_username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: database_password
+            - name: POSTGRES_HOSTNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rds-postgresql-instance-output
+                  key: rds_instance_address
+          {{ end }}
+            - name: APP_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: azure-secret
+                  key: app_client_id
+            - name: TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: azure-secret
+                  key: tenant_id
+            - name: ENTRA_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: azure-secret
+                  key: client_secret
+            {{- if not (eq .Values.environment "prod") }}
+            - name: AUTHENTICATION_REQUIRED
+              value: {{ .Values.envVars.authenticationRequired | quote}}
+            {{ end }}
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: secret_key_base
+            - name: RACK_ENV
+              value: 'production'
+            - name: RAILS_ENV
+              value: 'production'
+            - name: RAILS_LOG_TO_STDOUT
+              value: enabled
+            - name: ENV
+              value: {{ .Values.envVars.environment }}
+            {{ if .Values.redis.enabled }}
+            - name: REDIS_PROTOCOL
+              value: "redis"
+            - name: REDIS_HOST
+              value: {{ template "laa-crime-application-store.redisDevHost" . }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.redis.auth.password }}
+          {{ else }}
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: crm-elasticache
+                  key: primary_endpoint_address
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: crm-elasticache
+                  key: auth_token
+          {{ end }}
+            - name: SUBSCRIBER_FAILED_ATTEMPT_DELETION_THRESHOLD
+              value: '{{ .Values.envVars.subscriberFailedAttemptDeletionThreshold }}'
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

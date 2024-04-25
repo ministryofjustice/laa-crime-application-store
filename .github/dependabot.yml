@@ -1,6 +1,6 @@
 version: 2
 updates:
-- package-ecosystem: pip
+- package-ecosystem: bundler
   directory: "/"
   schedule:
     interval: weekly
@@ -8,7 +8,7 @@ updates:
     time: "03:00"
     timezone: Europe/London
   groups:
-    pip:
+    bundler:
       patterns:
         - "*"
   open-pull-requests-limit: 10
