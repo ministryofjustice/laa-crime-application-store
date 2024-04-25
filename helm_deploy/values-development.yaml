@@ -73,6 +73,7 @@ service_account:
   name: laa-crime-application-store-dev-irsa
 
 envVars:
+  environment: development
   swaggerEndpoint: /docs
   authenticationRequired: True
   subscriberFailedAttemptDeletionThreshold: '100'

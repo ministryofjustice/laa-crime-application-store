@@ -13,7 +13,7 @@ The easiest way to configure the required varibles in postman is to copy them
 from the kubectl config for provider or caseworker application using the below command:
 
 ```
-kubectl -n laa-claim-non-standard-magistrate-fee-dev get secrets azure-secret -oyaml
+kubectl -n laa-submit-crime-forms-dev get secrets azure-secret -oyaml
 ```
 
 Adding the following varibles to the environment config in postman:
