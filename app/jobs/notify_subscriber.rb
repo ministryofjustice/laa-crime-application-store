@@ -4,8 +4,9 @@ class NotifySubscriber < ApplicationJob
 
   def perform(subscriber_id, submission_id)
     subscriber = Subscriber.find(subscriber_id)
+    submission = Submission.find(submission_id)
 
-    return if send_message_to_webhook(subscriber.webhook_url, submission_id)
+    return if send_message_to_webhook(subscriber.webhook_url, submission)
 
     subscriber.with_lock do
       subscriber.failed_attempts += 1
@@ -17,12 +18,13 @@ class NotifySubscriber < ApplicationJob
     raise ClientResponseError, "Failed to notify subscriber about #{submission_id} - #{subscriber.webhook_url} returned error"
   end
 
-  def send_message_to_webhook(webhook_url, submission_id)
+  def send_message_to_webhook(webhook_url, submission)
     response = HTTParty.post(
       webhook_url,
       headers:,
       body: {
-        submission_id:,
+        submission_id: submission.id,
+        data: submission,
       }.to_json,
     )
 

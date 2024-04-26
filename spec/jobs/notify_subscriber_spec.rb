@@ -4,7 +4,7 @@ RSpec.describe NotifySubscriber do
   subject(:job) { described_class.new }
 
   let(:subscriber) { create(:subscriber, webhook_url: "https://example.com/webhook") }
-  let(:submission_id) { "123" }
+  let(:submission) { create(:submission) }
 
   context "when webhook authentication is not required" do
     around do |example|
@@ -15,28 +15,28 @@ RSpec.describe NotifySubscriber do
 
     it "triggers a notification to subscribers" do
       stub = stub_request(:post, subscriber.webhook_url).with(
-        body: { submission_id: },
+        body: { submission_id: submission.id, data: submission.as_json },
       ).to_return(status: 200)
 
-      job.perform(subscriber.id, submission_id)
+      job.perform(subscriber.id, submission.id)
       expect(stub).to have_been_requested
     end
 
     context "when the job fails due to client experiencing error" do
       before do
         stub_request(:post, subscriber.webhook_url).with(
-          body: { submission_id: },
+          body: { submission_id: submission.id, data: submission.as_json },
         ).to_return(status: 503)
       end
 
       it "raises an error if a non-200 status is returned" do
-        expect { job.perform(subscriber.id, submission_id) }.to raise_error NotifySubscriber::ClientResponseError
+        expect { job.perform(subscriber.id, submission.id) }.to raise_error NotifySubscriber::ClientResponseError
       end
 
       it "bumps the failed_attempts count" do
         expect {
           begin
-            job.perform(subscriber.id, submission_id)
+            job.perform(subscriber.id, submission.id)
           rescue NotifySubscriber::ClientResponseError
             nil
           end
@@ -54,11 +54,11 @@ RSpec.describe NotifySubscriber do
           before { subscriber.update(failed_attempts: 1) }
 
           it "raises no error" do
-            expect { job.perform(subscriber.id, submission_id) }.not_to raise_error
+            expect { job.perform(subscriber.id, submission.id) }.not_to raise_error
           end
 
           it "deletes the subscriber" do
-            job.perform(subscriber.id, submission_id)
+            job.perform(subscriber.id, submission.id)
             expect(Subscriber.find_by(id: subscriber.id)).to be_nil
           end
         end
@@ -71,7 +71,7 @@ RSpec.describe NotifySubscriber do
       end
 
       it "raises an appropriate error" do
-        expect { job.perform(subscriber.id, submission_id) }.to raise_error NotifySubscriber::ClientResponseError
+        expect { job.perform(subscriber.id, submission.id) }.to raise_error NotifySubscriber::ClientResponseError
       end
     end
   end
@@ -99,7 +99,7 @@ RSpec.describe NotifySubscriber do
     let(:webhook_stub) do
       stub_request(:post, subscriber.webhook_url).with(
         headers: { "Content-Type" => "application/json", "Authorization" => "Bearer test-bearer-token" },
-        body: { submission_id: },
+        body: { submission_id: submission.id, data: submission.as_json },
       ).to_return(status: 200)
     end
 
@@ -107,7 +107,7 @@ RSpec.describe NotifySubscriber do
       token_stub
       webhook_stub
 
-      job.perform(subscriber.id, submission_id)
+      job.perform(subscriber.id, submission.id)
 
       expect(token_stub).to have_been_requested
       expect(webhook_stub).to have_been_requested
@@ -117,7 +117,7 @@ RSpec.describe NotifySubscriber do
       token_stub
       webhook_stub
 
-      2.times { job.perform(subscriber.id, submission_id) }
+      2.times { job.perform(subscriber.id, submission.id) }
 
       expect(token_stub).to have_been_requested.once
     end
