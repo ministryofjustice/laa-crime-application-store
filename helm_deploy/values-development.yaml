@@ -36,12 +36,8 @@ service:
 ingress:
   enabled: true
   namespace: laa-crime-application-store-dev
-  className: modsec
+  className: default
   annotations:
-    nginx.ingress.kubernetes.io/enable-modsecurity: "true"
-    nginx.ingress.kubernetes.io/modsecurity-snippet: |
-      SecRuleEngine On
-      SecAction "id:900200,phase:1,nolog,pass,t:none,setvar:tx.allowed_methods=GET HEAD POST OPTIONS PUT PATCH DELETE"
     external-dns.alpha.kubernetes.io/set-identifier: laa-crime-application-store-app-laa-crime-application-store-dev-green
     external-dns.alpha.kubernetes.io/aws-weight: "100"
   hosts:
