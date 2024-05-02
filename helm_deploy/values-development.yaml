@@ -41,13 +41,13 @@ ingress:
     external-dns.alpha.kubernetes.io/set-identifier: laa-crime-application-store-app-laa-crime-application-store-dev-green
     external-dns.alpha.kubernetes.io/aws-weight: "100"
   hosts:
-    - host: laa-crime-application-store-dev.apps.live.cloud-platform.service.justice.gov.uk
+    - host: main-nscc-store-dev.cloud-platform.service.justice.gov.uk
       paths:
         - path: /
           pathType: Prefix
   tls:
     - hosts:
-      - laa-crime-application-store-dev.apps.live.cloud-platform.service.justice.gov.uk
+      - main-nscc-store-dev.cloud-platform.service.justice.gov.uk
 
 resources:
   limits:
