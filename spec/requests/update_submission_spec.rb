@@ -12,7 +12,7 @@ RSpec.describe "Update submission" do
   end
 
   it "updates events" do
-    submission = create :submission
+    submission = create :submission, application_state: "further_info"
     patch "/v1/submissions/#{submission.id}",
           params: {
             application_state: "granted",
