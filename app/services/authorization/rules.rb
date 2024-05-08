@@ -42,6 +42,7 @@ module Authorization
                    provider_requested
                    sent_back],
         },
+        { pre: %w[further_info provider_requested], post: %w[granted part_grant rejected] },
       ],
     }.freeze
 
