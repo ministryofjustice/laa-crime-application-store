@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 environment: "uat"
-replicaCount: 1
+replicaCount: 2
 
 image:
   repository: nginx
@@ -44,9 +44,9 @@ resources:
     memory: 500Mi
 
 autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 5
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
 
