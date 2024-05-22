@@ -181,6 +181,7 @@ GEM
       ast (~> 2.4.1)
       racc
     pg (1.5.6)
+    prometheus-client (4.2.2)
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -364,6 +365,7 @@ DEPENDENCIES
   jwt (~> 2.8.1)
   oauth2
   pg (~> 1.1)
+  prometheus-client
   pry-nav
   pry-rescue
   pry-stack_explorer
