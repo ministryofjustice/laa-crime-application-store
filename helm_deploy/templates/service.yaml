@@ -13,5 +13,5 @@ spec:
       name: http
   selector:
     {{- include "laa-crime-application-store.selectorLabels" . | nindent 4 }}
-    app: {{ include "laa-submit-crime-forms.fullname" . }}
+    app: {{ include "laa-crime-application-store.fullname" . }}
 
