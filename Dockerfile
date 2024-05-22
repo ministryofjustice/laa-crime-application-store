@@ -13,6 +13,9 @@ RUN apk add --update \
   tzdata \
   yarn
 
+#use local time zone to prevent issues with metrics
+RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime
+
 # Alpine does not have a glibc, and this is needed for dart-sass
 # Refer to: https://github.com/sgerrand/alpine-pkg-glibc
 ARG GLIBC_VERSION=2.34-r0
