@@ -76,7 +76,6 @@ envVars:
 # This is used to configure the temporary non-RDS postgres DB
 postgresql:
   enabled: true
-  architecture: replication
   resources:
     limits:
       cpu: 250m
@@ -99,18 +98,6 @@ postgresql:
         type: RuntimeDefault
       capabilities:
         drop: [ "ALL" ]
-  readReplicas:
-    replicaCount: 1
-    persistence:
-      enabled: true
-    containerSecurityContext:
-      runAsNonRoot: true
-      allowPrivilegeEscalation: false
-      seccompProfile:
-        type: RuntimeDefault
-      capabilities:
-        drop: [ "ALL" ]
-
 
 # see https://artifacthub.io/packages/helm/bitnami/redis for parameters
 redis:
