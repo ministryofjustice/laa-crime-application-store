@@ -91,6 +91,7 @@ postgresql:
   primary:
     persistence:
       enabled: true
+    hostNetwork: true
     containerSecurityContext:
       runAsNonRoot: true
       allowPrivilegeEscalation: false
