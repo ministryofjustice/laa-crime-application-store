@@ -75,4 +75,4 @@ redis:
 
 metabase:
   enabled: false
-  url: "crm-metabase-uat.apps.live.cloud-platform.service.justice.gov.uk"
+  url: "laa-crime-forms-metabase-uat.apps.live.cloud-platform.service.justice.gov.uk"
