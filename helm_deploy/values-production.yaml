@@ -72,3 +72,7 @@ postgresql:
 # Instead of a temporary redis pod we use Elasticache
 redis:
   enabled: false
+
+metabase:
+  enabled: false
+  url: "crm-metabase-prod.apps.live.cloud-platform.service.justice.gov.uk"

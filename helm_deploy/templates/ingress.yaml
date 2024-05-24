@@ -59,4 +59,16 @@ spec:
               {{- end }}
           {{- end }}
     {{- end }}
+    {{- if .Values.metabase.enabled }}
+    - host: {{ .Values.metabase.url }}
+      http:
+        paths:
+          - path: "/"
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ $fullName }}-metabase
+                port:
+                  number: 80
+    {{- end }}
 {{- end }}
