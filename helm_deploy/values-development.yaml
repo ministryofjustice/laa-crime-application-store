@@ -121,13 +121,8 @@ redis:
     enabled: true
     password: redis
 
+# If you want to create metabase queries pointing at a dev branch database then you can do that from the UI in UAT
 metabase:
-  enabled: true
-  url: "laa-crime-forms-metabase-dev.apps.live.cloud-platform.service.justice.gov.uk"
-  service:
-    port: 80
-    internalPort: 3000
-  ingress:
-    namespace: laa-crime-application-store-dev
+  enabled: false
 
 
