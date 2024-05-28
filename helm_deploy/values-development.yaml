@@ -120,3 +120,9 @@ redis:
   auth:
     enabled: true
     password: redis
+
+# If you want to create metabase queries pointing at a dev branch database then you can do that from the UI in UAT
+metabase:
+  enabled: false
+
+

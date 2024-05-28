@@ -1,0 +1,33 @@
+{{- if .Values.metabase.enabled }}
+{{- $fullName := include "laa-crime-application-store.fullname" . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}-metabase
+  namespace: {{ .Values.metabase.ingress.namespace}}
+  annotations:
+    external-dns.alpha.kubernetes.io/set-identifier: "{{ $fullName }}-metabase-{{ .Values.metabase.ingress.namespace}}-green"
+    external-dns.alpha.kubernetes.io/aws-weight: "100"
+    nginx.ingress.kubernetes.io/enable-modsecurity: "true"
+    nginx.ingress.kubernetes.io/modsecurity-snippet: |
+      SecRuleEngine On
+      SecDefaultAction "phase:2,pass,log,tag:github_team=ministryofjustice/laa-crime-forms-team"
+      SecDefaultAction "phase:4,pass,log,tag:github_team=ministryofjustice/laa-crime-forms-team"
+spec:
+  ingressClassName: modsec
+  tls:
+    - hosts:
+        - {{ .Values.metabase.url }}
+  rules:
+  - host: {{ .Values.metabase.url }}
+    http:
+      paths:
+        - path: "/"
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: {{ $fullName }}-metabase
+              port:
+                number: {{ .Values.metabase.service.port}}
+{{- end }}
+

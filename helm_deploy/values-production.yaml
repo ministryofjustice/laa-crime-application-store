@@ -72,3 +72,12 @@ postgresql:
 # Instead of a temporary redis pod we use Elasticache
 redis:
   enabled: false
+
+metabase:
+  enabled: false
+  url: "laa-crime-forms-metabase-prod.apps.live.cloud-platform.service.justice.gov.uk"
+  service:
+    port: 80
+    internalPort: 3000
+  ingress:
+    namespace: laa-crime-application-store-prod

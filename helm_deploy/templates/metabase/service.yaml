@@ -1,0 +1,13 @@
+{{- if .Values.metabase.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "laa-crime-application-store.fullname" . }}-metabase
+spec:
+  ports:
+    - port: {{ .Values.metabase.service.port }}
+      name: http
+      targetPort: {{ .Values.metabase.service.internalPort }}
+  selector:
+    app: {{ include "laa-crime-application-store.fullname" . }}-metabase
+{{- end }}
