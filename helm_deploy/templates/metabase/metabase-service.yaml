@@ -5,9 +5,9 @@ metadata:
   name: {{ include "laa-crime-application-store.fullname" . }}-metabase
 spec:
   ports:
-    - port: 80
+    - port: {{ .Values.metabase.service.port }}
       name: http
-      targetPort: 3000
+      targetPort: {{ .Values.metabase.service.internalPort }}
   selector:
     app: {{ include "laa-crime-application-store.fullname" . }}-metabase
 {{- end }}
