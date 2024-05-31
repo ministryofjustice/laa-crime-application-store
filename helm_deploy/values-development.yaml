@@ -65,6 +65,7 @@ autoscaling:
   targetMemoryUtilizationPercentage: 80
 
 service_account:
+  required: false
   name: laa-crime-application-store-dev-irsa
 
 envVars:

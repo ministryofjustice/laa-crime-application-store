@@ -57,6 +57,7 @@ tolerations: []
 affinity: {}
 
 service_account:
+  required: true
   name: laa-crime-application-store-uat-irsa
 
 envVars:
