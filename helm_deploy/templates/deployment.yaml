@@ -20,7 +20,9 @@ spec:
       labels:
         {{- include "laa-crime-application-store.selectorLabels" . | nindent 8 }}
     spec:
+      {{ if .Values.service_account.required }}
       serviceAccountName: {{ .Values.service_account.name }}
+      {{- end }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}

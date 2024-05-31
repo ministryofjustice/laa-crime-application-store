@@ -18,12 +18,14 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+      {{ if .Values.service_account.required }}
       serviceAccountName: {{ .Values.service_account.name }}
+      {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
       - name: metabase
-        image: metabase/metabase:v0.49.3
+        image: metabase/metabase:v0.49.13
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
           - containerPort: 3000
