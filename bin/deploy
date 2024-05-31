@@ -27,7 +27,7 @@ deploy_branch() {
 
 deploy_main() {
   helm upgrade laa-crime-application-store ./helm_deploy/. \
-                          --install --wait --timeout 15m0s --debug\
+                          --install --wait --timeout 10m0s \
                           --namespace=${K8S_NAMESPACE} \
                           --values ./helm_deploy/values-$ENVIRONMENT.yaml \
                           --set image.repository="${AWS_ECR_REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/${ECR_REPOSITORY}" \
