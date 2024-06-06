@@ -25,6 +25,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
       - name: metabase
+        # If bumping this image version, also bump the version scanned by Snyk in .circleci/config.yml
         image: metabase/metabase:v0.49.13
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
