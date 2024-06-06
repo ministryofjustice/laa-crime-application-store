@@ -174,6 +174,13 @@ jobs:
           project: ministryofjustice/laa-crime-application-store
           severity-threshold: "high"
           fail-on-issues: true
+      - snyk/scan:
+          token-variable: SNYK_TOKEN
+          docker-image-name: metabase/metabase:v0.49.13
+          organization: 'legal-aid-agency'
+          project: ministryofjustice/laa-crime-applications-metabase
+          severity-threshold: "high"
+          fail-on-issues: true
 
   build-and-push:
     executor: aws-ecr/default # use the aws-ecr/default executor to start the docker daemon
