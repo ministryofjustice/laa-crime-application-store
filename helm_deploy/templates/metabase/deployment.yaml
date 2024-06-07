@@ -47,4 +47,13 @@ spec:
               secretKeyRef:
                 name: rds-metabase-instance-output
                 key: jdbc_url
+          # This is used as the private key for the JWT which signs the iframe URLs of embedded dashboards
+          - name: MB_EMBEDDING_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: app-secrets
+                key: metabase_embedding_secret_key
+          # This is how frequently users must re-authenticate (measured from last authentication, not last activity)
+          - name: MAX_SESSION_AGE
+            value: '1440'
 {{- end }}
