@@ -47,4 +47,11 @@ spec:
               secretKeyRef:
                 name: rds-metabase-instance-output
                 key: jdbc_url
+          - name: MB_EMBEDDING_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: app-secrets
+                key: metabase_embedding_secret_key
+          - name: MAX_SESSION_AGE
+            value: '1440'
 {{- end }}
