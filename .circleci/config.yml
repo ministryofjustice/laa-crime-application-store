@@ -29,6 +29,18 @@ executors:
           POSTGRES_PASSWORD: "circleci"
           POSTGRES_DB: laa_crime_application_store_test
 
+references:
+  authenticate_k8s: &authenticate_k8s
+    run:
+      name: Authenticate K8s
+      command: |
+          echo -n ${K8S_CLUSTER_CERT} | base64 -d > ./ca.crt
+          kubectl config set-cluster ${K8S_CLUSTER_NAME} --certificate-authority=./ca.crt --server=${K8S_CLUSTER_NAME}
+          kubectl config set-credentials circleci --token=${K8S_TOKEN}
+          kubectl config set-context ${K8S_CLUSTER_NAME} --cluster=${K8S_CLUSTER_NAME} --user=circleci --namespace=${K8S_NAMESPACE}
+          kubectl config use-context ${K8S_CLUSTER_NAME}
+          kubectl --namespace=${K8S_NAMESPACE} get pods
+
 commands:
   install-requirements:
     steps:
@@ -126,15 +138,7 @@ commands:
           role_arn: $ECR_ROLE_TO_ASSUME
           region: $ECR_REGION
       - checkout
-      - run:
-          name: Authenticate K8s
-          command: |
-              echo -n ${K8S_CLUSTER_CERT} | base64 -d > ./ca.crt
-              kubectl config set-cluster ${K8S_CLUSTER_NAME} --certificate-authority=./ca.crt --server=${K8S_CLUSTER_NAME}
-              kubectl config set-credentials circleci --token=${K8S_TOKEN}
-              kubectl config set-context ${K8S_CLUSTER_NAME} --cluster=${K8S_CLUSTER_NAME} --user=circleci --namespace=${K8S_NAMESPACE}
-              kubectl config use-context ${K8S_CLUSTER_NAME}
-              kubectl --namespace=${K8S_NAMESPACE} get pods
+      - *authenticate_k8s
       - run:
             name: Deploy to << parameters.environment >>
             command: |
@@ -244,6 +248,16 @@ jobs:
       - deploy_to_environment:
           environment: production
 
+  configure-dashboards:
+    executor: cloud-platform-executor
+    steps:
+      - checkout
+      - *authenticate_k8s
+      - run:
+          name: Apply dashboard config
+          command: |
+            kubectl apply -f ./helm_deploy/dashboards/
+
 workflows:
   version: 2
 
@@ -339,3 +353,9 @@ workflows:
                 - main
           requires:
             - deploy-uat
+      - configure-dashboards:
+          context: laa-crime-application-store-prod
+          filters:
+            branches:
+              only:
+                - main

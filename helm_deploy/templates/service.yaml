@@ -13,3 +13,18 @@ spec:
       name: http
   selector:
     {{- include "laa-crime-application-store.selectorLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "laa-crime-application-store.fullname" . }}-prometheus
+  labels:
+    app: laa-crime-application-store-prometheus
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: 9394
+      name: metrics
+      targetPort: 9394
+  selector:
+    {{- include "laa-crime-application-store.selectorLabels" . | nindent 4 }}
