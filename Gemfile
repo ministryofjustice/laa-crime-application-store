@@ -21,6 +21,7 @@ gem "bootsnap", require: false
 gem "httparty"
 gem "jwt", "~> 2.8.1"
 gem "oauth2"
+gem "prometheus_exporter"
 gem "sentry-rails", ">= 5.17.2"
 gem "sentry-ruby"
 gem "sidekiq", "~> 7.2"
