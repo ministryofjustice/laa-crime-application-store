@@ -12,7 +12,7 @@ module Submissions
 
     def call
       Submission.includes(:ordered_submission_versions)
-                .yield_self { apply_since_param(_1) }
+                .then { apply_since_param(_1) }
                 .order(:updated_at)
                 .limit(params.fetch(:count, 20))
     end

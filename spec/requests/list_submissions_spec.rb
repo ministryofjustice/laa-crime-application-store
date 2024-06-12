@@ -3,19 +3,21 @@ require "rails_helper"
 RSpec.describe "List submissions" do
   before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider) }
 
-  let(:returned_ids) { response.parsed_body["applications"].map { _1["application_id"] } }
+  let(:returned_ids) { response.parsed_body["applications"].pluck("application_id") }
 
   it "returns submissions" do
-    create :submission
+    create(:submission)
     get "/v1/submissions"
 
     expect(response.parsed_body["applications"].length).to eq 1
   end
 
   it "limits by count submissions, retaining oldest" do
-    create_list :submission, 15, updated_at: 1.day.ago
-    very_recent = create :submission, updated_at: 1.hour.ago
-    very_old = create :submission, updated_at: 2.days.ago
+    # rubocop:disable FactoryBot/ExcessiveCreateList
+    create_list(:submission, 15, updated_at: 1.day.ago)
+    # rubocop:enable FactoryBot/ExcessiveCreateList
+    very_recent = create(:submission, updated_at: 1.hour.ago)
+    very_old = create(:submission, updated_at: 2.days.ago)
 
     get "/v1/submissions", params: { count: 10 }
 
@@ -25,8 +27,8 @@ RSpec.describe "List submissions" do
   end
 
   it "allows filtering by last updated" do
-    older = create :submission, updated_at: 1.day.ago
-    newer = create :submission, updated_at: 1.hour.ago
+    older = create(:submission, updated_at: 1.day.ago)
+    newer = create(:submission, updated_at: 1.hour.ago)
 
     get "/v1/submissions", params: { since: 4.hours.ago.to_i }
 

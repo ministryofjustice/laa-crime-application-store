@@ -18,7 +18,7 @@ RSpec.describe "Authorization" do
       expect(response).to have_http_status :forbidden
     end
 
-    it "denies requests if the client type cannot do the thing they want to do " do
+    it "denies requests if the client type cannot do the thing they want to do" do
       post "/v1/submissions", headers: { "X-Client-Type" => "caseworker" }
       # caseworkers cannot create submissions
       expect(response).to have_http_status :forbidden
@@ -45,8 +45,7 @@ RSpec.describe "Authorization" do
     let(:decoded) { [{ "roles" => [role] }] }
 
     before do
-      allow(Tokens::VerificationService).to receive(:parse).and_return(decoded)
-      allow(Tokens::VerificationService).to receive(:valid?).and_return(true)
+      allow(Tokens::VerificationService).to receive_messages(parse: decoded, valid?: true)
     end
 
     context "when client is doing something it is allowed to based on its token" do

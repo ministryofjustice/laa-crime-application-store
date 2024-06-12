@@ -10,7 +10,7 @@ RSpec.describe "POST /v1/subscribers" do
   end
 
   it "handles duplicates" do
-    subscriber = create :subscriber
+    subscriber = create(:subscriber)
     post "/v1/subscribers", params: { webhook_url: subscriber.webhook_url, subscriber_type: subscriber.subscriber_type }
     expect(response).to have_http_status(:no_content)
     expect(Subscriber.count).to eq 1

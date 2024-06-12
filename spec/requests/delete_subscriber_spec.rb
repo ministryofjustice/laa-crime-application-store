@@ -6,7 +6,7 @@ RSpec.describe "DELETE /v1/subscribers" do
   let(:role) { :provider }
 
   it "deletes a record" do
-    subscriber = create :subscriber, subscriber_type: "provider"
+    subscriber = create(:subscriber, subscriber_type: "provider")
     delete "/v1/subscribers", params: { webhook_url: subscriber.webhook_url, subscriber_type: subscriber.subscriber_type }
     expect(response).to have_http_status(:no_content)
     expect(Subscriber.count).to eq 0
@@ -21,7 +21,7 @@ RSpec.describe "DELETE /v1/subscribers" do
     let(:role) { :caseworker }
 
     it "prevents me from deleting subscribers not my own" do
-      subscriber = create :subscriber, subscriber_type: "provider"
+      subscriber = create(:subscriber, subscriber_type: "provider")
       delete "/v1/subscribers", params: { webhook_url: subscriber.webhook_url, subscriber_type: subscriber.subscriber_type }
       expect(response).to have_http_status(:forbidden)
     end

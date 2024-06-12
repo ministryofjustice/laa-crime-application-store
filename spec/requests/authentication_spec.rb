@@ -31,7 +31,7 @@ RSpec.describe "Authentication" do
     end
 
     before do
-      Tokens::VerificationService.instance_variable_set("@jwks", nil)
+      Tokens::VerificationService.instance_variable_set(:@jwks, nil)
       stub_request(:get, "https://login.microsoftonline.com/TENANT/.well-known/openid-configuration")
         .to_return(status: 200,
                    body: { jwks_uri: "https://example.com/jwks" }.to_json,

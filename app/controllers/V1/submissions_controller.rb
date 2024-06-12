@@ -5,6 +5,10 @@ module V1
       render json: { applications: }
     end
 
+    def show
+      render json: current_submission
+    end
+
     def create
       Submissions::CreationService.call(params, current_client_role)
       head :created
@@ -12,10 +16,6 @@ module V1
       head :conflict
     rescue ActiveRecord::RecordInvalid
       head :unprocessable_entity
-    end
-
-    def show
-      render json: current_submission
     end
 
     def update
