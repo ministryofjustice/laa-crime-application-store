@@ -10,3 +10,16 @@ inherit_gem:
 inherit_mode:
   merge:
     - Exclude
+
+AllCops:
+  TargetRubyVersion: 3.3
+  SuggestExtensions: false
+  NewCops: enable
+  Exclude:
+    - 'db/**/*'
+    - 'bin/**/*'
+    - 'config/**/*'
+    - 'lib/tasks/**/*'
+    - 'lib/generators/**/*'
+    - 'features/**/*'
+    - 'vendor/**/*'
