@@ -6,7 +6,9 @@ module Submissions
         raise AlreadyExistsError if Submission.find_by(id: params[:application_id])
 
         Submission.transaction do
+          # create the submission
           submission = Submission.create!(initial_data(params))
+          # here is where the versions get created
           submission.ordered_submission_versions.create!(
             json_schema_version: params[:json_schema_version],
             application: params[:application],
