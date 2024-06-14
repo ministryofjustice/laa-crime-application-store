@@ -87,7 +87,9 @@ postgresql:
     database: nsm_store_dev
     enablePostgresUser: true
     postgresPassword: postgres
+    analyticsPassword: postgres
   postgresqlUsername: postgres
+  analyticsUsername: analytics
   primary:
     persistence:
       enabled: true

@@ -47,7 +47,7 @@ RSpec.describe "Create submission" do
     end
 
     it "enqueues a job to notify a subscriber with a different role" do
-      create :subscriber, subscriber_type: "caseworker"
+      create(:subscriber, subscriber_type: "caseworker")
       params = {
         application_id: SecureRandom.uuid,
         application_type: "crm4",
@@ -60,7 +60,7 @@ RSpec.describe "Create submission" do
     end
 
     it "ignores subscribers with same roles as client" do
-      create :subscriber, subscriber_type: "provider"
+      create(:subscriber, subscriber_type: "provider")
       params = {
         application_id: SecureRandom.uuid,
         application_type: "crm4",
@@ -81,7 +81,7 @@ RSpec.describe "Create submission" do
     end
 
     it "enqueues a job to notify a subscriber with a different role" do
-      create :subscriber, subscriber_type: "caseworker"
+      create(:subscriber, subscriber_type: "caseworker")
       params = {
         application_id: SecureRandom.uuid,
         application_type: "crm4",
@@ -90,11 +90,11 @@ RSpec.describe "Create submission" do
         application: { foo: :bar },
       }
 
-      expect { post("/v1/submissions", params:, headers: { 'X-Client-Type': "provider" }) }.to have_enqueued_job
+      expect { post("/v1/submissions", params:, headers: { "X-Client-Type": "provider" }) }.to have_enqueued_job
     end
 
     it "ignores subscribers with same roles as client" do
-      create :subscriber, subscriber_type: "provider"
+      create(:subscriber, subscriber_type: "provider")
       params = {
         application_id: SecureRandom.uuid,
         application_type: "crm4",
@@ -103,7 +103,7 @@ RSpec.describe "Create submission" do
         application: { foo: :bar },
       }
 
-      expect { post("/v1/submissions", params:, headers: { 'X-Client-Type': "provider" }) }.not_to have_enqueued_job
+      expect { post("/v1/submissions", params:, headers: { "X-Client-Type": "provider" }) }.not_to have_enqueued_job
     end
   end
 end
