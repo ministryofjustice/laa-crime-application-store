@@ -40,25 +40,25 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_11_092435) do
   add_foreign_key "application_version", "application", name: "application_version_application_id_fkey"
 
   create_view "all_events", sql_definition: <<-SQL
-      SELECT application.id,
-      application.application_type,
-      jsonb_array_elements(application.events) AS event
+      SELECT id,
+      application_type,
+      jsonb_array_elements(events) AS event
      FROM application;
   SQL
   create_view "version_events", sql_definition: <<-SQL
-      SELECT all_events.id,
-      all_events.application_type,
-      COALESCE(((all_events.event -> 'details'::text) ->> 'to'::text), 'submitted'::text) AS status,
-      ((all_events.event ->> 'created_at'::text))::timestamp without time zone AS event_at
+      SELECT id,
+      application_type,
+      COALESCE(((event -> 'details'::text) ->> 'to'::text), 'submitted'::text) AS status,
+      ((event ->> 'created_at'::text))::timestamp without time zone AS event_at
      FROM all_events
-    WHERE ((all_events.event ->> 'event_type'::text) = ANY (ARRAY['new_version'::text, 'decision'::text]));
+    WHERE ((event ->> 'event_type'::text) = ANY (ARRAY['new_version'::text, 'decision'::text]));
   SQL
   create_view "version_events_with_times", sql_definition: <<-SQL
-      SELECT version_events.id,
-      version_events.application_type,
-      version_events.status,
-      version_events.event_at,
-      (version_events.event_at - lag(version_events.event_at) OVER (PARTITION BY version_events.id ORDER BY version_events.event_at)) AS event_time
+      SELECT id,
+      application_type,
+      status,
+      event_at,
+      (event_at - lag(event_at) OVER (PARTITION BY id ORDER BY event_at)) AS event_time
      FROM version_events;
   SQL
 end
