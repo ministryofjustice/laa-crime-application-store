@@ -35,7 +35,7 @@ class NotifySubscriber < ApplicationJob
   end
 
   def delete_subscriber(subscriber)
-    deletion_threshold = ENV["SUBSCRIBER_FAILED_ATTEMPT_DELETION_THRESHOLD"]
+    deletion_threshold = ENV.fetch("SUBSCRIBER_FAILED_ATTEMPT_DELETION_THRESHOLD", nil)
 
     return unless deletion_threshold&.to_i&.positive? && deletion_threshold.to_i <= subscriber.failed_attempts
 

@@ -65,6 +65,7 @@ autoscaling:
   targetMemoryUtilizationPercentage: 80
 
 service_account:
+  required: false
   name: laa-crime-application-store-dev-irsa
 
 envVars:
@@ -86,7 +87,9 @@ postgresql:
     database: nsm_store_dev
     enablePostgresUser: true
     postgresPassword: postgres
+    analyticsPassword: postgres
   postgresqlUsername: postgres
+  analyticsUsername: analytics
   primary:
     persistence:
       enabled: true
@@ -120,3 +123,9 @@ redis:
   auth:
     enabled: true
     password: redis
+
+# If you want to create metabase queries pointing at a dev branch database then you can do that from the UI in UAT
+metabase:
+  enabled: false
+
+

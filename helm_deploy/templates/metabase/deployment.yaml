@@ -1,0 +1,59 @@
+{{- if .Values.metabase.enabled }}
+{{- $fullName := include "laa-crime-application-store.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}-metabase
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $fullName }}-metabase
+  template:
+    metadata:
+      labels:
+        app: {{ $fullName }}-metabase
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      {{ if .Values.service_account.required }}
+      serviceAccountName: {{ .Values.service_account.name }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: metabase
+        # If bumping this image version, also bump the version scanned by Snyk in .circleci/config.yml
+        image: metabase/metabase:v0.49.13
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+          - containerPort: 3000
+        resources:
+          requests:
+            cpu: 25m
+            memory: 1Gi
+          limits:
+            cpu: 500m
+            memory: 3Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsUser: 1000
+          runAsGroup: 1000
+        env:
+          - name: MB_DB_CONNECTION_URI
+            valueFrom:
+              secretKeyRef:
+                name: rds-metabase-instance-output
+                key: jdbc_url
+          # This is used as the private key for the JWT which signs the iframe URLs of embedded dashboards
+          - name: MB_EMBEDDING_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: app-secrets
+                key: metabase_embedding_secret_key
+          # This is how frequently users must re-authenticate (measured from last authentication, not last activity)
+          - name: MAX_SESSION_AGE
+            value: '1440'
+{{- end }}

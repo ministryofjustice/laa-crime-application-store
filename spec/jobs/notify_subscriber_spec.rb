@@ -99,7 +99,7 @@ RSpec.describe NotifySubscriber do
     let(:webhook_stub) do
       stub_request(:post, subscriber.webhook_url).with(
         headers: { "Content-Type" => "application/json", "Authorization" => "Bearer test-bearer-token" },
-        body: { submission_id: submission.id, data: submission.as_json },
+        body: { submission_id: submission.id, data: submission }.as_json,
       ).to_return(status: 200)
     end
 

@@ -3,7 +3,7 @@
 LAA Crime Application Store is a service to provide the ability to store and version crime applications from CRM forms.
 
 * Ruby version
-ruby 3.3.1
+ruby 3.3.2
 
 * Rails version
 rails 7.1+
@@ -82,3 +82,14 @@ Rubocop can be run as below
 ```shell
 bundle exec rubocop
 ```
+
+### Metababase
+
+An analytics database user/role is created in the application database which is granted limited permission to access views, not tables, on the database.
+
+This user will be created if migrations are run via an enhancement added to the `db:migrate` task. Note that this will not run on branches because we use
+`db:prepare` (which calls `db:schema:load` not `db:migrate`). The user can be created by explicitly calling the rake task `db:config_analytics_user` on a server.
+
+The views are generated and maintained using the [scenic gem's](https://github.com/scenic-views/scenic) idiomatic location, `db/views`. UAT and production have Metabase database RDS instances plus a web UI available. The web UI is used to create database connections to the application/target database using the analytics user. The web UI can then use this connection to generate widgets that can be embedded in parts of the app.
+
+See [Metabase setup for NSCC confluence document](https://dsdmoj.atlassian.net/wiki/x/XABEJAE) for more

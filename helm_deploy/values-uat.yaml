@@ -57,6 +57,7 @@ tolerations: []
 affinity: {}
 
 service_account:
+  required: true
   name: laa-crime-application-store-uat-irsa
 
 envVars:
@@ -72,3 +73,13 @@ postgresql:
 # Instead of a temporary redis pod we use Elasticache
 redis:
   enabled: false
+
+# This instance of metabase is for looking at all pre-prod data and trial queries
+metabase:
+  enabled: true
+  url: "laa-crime-forms-metabase-uat.apps.live.cloud-platform.service.justice.gov.uk"
+  service:
+    port: 80
+    internalPort: 3000
+  ingress:
+    namespace: laa-crime-application-store-uat

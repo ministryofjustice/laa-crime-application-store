@@ -20,7 +20,9 @@ spec:
       labels:
         {{- include "laa-crime-application-store.selectorLabels" . | nindent 8 }}
     spec:
+      {{ if .Values.service_account.required }}
       serviceAccountName: {{ .Values.service_account.name }}
+      {{- end }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -35,6 +37,7 @@ spec:
             - name: http
               containerPort: {{ .Values.service.internalPort }}
               protocol: TCP
+            - containerPort: 9394
           livenessProbe:
             httpGet:
               path: /ping
@@ -64,6 +67,10 @@ spec:
               value: {{ printf "%s-%s" .Release.Name "postgresql" | trunc 63 | trimSuffix "-" }}
             - name: POSTGRES_NAME
               value: {{ .Values.postgresql.auth.database }}
+            - name: ANALYTICS_USERNAME
+              value: {{ .Values.postgresql.analyticsUsername }}
+            - name: ANALYTICS_PASSWORD
+              value: {{ .Values.postgresql.auth.analyticsPassword }}
           {{ else }}
             - name: POSTGRES_NAME
               valueFrom:
@@ -85,6 +92,16 @@ spec:
                 secretKeyRef:
                   name: rds-postgresql-instance-output
                   key: rds_instance_address
+            - name: ANALYTICS_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: analytics-user-config
+                  key: analytics_username
+            - name: ANALYTICS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: analytics-user-config
+                  key: analytics_password
           {{ end }}
             - name: APP_CLIENT_ID
               valueFrom:
@@ -149,6 +166,8 @@ spec:
           {{ end }}
             - name: SUBSCRIBER_FAILED_ATTEMPT_DELETION_THRESHOLD
               value: '{{ .Values.envVars.subscriberFailedAttemptDeletionThreshold }}'
+            - name: ENABLE_PROMETHEUS_EXPORTER
+              value: 'true'
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
