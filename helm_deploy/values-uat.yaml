@@ -70,7 +70,7 @@ redis:
 # This instance of metabase is for looking at all pre-prod data and trial queries
 metabase:
   enabled: true
-  url: "laa-crime-forms-metabase-uat.apps.live.cloud-platform.service.justice.gov.uk"
+  url: "uat.crime-forms-metabase.service.justice.gov.uk"
   service:
     port: 80
     internalPort: 3000

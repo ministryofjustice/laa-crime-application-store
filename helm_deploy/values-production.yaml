@@ -69,7 +69,7 @@ redis:
 
 metabase:
   enabled: false
-  url: "laa-crime-forms-metabase-prod.apps.live.cloud-platform.service.justice.gov.uk"
+  url: "uat.crime-forms-metabase.service.justice.gov.uk"
   service:
     port: 80
     internalPort: 3000
