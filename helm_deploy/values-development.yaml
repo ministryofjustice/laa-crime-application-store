@@ -57,13 +57,6 @@ resources:
     cpu: 10m
     memory: 500Mi
 
-autoscaling:
-  enabled: true
-  minReplicas: 1
-  maxReplicas: 5
-  targetCPUUtilizationPercentage: 80
-  targetMemoryUtilizationPercentage: 80
-
 service_account:
   required: false
   name: laa-crime-application-store-dev-irsa

@@ -5,9 +5,12 @@ metadata:
   labels:
     {{- include "laa-crime-application-store.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 100%
   selector:
     matchLabels:
       app:  {{ include "laa-crime-application-store.fullname" . }}-worker
