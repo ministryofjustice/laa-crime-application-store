@@ -1,8 +1,6 @@
 ## Description of change
 
-## Link to relevant ticket
-
-[CRM457-](https://dsdmoj.atlassian.net/browse/CRM457-)
+[Link to relevant ticket](https://dsdmoj.atlassian.net/browse/CRM457-XXX)
 
 ## Notes for reviewer
 

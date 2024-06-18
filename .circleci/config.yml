@@ -336,11 +336,11 @@ workflows:
       - deploy-dev:
           context: laa-crime-application-store-dev
           requires:
-              - build-and-push
+              - e2e-test-main
       - deploy-uat:
           context: laa-crime-application-store-uat
           requires:
-            - build-and-push
+            - e2e-test-main
           filters:
               branches:
                   only:

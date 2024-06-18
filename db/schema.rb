@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_11_092435) do
+ActiveRecord::Schema[7.1].define(version: 2024_06_17_131805) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -21,6 +21,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_11_092435) do
     t.text "application_type", null: false
     t.datetime "updated_at", precision: nil
     t.jsonb "events"
+    t.datetime "created_at", precision: nil
+    t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null", validate: false
+    t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null", validate: false
   end
 
   create_table "application_version", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -28,6 +31,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_11_092435) do
     t.integer "version", null: false
     t.integer "json_schema_version", null: false
     t.jsonb "application", null: false
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
   end
 
   create_table "subscriber", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -40,25 +45,25 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_11_092435) do
   add_foreign_key "application_version", "application", name: "application_version_application_id_fkey"
 
   create_view "all_events", sql_definition: <<-SQL
-      SELECT application.id,
-      application.application_type,
-      jsonb_array_elements(application.events) AS event
+      SELECT id,
+      application_type,
+      jsonb_array_elements(events) AS event
      FROM application;
   SQL
   create_view "version_events", sql_definition: <<-SQL
-      SELECT all_events.id,
-      all_events.application_type,
-      COALESCE(((all_events.event -> 'details'::text) ->> 'to'::text), 'submitted'::text) AS status,
-      ((all_events.event ->> 'created_at'::text))::timestamp without time zone AS event_at
+      SELECT id,
+      application_type,
+      COALESCE(((event -> 'details'::text) ->> 'to'::text), 'submitted'::text) AS status,
+      ((event ->> 'created_at'::text))::timestamp without time zone AS event_at
      FROM all_events
-    WHERE ((all_events.event ->> 'event_type'::text) = ANY (ARRAY['new_version'::text, 'decision'::text]));
+    WHERE ((event ->> 'event_type'::text) = ANY (ARRAY['new_version'::text, 'decision'::text]));
   SQL
   create_view "version_events_with_times", sql_definition: <<-SQL
-      SELECT version_events.id,
-      version_events.application_type,
-      version_events.status,
-      version_events.event_at,
-      (version_events.event_at - lag(version_events.event_at) OVER (PARTITION BY version_events.id ORDER BY version_events.event_at)) AS event_time
+      SELECT id,
+      application_type,
+      status,
+      event_at,
+      (event_at - lag(event_at) OVER (PARTITION BY id ORDER BY event_at)) AS event_time
      FROM version_events;
   SQL
 end
