@@ -19,7 +19,7 @@ gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 gem "bootsnap", require: false
 
 gem "httparty"
-gem "jwt", "~> 2.8.1"
+gem "jwt", "~> 2.8.2"
 gem "oauth2"
 gem "prometheus_exporter"
 gem "scenic"
