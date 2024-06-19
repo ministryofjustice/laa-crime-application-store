@@ -19,6 +19,7 @@ spec:
   tls:
     - hosts:
         - {{ .Values.metabase.url }}
+      secretName: {{ Values.metabase.ingress.tls.secretName }}
   rules:
   - host: {{ .Values.metabase.url }}
     http:

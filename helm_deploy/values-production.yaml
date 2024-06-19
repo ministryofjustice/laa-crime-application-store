@@ -75,3 +75,5 @@ metabase:
     internalPort: 3000
   ingress:
     namespace: laa-crime-application-store-prod
+    tls:
+      secretName: laa-crime-application-store-cert
