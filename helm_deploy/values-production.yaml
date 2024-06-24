@@ -68,7 +68,7 @@ redis:
   enabled: false
 
 metabase:
-  enabled: false
+  enabled: true
   url: "crime-forms-metabase.service.justice.gov.uk"
   service:
     port: 80
