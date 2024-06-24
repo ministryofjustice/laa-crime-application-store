@@ -22,8 +22,8 @@ RSpec.describe "Update submission" do
                 details: "foo",
               },
             ],
-            application:  { new: :data },
-            json_schema_version: 1
+            application: { new: :data },
+            json_schema_version: 1,
           }
 
     submission.reload
@@ -32,7 +32,7 @@ RSpec.describe "Update submission" do
       "id" => "123",
       "details" => "foo",
     )
-    expect(submission.application_state).to eq('granted')
+    expect(submission.application_state).to eq("granted")
     expect(submission.ordered_submission_versions.count).to eq(2)
   end
 
@@ -54,7 +54,7 @@ RSpec.describe "Update submission" do
       "id" => "123",
       "details" => "foo",
     )
-    expect(submission.application_state).to eq('submitted')
+    expect(submission.application_state).to eq("submitted")
     expect(submission.ordered_submission_versions.count).to eq(1)
   end
 

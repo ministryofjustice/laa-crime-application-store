@@ -43,7 +43,7 @@ module Authorization
                    sent_back],
         },
         { pre: %w[further_info provider_requested], post: %w[granted part_grant rejected] },
-        { pre: %w[submitted provider_updated], post: [nil], criteria: ->(params) { params[:application].nil? } }
+        { pre: %w[submitted provider_updated], post: [nil], criteria: ->(params) { params[:application].nil? } },
       ],
     }.freeze
 
