@@ -23,6 +23,9 @@ module Authorization
           show: true,
           update: ->(object, params) { state_pair_allowed?(object, params, PERMITTED_SUBMISSION_STATE_CHANGES[:caseworker]) },
         },
+        events: {
+          create: ->(object, _params) { object.application_state.in?(%w[submitted provider_updated]) }
+        }
       },
     }.freeze
 
@@ -43,7 +46,6 @@ module Authorization
                    sent_back],
         },
         { pre: %w[further_info provider_requested], post: %w[granted part_grant rejected] },
-        { pre: %w[submitted provider_updated], post: [nil], criteria: ->(params) { params[:application].nil? } },
       ],
     }.freeze
 

@@ -21,8 +21,8 @@ module V1
     def update
       Submissions::UpdateService.call(current_submission, params, current_client_role)
       head :created
-    rescue ActiveRecord::RecordInvalid
-      head :unprocessable_entity
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { errors: e.message }, status: :unprocessable_entity
     end
 
     def current_submission

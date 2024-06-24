@@ -17,7 +17,9 @@ Rails.application.routes.draw do
   mount Sidekiq::Web => "/sidekiq"
 
   namespace "v1" do
-    resources :submissions, only: %i[show create index update]
+    resources :submissions, only: %i[show create index update] do
+      resources :events, only: %i[create]
+    end
     resources :subscribers, only: %i[create]
     delete :subscribers, to: "subscribers#destroy"
 

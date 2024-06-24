@@ -11,7 +11,7 @@ RSpec.describe "Update submission" do
     expect(submission.reload.latest_version.application).to eq({ "new" => "data" })
   end
 
-  it "updates events with version" do
+  it "updates events" do
     submission = create(:submission, application_state: "further_info")
     patch "/v1/submissions/#{submission.id}",
           params: {
@@ -36,28 +36,6 @@ RSpec.describe "Update submission" do
     expect(submission.ordered_submission_versions.count).to eq(2)
   end
 
-  it "updates events without submission" do
-    submission = create(:submission, application_state: "submitted")
-    patch "/v1/submissions/#{submission.id}",
-          params: {
-            events: [
-              {
-                id: "123",
-                details: "foo",
-              },
-            ],
-          }
-
-    submission.reload
-    expect(submission.events.count).to eq 1
-    expect(submission.events.first).to include(
-      "id" => "123",
-      "details" => "foo",
-    )
-    expect(submission.application_state).to eq("submitted")
-    expect(submission.ordered_submission_versions.count).to eq(1)
-  end
-
   it "does not allow overwriting events" do
     submission = create(:submission, events: [{ id: "A", details: "original version" }])
     patch "/v1/submissions/#{submission.id}",
@@ -69,6 +47,8 @@ RSpec.describe "Update submission" do
                 details: "rewriting history",
               },
             ],
+            application: { new: :data },
+            json_schema_version: 1,
           }
 
     submission.reload
@@ -78,22 +58,18 @@ RSpec.describe "Update submission" do
     )
   end
 
-  it "updates metadata" do
-    submission = create(:submission)
-    patch "/v1/submissions/#{submission.id}",
-          params: {
-            application_state: "sent_back",
-            application_risk: "medium-rare",
-          }
-
-    expect(submission.reload.application_state).to eq "sent_back"
-    expect(submission.application_risk).to eq "medium-rare"
-  end
-
-  it "validates" do
+  it "validates 'json_schema_version'" do
     submission = create(:submission)
     patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: nil }
     expect(response).to have_http_status(:unprocessable_entity)
+    expect(JSON.parse(response.body)).to eq("errors" => "Validation failed: Json schema version can't be blank")
+  end
+
+  it "validates 'application'" do
+    submission = create(:submission)
+    patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: nil, json_schema_version: 1 }
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(JSON.parse(response.body)).to eq("errors" => "Validation failed: Application can't be blank")
   end
 
   it "enqueues a notification to subscribers" do
@@ -102,7 +78,8 @@ RSpec.describe "Update submission" do
 
     params = {
       application_state: "sent_back",
-      application_risk: "medium-rare",
+      application: { new: :data },
+      json_schema_version: 1,
     }
     expect { patch("/v1/submissions/#{submission.id}", params:) }.to have_enqueued_job
   end
