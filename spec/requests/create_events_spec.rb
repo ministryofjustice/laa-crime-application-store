@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe "Create events" do
   context "when authenticated with bearer token" do
     let(:submission) { create(:submission, application_state:) }
-    let(:application_state) { 'submitted' }
+    let(:application_state) { "submitted" }
 
     before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker) }
 
@@ -13,7 +13,7 @@ RSpec.describe "Create events" do
           {
             id: "A",
             details: "history",
-          }
+          },
         ],
       }
       expect(response).to have_http_status :created
@@ -22,18 +22,18 @@ RSpec.describe "Create events" do
         {
           "id" => "A",
           "details" => "history",
-        }
+        },
       ])
     end
 
     it "does not overwrite existing events" do
-      submission.update(events: [{ id: "A", details: "actual history" }])
+      submission.update!(events: [{ id: "A", details: "actual history" }])
       post "/v1/submissions/#{submission.id}/events", params: {
         events: [
           {
             id: "A",
             details: "history",
-          }
+          },
         ],
       }
       expect(response).to have_http_status :created
@@ -41,7 +41,7 @@ RSpec.describe "Create events" do
         {
           "id" => "A",
           "details" => "actual history",
-        }
+        },
       ])
     end
 
@@ -51,7 +51,7 @@ RSpec.describe "Create events" do
           {
             id: "A",
             details: "history",
-          }
+          },
         ],
       }
       expect(response).to have_http_status :created
@@ -65,7 +65,7 @@ RSpec.describe "Create events" do
           {
             id: "A",
             details: "history",
-          }
+          },
         ],
       }
       expect(response).to have_http_status :created

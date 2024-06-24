@@ -24,8 +24,8 @@ module Authorization
           update: ->(object, params) { state_pair_allowed?(object, params, PERMITTED_SUBMISSION_STATE_CHANGES[:caseworker]) },
         },
         events: {
-          create: ->(object, _params) { object.application_state.in?(%w[submitted provider_updated]) }
-        }
+          create: ->(object, _params) { object.application_state.in?(%w[submitted provider_updated]) },
+        },
       },
     }.freeze
 

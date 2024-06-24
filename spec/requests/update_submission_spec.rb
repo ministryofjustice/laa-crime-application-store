@@ -62,14 +62,14 @@ RSpec.describe "Update submission" do
     submission = create(:submission)
     patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: nil }
     expect(response).to have_http_status(:unprocessable_entity)
-    expect(JSON.parse(response.body)).to eq("errors" => "Validation failed: Json schema version can't be blank")
+    expect(response.parsed_body).to eq("errors" => "Validation failed: Json schema version can't be blank")
   end
 
   it "validates 'application'" do
     submission = create(:submission)
     patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: nil, json_schema_version: 1 }
     expect(response).to have_http_status(:unprocessable_entity)
-    expect(JSON.parse(response.body)).to eq("errors" => "Validation failed: Application can't be blank")
+    expect(response.parsed_body).to eq("errors" => "Validation failed: Application can't be blank")
   end
 
   it "enqueues a notification to subscribers" do

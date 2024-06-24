@@ -5,7 +5,7 @@ module V1
       head :created
     end
 
-    private
+  private
 
     def current_submission
       @current_submission ||= Submission.find(params[:submission_id])
