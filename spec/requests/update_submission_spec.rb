@@ -11,7 +11,7 @@ RSpec.describe "Update submission" do
     expect(submission.reload.latest_version.application).to eq({ "new" => "data" })
   end
 
-  it "updates events" do
+  it "updates events with version" do
     submission = create(:submission, application_state: "further_info")
     patch "/v1/submissions/#{submission.id}",
           params: {
@@ -22,13 +22,40 @@ RSpec.describe "Update submission" do
                 details: "foo",
               },
             ],
+            application:  { new: :data },
+            json_schema_version: 1
           }
 
-    expect(submission.reload.events.count).to eq 1
-    expect(submission.reload.events.first).to include(
+    submission.reload
+    expect(submission.events.count).to eq 1
+    expect(submission.events.first).to include(
       "id" => "123",
       "details" => "foo",
     )
+    expect(submission.application_state).to eq('granted')
+    expect(submission.ordered_submission_versions.count).to eq(2)
+  end
+
+  it "updates events without submission" do
+    submission = create(:submission, application_state: "submitted")
+    patch "/v1/submissions/#{submission.id}",
+          params: {
+            events: [
+              {
+                id: "123",
+                details: "foo",
+              },
+            ],
+          }
+
+    submission.reload
+    expect(submission.events.count).to eq 1
+    expect(submission.events.first).to include(
+      "id" => "123",
+      "details" => "foo",
+    )
+    expect(submission.application_state).to eq('submitted')
+    expect(submission.ordered_submission_versions.count).to eq(1)
   end
 
   it "does not allow overwriting events" do
@@ -44,8 +71,9 @@ RSpec.describe "Update submission" do
             ],
           }
 
-    expect(submission.reload.events.count).to eq 1
-    expect(submission.reload.events.first).to include(
+    submission.reload
+    expect(submission.events.count).to eq 1
+    expect(submission.events.first).to include(
       "details" => "original version",
     )
   end

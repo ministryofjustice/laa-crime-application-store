@@ -43,12 +43,14 @@ module Authorization
                    sent_back],
         },
         { pre: %w[further_info provider_requested], post: %w[granted part_grant rejected] },
+        { pre: %w[submitted provider_updated], post: [nil], criteria: ->(params) { params[:application].nil? } }
       ],
     }.freeze
 
     def self.state_pair_allowed?(object, params, pairs)
       pairs.any? do |pair|
-        object.application_state.in?(pair[:pre]) && params[:application_state].in?(pair[:post])
+        object.application_state.in?(pair[:pre]) && params[:application_state].in?(pair[:post]) &&
+          (pair[:criteria].nil? || pair[:criteria].call(params))
       end
     end
   end
