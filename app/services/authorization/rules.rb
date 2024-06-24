@@ -51,8 +51,7 @@ module Authorization
 
     def self.state_pair_allowed?(object, params, pairs)
       pairs.any? do |pair|
-        object.application_state.in?(pair[:pre]) && params[:application_state].in?(pair[:post]) &&
-          (pair[:criteria].nil? || pair[:criteria].call(params))
+        object.application_state.in?(pair[:pre]) && params[:application_state].in?(pair[:post])
       end
     end
   end
