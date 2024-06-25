@@ -17,14 +17,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "laa-crime-application-store.fullname" . }}-prometheus
+  name: {{ include "laa-crime-application-store.fullname" . }}-metrics-svc
   labels:
     app: laa-crime-application-store-prometheus
+    service: {{ include "laa-crime-application-store.fullname" . }}-metrics-svc
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: 9394
       name: metrics
-      targetPort: 9394
+      protocol: TCP
   selector:
-    {{- include "laa-crime-application-store.selectorLabels" . | nindent 4 }}
+    metrics-target: {{ include "laa-crime-application-store.fullname" . }}-metrics-target

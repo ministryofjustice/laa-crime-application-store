@@ -22,6 +22,7 @@ spec:
       {{- end }}
       labels:
         app:  {{ include "laa-crime-application-store.fullname" . }}-worker
+        metrics-target: {{ include "laa-crime-application-store.fullname" . }}-metrics-target
     spec:
       {{ if .Values.service_account.required }}
       serviceAccountName: {{ .Values.service_account.name }}
@@ -45,6 +46,7 @@ spec:
             - name: http
               containerPort: 7433
               protocol: TCP
+            - containerPort: 9394
           livenessProbe:
             httpGet:
               path: /
@@ -149,7 +151,8 @@ spec:
           {{ end }}
             - name: SUBSCRIBER_FAILED_ATTEMPT_DELETION_THRESHOLD
               value: '{{ .Values.envVars.subscriberFailedAttemptDeletionThreshold }}'
-
+            - name: ENABLE_PROMETHEUS_EXPORTER
+              value: 'true'
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
