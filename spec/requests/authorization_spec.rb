@@ -55,7 +55,7 @@ RSpec.describe "Authorization" do
         submission = create(:submission, application_state: "submitted")
         patch "/v1/submissions/#{submission.id}",
               headers: { "Authorization" => "Bearer ABC" },
-              params: { application_state: "granted" }
+              params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
         expect(response).to have_http_status :created
       end
     end
