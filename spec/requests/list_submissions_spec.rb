@@ -13,9 +13,7 @@ RSpec.describe "List submissions" do
   end
 
   it "limits by count submissions, retaining oldest" do
-    # rubocop:disable FactoryBot/ExcessiveCreateList
     create_list(:submission, 15, updated_at: 1.day.ago)
-    # rubocop:enable FactoryBot/ExcessiveCreateList
     very_recent = create(:submission, updated_at: 1.hour.ago)
     very_old = create(:submission, updated_at: 2.days.ago)
 
