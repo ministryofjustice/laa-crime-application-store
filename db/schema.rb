@@ -10,7 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_17_131805) do
+ActiveRecord::Schema[7.1].define(version: 2024_06_26_134140) do
+  create_schema "analytics"
+
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -44,26 +46,34 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_17_131805) do
 
   add_foreign_key "application_version", "application", name: "application_version_application_id_fkey"
 
-  create_view "all_events", sql_definition: <<-SQL
-      SELECT id,
-      application_type,
-      jsonb_array_elements(events) AS event
+  create_view "events_raw", sql_definition: <<-SQL
+      SELECT application.id,
+      application.application_type,
+      jsonb_array_elements(application.events) AS event_json
      FROM application;
   SQL
-  create_view "version_events", sql_definition: <<-SQL
-      SELECT id,
-      application_type,
-      COALESCE(((event -> 'details'::text) ->> 'to'::text), 'submitted'::text) AS status,
-      ((event ->> 'created_at'::text))::timestamp without time zone AS event_at
-     FROM all_events
-    WHERE ((event ->> 'event_type'::text) = ANY (ARRAY['new_version'::text, 'decision'::text]));
+  create_view "all_events", sql_definition: <<-SQL
+      SELECT events_raw.id,
+      events_raw.application_type,
+      events_raw.event_json,
+      (events_raw.event_json ->> 'id'::text) AS event_id,
+      ((events_raw.event_json ->> 'submission_version'::text))::integer AS submission_version,
+      (events_raw.event_json ->> 'event_type'::text) AS event_type,
+      ((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone AS event_at,
+      (((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone)::date AS event_on,
+      ((events_raw.event_json ->> 'primary_user_id'::text))::integer AS primary_user_id,
+      ((events_raw.event_json ->> 'secondary_user_id'::text))::integer AS secondary_user_id,
+      (events_raw.event_json -> 'details'::text) AS details
+     FROM events_raw;
   SQL
-  create_view "version_events_with_times", sql_definition: <<-SQL
-      SELECT id,
-      application_type,
-      status,
-      event_at,
-      (event_at - lag(event_at) OVER (PARTITION BY id ORDER BY event_at)) AS event_time
-     FROM version_events;
+  create_view "submissions_by_dates", sql_definition: <<-SQL
+      SELECT all_events.event_on,
+      count(*) FILTER (WHERE (all_events.event_type = 'new_version'::text)) AS submission,
+      count(*) FILTER (WHERE (all_events.event_type = 'provider_updated'::text)) AS resubmission,
+      count(*) AS total
+     FROM all_events
+    WHERE ((all_events.application_type = 'crm4'::text) AND (all_events.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text])))
+    GROUP BY all_events.event_on
+    ORDER BY all_events.event_on;
   SQL
 end
