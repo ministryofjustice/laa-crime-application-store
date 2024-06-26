@@ -48,7 +48,10 @@ Selector labels
 {{- define "laa-crime-application-store.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "laa-crime-application-store.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{/* This label allows the allow-prometheus-scraping NetworkPolicy to identify pods that expose prometheus metrics */}}
+{{/*
+TODO: Not needed anymore but removing causes immutable label problem
+This label allows the allow-prometheus-scraping NetworkPolicy to identify pods that expose prometheus metrics
+*/}}
 app: laa-crime-application-store-prometheus
 {{- end }}
 
