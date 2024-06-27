@@ -10,7 +10,7 @@ RSpec.describe "submissions_by_date" do
   it "reports submissions and resubmissions for a given date" do
     create(
       :event_submission,
-      event1: { event_type: "new_version", created_at: 1.day.ago },
+      events: [{ event_type: "new_version", created_at: 1.day.ago }],
     )
     expect(klass.all.map(&:attributes)).to eq([
       { "event_on" => 1.day.ago.to_date, "submission" => 1, "resubmission" => 0, "total" => 1 },
