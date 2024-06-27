@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :event_submission, class: 'Submission' do
+  factory :event_submission, class: "Submission" do
     id { SecureRandom.uuid }
     application_state { "submitted" }
     application_risk { "low" }
