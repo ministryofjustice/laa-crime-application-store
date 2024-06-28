@@ -7,7 +7,7 @@ SELECT
   (event_json ->> 'event_type') as event_type,
   (event_json ->> 'created_at')::timestamp AS event_at,
   (event_json ->> 'created_at')::timestamp::date AS event_on,
-  (event_json ->> 'primary_user_id')::integer as primary_user_id,
-  (event_json ->> 'secondary_user_id')::integer as secondary_user_id,
+  (event_json ->> 'primary_user_id') as primary_user_id,
+  (event_json ->> 'secondary_user_id') as secondary_user_id,
   (event_json -> 'details') as details
 FROM events_raw
