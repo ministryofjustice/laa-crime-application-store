@@ -66,13 +66,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_26_140513) do
   SQL
   create_view "submissions_by_date", sql_definition: <<-SQL
       SELECT all_events.event_on,
+      all_events.application_type,
       count(*) FILTER (WHERE (all_events.event_type = 'new_version'::text)) AS submission,
       count(*) FILTER (WHERE (all_events.event_type = 'provider_updated'::text)) AS resubmission,
       count(*) AS total
      FROM all_events
-    WHERE ((all_events.application_type = 'crm4'::text) AND (all_events.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text])))
-    GROUP BY all_events.event_on
-    ORDER BY all_events.event_on;
+    WHERE (all_events.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text]))
+    GROUP BY all_events.application_type, all_events.event_on
+    ORDER BY all_events.application_type, all_events.event_on;
   SQL
   create_view "eod_assignment_count", sql_definition: <<-SQL
       WITH dates AS (

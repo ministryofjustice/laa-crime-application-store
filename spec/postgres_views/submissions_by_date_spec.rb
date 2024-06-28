@@ -13,7 +13,7 @@ RSpec.describe "submissions_by_date" do
       events: [{ event_type: "new_version", created_at: 1.day.ago }],
     )
     expect(klass.all.map(&:attributes)).to eq([
-      { "event_on" => 1.day.ago.to_date, "submission" => 1, "resubmission" => 0, "total" => 1 },
+      { "event_on" => 1.day.ago.to_date, "application_type" => "crm4", "submission" => 1, "resubmission" => 0, "total" => 1 },
     ])
     create(
       :event_submission,
@@ -23,8 +23,8 @@ RSpec.describe "submissions_by_date" do
       ],
     )
     expect(klass.all.map(&:attributes)).to eq([
-      { "event_on" => 2.days.ago.to_date, "submission" => 1, "resubmission" => 0, "total" => 1 },
-      { "event_on" => 1.day.ago.to_date, "submission" => 1, "resubmission" => 1, "total" => 2 },
+      { "event_on" => 2.days.ago.to_date, "application_type" => "crm4", "submission" => 1, "resubmission" => 0, "total" => 1 },
+      { "event_on" => 1.day.ago.to_date, "application_type" => "crm4", "submission" => 1, "resubmission" => 1, "total" => 2 },
     ])
   end
 
@@ -38,7 +38,7 @@ RSpec.describe "submissions_by_date" do
       ],
     )
     expect(klass.all.map(&:attributes)).to eq([
-      { "event_on" => 1.day.ago.to_date, "submission" => 1, "resubmission" => 2, "total" => 3 },
+      { "event_on" => 1.day.ago.to_date, "application_type" => "crm4", "submission" => 1, "resubmission" => 2, "total" => 3 },
     ])
   end
 end
