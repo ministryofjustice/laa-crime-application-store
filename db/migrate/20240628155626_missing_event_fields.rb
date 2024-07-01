@@ -1,7 +1,7 @@
 class MissingEventFields < ActiveRecord::Migration[7.1]
   def change
     Submission
-      .where("events @> '[{\"event_type\": \"provider_updated\"}]'").
+      .where("events @> '[{\"event_type\": \"provider_updated\"}]'")
       .each do |submission|
         last_version = nil
         submission.events.each do |event|
