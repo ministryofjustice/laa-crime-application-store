@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_17_131805) do
+ActiveRecord::Schema[7.1].define(version: 2024_06_26_140513) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -44,26 +44,66 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_17_131805) do
 
   add_foreign_key "application_version", "application", name: "application_version_application_id_fkey"
 
-  create_view "all_events", sql_definition: <<-SQL
-      SELECT id,
-      application_type,
-      jsonb_array_elements(events) AS event
+  create_view "events_raw", sql_definition: <<-SQL
+      SELECT application.id,
+      application.application_type,
+      jsonb_array_elements(application.events) AS event_json
      FROM application;
   SQL
-  create_view "version_events", sql_definition: <<-SQL
-      SELECT id,
-      application_type,
-      COALESCE(((event -> 'details'::text) ->> 'to'::text), 'submitted'::text) AS status,
-      ((event ->> 'created_at'::text))::timestamp without time zone AS event_at
-     FROM all_events
-    WHERE ((event ->> 'event_type'::text) = ANY (ARRAY['new_version'::text, 'decision'::text]));
+  create_view "all_events", sql_definition: <<-SQL
+      SELECT events_raw.id,
+      events_raw.application_type,
+      events_raw.event_json,
+      (events_raw.event_json ->> 'id'::text) AS event_id,
+      ((events_raw.event_json ->> 'submission_version'::text))::integer AS submission_version,
+      (events_raw.event_json ->> 'event_type'::text) AS event_type,
+      ((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone AS event_at,
+      (((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone)::date AS event_on,
+      ((events_raw.event_json ->> 'primary_user_id'::text))::integer AS primary_user_id,
+      ((events_raw.event_json ->> 'secondary_user_id'::text))::integer AS secondary_user_id,
+      (events_raw.event_json -> 'details'::text) AS details
+     FROM events_raw;
   SQL
-  create_view "version_events_with_times", sql_definition: <<-SQL
-      SELECT id,
-      application_type,
-      status,
-      event_at,
-      (event_at - lag(event_at) OVER (PARTITION BY id ORDER BY event_at)) AS event_time
-     FROM version_events;
+  create_view "submissions_by_date", sql_definition: <<-SQL
+      SELECT all_events.event_on,
+      all_events.application_type,
+      count(*) FILTER (WHERE (all_events.event_type = 'new_version'::text)) AS submission,
+      count(*) FILTER (WHERE (all_events.event_type = 'provider_updated'::text)) AS resubmission,
+      count(*) AS total
+     FROM all_events
+    WHERE (all_events.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text]))
+    GROUP BY all_events.application_type, all_events.event_on
+    ORDER BY all_events.application_type, all_events.event_on;
+  SQL
+  create_view "eod_assignment_count", sql_definition: <<-SQL
+      WITH dates AS (
+           SELECT (t.day)::date AS day
+             FROM generate_series(('2024-06-01 00:00:00'::timestamp without time zone)::timestamp with time zone, CURRENT_TIMESTAMP, 'P1D'::interval) t(day)
+          ), application_with_cw AS (
+           SELECT all_events.id,
+              all_events.event_id,
+              all_events.event_type,
+              all_events.event_at AS from_at,
+              all_events.event_on AS from_on,
+              lag((all_events.event_at)::timestamp with time zone, 1, CURRENT_TIMESTAMP) OVER (PARTITION BY all_events.id ORDER BY all_events.event_at DESC) AS to_at,
+              lag((all_events.event_on)::timestamp without time zone, 1, (CURRENT_DATE + 'P1D'::interval)) OVER (PARTITION BY all_events.id ORDER BY all_events.event_at DESC) AS to_on
+             FROM all_events
+            WHERE ((all_events.application_type = 'crm4'::text) AND (all_events.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text, 'sent_back'::text, 'decision'::text])))
+          ), assignments AS (
+           SELECT all_events.id,
+              all_events.event_id,
+              all_events.event_type,
+              all_events.event_at AS assigned_at,
+              lag(all_events.event_at) OVER (PARTITION BY all_events.id ORDER BY all_events.event_at DESC) AS unassigned_at
+             FROM all_events
+            WHERE ((all_events.application_type = 'crm4'::text) AND (all_events.event_type = ANY (ARRAY['assignment'::text, 'unassignment'::text])))
+          )
+   SELECT dates.day,
+      count(DISTINCT application_with_cw.event_id) AS assignable,
+      count(DISTINCT assignments.event_id) AS assigned
+     FROM ((dates
+       LEFT JOIN application_with_cw ON (((dates.day >= application_with_cw.from_on) AND (dates.day < application_with_cw.to_on) AND (application_with_cw.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text])))))
+       LEFT JOIN assignments ON (((assignments.assigned_at >= application_with_cw.from_at) AND ((assignments.assigned_at)::date <= dates.day) AND ((assignments.assigned_at)::date <= application_with_cw.to_at) AND ((assignments.unassigned_at IS NULL) OR (((assignments.unassigned_at)::date > dates.day) AND ((assignments.unassigned_at)::date <= application_with_cw.to_at))) AND (assignments.event_type = 'assignment'::text))))
+    GROUP BY dates.day;
   SQL
 end
