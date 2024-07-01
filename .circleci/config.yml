@@ -5,6 +5,7 @@ orbs:
   aws-cli: circleci/aws-cli@4.1.3 # use v4 of this orb
   aws-ecr: circleci/aws-ecr@9.0.2 # this orb doesn't support OIDC v2, so we use aws-cli to authenticate
   crime-forms-end-to-end-tests: ministryofjustice/crime-forms-end-to-end-tests@volatile
+  slack: circleci/slack@4.13.3
 
 executors:
   cloud-platform-executor:
@@ -229,6 +230,10 @@ jobs:
     executor: crime-forms-end-to-end-tests/e2e-test-executor
     steps:
       - crime-forms-end-to-end-tests/run-e2e-tests
+      - slack/notify:
+          channel: laa-non-standard-crime-claims-prod-alerts
+          event: fail
+          template: basic_fail_1
 
   deploy-dev:
     executor: cloud-platform-executor
@@ -241,12 +246,20 @@ jobs:
     steps:
       - deploy_to_environment:
           environment: uat
+      - slack/notify:
+          channel: laa-non-standard-crime-claims-preprod-alerts
+          event: fail
+          template: basic_fail_1
 
   deploy-prod:
     executor: cloud-platform-executor
     steps:
       - deploy_to_environment:
           environment: production
+      - slack/notify:
+          channel: laa-non-standard-crime-claims-prod-alerts
+          event: fail
+          template: basic_fail_1
 
   configure-dashboards:
     executor: cloud-platform-executor
@@ -326,7 +339,9 @@ workflows:
             - test-app
             - scan-docker-image
       - e2e-test-main:
-          context: laa-crime-forms-e2e-tests
+          context:
+            - laa-non-standard-crime-claims-alerting
+            - laa-crime-forms-e2e-tests
           requires:
             - build-and-push
           filters:
@@ -338,7 +353,9 @@ workflows:
           requires:
               - e2e-test-main
       - deploy-uat:
-          context: laa-crime-application-store-uat
+          context:
+            - laa-non-standard-crime-claims-alerting
+            - laa-crime-application-store-uat
           requires:
             - e2e-test-main
           filters:
@@ -346,7 +363,9 @@ workflows:
                   only:
                       - main
       - deploy-prod:
-          context: laa-crime-application-store-prod
+          context:
+            - laa-non-standard-crime-claims-alerting
+            - laa-crime-application-store-prod
           filters:
             branches:
               only:
