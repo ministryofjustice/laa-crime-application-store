@@ -20,8 +20,11 @@ RSpec.describe "Create events" do
 
       expect(submission.reload.events).to match([
         {
-          "id" => "A",
+          "created_at" => an_instance_of(String),
           "details" => "history",
+          "id" => "A",
+          "submission_version" => 1,
+          "updated_at" => an_instance_of(String),
         },
       ])
     end
