@@ -3,8 +3,6 @@ namespace :missing_version_timestamps do
 
   desc "When the latest record missed the required timestamp"
   task tranch1: :environment do
-    SubmissionVersion.where(created_at: nil)
-
     puts "==============================="
     puts "Tranch 1"
     puts "These are where the submission version is greater than that on any of the events"
@@ -51,7 +49,7 @@ namespace :missing_version_timestamps do
       ActiveRecord::Base.connection.transaction do
         SubmissionVersion.where(id: expected_ids).includes(:submission).each do |ver|
           ver.created_at = ver.updated_at = ver.submission.updated_at
-          ver.save!
+          ver.save!(touch: false)
         end
       end
     end
@@ -116,7 +114,8 @@ namespace :missing_version_timestamps do
     ActiveRecord::Base.connection.transaction do
       updates.each do |version_id, submission_id, timestamp|
         version = SubmissionVersion.find(version_id)
-        version.update!(created_at: timestamp, updated_at: timestamp)
+        version.assign_attributes(created_at: timestamp, updated_at: timestamp)
+        version.save!(touch: false)
         submission = version.submission
         event = submission.events.detect do |event|
           event['event_type'] == 'provider_updated' &&
@@ -126,7 +125,7 @@ namespace :missing_version_timestamps do
 
         puts 'Updating timestamps on provider event'
         event['created_at'] = event['updated_at'] = timestamp
-        submission.save!
+        submission.save!(touch: false)
       end
     end
   end
