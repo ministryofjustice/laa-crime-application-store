@@ -16,11 +16,15 @@ end
 Rails.logger.info("[Sidekiq] Application config initialising...")
 
 Sidekiq.configure_client do |config|
+  redis_url = 'redis://localhost:6379/3' if Rails.env.local?
+
   Rails.logger.info("[SidekiqClient] configuring sidekiq client...")
   config.redis = { url: redis_url } if redis_url
 end
 
 Sidekiq.configure_server do |config|
+  redis_url = 'redis://localhost:6379/3' if Rails.env.local?
+
   Rails.logger.info("[SidekiqServer] configuring sidekiq server...")
   config.redis = { url: redis_url } if redis_url
 
