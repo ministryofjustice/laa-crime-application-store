@@ -101,13 +101,13 @@ namespace :missing_version_timestamps do
 
     # version_id, submission_id, provider_updated (created_at from CW)
     updates = [
-      ["155c385e-0ef4-4d5a-813f-ac827d02d2b4", "07988f26-cfaa-4fdf-8dda-f633793d6105", DateTime.parse("Tue, 11 Jun 2024 08:12:49.374763000 UTC +00:00"}],
-      ["cfb73028-5531-46df-bcc5-f0fd4a2f7cfd", "7a5c8e58-a744-4a6f-8520-f3be563de3bc", DateTime.parse("Tue, 11 Jun 2024 08:19:59.650678000 UTC +00:00"}],
-      ["e71f8764-6c30-4ade-b9cc-7007f881ec48", "88a7bd7b-7cac-4a11-b13c-b6ddc187f4d0", DateTime.parse("Tue, 11 Jun 2024 15:29:32.802009000 UTC +00:00"}],
-      ["6d73549a-316c-4b3e-9af6-352030b6fe01", "88a7bd7b-7cac-4a11-b13c-b6ddc187f4d0", DateTime.parse("Thu, 13 Jun 2024 15:15:07.656617000 UTC +00:00"}],
-      ["95a18e65-9b97-43aa-af11-008684d3dc47", "88a7bd7b-7cac-4a11-b13c-b6ddc187f4d0", DateTime.parse("Fri, 14 Jun 2024 12:19:16.311660000 UTC +00:00"}],
-      ["b0f9423b-71c0-4685-bf84-6dc58bb2a8a6", "a9bb92f1-de30-4cda-9ae2-b4d76a533033", DateTime.parse("Mon, 17 Jun 2024 14:48:47.026644000 UTC +00:00"}],
-      ["ee26fbc8-e1b9-49e5-827b-196ed15662a0", "d2aaf9f0-b53e-471f-acd8-5ff572a16e13", DateTime.parse("Mon, 17 Jun 2024 14:46:57.466402000 UTC +00:00"}],
+      ["155c385e-0ef4-4d5a-813f-ac827d02d2b4", "07988f26-cfaa-4fdf-8dda-f633793d6105", DateTime.parse("Tue, 11 Jun 2024 08:12:49.374763000 UTC +00:00")],
+      ["cfb73028-5531-46df-bcc5-f0fd4a2f7cfd", "7a5c8e58-a744-4a6f-8520-f3be563de3bc", DateTime.parse("Tue, 11 Jun 2024 08:19:59.650678000 UTC +00:00")],
+      ["e71f8764-6c30-4ade-b9cc-7007f881ec48", "88a7bd7b-7cac-4a11-b13c-b6ddc187f4d0", DateTime.parse("Tue, 11 Jun 2024 15:29:32.802009000 UTC +00:00")],
+      ["6d73549a-316c-4b3e-9af6-352030b6fe01", "88a7bd7b-7cac-4a11-b13c-b6ddc187f4d0", DateTime.parse("Thu, 13 Jun 2024 15:15:07.656617000 UTC +00:00")],
+      ["95a18e65-9b97-43aa-af11-008684d3dc47", "88a7bd7b-7cac-4a11-b13c-b6ddc187f4d0", DateTime.parse("Fri, 14 Jun 2024 12:19:16.311660000 UTC +00:00")],
+      ["b0f9423b-71c0-4685-bf84-6dc58bb2a8a6", "a9bb92f1-de30-4cda-9ae2-b4d76a533033", DateTime.parse("Mon, 17 Jun 2024 14:48:47.026644000 UTC +00:00")],
+      ["ee26fbc8-e1b9-49e5-827b-196ed15662a0", "d2aaf9f0-b53e-471f-acd8-5ff572a16e13", DateTime.parse("Mon, 17 Jun 2024 14:46:57.466402000 UTC +00:00")],
     ]
 
     puts "Updating records..."
