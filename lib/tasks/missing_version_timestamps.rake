@@ -124,6 +124,10 @@ namespace :missing_version_timestamps do
 
         puts 'Updating timestamps on provider event'
         event['created_at'] = event['updated_at'] = timestamp
+        # NOTE: version on provider_updated was set incorrectly in db/migrate/20240628155626_missing_event_fields.rb
+        # it was set as last event version + 1, but the sent_back event with the same version as the sent back version
+        # it is sent on the one before (which is what was present in CW when the event was created)
+        # this is not a big deal as we don't use the version anywhere.
         event['submission_version'] = version.version
         submission.save!(touch: false)
       end
