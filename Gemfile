@@ -25,7 +25,7 @@ gem "prometheus_exporter"
 gem "scenic"
 gem "sentry-rails", ">= 5.17.2"
 gem "sentry-ruby"
-gem "sidekiq", "~> 7.2"
+gem "sidekiq", "~> 7.3"
 gem "sidekiq_alive", "~> 2.4"
 
 group :development, :test do
