@@ -119,12 +119,12 @@ namespace :missing_version_timestamps do
         submission = version.submission
         event = submission.events.detect do |event|
           event['event_type'] == 'provider_updated' &&
-          event['created_at'].nil? &&
-          event['submission_version'] == version.version
+          event['created_at'].nil?
         end
 
         puts 'Updating timestamps on provider event'
         event['created_at'] = event['updated_at'] = timestamp
+        event['submission_version'] = version.version
         submission.save!(touch: false)
       end
     end
