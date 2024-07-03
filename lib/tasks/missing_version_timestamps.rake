@@ -137,7 +137,7 @@ namespace :missing_version_timestamps do
   task tranch3: :environment do
     # query to check when created_at on event is wrong
     # ActiveRecord::Base.connection.exec_query("
-    #   select av.id as app_id, all_events.event_id, all_events.event_at, av.created_at, all_events.submission_versions, av.version
+    #   select av.id as app_id, all_events.event_id, all_events.event_at, av.created_at, all_events.submission_version, av.version
     #   from all_events
     #   left join application_version av on
     #     all_events.submission_version in (av.version - 1, av.version) and
@@ -145,49 +145,50 @@ namespace :missing_version_timestamps do
     #     all_events.id = av.application_id
     #   where event_type = 'provider_updated'
     #   order by 3
-    # ").pluck('app_id', 'event_id', 'event_at', 'created_at', 'submission_versions', 'version')
+    # ").pluck('app_id', 'event_id', 'event_at', 'created_at', 'submission_version', 'version')
     results = [
-      ["155c385e-0ef4-4d5a-813f-ac827d02d2b4", "fb8620b4-8c9c-4542-84d5-eef8451c98ee", "2024-06-11 08:12:49.374 UTC", "2024-06-11 08:12:49.374763 UTC"],
-      ["cfb73028-5531-46df-bcc5-f0fd4a2f7cfd", "7ac70f46-e63e-439b-a8f7-8faa378e56f8", "2024-06-11 08:19:59.65 UTC", "2024-06-11 08:19:59.650678 UTC"],
-      ["e71f8764-6c30-4ade-b9cc-7007f881ec48", "cdf51b41-d633-4a8c-93ee-d2da8494f661", "2024-06-11 15:29:32.802 UTC", "2024-06-11 15:29:32.802009 UTC"],
-      ["6d73549a-316c-4b3e-9af6-352030b6fe01", "1f03be18-ed56-4e16-a90f-b40ecb1b2865", "2024-06-13 15:15:07.656 UTC", "2024-06-13 15:15:07.656617 UTC"],
-      ["95a18e65-9b97-43aa-af11-008684d3dc47", "4c72a40a-df29-4dce-881e-6b082b1bb234", "2024-06-14 12:19:16.311 UTC", "2024-06-14 12:19:16.31166 UTC"],
-      ["ee26fbc8-e1b9-49e5-827b-196ed15662a0", "de14d863-f3a3-4451-adf3-7d6e3956b963", "2024-06-17 14:46:57.466 UTC", "2024-06-17 14:46:57.466402 UTC"],
-      ["b0f9423b-71c0-4685-bf84-6dc58bb2a8a6", "d1142f84-6cbc-459c-9346-df5e5a0c57de", "2024-06-17 14:48:47.026 UTC", "2024-06-17 14:48:47.026644 UTC"],
-      ["7d931f3c-192b-41b9-85f8-9a76868be934", "e81012b0-1098-420c-967c-ebe021232cac", "2024-06-18 08:17:44.194 UTC", "2024-06-18 08:53:55.468969 UTC"],
-      ["b5b1dfb8-683d-41c7-be7a-30a814e812c9", "7b530fb5-d279-4c76-be86-baa52e5ceaa8", "2024-06-18 10:00:07.966 UTC", "2024-06-18 13:25:50.861558 UTC"],
-      ["4d251450-5e66-4ee4-a48c-8c5213ce1731", "572455ff-7678-42c3-9451-482c8ca82dd1", "2024-06-19 09:55:09.497 UTC", "2024-06-20 09:42:11.207836 UTC"],
-      ["2e1ca687-5fa6-44ad-81cc-a59c1e2cb8db", "95254b9b-4f2c-4da0-9194-dbb6445bbc1f", "2024-06-19 10:03:27.31 UTC", "2024-06-19 16:31:12.297594 UTC"],
-      ["1b390bcb-edc6-434e-abc0-a5483031704d", "ee222910-e806-4736-bc34-db7dff67a5b0", "2024-06-19 12:53:06.434 UTC", "2024-06-24 11:12:35.36563 UTC"],
-      ["0085f9e4-9285-4f3d-b90b-5f2467f456ce", "a007aa8d-3398-47e7-9149-37c007a78d8f", "2024-06-21 09:29:39.368 UTC", "2024-06-24 18:46:08.845792 UTC"],
-      ["2ee23c3d-6ab8-4266-8aa3-257d4a639c32", "daf086fe-db37-4bdc-ba82-e8feb2b3d4f2", "2024-06-21 09:34:31.596 UTC", "2024-06-24 19:13:44.262086 UTC"],
-      ["8f06c9cf-5d4d-4a6f-ab5d-dc9fa8d2545d", "21bce7bd-bdf0-46b2-b402-78a7774eed1a", "2024-06-21 09:44:18.179 UTC", "2024-06-21 10:51:49.470452 UTC"],
-      ["ba06b845-4cdc-41ca-b023-78ed0f93fda4", "f0a75c46-a216-44ae-9650-4825bfd274a7", "2024-06-21 09:47:27.848 UTC", "2024-06-21 13:34:19.316017 UTC"],
-      ["3c58aca0-4467-49e9-9b25-b75ffd32c88d", "78e42902-3e09-412b-9855-c144b3f66bff", "2024-06-21 09:58:24.27 UTC", "2024-06-25 09:03:04.836337 UTC"],
-      ["5e6d3478-2aa4-48d3-9aad-f66aee0dcfdd", "9fe6bf17-cabe-4006-a5f9-23cb47042046", "2024-06-24 11:48:53.55 UTC", "2024-06-24 12:32:38.979683 UTC"],
-      ["6097f260-6dce-4d1c-815e-bab43c57fd74", "d9b1206d-c79a-4b0d-ab0c-8b117ad117b7", "2024-06-24 12:10:26.774 UTC", "2024-06-25 13:25:15.715172 UTC"],
-      ["f46a6ef7-2296-42ce-acc2-a1307c3f854c", "24b94e77-33b9-4762-8e10-b37aac693ac0", "2024-06-25 12:51:40.107 UTC", "2024-06-25 15:10:08.417587 UTC"],
-      ["89e21b01-87d9-4047-ba48-f4a13ec3f52c", "e051b524-999f-42bc-b023-b900a826d26a", "2024-06-25 12:59:31.927 UTC", "2024-06-25 13:32:15.581912 UTC"],
-      ["938b0df7-0a40-42ed-b44c-723874fd3ec5", "31f321d2-4d10-4e91-af4a-39178fb3e2fd", "2024-06-25 13:06:50.878 UTC", "2024-06-25 13:31:28.788551 UTC"],
-      ["7bab6948-67ae-4393-9cee-e7354fbe03f3", "bc4f1bbc-d126-4bdc-bb7b-367bbe4aaf18", "2024-06-26 13:14:14.465 UTC", "2024-06-26 13:15:55.315083 UTC"],
-      ["bf8b050a-5531-4dcb-aaae-04c2248fa119", "7c6ec4d3-11a1-4a72-8294-a94d6674d886", "2024-07-01 16:27:25.537 UTC", "2024-07-01 16:27:25.541797 UTC"],
-      ["0b0c841a-16ed-49dd-8065-5b1d8093d922", "dc411cd4-e410-47d0-9648-ba424e4172df", "2024-07-02 11:45:19.42 UTC", "2024-07-02 11:45:19.425862 UTC"],
-      ["43f9fc65-190c-4e74-8adb-da8e0ca8b153", "55f3a8d9-a690-43a5-828a-96cc67077d2f", "2024-07-03 08:29:50.33 UTC", "2024-07-03 08:29:50.336717 UTC"],
-      ["e9203bd0-254d-471a-845f-bd0975db3720", "314bf52e-628e-4bdb-a323-35ac2bb0e67f", "2024-07-03 08:50:07.636 UTC", "2024-07-03 08:50:07.641403 UTC"]
+      ["155c385e-0ef4-4d5a-813f-ac827d02d2b4", "fb8620b4-8c9c-4542-84d5-eef8451c98ee", "2024-06-11 08:12:49.374 UTC", "2024-06-11 08:12:49.374763 UTC", 3, 3],
+      ["cfb73028-5531-46df-bcc5-f0fd4a2f7cfd", "7ac70f46-e63e-439b-a8f7-8faa378e56f8", "2024-06-11 08:19:59.65 UTC", "2024-06-11 08:19:59.650678 UTC", 3, 3],
+      ["e71f8764-6c30-4ade-b9cc-7007f881ec48", "cdf51b41-d633-4a8c-93ee-d2da8494f661", "2024-06-11 15:29:32.802 UTC", "2024-06-11 15:29:32.802009 UTC", 3, 3],
+      ["6d73549a-316c-4b3e-9af6-352030b6fe01", "1f03be18-ed56-4e16-a90f-b40ecb1b2865", "2024-06-13 15:15:07.656 UTC", "2024-06-13 15:15:07.656617 UTC", 6, 6],
+      ["95a18e65-9b97-43aa-af11-008684d3dc47", "4c72a40a-df29-4dce-881e-6b082b1bb234", "2024-06-14 12:19:16.311 UTC", "2024-06-14 12:19:16.31166 UTC", 8, 8],
+      ["ee26fbc8-e1b9-49e5-827b-196ed15662a0", "de14d863-f3a3-4451-adf3-7d6e3956b963", "2024-06-17 14:46:57.466 UTC", "2024-06-17 14:46:57.466402 UTC", 3, 3],
+      ["b0f9423b-71c0-4685-bf84-6dc58bb2a8a6", "d1142f84-6cbc-459c-9346-df5e5a0c57de", "2024-06-17 14:48:47.026 UTC", "2024-06-17 14:48:47.026644 UTC", 3, 3],
+      ["7d931f3c-192b-41b9-85f8-9a76868be934", "e81012b0-1098-420c-967c-ebe021232cac", "2024-06-18 08:17:44.194 UTC", "2024-06-18 08:53:55.468969 UTC", 2, 3],
+      ["b5b1dfb8-683d-41c7-be7a-30a814e812c9", "7b530fb5-d279-4c76-be86-baa52e5ceaa8", "2024-06-18 10:00:07.966 UTC", "2024-06-18 13:25:50.861558 UTC", 4, 5],
+      ["4d251450-5e66-4ee4-a48c-8c5213ce1731", "572455ff-7678-42c3-9451-482c8ca82dd1", "2024-06-19 09:55:09.497 UTC", "2024-06-20 09:42:11.207836 UTC", 4, 5],
+      ["2e1ca687-5fa6-44ad-81cc-a59c1e2cb8db", "95254b9b-4f2c-4da0-9194-dbb6445bbc1f", "2024-06-19 10:03:27.31 UTC", "2024-06-19 16:31:12.297594 UTC", 2, 3],
+      ["1b390bcb-edc6-434e-abc0-a5483031704d", "ee222910-e806-4736-bc34-db7dff67a5b0", "2024-06-19 12:53:06.434 UTC", "2024-06-24 11:12:35.36563 UTC", 2, 3],
+      ["0085f9e4-9285-4f3d-b90b-5f2467f456ce", "a007aa8d-3398-47e7-9149-37c007a78d8f", "2024-06-21 09:29:39.368 UTC", "2024-06-24 18:46:08.845792 UTC", 2, 3],
+      ["2ee23c3d-6ab8-4266-8aa3-257d4a639c32", "daf086fe-db37-4bdc-ba82-e8feb2b3d4f2", "2024-06-21 09:34:31.596 UTC", "2024-06-24 19:13:44.262086 UTC", 2, 3],
+      ["8f06c9cf-5d4d-4a6f-ab5d-dc9fa8d2545d", "21bce7bd-bdf0-46b2-b402-78a7774eed1a", "2024-06-21 09:44:18.179 UTC", "2024-06-21 10:51:49.470452 UTC", 6, 7],
+      ["ba06b845-4cdc-41ca-b023-78ed0f93fda4", "f0a75c46-a216-44ae-9650-4825bfd274a7", "2024-06-21 09:47:27.848 UTC", "2024-06-21 13:34:19.316017 UTC", 2, 3],
+      ["3c58aca0-4467-49e9-9b25-b75ffd32c88d", "78e42902-3e09-412b-9855-c144b3f66bff", "2024-06-21 09:58:24.27 UTC", "2024-06-25 09:03:04.836337 UTC", 2, 3],
+      ["5e6d3478-2aa4-48d3-9aad-f66aee0dcfdd", "9fe6bf17-cabe-4006-a5f9-23cb47042046", "2024-06-24 11:48:53.55 UTC", "2024-06-24 12:32:38.979683 UTC", 2, 3],
+      ["6097f260-6dce-4d1c-815e-bab43c57fd74", "d9b1206d-c79a-4b0d-ab0c-8b117ad117b7", "2024-06-24 12:10:26.774 UTC", "2024-06-25 13:25:15.715172 UTC", 4, 5],
+      ["f46a6ef7-2296-42ce-acc2-a1307c3f854c", "24b94e77-33b9-4762-8e10-b37aac693ac0", "2024-06-25 12:51:40.107 UTC", "2024-06-25 15:10:08.417587 UTC", 2, 3],
+      ["89e21b01-87d9-4047-ba48-f4a13ec3f52c", "e051b524-999f-42bc-b023-b900a826d26a", "2024-06-25 12:59:31.927 UTC", "2024-06-25 13:32:15.581912 UTC", 4, 5],
+      ["938b0df7-0a40-42ed-b44c-723874fd3ec5", "31f321d2-4d10-4e91-af4a-39178fb3e2fd", "2024-06-25 13:06:50.878 UTC", "2024-06-25 13:31:28.788551 UTC", 4, 5],
+      ["7bab6948-67ae-4393-9cee-e7354fbe03f3", "bc4f1bbc-d126-4bdc-bb7b-367bbe4aaf18", "2024-06-26 13:14:14.465 UTC", "2024-06-26 13:15:55.315083 UTC", 6, 7],
+      ["bf8b050a-5531-4dcb-aaae-04c2248fa119", "7c6ec4d3-11a1-4a72-8294-a94d6674d886", "2024-07-01 16:27:25.537 UTC", "2024-07-01 16:27:25.541797 UTC", 3, 3],
+      ["0b0c841a-16ed-49dd-8065-5b1d8093d922", "dc411cd4-e410-47d0-9648-ba424e4172df", "2024-07-02 11:45:19.42 UTC", "2024-07-02 11:45:19.425862 UTC", 3, 3],
+      ["43f9fc65-190c-4e74-8adb-da8e0ca8b153", "55f3a8d9-a690-43a5-828a-96cc67077d2f", "2024-07-03 08:29:50.33 UTC", "2024-07-03 08:29:50.336717 UTC", 3, 3],
+      ["e9203bd0-254d-471a-845f-bd0975db3720", "314bf52e-628e-4bdb-a323-35ac2bb0e67f", "2024-07-03 08:50:07.636 UTC", "2024-07-03 08:50:07.641403 UTC", 3, 3]
     ]
 
     ActiveRecord::Base.connection.transaction do
-      results.each do |application_id, event_id, event_time, version_time|
+      results.each do |application_id, event_id, event_time, version_time, event_version, version_version|
         if (DateTime.parse(event_time).to_i - DateTime.parse(version_time).to_i).abs < 10
           puts "skipping record: #{application_id}: #{event_id}.."
           next
         end
 
-        puts "Updating record: #{application_id}: #{event_id}.. #{event_time} to #{version_time}"
+        puts "Updating record: #{application_id}: #{event_id}.. #{event_time} to #{version_time} and #{event_version} to #{version_version}"
         submisison = Submission.find(application_id)
         event = submisison.events.detect { |eve| eve['id'] == event_id } || raise
 
         event['created_at'] = event['updated_at'] = DataTime.parse(version_time)
+        event['submission_version'] = version_version
         submission.save!(touch: false)
       end
     end
