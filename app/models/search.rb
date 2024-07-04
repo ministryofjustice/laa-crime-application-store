@@ -5,9 +5,9 @@ class Search < ApplicationRecord
 
   def self.search(string)
     where("searches.search_fields @@ to_tsquery('simple', ?)", string).or(
-      where("LOWER(searches.ufn) = LOWER(?)", string)
+      where("LOWER(searches.ufn) = LOWER(?)", string),
     ).or(
-      where("LOWER(searches.laa_reference) = LOWER(?)", string)
+      where("LOWER(searches.laa_reference) = LOWER(?)", string),
     )
   end
 end
