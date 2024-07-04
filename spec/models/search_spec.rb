@@ -16,7 +16,7 @@ RSpec.describe Search do
       end
     end
 
-    context "when search text is not LAA reference" do
+    context "when search text is LAA reference does not match any records" do
       let(:query) { "LAA-121212" }
 
       it "returns the record" do
@@ -45,6 +45,37 @@ RSpec.describe Search do
 
       it "returns the record" do
         expect(subject).to be_empty
+      end
+    end
+
+    context "when search text is full defendant name" do
+      let(:query) { "joe bloggs" }
+
+      context "application is prior authority" do
+        let(:prepare) { build(:submission, :with_pa_version).tap(&:save) }
+
+        it "returns the record" do
+          expect(subject).to eq([prepare.id])
+        end
+      end
+
+      context "application is non-standard magistrate" do
+        let(:prepare) { build(:submission, :with_nsm_version).tap(&:save) }
+
+        it "returns the record" do
+          expect(subject).to eq([prepare.id])
+        end
+      end
+
+      context "when search text is partial defendant name" do
+        let(:query) { "joe" }
+        context "application is prior authority" do
+          let(:prepare) { build(:submission, :with_pa_version).tap(&:save) }
+
+          it "returns the record" do
+            expect(subject).to eq([prepare.id])
+          end
+        end
       end
     end
   end
