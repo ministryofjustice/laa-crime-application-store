@@ -34,7 +34,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_03_183137) do
     t.jsonb "application", null: false
     t.datetime "created_at", precision: nil
     t.datetime "updated_at", precision: nil
-    t.virtual "search_fields", type: :tsvector, as: "((((((to_tsvector('simple'::regconfig, ((application -> 'defendant'::text) ->> 'first_name'::text)) || to_tsvector('simple'::regconfig, ((application -> 'defendant'::text) ->> 'last_name'::text))) || to_tsvector('simple'::regconfig, jsonb_path_query_array(application, '$.\"defendants\"[*].\"first_name\"'::jsonpath))) || to_tsvector('simple'::regconfig, jsonb_path_query_array(application, '$.\"defendants\"[*].\"last_name\"'::jsonpath))) || to_tsvector('simple'::regconfig, ((application -> 'firm_office'::text) ->> 'name'::text))) || to_tsvector('simple'::regconfig, (application ->> 'ufn'::text))) || to_tsvector('simple'::regconfig, (application ->> 'laa_reference'::text)))", stored: true
+    t.virtual "search_fields", type: :tsvector, as: "((((to_tsvector('simple'::regconfig, COALESCE(((application -> 'defendant'::text) ->> 'first_name'::text), ''::text)) || to_tsvector('simple'::regconfig, COALESCE(((application -> 'defendant'::text) ->> 'last_name'::text), ''::text))) || to_tsvector('simple'::regconfig, jsonb_path_query_array(application, '$.\"defendants\"[*].\"first_name\"'::jsonpath))) || to_tsvector('simple'::regconfig, jsonb_path_query_array(application, '$.\"defendants\"[*].\"last_name\"'::jsonpath))) || to_tsvector('simple'::regconfig, COALESCE(((application -> 'firm_office'::text) ->> 'name'::text), ''::text)))", stored: true
+    t.virtual "ufn", type: :string, as: "COALESCE((application ->> 'ufn'::text), ''::text)", stored: true
+    t.virtual "laa_reference", type: :string, as: "COALESCE((application ->> 'laa_reference'::text), ''::text)", stored: true
   end
 
   create_table "subscriber", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -118,9 +120,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_03_183137) do
     WHERE ((e.application_type = 'crm4'::text) AND (e.event_type = 'auto_decision'::text));
   SQL
   create_view "searches", sql_definition: <<-SQL
-      SELECT app_ver.id,
-      app_ver.application_id,
+      SELECT app.id,
+      app_ver.id AS application_version_id,
       app_ver.search_fields,
+      app_ver.ufn,
+      app_ver.laa_reference,
       app.has_been_assigned_to,
       app.created_at AS date_submitted,
       app.updated_at AS date_updated,

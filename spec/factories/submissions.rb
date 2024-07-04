@@ -14,7 +14,7 @@ FactoryBot.define do
     application_type { "crm4" }
     current_version { 1 }
     events { [] }
-    after(:create) do |submission, _a|
+    after(:build) do |submission, _a|
       create(:submission_version, submission:)
     end
   end

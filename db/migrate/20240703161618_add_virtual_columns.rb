@@ -1,13 +1,11 @@
 class AddVirtualColumns < ActiveRecord::Migration[7.1]
   def change
     search_vector = <<~VECTOR
-      TO_TSVECTOR('simple', application -> 'defendant' ->> 'first_name') || \
-      TO_TSVECTOR('simple', application -> 'defendant' ->> 'last_name') || \
+      TO_TSVECTOR('simple', COALESCE(application -> 'defendant' ->> 'first_name', '')) || \
+      TO_TSVECTOR('simple', COALESCE(application -> 'defendant' ->> 'last_name', '')) || \
       TO_TSVECTOR('simple', jsonb_path_query_array(application,  '$.defendants[*].first_name')) || \
       TO_TSVECTOR('simple', jsonb_path_query_array(application, '$.defendants[*].last_name')) || \
-      TO_TSVECTOR('simple', application -> 'firm_office' ->> 'name') || \
-      TO_TSVECTOR('simple', application ->> 'ufn') || \
-      TO_TSVECTOR('simple', application ->> 'laa_reference')
+      TO_TSVECTOR('simple', COALESCE(application -> 'firm_office' ->> 'name', ''))
     VECTOR
 
     add_column(
@@ -16,6 +14,24 @@ class AddVirtualColumns < ActiveRecord::Migration[7.1]
       :virtual,
       as: search_vector,
       type: :tsvector,
+      stored: true
+    )
+    # ufn and laa_reference had to be extracted from tsvector due to `/` and `-` characters
+    # not being parsed as desired
+    add_column(
+      :application_version,
+      :ufn,
+      :virtual,
+      as: "COALESCE(application ->> 'ufn', '')",
+      type: :string,
+      stored: true
+    )
+    add_column(
+      :application_version,
+      :laa_reference,
+      :virtual,
+      as: "COALESCE(application ->> 'laa_reference', '')",
+      type: :string,
       stored: true
     )
 
