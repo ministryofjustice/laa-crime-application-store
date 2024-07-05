@@ -67,6 +67,46 @@ RSpec.describe Search do
       end
     end
 
+    context "when partial match on part of defendant name" do
+      let(:query) { "joe blog" }
+
+      context "with with prior authority application" do
+        let(:prepare) { build(:submission, :with_pa_version).tap(&:save) }
+
+        it "returns the record" do
+          expect(search).to eq([prepare.id])
+        end
+      end
+
+      context "with non-standard magistrate application" do
+        let(:prepare) { build(:submission, :with_nsm_version).tap(&:save) }
+
+        it "returns the record" do
+          expect(search).to eq([prepare.id])
+        end
+      end
+    end
+
+    context "when it does not match all parts of defendant name" do
+      let(:query) { "bob bloggs" }
+
+      context "with with prior authority application" do
+        let(:prepare) { build(:submission, :with_pa_version).tap(&:save) }
+
+        it "returns the record" do
+          expect(search).to be_empty
+        end
+      end
+
+      context "with non-standard magistrate application" do
+        let(:prepare) { build(:submission, :with_nsm_version).tap(&:save) }
+
+        it "returns the record" do
+          expect(search).to be_empty
+        end
+      end
+    end
+
     context "when search text is partial defendant name" do
       let(:query) { "joe" }
 
