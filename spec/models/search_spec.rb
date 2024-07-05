@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Search do
   describe "#search_laa_reference" do
-    search { described_class.search(query).pluck(:id) }
+    let(:search) { described_class.search(query).pluck(:id) }
 
     before { prepare }
 
