@@ -67,6 +67,26 @@ RSpec.describe Search do
       end
     end
 
+    context "when search text is laa-reference and full defendant name" do
+      let(:query) { "LAA-123456 joe bloggs" }
+
+      context "with with prior authority application" do
+        let(:prepare) { build(:submission, :with_pa_version).tap(&:save) }
+
+        it "returns the record" do
+          expect(search).to eq([prepare.id])
+        end
+      end
+
+      context "with non-standard magistrate application" do
+        let(:prepare) { build(:submission, :with_nsm_version).tap(&:save) }
+
+        it "returns the record" do
+          expect(search).to eq([prepare.id])
+        end
+      end
+    end
+
     context "when partial match on part of defendant name" do
       let(:query) { "joe blog" }
 
