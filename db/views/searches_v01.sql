@@ -2,8 +2,6 @@ SELECT
   app.id,
   app_ver.id as application_version_id,
   app_ver.search_fields,
-  app_ver.ufn,
-  app_ver.laa_reference,
   app.has_been_assigned_to,
   app.created_at as date_submitted,
   app.updated_at as date_updated, -- events can happen in caseworker after this? should we be checking max event time as well???

@@ -23,8 +23,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_03_183137) do
     t.jsonb "events"
     t.datetime "created_at", precision: nil
     t.virtual "has_been_assigned_to", type: :jsonb, as: "jsonb_path_query_array(events, '$[*]?(@.\"event_type\" == \"assignment\").\"primary_user_id\"'::jsonpath)", stored: true
-    t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null"
-    t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null"
+    t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null", validate: false
+    t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null", validate: false
   end
 
   create_table "application_version", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -34,9 +34,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_03_183137) do
     t.jsonb "application", null: false
     t.datetime "created_at", precision: nil
     t.datetime "updated_at", precision: nil
-    t.virtual "search_fields", type: :tsvector, as: "((((to_tsvector('simple'::regconfig, COALESCE(((application -> 'defendant'::text) ->> 'first_name'::text), ''::text)) || to_tsvector('simple'::regconfig, COALESCE(((application -> 'defendant'::text) ->> 'last_name'::text), ''::text))) || to_tsvector('simple'::regconfig, jsonb_path_query_array(application, '$.\"defendants\"[*].\"first_name\"'::jsonpath))) || to_tsvector('simple'::regconfig, jsonb_path_query_array(application, '$.\"defendants\"[*].\"last_name\"'::jsonpath))) || to_tsvector('simple'::regconfig, COALESCE(((application -> 'firm_office'::text) ->> 'name'::text), ''::text)))", stored: true
-    t.virtual "ufn", type: :string, as: "COALESCE((application ->> 'ufn'::text), ''::text)", stored: true
-    t.virtual "laa_reference", type: :string, as: "COALESCE((application ->> 'laa_reference'::text), ''::text)", stored: true
+    t.virtual "search_fields", type: :tsvector, as: "((((((setweight(to_tsvector('simple'::regconfig, COALESCE(((application -> 'defendant'::text) ->> 'first_name'::text), ''::text)), 'B'::\"char\") || setweight(to_tsvector('simple'::regconfig, COALESCE(((application -> 'defendant'::text) ->> 'last_name'::text), ''::text)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, jsonb_path_query_array(application, '$.\"defendants\"[*].\"first_name\"'::jsonpath)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, jsonb_path_query_array(application, '$.\"defendants\"[*].\"last_name\"'::jsonpath)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, COALESCE(((application -> 'firm_office'::text) ->> 'name'::text), ''::text)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, COALESCE((application ->> 'ufn'::text), ''::text)), 'A'::\"char\")) || setweight(to_tsvector('simple'::regconfig, replace(lower(COALESCE((application ->> 'laa_reference'::text), ''::text)), '-'::text, ''::text)), 'A'::\"char\"))", stored: true
+    t.index ["search_fields"], name: "index_application_version_on_search_fields", using: :gin
   end
 
   create_table "subscriber", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -123,8 +122,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_03_183137) do
       SELECT app.id,
       app_ver.id AS application_version_id,
       app_ver.search_fields,
-      app_ver.ufn,
-      app_ver.laa_reference,
       app.has_been_assigned_to,
       app.created_at AS date_submitted,
       app.updated_at AS date_updated,

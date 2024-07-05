@@ -1,11 +1,18 @@
 class AddVirtualColumns < ActiveRecord::Migration[7.1]
   def change
+    # NOTE: we remove the '-' from laa_reference as otehreise the to_query will break it
+    # NOTE: we use weight:
+    # * A - ufn and laa-reference
+    # * B - all other fields
+    # this allow us to avoid partial matches on ufn and laa-reference to some extent
     search_vector = <<~VECTOR
-      TO_TSVECTOR('simple', COALESCE(application -> 'defendant' ->> 'first_name', '')) || \
-      TO_TSVECTOR('simple', COALESCE(application -> 'defendant' ->> 'last_name', '')) || \
-      TO_TSVECTOR('simple', jsonb_path_query_array(application,  '$.defendants[*].first_name')) || \
-      TO_TSVECTOR('simple', jsonb_path_query_array(application, '$.defendants[*].last_name')) || \
-      TO_TSVECTOR('simple', COALESCE(application -> 'firm_office' ->> 'name', ''))
+      SETWEIGHT(TO_TSVECTOR('simple', COALESCE(application -> 'defendant' ->> 'first_name', '')), 'B') || \
+      SETWEIGHT(TO_TSVECTOR('simple', COALESCE(application -> 'defendant' ->> 'last_name', '')), 'B') || \
+      SETWEIGHT(TO_TSVECTOR('simple', jsonb_path_query_array(application,  '$.defendants[*].first_name')), 'B') || \
+      SETWEIGHT(TO_TSVECTOR('simple', jsonb_path_query_array(application, '$.defendants[*].last_name')), 'B') || \
+      SETWEIGHT(TO_TSVECTOR('simple', COALESCE(application -> 'firm_office' ->> 'name', '')), 'B') || \
+      SETWEIGHT(TO_TSVECTOR('simple', COALESCE(application ->> 'ufn', '')), 'A') || \
+      SETWEIGHT(TO_TSVECTOR('simple', REPLACE(LOWER(COALESCE(application ->> 'laa_reference', '')), '-', '')), 'A')
     VECTOR
 
     add_column(
@@ -16,24 +23,7 @@ class AddVirtualColumns < ActiveRecord::Migration[7.1]
       type: :tsvector,
       stored: true
     )
-    # ufn and laa_reference had to be extracted from tsvector due to `/` and `-` characters
-    # not being parsed as desired
-    add_column(
-      :application_version,
-      :ufn,
-      :virtual,
-      as: "COALESCE(application ->> 'ufn', '')",
-      type: :string,
-      stored: true
-    )
-    add_column(
-      :application_version,
-      :laa_reference,
-      :virtual,
-      as: "COALESCE(application ->> 'laa_reference', '')",
-      type: :string,
-      stored: true
-    )
+    add_index(:application_version, :search_fields, using: 'gin')
 
     # How the query works
     # '$[*] ? (@.event_type == \"assignment\").primary_user_id'
