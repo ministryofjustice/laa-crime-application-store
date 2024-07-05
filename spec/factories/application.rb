@@ -7,8 +7,8 @@ FactoryBot.define do
 
     transient do
       defendant_name { nil }
-      first_name { defendant_name.present? ? defendant_name.split(' ').first : "Joe" }
-      last_name { defendant_name.present? ? defendant_name.split(' ').first : "Bloggs" }
+      first_name { defendant_name.present? ? defendant_name.split.first : "Joe" }
+      last_name { defendant_name.present? ? defendant_name.split.first : "Bloggs" }
     end
 
     trait :pa do

@@ -157,8 +157,7 @@ RSpec.describe Search do
           expect(search).to eq([prepare.id])
         end
 
-        # TBC: not surrently working due to `/`
-        context 'with additional partial name matches' do
+        context "with additional partial name matches" do
           let(:prepare) do
             [
               build(:submission, :with_pa_version, defendant_name: "Jason/Jim Read").tap(&:save),
@@ -168,12 +167,14 @@ RSpec.describe Search do
             ]
           end
 
-          xit "matches all records on each part of name" do
+          it "matches all records on each part of name" do
+            skip "TBC: not surrently working due to `/`"
+
             expect(search).to eq(prepare[0..2].map(&:id))
           end
         end
 
-        context "search on first part of first name only" do
+        context "when searching on the first part of first name only" do
           let(:query) { "Jason" }
 
           it "returns the record" do
@@ -181,11 +182,12 @@ RSpec.describe Search do
           end
         end
 
-        # TBC: not surrently working due to `/`
-        context "search on last part of first name only" do
+        context "when searching on the last part of first name only" do
           let(:query) { "Jim" }
 
-          xit "returns the record" do
+          it "returns the record" do
+            skip "TBC: not surrently working due to `/`"
+
             expect(search).to eq([prepare.id])
           end
         end
