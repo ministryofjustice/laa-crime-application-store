@@ -2,14 +2,18 @@ FactoryBot.define do
   factory :submission_version do
     json_schema_version { 1 }
     version { 1 }
-    application factory: :application, strategy: :build
-  end
 
-  trait :with_pa_application do
-    application factory: %i[application pa], strategy: :build
-  end
+    transient do
+      defendant_name { nil }
+    end
+    application { build(:application, defendant_name:) }
 
-  trait :with_nsm_application do
-    application factory: %i[application pa], strategy: :build
+    trait :with_pa_application do
+      application { build(:application, :pa, defendant_name:) }
+    end
+
+    trait :with_nsm_application do
+      application { build(:application, :nsm, defendant_name:) }
+    end
   end
 end

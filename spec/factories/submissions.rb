@@ -14,20 +14,22 @@ FactoryBot.define do
     application_type { "crm4" }
     current_version { 1 }
     events { [] }
-    after(:build) do |submission, _a|
-      create(:submission_version, submission:)
-    end
-  end
 
-  trait :with_pa_version do
-    after(:build) do |submission, _a|
-      create(:submission_version, :with_pa_application, submission:)
+    transient do
+      defendant_name { nil }
+      build_scope { [] }
     end
-  end
 
-  trait :with_nsm_version do
-    after(:build) do |submission, _a|
-      create(:submission_version, :with_nsm_application, submission:)
+    after(:build) do |submission, a|
+      create(:submission_version, *(a.build_scope), submission: submission, defendant_name: a.defendant_name)
+    end
+
+    trait :with_pa_version do
+      build_scope { [:with_pa_application] }
+    end
+
+    trait :with_nsm_version do
+      build_scope { [:with_nsm_application] }
     end
   end
 end

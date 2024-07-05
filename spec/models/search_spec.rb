@@ -146,5 +146,58 @@ RSpec.describe Search do
         end
       end
     end
+
+    context "when user name is Jason/Jim" do
+      let(:query) { "Jason/Jim" }
+
+      context "with prior authority application" do
+        let(:prepare) { build(:submission, :with_pa_version, defendant_name: "Jason/Jim Read").tap(&:save) }
+
+        it "returns the record" do
+          expect(search).to eq([prepare.id])
+        end
+
+        # TBC: not surrently working due to `/`
+        context 'with additional partial name matches' do
+          let(:prepare) do
+            [
+              build(:submission, :with_pa_version, defendant_name: "Jason/Jim Read").tap(&:save),
+              build(:submission, :with_pa_version, defendant_name: "Jason Write").tap(&:save),
+              build(:submission, :with_pa_version, defendant_name: "Jim Type").tap(&:save),
+              build(:submission, :with_pa_version, defendant_name: "Jack Burns").tap(&:save),
+            ]
+          end
+
+          xit "matches all records on each part of name" do
+            expect(search).to eq(prepare[0..2].map(&:id))
+          end
+        end
+
+        context "search on first part of first name only" do
+          let(:query) { "Jason" }
+
+          it "returns the record" do
+            expect(search).to eq([prepare.id])
+          end
+        end
+
+        # TBC: not surrently working due to `/`
+        context "search on last part of first name only" do
+          let(:query) { "Jim" }
+
+          xit "returns the record" do
+            expect(search).to eq([prepare.id])
+          end
+        end
+      end
+
+      context "with non-standard magistrate application" do
+        let(:prepare) { build(:submission, :with_nsm_version, defendant_name: "Jason/Jim Read").tap(&:save) }
+
+        it "returns the record" do
+          expect(search).to eq([prepare.id])
+        end
+      end
+    end
   end
 end
