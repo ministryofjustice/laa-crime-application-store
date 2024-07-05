@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Search do
   describe "#search_laa_reference" do
-    subject { described_class.search(query).pluck(:id) }
+    search { described_class.search(query).pluck(:id) }
 
     before { prepare }
 
@@ -12,7 +12,7 @@ RSpec.describe Search do
       let(:query) { "LAA-123456" }
 
       it "returns the record" do
-        expect(subject).to eq([prepare.id])
+        expect(search).to eq([prepare.id])
       end
     end
 
@@ -20,7 +20,7 @@ RSpec.describe Search do
       let(:query) { "LAA-121212" }
 
       it "returns the record" do
-        expect(subject).to be_empty
+        expect(search).to be_empty
       end
     end
 
@@ -28,7 +28,7 @@ RSpec.describe Search do
       let(:query) { "123456" }
 
       it "returns the record" do
-        expect(subject).to be_empty
+        expect(search).to be_empty
       end
     end
 
@@ -36,7 +36,7 @@ RSpec.describe Search do
       let(:query) { "345" }
 
       it "returns the record" do
-        expect(subject).to be_empty
+        expect(search).to be_empty
       end
     end
 
@@ -44,38 +44,46 @@ RSpec.describe Search do
       let(:query) { "laa" }
 
       it "returns the record" do
-        expect(subject).to be_empty
+        expect(search).to be_empty
       end
     end
 
     context "when search text is full defendant name" do
       let(:query) { "joe bloggs" }
 
-      context "application is prior authority" do
+      context "with with prior authority application" do
         let(:prepare) { build(:submission, :with_pa_version).tap(&:save) }
 
         it "returns the record" do
-          expect(subject).to eq([prepare.id])
+          expect(search).to eq([prepare.id])
         end
       end
 
-      context "application is non-standard magistrate" do
+      context "with non-standard magistrate application" do
         let(:prepare) { build(:submission, :with_nsm_version).tap(&:save) }
 
         it "returns the record" do
-          expect(subject).to eq([prepare.id])
+          expect(search).to eq([prepare.id])
+        end
+      end
+    end
+
+    context "when search text is partial defendant name" do
+      let(:query) { "joe" }
+
+      context "with prior authority application" do
+        let(:prepare) { build(:submission, :with_pa_version).tap(&:save) }
+
+        it "returns the record" do
+          expect(search).to eq([prepare.id])
         end
       end
 
-      context "when search text is partial defendant name" do
-        let(:query) { "joe" }
+      context "with non-standard magistrate application" do
+        let(:prepare) { build(:submission, :with_nsm_version).tap(&:save) }
 
-        context "application is prior authority" do
-          let(:prepare) { build(:submission, :with_pa_version).tap(&:save) }
-
-          it "returns the record" do
-            expect(subject).to eq([prepare.id])
-          end
+        it "returns the record" do
+          expect(search).to eq([prepare.id])
         end
       end
     end
