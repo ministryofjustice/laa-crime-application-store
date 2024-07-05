@@ -3,10 +3,9 @@ require "rails_helper"
 RSpec.describe Search do
   describe "#search_laa_reference" do
     let(:search) { described_class.search(query).pluck(:id) }
+    let(:prepare) { build(:submission).tap(&:save) }
 
     before { prepare }
-
-    let(:prepare) { build(:submission).tap(&:save) }
 
     context "when search text is LAA reference" do
       let(:query) { "LAA-123456" }
