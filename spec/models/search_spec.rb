@@ -69,6 +69,7 @@ RSpec.describe Search do
 
       context "when search text is partial defendant name" do
         let(:query) { "joe" }
+
         context "application is prior authority" do
           let(:prepare) { build(:submission, :with_pa_version).tap(&:save) }
 

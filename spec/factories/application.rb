@@ -7,19 +7,19 @@ FactoryBot.define do
   end
 
   trait :pa do
-    defendant {
-      {first_name: 'Joe', last_name: 'Bloggs'}
-    }
+    defendant do
+      { first_name: "Joe", last_name: "Bloggs" }
+    end
   end
 
   trait :nsm do
-    defendants {
+    defendants do
       [
         {
-          first_name => 'Joe',
-          last_name => 'Bloggs'
-        }
+          first_name => "Joe",
+          last_name => "Bloggs",
+        },
       ]
-    }
+    end
   end
 end
