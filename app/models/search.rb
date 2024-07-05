@@ -9,12 +9,13 @@ class Search < ApplicationRecord
   # This stops partial matches from being possible against the weight A values.
   def self.search(string)
     sub_strings = string.downcase.split(/\s+/).map do |str|
-      if str =~ /\Alaa-/
-        clean_str = str.sub(/\Alaa-/, 'laa')
+      if str.start_with?("laa-")
+        clean_str = str.sub(/\Alaa-/, "laa")
         "#{clean_str}:A"
-      elsif str =~ /\A\d+\/\d+\z/ then "#{str}:A"
+      elsif /\A\d+\/\d+\z/.match?(str) then "#{str}:A"
       elsif str.blank? then nil
-      else "#{str}:*B"
+      else
+        "#{str}:*B"
       end
     end
 
