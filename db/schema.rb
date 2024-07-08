@@ -22,8 +22,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_130210) do
     t.datetime "updated_at", precision: nil
     t.jsonb "events"
     t.datetime "created_at", precision: nil
-    t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null"
-    t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null"
+    t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null", validate: false
+    t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null", validate: false
   end
 
   create_table "application_version", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -59,8 +59,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_130210) do
       (events_raw.event_json ->> 'event_type'::text) AS event_type,
       ((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone AS event_at,
       (((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone)::date AS event_on,
-      ((events_raw.event_json ->> 'primary_user_id'::text))::integer AS primary_user_id,
-      ((events_raw.event_json ->> 'secondary_user_id'::text))::integer AS secondary_user_id,
+      (events_raw.event_json ->> 'primary_user_id'::text) AS primary_user_id,
+      (events_raw.event_json ->> 'secondary_user_id'::text) AS secondary_user_id,
       (events_raw.event_json -> 'details'::text) AS details
      FROM events_raw;
   SQL
