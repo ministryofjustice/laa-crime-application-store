@@ -58,35 +58,35 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_130618) do
   add_foreign_key "application_version", "application", name: "application_version_application_id_fkey"
 
   create_view "events_raw", sql_definition: <<-SQL
-      SELECT application.id,
-      application.application_type,
-      jsonb_array_elements(application.events) AS event_json
+      SELECT id,
+      application_type,
+      jsonb_array_elements(events) AS event_json
      FROM application;
   SQL
   create_view "all_events", sql_definition: <<-SQL
-      SELECT events_raw.id,
-      events_raw.application_type,
-      events_raw.event_json,
-      (events_raw.event_json ->> 'id'::text) AS event_id,
-      ((events_raw.event_json ->> 'submission_version'::text))::integer AS submission_version,
-      (events_raw.event_json ->> 'event_type'::text) AS event_type,
-      ((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone AS event_at,
-      (((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone)::date AS event_on,
-      (events_raw.event_json ->> 'primary_user_id'::text) AS primary_user_id,
-      (events_raw.event_json ->> 'secondary_user_id'::text) AS secondary_user_id,
-      (events_raw.event_json -> 'details'::text) AS details
+      SELECT id,
+      application_type,
+      event_json,
+      (event_json ->> 'id'::text) AS event_id,
+      ((event_json ->> 'submission_version'::text))::integer AS submission_version,
+      (event_json ->> 'event_type'::text) AS event_type,
+      ((event_json ->> 'created_at'::text))::timestamp without time zone AS event_at,
+      (((event_json ->> 'created_at'::text))::timestamp without time zone)::date AS event_on,
+      (event_json ->> 'primary_user_id'::text) AS primary_user_id,
+      (event_json ->> 'secondary_user_id'::text) AS secondary_user_id,
+      (event_json -> 'details'::text) AS details
      FROM events_raw;
   SQL
   create_view "submissions_by_date", sql_definition: <<-SQL
-      SELECT all_events.event_on,
-      all_events.application_type,
-      count(*) FILTER (WHERE (all_events.event_type = 'new_version'::text)) AS submission,
-      count(*) FILTER (WHERE (all_events.event_type = 'provider_updated'::text)) AS resubmission,
+      SELECT event_on,
+      application_type,
+      count(*) FILTER (WHERE (event_type = 'new_version'::text)) AS submission,
+      count(*) FILTER (WHERE (event_type = 'provider_updated'::text)) AS resubmission,
       count(*) AS total
      FROM all_events
-    WHERE (all_events.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text]))
-    GROUP BY all_events.application_type, all_events.event_on
-    ORDER BY all_events.application_type, all_events.event_on;
+    WHERE (event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text]))
+    GROUP BY application_type, event_on
+    ORDER BY application_type, event_on;
   SQL
   create_view "eod_assignment_count", sql_definition: <<-SQL
       WITH dates AS (
@@ -119,19 +119,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_130618) do
        LEFT JOIN assignments ON (((assignments.assigned_at >= application_with_cw.from_at) AND ((assignments.assigned_at)::date <= dates.day) AND ((assignments.assigned_at)::date <= application_with_cw.to_at) AND ((assignments.unassigned_at IS NULL) OR (((assignments.unassigned_at)::date > dates.day) AND ((assignments.unassigned_at)::date <= application_with_cw.to_at))) AND (assignments.event_type = 'assignment'::text))))
     GROUP BY dates.day;
   SQL
-  create_view "searches", sql_definition: <<-SQL
-      SELECT app.id,
-      app_ver.id AS application_version_id,
-      app_ver.search_fields,
-      app.has_been_assigned_to,
-      app.created_at AS date_submitted,
-      app.updated_at AS date_updated,
-      app.application_state AS status,
-      app.application_type AS submission_type,
-      app.application_risk AS risk
-     FROM (application app
-       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))));
-  SQL
   create_view "autogrant_events", sql_definition: <<-SQL
       SELECT e.id,
       e.submission_version,
@@ -140,7 +127,52 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_130618) do
       COALESCE((a.application ->> 'custom_service_name'::text), (COALESCE(t.translation, ((a.application ->> 'service_type'::text))::character varying))::text) AS service
      FROM ((all_events e
        JOIN application_version a ON (((a.application_id = e.id) AND (a.version = e.submission_version))))
-       LEFT JOIN translations t ON ((((a.application ->> 'service_type'::text) = (t.key)::text) AND ((t.translation_type)::text = 'service'::text))))
+       LEFT JOIN translations t ON ((((t.key)::text = (a.application ->> 'service_type'::text)) AND ((t.translation_type)::text = 'service'::text))))
     WHERE ((e.application_type = 'crm4'::text) AND (e.event_type = 'auto_decision'::text));
+  SQL
+  create_view "searches", sql_definition: <<-SQL
+      WITH event_types AS (
+           SELECT application.id,
+              jsonb_path_query_array(application.events, '$[*]?(@."event_type" == "assignment" || @."event_type" == "unassignment")."event_type"'::jsonpath) AS assigment_arr
+             FROM application
+          ), assignments AS (
+           SELECT app_1.id,
+                  CASE
+                      WHEN ((et.assigment_arr ->> '-1'::integer) = 'assignment'::text) THEN true
+                      ELSE false
+                  END AS assigned
+             FROM (application app_1
+               JOIN event_types et ON ((et.id = app_1.id)))
+          ), defendants AS (
+           SELECT app_1.id,
+                  CASE
+                      WHEN (app_1.application_type = 'crm4'::text) THEN ((((app_ver_1.application -> 'defendant'::text) ->> 'first_name'::text) || ' '::text) || ((app_ver_1.application -> 'defendant'::text) ->> 'last_name'::text))
+                      ELSE ( SELECT (((defendants.value ->> 'first_name'::text) || ' '::text) || (defendants.value ->> 'last_name'::text))
+                         FROM jsonb_array_elements((app_ver_1.application -> 'defendants'::text)) defendants(value)
+                        WHERE ((defendants.value ->> 'main'::text) = 'true'::text))
+                  END AS client_name
+             FROM (application app_1
+               JOIN application_version app_ver_1 ON (((app_1.id = app_ver_1.application_id) AND (app_1.current_version = app_ver_1.version))))
+          )
+   SELECT app.id,
+      app_ver.id AS application_version_id,
+      (app_ver.application ->> 'laa_reference'::text) AS laa_reference,
+      ((app_ver.application -> 'firm_office'::text) ->> 'name'::text) AS firm_name,
+      def.client_name,
+      app_ver.search_fields,
+      app.has_been_assigned_to,
+      app.created_at AS date_submitted,
+      app.updated_at AS date_updated,
+          CASE
+              WHEN ((app.application_state = 'submitted'::text) AND ass.assigned) THEN 'in_progress'::text
+              WHEN ((app.application_state = 'submitted'::text) AND (NOT ass.assigned)) THEN 'not_assigned'::text
+              ELSE app.application_state
+          END AS status_with_assignment,
+      app.application_type AS submission_type,
+      app.application_risk AS risk
+     FROM (((application app
+       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))))
+       JOIN assignments ass ON ((ass.id = app.id)))
+       JOIN defendants def ON ((def.id = app.id)));
   SQL
 end
