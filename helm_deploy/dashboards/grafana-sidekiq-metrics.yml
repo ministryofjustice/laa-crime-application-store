@@ -738,7 +738,7 @@ data:
               },
               "editorMode":"code",
               "exemplar":false,
-              "expr":"avg(ruby_sidekiq_failed_jobs_total{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\",job_name!=\"$job\"})",
+              "expr":"avg(ruby_sidekiq_failed_jobs_total{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\",job_name=\"$job\"})",
               "instant":false,
               "legendFormat":"Total failed jobs",
               "range":true,
@@ -750,7 +750,7 @@ data:
                 "uid":"prometheus"
               },
               "editorMode":"code",
-              "expr":"avg(ruby_sidekiq_jobs_total{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\",job_name!=\"$job\"})",
+              "expr":"avg(ruby_sidekiq_jobs_total{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\",job_name=\"$job\"})",
               "hide":false,
               "instant":false,
               "legendFormat":"Total jobs executed",
@@ -763,7 +763,7 @@ data:
                 "uid":"prometheus"
               },
               "editorMode":"code",
-              "expr":"avg(ruby_sidekiq_restarted_jobs_total{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\",job_name!=\"$job\"})",
+              "expr":"avg(ruby_sidekiq_restarted_jobs_total{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\",job_name=\"$job\"})",
               "hide":false,
               "instant":false,
               "legendFormat":"Jobs restarted",
