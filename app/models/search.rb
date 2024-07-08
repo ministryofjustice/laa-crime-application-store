@@ -7,7 +7,9 @@ class Search < ApplicationRecord
   # as weight A, then using simple reg-exp to determine which inputs should be queried on weight
   # A, and then everything else being only weight B.
   # This stops partial matches from being possible against the weight A values.
-  def self.search(string)
+  def self.where_terms(string)
+    return all unless string
+
     sub_strings = string.downcase.split(/\s+/).map do |str|
       if str.start_with?("laa-")
         clean_str = str.sub(/\Alaa-/, "laa")
