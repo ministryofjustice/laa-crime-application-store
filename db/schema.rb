@@ -41,9 +41,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_160153) do
   create_table "service_translations", force: :cascade do |t|
     t.string "key"
     t.string "translation"
+    t.string "translation_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["key"], name: "index_service_translations_on_key", unique: true
+    t.index ["key", "translation_type"], name: "index_service_translations_on_key_and_translation_type", unique: true
   end
 
   create_table "subscriber", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -138,6 +139,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_160153) do
       COALESCE((a.application ->> 'custom_service_name'::text), (COALESCE(s.translation, ((a.application ->> 'service_type'::text))::character varying))::text) AS service
      FROM ((all_events e
        JOIN application_version a ON (((a.application_id = e.id) AND (a.version = e.submission_version))))
-       LEFT JOIN service_translations s ON (((a.application ->> 'service_type'::text) = (s.key)::text)));
+       LEFT JOIN service_translations s ON (((a.application ->> 'service_type'::text) = (s.key)::text)))
+    WHERE ((e.application_type = 'crm4'::text) AND (e.event_type = 'auto_decision'::text) AND ((s.translation_type)::text = 'service'::text));
   SQL
 end

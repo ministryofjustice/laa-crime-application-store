@@ -1,5 +1,4 @@
 SELECT e.id,
-       e.submission_version,
        e.event_on,
        ( a.application ->> 'service_type' :: text ) AS service_key,
        Coalesce(a.application ->> 'custom_service_name',
@@ -12,3 +11,6 @@ FROM   ((all_events e
         left join service_translations s
                ON (( ( a.application ->> 'service_type' :: text ) =
                   ( s.KEY ) :: text )))
+WHERE  e.application_type = 'crm4'
+       AND e.event_type = 'auto_decision'
+       AND s.translation_type = 'service'

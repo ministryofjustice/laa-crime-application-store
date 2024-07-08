@@ -5,16 +5,20 @@ class CreateServiceTranslations < ActiveRecord::Migration[7.1]
     create_table :service_translations do |t|
       t.string :key
       t.string :translation
+      t.string :translation_type
       t.timestamps
     end
 
-    add_index :service_translations, :key, unique: true
+    add_index :service_translations, [:key, :translation_type], unique: true
 
-    ServiceTranslation.upsert_all(translations, unique_by: :key)
+    ServiceTranslation.upsert_all(translations, unique_by: [:key, :translation_type])
   end
 
   def translations
     file_name = Rails.root.join('db/migrate/20240708153903_service_translations.csv')
-    limits = CSV.read(file_name, headers: true).map { _1.to_h }
+    translations = CSV.read(file_name, headers: true).map { _1.to_h }
+    translations.each do |translation|
+      translation['translation_type'] = 'service'
+    end
   end
 end
