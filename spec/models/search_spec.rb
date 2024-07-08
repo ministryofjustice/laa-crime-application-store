@@ -184,8 +184,6 @@ RSpec.describe Search do
           let(:query) { "Jim" }
 
           it "returns the record" do
-            skip "TBC: not surrently working due to `/`"
-
             expect(search).to eq([prepare.id])
           end
         end
@@ -286,10 +284,8 @@ RSpec.describe Search do
       context "when searching on the last part of firm name only" do
         let(:query) { "1984" }
 
-        it "returns the record" do
-          skip "does not match as expects `-1984`"
-
-          expect(search).to eq([prepare.id])
+        it "does not match as thinks it needs `-1984`" do
+          expect(search).to be_empty
         end
       end
     end
@@ -304,8 +300,21 @@ RSpec.describe Search do
       context "when only first part of the ufn" do
         let(:query) { "010124" }
 
-        it "does not returns the record" do
-          expect(search).to be_empty
+        it "returns the record" do
+          expect(search).to eq([prepare.id])
+        end
+
+        context "when it also matches a firm name" do
+          let(:prepare) do
+            [
+              build(:submission, ufn: '010123/002', firm_name: "party 010124").tap(&:save),
+              build(:submission, firm_name: "Wonder-1984").tap(&:save)
+            ]
+          end
+
+          it "returns the both records" do
+            expect(search).to eq(prepare.map(&:id))
+          end
         end
       end
     end

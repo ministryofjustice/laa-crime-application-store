@@ -18,6 +18,7 @@ FactoryBot.define do
     transient do
       defendant_name { nil }
       firm_name { nil }
+      ufn { nil }
       build_scope { [] }
     end
 
@@ -26,7 +27,8 @@ FactoryBot.define do
         :submission_version, *a.build_scope,
         submission:,
         defendant_name: a.defendant_name,
-        firm_name: a.firm_name
+        firm_name: a.firm_name,
+        ufn: a.ufn
       )
     end
 

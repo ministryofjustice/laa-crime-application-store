@@ -13,8 +13,9 @@ class Search < ApplicationRecord
         clean_str = str.sub(/\Alaa-/, "laa")
         "#{clean_str}:A"
       elsif /\A\d+\/\d+\z/.match?(str) then "#{str}:A"
+      elsif /\A\d+{6}\z/.match?(str) then "#{str}:*"
       else
-        "#{str}:*B"
+        "#{str.gsub("/", "-")}:*B"
       end
     end
 

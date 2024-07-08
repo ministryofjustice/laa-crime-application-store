@@ -6,15 +6,16 @@ FactoryBot.define do
     transient do
       defendant_name { nil }
       firm_name { nil }
+      ufn { nil }
     end
-    application { build(:application, defendant_name:, firm_name:) }
+    application { build(:application, defendant_name:, firm_name:, ufn: ufn || "010124/001") }
 
     trait :with_pa_application do
-      application { build(:application, :pa, defendant_name:, firm_name:) }
+      application { build(:application, :pa, defendant_name:, firm_name:, ufn: ufn || "010124/001") }
     end
 
     trait :with_nsm_application do
-      application { build(:application, :nsm, defendant_name:, firm_name:) }
+      application { build(:application, :nsm, defendant_name:, firm_name:, ufn: ufn || "010124/001") }
     end
   end
 end
