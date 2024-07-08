@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_08_153903) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_08_160153) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -118,9 +118,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_153903) do
       SELECT e.id,
       e.submission_version,
       e.event_on,
-      (a.application ->> 'service_type'::text) AS service_type
-     FROM (all_events e
+      (a.application ->> 'service_type'::text) AS service_key,
+          CASE
+              WHEN ((a.application ->> 'service_type'::text) = 'custom'::text) THEN ((a.application ->> 'custom_service_name'::text))::character varying
+              ELSE s.translation
+          END AS service
+     FROM ((all_events e
        JOIN application_version a ON (((a.application_id = e.id) AND (a.version = e.submission_version))))
+       JOIN service_translations s ON (((a.application ->> 'service_type'::text) = (s.key)::text)))
     WHERE ((e.application_type = 'crm4'::text) AND (e.event_type = 'auto_decision'::text));
   SQL
 end
