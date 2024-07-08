@@ -13,7 +13,6 @@ class Search < ApplicationRecord
         clean_str = str.sub(/\Alaa-/, "laa")
         "#{clean_str}:A"
       elsif /\A\d+\/\d+\z/.match?(str) then "#{str}:A"
-      elsif str.blank? then nil
       else
         "#{str}:*B"
       end

@@ -293,5 +293,21 @@ RSpec.describe Search do
         end
       end
     end
+
+    context "when matching on UFN" do
+      let(:query) { "010124/001" }
+
+      it "returns the record" do
+        expect(search).to eq([prepare.id])
+      end
+
+      context "when only first part of the ufn" do
+        let(:query) { "010124" }
+
+        it "does not returns the record" do
+          expect(search).to be_empty
+        end
+      end
+    end
   end
 end

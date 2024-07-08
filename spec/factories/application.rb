@@ -4,6 +4,7 @@ FactoryBot.define do
     laa_reference { "LAA-123456" }
     service_type { "other" }
     court_type { "other" }
+    ufn { "010124/001" }
     firm_office do
       {
         "account_number" => "1A123B",
