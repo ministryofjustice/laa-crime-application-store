@@ -6,14 +6,14 @@ FactoryBot.define do
     court_type { "other" }
     firm_office do
       {
-        'account_number' => '1A123B',
-        'address_line_1' => '2 Laywer Suite',
-        'address_line_2' => nil,
-        'name' => firm_name,
-        'postcode' => 'CR0 1RE',
-        'previous_id' => nil,
-        'town' => 'Lawyer Town',
-        'vat_registered' => 'yes'
+        "account_number" => "1A123B",
+        "address_line_1" => "2 Laywer Suite",
+        "address_line_2" => nil,
+        "name" => firm_name,
+        "postcode" => "CR0 1RE",
+        "previous_id" => nil,
+        "town" => "Lawyer Town",
+        "vat_registered" => "yes",
       }
     end
 

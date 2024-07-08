@@ -24,9 +24,10 @@ FactoryBot.define do
     after(:build) do |submission, a|
       create(
         :submission_version, *a.build_scope,
-        submission: submission,
+        submission:,
         defendant_name: a.defendant_name,
-        firm_name: a.firm_name)
+        firm_name: a.firm_name
+      )
     end
 
     trait :with_pa_version do
