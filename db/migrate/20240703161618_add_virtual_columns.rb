@@ -1,6 +1,6 @@
 class AddVirtualColumns < ActiveRecord::Migration[7.1]
   def change
-    # NOTE: we remove the '-' from laa_reference as otehreise the to_query will break it
+    # NOTE: we remove the '-' from laa_reference as otherwise the to_query will break it
     # NOTE: we use weight:
     # * A - ufn and laa-reference
     # * B - all other fields

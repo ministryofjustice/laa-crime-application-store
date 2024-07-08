@@ -167,10 +167,8 @@ RSpec.describe Search do
             ]
           end
 
-          it "matches all records on each part of name" do
-            skip "TBC: not surrently working due to `/`"
-
-            expect(search).to eq(prepare[0..2].map(&:id))
+          it "only matches when both name parts are present" do
+            expect(search).to eq([prepare[0].id])
           end
         end
 
@@ -195,6 +193,57 @@ RSpec.describe Search do
 
       context "with non-standard magistrate application" do
         let(:prepare) { build(:submission, :with_nsm_version, defendant_name: "Jason/Jim Read").tap(&:save) }
+
+        it "returns the record" do
+          expect(search).to eq([prepare.id])
+        end
+      end
+    end
+
+    context "when user name is Burden-Hall" do
+      let(:query) { "Burden-Hall" }
+
+      context "with prior authority application" do
+        let(:prepare) { build(:submission, :with_pa_version, defendant_name: "Jack Burden-Hall").tap(&:save) }
+
+        it "returns the record" do
+          expect(search).to eq([prepare.id])
+        end
+
+        context "with additional partial name matches" do
+          let(:prepare) do
+            [
+              build(:submission, :with_pa_version, defendant_name: "Jack Burden-Hall").tap(&:save),
+              build(:submission, :with_pa_version, defendant_name: "Jim Burden").tap(&:save),
+              build(:submission, :with_pa_version, defendant_name: "James Hall").tap(&:save),
+              build(:submission, :with_pa_version, defendant_name: "jack Ball").tap(&:save),
+            ]
+          end
+
+          it "only matches when both name parts are present" do
+            expect(search).to eq([prepare[0].id])
+          end
+        end
+
+        context "when searching on the first part of first name only" do
+          let(:query) { "Burden" }
+
+          it "returns the record" do
+            expect(search).to eq([prepare.id])
+          end
+        end
+
+        context "when searching on the last part of first name only" do
+          let(:query) { "Hall" }
+
+          it "returns the record" do
+            expect(search).to eq([prepare.id])
+          end
+        end
+      end
+
+      context "with non-standard magistrate application" do
+        let(:prepare) { build(:submission, :with_nsm_version, defendant_name: "Jack Burden-Hall").tap(&:save) }
 
         it "returns the record" do
           expect(search).to eq([prepare.id])
