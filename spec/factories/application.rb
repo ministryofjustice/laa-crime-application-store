@@ -4,9 +4,22 @@ FactoryBot.define do
     laa_reference { "LAA-123456" }
     service_type { "other" }
     court_type { "other" }
+    firm_office do
+      {
+        'account_number' => '1A123B',
+        'address_line_1' => '2 Laywer Suite',
+        'address_line_2' => nil,
+        'name' => firm_name,
+        'postcode' => 'CR0 1RE',
+        'previous_id' => nil,
+        'town' => 'Lawyer Town',
+        'vat_registered' => 'yes'
+      }
+    end
 
     transient do
       defendant_name { nil }
+      firm_name { nil }
       first_name { defendant_name.present? ? defendant_name.split.first : "Joe" }
       last_name { defendant_name.present? ? defendant_name.split(" ", 2).last : "Bloggs" }
     end

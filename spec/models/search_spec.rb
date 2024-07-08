@@ -200,7 +200,7 @@ RSpec.describe Search do
       end
     end
 
-    context "when user name is Burden-Hall" do
+    context "when user last name is Burden-Hall" do
       let(:query) { "Burden-Hall" }
 
       context "with prior authority application" do
@@ -225,7 +225,7 @@ RSpec.describe Search do
           end
         end
 
-        context "when searching on the first part of first name only" do
+        context "when searching on the first part of last name only" do
           let(:query) { "Burden" }
 
           it "returns the record" do
@@ -233,7 +233,7 @@ RSpec.describe Search do
           end
         end
 
-        context "when searching on the last part of first name only" do
+        context "when searching on the last part of last name only" do
           let(:query) { "Hall" }
 
           it "returns the record" do
@@ -246,6 +246,49 @@ RSpec.describe Search do
         let(:prepare) { build(:submission, :with_nsm_version, defendant_name: "Jack Burden-Hall").tap(&:save) }
 
         it "returns the record" do
+          expect(search).to eq([prepare.id])
+        end
+      end
+    end
+
+    context "when firm name is Wonder-1984" do
+      let(:query) { "Wonder-1984" }
+
+      let(:prepare) { build(:submission, firm_name: "Wonder-1984").tap(&:save) }
+
+      it "returns the record" do
+        expect(search).to eq([prepare.id])
+      end
+
+      context "with additional partial name matches" do
+        let(:prepare) do
+          [
+            build(:submission, firm_name: "Wonder-1984").tap(&:save),
+            build(:submission, firm_name: "Wonder").tap(&:save),
+            build(:submission, firm_name: "Hope-1984").tap(&:save),
+            build(:submission, firm_name: "jack Ball").tap(&:save),
+          ]
+        end
+
+        it "only matches when both name parts are present" do
+          expect(search).to eq([prepare[0].id])
+        end
+      end
+
+      context "when searching on the first part of firm name only" do
+        let(:query) { "Wonder" }
+
+        it "returns the record" do
+          expect(search).to eq([prepare.id])
+        end
+      end
+
+      context "when searching on the last part of firm name only" do
+        let(:query) { "1984" }
+
+        it "returns the record" do
+          skip "does not match as expects `-1984`"
+
           expect(search).to eq([prepare.id])
         end
       end

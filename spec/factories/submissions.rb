@@ -17,11 +17,16 @@ FactoryBot.define do
 
     transient do
       defendant_name { nil }
+      firm_name { nil }
       build_scope { [] }
     end
 
     after(:build) do |submission, a|
-      create(:submission_version, *a.build_scope, submission:, defendant_name: a.defendant_name)
+      create(
+        :submission_version, *a.build_scope,
+        submission: submission,
+        defendant_name: a.defendant_name,
+        firm_name: a.firm_name)
     end
 
     trait :with_pa_version do
