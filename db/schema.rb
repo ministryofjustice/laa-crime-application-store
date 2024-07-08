@@ -22,7 +22,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_130210) do
     t.datetime "updated_at", precision: nil
     t.jsonb "events"
     t.datetime "created_at", precision: nil
-    t.virtual "has_been_assigned_to", type: :jsonb, as: "jsonb_path_query_array(events, '$[*]?(@.\"event_type\" == \"assignment\").\"primary_user_id\"'::jsonpath)", stored: true
     t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null"
     t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null"
   end
@@ -34,9 +33,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_130210) do
     t.jsonb "application", null: false
     t.datetime "created_at", precision: nil
     t.datetime "updated_at", precision: nil
-    t.virtual "search_fields", type: :tsvector, as: "((((to_tsvector('simple'::regconfig, COALESCE(((application -> 'defendant'::text) ->> 'first_name'::text), ''::text)) || to_tsvector('simple'::regconfig, COALESCE(((application -> 'defendant'::text) ->> 'last_name'::text), ''::text))) || to_tsvector('simple'::regconfig, jsonb_path_query_array(application, '$.\"defendants\"[*].\"first_name\"'::jsonpath))) || to_tsvector('simple'::regconfig, jsonb_path_query_array(application, '$.\"defendants\"[*].\"last_name\"'::jsonpath))) || to_tsvector('simple'::regconfig, COALESCE(((application -> 'firm_office'::text) ->> 'name'::text), ''::text)))", stored: true
-    t.virtual "ufn", type: :string, as: "COALESCE((application ->> 'ufn'::text), ''::text)", stored: true
-    t.virtual "laa_reference", type: :string, as: "COALESCE((application ->> 'laa_reference'::text), ''::text)", stored: true
   end
 
   create_table "subscriber", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -109,21 +105,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_130210) do
        LEFT JOIN application_with_cw ON (((dates.day >= application_with_cw.from_on) AND (dates.day < application_with_cw.to_on) AND (application_with_cw.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text])))))
        LEFT JOIN assignments ON (((assignments.assigned_at >= application_with_cw.from_at) AND ((assignments.assigned_at)::date <= dates.day) AND ((assignments.assigned_at)::date <= application_with_cw.to_at) AND ((assignments.unassigned_at IS NULL) OR (((assignments.unassigned_at)::date > dates.day) AND ((assignments.unassigned_at)::date <= application_with_cw.to_at))) AND (assignments.event_type = 'assignment'::text))))
     GROUP BY dates.day;
-  SQL
-  create_view "searches", sql_definition: <<-SQL
-      SELECT app.id,
-      app_ver.id AS application_version_id,
-      app_ver.search_fields,
-      app_ver.ufn,
-      app_ver.laa_reference,
-      app.has_been_assigned_to,
-      app.created_at AS date_submitted,
-      app.updated_at AS date_updated,
-      app.application_state AS status,
-      app.application_type AS submission_type,
-      app.application_risk AS risk
-     FROM (application app
-       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))));
   SQL
   create_view "autogrant_events", sql_definition: <<-SQL
       SELECT e.id,
