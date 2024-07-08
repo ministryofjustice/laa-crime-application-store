@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_08_130210) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_08_131924) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -22,6 +22,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_130210) do
     t.datetime "updated_at", precision: nil
     t.jsonb "events"
     t.datetime "created_at", precision: nil
+    t.virtual "has_been_assigned_to", type: :jsonb, as: "jsonb_path_query_array(events, '$[*]?(@.\"event_type\" == \"assignment\").\"primary_user_id\"'::jsonpath)", stored: true
     t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null", validate: false
     t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null", validate: false
   end
@@ -33,6 +34,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_130210) do
     t.jsonb "application", null: false
     t.datetime "created_at", precision: nil
     t.datetime "updated_at", precision: nil
+    t.virtual "search_fields", type: :tsvector, as: "((((((setweight(to_tsvector('simple'::regconfig, replace(COALESCE(((application -> 'defendant'::text) ->> 'first_name'::text), ''::text), '/'::text, '-'::text)), 'B'::\"char\") || setweight(to_tsvector('simple'::regconfig, replace(COALESCE(((application -> 'defendant'::text) ->> 'last_name'::text), ''::text), '/'::text, '-'::text)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, (replace((jsonb_path_query_array(application, '$.\"defendants\"[*].\"first_name\"'::jsonpath))::text, '/'::text, '-'::text))::jsonb), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, (replace((jsonb_path_query_array(application, '$.\"defendants\"[*].\"last_name\"'::jsonpath))::text, '/'::text, '-'::text))::jsonb), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, replace(COALESCE(((application -> 'firm_office'::text) ->> 'name'::text), ''::text), '/'::text, '-'::text)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, COALESCE((application ->> 'ufn'::text), ''::text)), 'A'::\"char\")) || setweight(to_tsvector('simple'::regconfig, replace(lower(COALESCE((application ->> 'laa_reference'::text), ''::text)), '-'::text, ''::text)), 'A'::\"char\"))", stored: true
+    t.index ["search_fields"], name: "index_application_version_on_search_fields", using: :gin
   end
 
   create_table "subscriber", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -59,8 +62,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_130210) do
       (events_raw.event_json ->> 'event_type'::text) AS event_type,
       ((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone AS event_at,
       (((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone)::date AS event_on,
-      (events_raw.event_json ->> 'primary_user_id'::text) AS primary_user_id,
-      (events_raw.event_json ->> 'secondary_user_id'::text) AS secondary_user_id,
+      ((events_raw.event_json ->> 'primary_user_id'::text))::integer AS primary_user_id,
+      ((events_raw.event_json ->> 'secondary_user_id'::text))::integer AS secondary_user_id,
       (events_raw.event_json -> 'details'::text) AS details
      FROM events_raw;
   SQL
@@ -114,5 +117,18 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_130210) do
      FROM (all_events e
        JOIN application_version a ON (((a.application_id = e.id) AND (a.version = e.submission_version))))
     WHERE ((e.application_type = 'crm4'::text) AND (e.event_type = 'auto_decision'::text));
+  SQL
+  create_view "searches", sql_definition: <<-SQL
+      SELECT app.id,
+      app_ver.id AS application_version_id,
+      app_ver.search_fields,
+      app.has_been_assigned_to,
+      app.created_at AS date_submitted,
+      app.updated_at AS date_updated,
+      app.application_state AS status,
+      app.application_type AS submission_type,
+      app.application_risk AS risk
+     FROM (application app
+       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))));
   SQL
 end

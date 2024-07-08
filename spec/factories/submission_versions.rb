@@ -2,13 +2,20 @@ FactoryBot.define do
   factory :submission_version do
     json_schema_version { 1 }
     version { 1 }
-    application factory: :application_data, strategy: :build
-  end
 
-  factory :application_data, class: Hash do
-    initialize_with { attributes }
-    laa_reference { "LAA-123456" }
-    service_type { "other" }
-    court_type { "other" }
+    transient do
+      defendant_name { nil }
+      firm_name { nil }
+      ufn { nil }
+    end
+    application { build(:application, defendant_name:, firm_name:, ufn: ufn || "010124/001") }
+
+    trait :with_pa_application do
+      application { build(:application, :pa, defendant_name:, firm_name:, ufn: ufn || "010124/001") }
+    end
+
+    trait :with_nsm_application do
+      application { build(:application, :nsm, defendant_name:, firm_name:, ufn: ufn || "010124/001") }
+    end
   end
 end
