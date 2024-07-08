@@ -1,0 +1,2 @@
+class ServiceTranslation < ApplicationRecord
+end
