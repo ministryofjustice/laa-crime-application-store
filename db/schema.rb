@@ -62,8 +62,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_131924) do
       (events_raw.event_json ->> 'event_type'::text) AS event_type,
       ((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone AS event_at,
       (((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone)::date AS event_on,
-      (events_raw.event_json ->> 'primary_user_id'::text) AS primary_user_id,
-      (events_raw.event_json ->> 'secondary_user_id'::text) AS secondary_user_id,
+      ((events_raw.event_json ->> 'primary_user_id'::text))::integer AS primary_user_id,
+      ((events_raw.event_json ->> 'secondary_user_id'::text))::integer AS secondary_user_id,
       (events_raw.event_json -> 'details'::text) AS details
      FROM events_raw;
   SQL

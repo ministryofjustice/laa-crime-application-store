@@ -307,8 +307,8 @@ RSpec.describe Search do
         context "when it also matches a firm name" do
           let(:prepare) do
             [
-              build(:submission, ufn: '010123/002', firm_name: "party 010124").tap(&:save),
-              build(:submission, firm_name: "Wonder-1984").tap(&:save)
+              build(:submission, ufn: "010123/002", firm_name: "party 010124").tap(&:save),
+              build(:submission, firm_name: "Wonder-1984").tap(&:save),
             ]
           end
 
