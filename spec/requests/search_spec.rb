@@ -8,9 +8,17 @@ RSpec.describe "Search" do
         .and_return(valid: true, role: :caseworker)
     end
 
-    it "allow searches" do
-      post "/v1/search", params: { query: "whatever", submission_type: "crm4" }
+    it "returns 201 when successful" do
+      post "/v1/search", params: { submission_type: "crm4" }
       expect(response).to have_http_status(:created)
+    end
+
+    it "returns 422 when unsuccessful" do
+      allow(Search).to receive(:where).and_raise(StandardError, "Some error output")
+      post "/v1/search", params: { submission_type: "crm4" }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.parsed_body).to include(message: "AppStore search query raised Some error output")
     end
 
     context "when paginating" do
