@@ -49,6 +49,12 @@ module Authorization
       ],
     }.freeze
 
+    NO_OPS = {
+      events: {
+        create: ->(object, params) { (params[:events].pluck(:id) - (object.events || []).pluck("id")).empty? },
+      },
+    }.freeze
+
     def self.state_pair_allowed?(object, params, pairs)
       pairs.any? do |pair|
         object.application_state.in?(pair[:pre]) && params[:application_state].in?(pair[:post])

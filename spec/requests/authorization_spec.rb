@@ -71,5 +71,33 @@ RSpec.describe "Authorization" do
         expect(response).to have_http_status :forbidden
       end
     end
+
+    context "when client is making a change that would have no impact" do
+      let(:role) { "Caseworker" }
+      let(:params) { { events: [{ id: "ABC" }] } }
+      let(:submission) { create(:submission, application_state: state, events: [{ id: "ABC" }]) }
+
+      before do
+        post "/v1/submissions/#{submission.id}/events",
+             headers: { "Authorization" => "Bearer ABC" },
+             params:
+      end
+
+      context "when the type of operation would be forbidden" do
+        let(:state) { "granted" }
+
+        it "returns a 204 status" do
+          expect(response).to have_http_status :no_content
+        end
+      end
+
+      context "when the type of operation would be allowed" do
+        let(:state) { "submitted" }
+
+        it "still returns a 204 status" do
+          expect(response).to have_http_status :no_content
+        end
+      end
+    end
   end
 end

@@ -12,7 +12,7 @@ class ApplicationController < ActionController::API
   end
 
   def authorize!
-    allowed = AuthorizationService.call(
+    auth_result = AuthorizationService.call(
       @current_client_role,
       controller_name,
       action_name,
@@ -20,7 +20,12 @@ class ApplicationController < ActionController::API
       authorization_object,
     )
 
-    head(:forbidden) unless allowed
+    case auth_result
+    when :forbidden
+      head(:forbidden)
+    when :no_op
+      head(:no_content)
+    end
   end
 
   def authorization_object

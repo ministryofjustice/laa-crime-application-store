@@ -11,18 +11,8 @@ module Submissions
         NotificationService.call(params[:id], role)
       end
 
-      def add_events(submission, params, save: false)
-        submission.events ||= []
-        params[:events]&.each do |event|
-          next if submission.events.any? { _1["id"] == event["id"] }
-
-          event["submission_version"] ||= submission.current_version
-          event["created_at"] ||= Time.zone.now
-          event["updated_at"] ||= event["created_at"]
-
-          submission.events << event.as_json
-        end
-        save && submission.save!
+      def add_events(submission, params)
+        EventCreationService.call(submission, params)
       end
 
       def add_new_version(submission, params)

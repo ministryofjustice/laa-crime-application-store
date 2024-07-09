@@ -35,17 +35,20 @@ RSpec.describe "Create events" do
         events: [
           {
             id: "A",
-            details: "history",
+            details: "rewritten history",
+          },
+          {
+            id: "B",
+            details: "something else",
           },
         ],
       }
       expect(response).to have_http_status :created
-      expect(submission.reload.events).to match([
-        {
-          "id" => "A",
-          "details" => "actual history",
-        },
-      ])
+      expect(submission.reload.events.count).to eq 2
+      expect(submission.events.find { _1["id"] == "A" }).to match(
+        "id" => "A",
+        "details" => "actual history",
+      )
     end
 
     it "does not increament the version" do
