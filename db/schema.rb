@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_08_131924) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_08_160153) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -45,6 +45,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_131924) do
     t.index ["webhook_url", "subscriber_type"], name: "unique_subcribers", unique: true
   end
 
+  create_table "translations", force: :cascade do |t|
+    t.string "key"
+    t.string "translation"
+    t.string "translation_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key", "translation_type"], name: "index_translations_on_key_and_translation_type", unique: true
+  end
+
   add_foreign_key "application_version", "application", name: "application_version_application_id_fkey"
 
   create_view "events_raw", sql_definition: <<-SQL
@@ -62,8 +71,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_131924) do
       (events_raw.event_json ->> 'event_type'::text) AS event_type,
       ((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone AS event_at,
       (((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone)::date AS event_on,
-      ((events_raw.event_json ->> 'primary_user_id'::text))::integer AS primary_user_id,
-      ((events_raw.event_json ->> 'secondary_user_id'::text))::integer AS secondary_user_id,
+      (events_raw.event_json ->> 'primary_user_id'::text) AS primary_user_id,
+      (events_raw.event_json ->> 'secondary_user_id'::text) AS secondary_user_id,
       (events_raw.event_json -> 'details'::text) AS details
      FROM events_raw;
   SQL
@@ -109,15 +118,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_131924) do
        LEFT JOIN assignments ON (((assignments.assigned_at >= application_with_cw.from_at) AND ((assignments.assigned_at)::date <= dates.day) AND ((assignments.assigned_at)::date <= application_with_cw.to_at) AND ((assignments.unassigned_at IS NULL) OR (((assignments.unassigned_at)::date > dates.day) AND ((assignments.unassigned_at)::date <= application_with_cw.to_at))) AND (assignments.event_type = 'assignment'::text))))
     GROUP BY dates.day;
   SQL
-  create_view "autogrant_events", sql_definition: <<-SQL
-      SELECT e.id,
-      e.submission_version,
-      e.event_on,
-      (a.application ->> 'service_type'::text) AS service_type
-     FROM (all_events e
-       JOIN application_version a ON (((a.application_id = e.id) AND (a.version = e.submission_version))))
-    WHERE ((e.application_type = 'crm4'::text) AND (e.event_type = 'auto_decision'::text));
-  SQL
   create_view "searches", sql_definition: <<-SQL
       SELECT app.id,
       app_ver.id AS application_version_id,
@@ -130,5 +130,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_131924) do
       app.application_risk AS risk
      FROM (application app
        JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))));
+  SQL
+  create_view "autogrant_events", sql_definition: <<-SQL
+      SELECT e.id,
+      e.submission_version,
+      e.event_on,
+      (a.application ->> 'service_type'::text) AS service_key,
+      COALESCE((a.application ->> 'custom_service_name'::text), (COALESCE(t.translation, ((a.application ->> 'service_type'::text))::character varying))::text) AS service
+     FROM ((all_events e
+       JOIN application_version a ON (((a.application_id = e.id) AND (a.version = e.submission_version))))
+       LEFT JOIN translations t ON ((((a.application ->> 'service_type'::text) = (t.key)::text) AND ((t.translation_type)::text = 'service'::text))))
+    WHERE ((e.application_type = 'crm4'::text) AND (e.event_type = 'auto_decision'::text));
   SQL
 end

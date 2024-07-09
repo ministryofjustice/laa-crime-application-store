@@ -9,3 +9,4 @@
 #   Character.create(name: "Luke", movie: movies.first)
 
 AnalyticsCreator.run
+load Rails.root.join("db/seeds/translations.rb")
