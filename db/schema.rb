@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_08_160153) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_09_131309) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -57,9 +57,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_160153) do
   add_foreign_key "application_version", "application", name: "application_version_application_id_fkey"
 
   create_view "events_raw", sql_definition: <<-SQL
-      SELECT application.id,
-      application.application_type,
-      jsonb_array_elements(application.events) AS event_json
+      SELECT id,
+      application_type,
+      jsonb_array_elements(events) AS event_json
      FROM application;
   SQL
   create_view "all_events", sql_definition: <<-SQL
@@ -77,15 +77,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_160153) do
      FROM events_raw;
   SQL
   create_view "submissions_by_date", sql_definition: <<-SQL
-      SELECT all_events.event_on,
-      all_events.application_type,
-      count(*) FILTER (WHERE (all_events.event_type = 'new_version'::text)) AS submission,
-      count(*) FILTER (WHERE (all_events.event_type = 'provider_updated'::text)) AS resubmission,
+      SELECT event_on,
+      application_type,
+      count(*) FILTER (WHERE (event_type = 'new_version'::text)) AS submission,
+      count(*) FILTER (WHERE (event_type = 'provider_updated'::text)) AS resubmission,
       count(*) AS total
      FROM all_events
-    WHERE (all_events.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text]))
-    GROUP BY all_events.application_type, all_events.event_on
-    ORDER BY all_events.application_type, all_events.event_on;
+    WHERE (event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text]))
+    GROUP BY application_type, event_on
+    ORDER BY application_type, event_on;
   SQL
   create_view "eod_assignment_count", sql_definition: <<-SQL
       WITH dates AS (
@@ -121,6 +121,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_160153) do
   create_view "searches", sql_definition: <<-SQL
       SELECT app.id,
       app_ver.id AS application_version_id,
+      (app_ver.application ->> 'laa_reference'::text) AS laa_reference,
+      ((app_ver.application -> 'firm_office'::text) ->> 'name'::text) AS firm_name,
+      ((((app_ver.application -> 'defendant'::text) ->> 'first_name'::text) || ' '::text) || ((app_ver.application -> 'defendant'::text) ->> 'last_name'::text)) AS client,
       app_ver.search_fields,
       app.has_been_assigned_to,
       app.created_at AS date_submitted,
