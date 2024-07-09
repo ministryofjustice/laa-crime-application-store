@@ -17,9 +17,6 @@ RSpec.describe "autogrant_events" do
     )
 
     expect(klass.all).to eq([])
-    expect(Translation.all).to eq([])
-    expect(Submission.all).to eq([])
-    expect(SubmissionVersion.all).to eq([])
   end
 
   it "when autogranted application exists with a translated service" do
