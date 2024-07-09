@@ -12,6 +12,7 @@ module V1
       relation = relation.where(submission_type:) if submission_type
       relation = relation.where(status:) if status
       relation = relation.where("has_been_assigned_to ? :caseworker_id", caseworker_id:) if caseworker_id
+      relation = relation.order(**sort_clause)
 
       relation.where_terms(query)
     end
@@ -57,6 +58,24 @@ module V1
 
     def query
       search_params[:query]
+    end
+
+    def sort_clause
+      return { date_updated: :desc } unless search_params[:sort_by]
+
+      { sort_by => sort_direction }
+    end
+
+    def sort_by
+      search_params.fetch(:sort_by, :date_updated)
+    end
+
+    def sort_direction
+      @sort_direction ||= search_params
+                            .fetch(:sort_direction, "asc")
+                            .downcase
+                            .gsub("ascending", "asc")
+                            .gsub("descending", "desc")
     end
 
     def limit

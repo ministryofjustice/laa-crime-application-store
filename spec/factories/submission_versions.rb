@@ -7,11 +7,19 @@ FactoryBot.define do
       defendant_name { nil }
       firm_name { nil }
       ufn { nil }
+      laa_reference { nil }
     end
-    application { build(:application, defendant_name:, firm_name:, ufn: ufn || "010124/001") }
+
+    application do
+      build(:application,
+            defendant_name:,
+            firm_name:,
+            ufn: ufn || "010124/001",
+            laa_reference: laa_reference || "LAA-123456")
+    end
 
     trait :with_pa_application do
-      application { build(:application, :pa, defendant_name:, firm_name:, ufn: ufn || "010124/001", service_type: "ae_consultant") }
+      application { build(:application, :pa, defendant_name:, firm_name:, ufn: ufn || "010124/001", service_type: "ae_consultant", laa_reference: laa_reference || "LAA-123456") }
     end
 
     trait :with_custom_pa_application do
@@ -19,7 +27,7 @@ FactoryBot.define do
     end
 
     trait :with_nsm_application do
-      application { build(:application, :nsm, defendant_name:, firm_name:, ufn: ufn || "010124/001") }
+      application { build(:application, :nsm, defendant_name:, firm_name:, ufn: ufn || "010124/001", laa_reference: laa_reference || "LAA-123456") }
     end
   end
 end

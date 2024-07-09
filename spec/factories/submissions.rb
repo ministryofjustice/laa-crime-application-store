@@ -19,6 +19,7 @@ FactoryBot.define do
       defendant_name { nil }
       firm_name { nil }
       ufn { nil }
+      laa_reference { nil }
       build_scope { [] }
     end
 
@@ -28,7 +29,8 @@ FactoryBot.define do
         submission:,
         defendant_name: a.defendant_name,
         firm_name: a.firm_name,
-        ufn: a.ufn
+        ufn: a.ufn,
+        laa_reference: a.laa_reference
       )
     end
 
