@@ -27,7 +27,7 @@ RSpec.describe "autogrant_events" do
     )
 
     expect(klass.all.map(&:attributes)).to eq([
-      { "id" => submission.id, "event_on" => today.to_date, "service_key" => "ae_consultant", "service" => "A&E consultant" },
+      { "id" => submission.id, "submission_version" => 1, "event_on" => today.to_date, "service_key" => "ae_consultant", "service" => "A&E consultant" },
     ])
   end
 
@@ -39,7 +39,7 @@ RSpec.describe "autogrant_events" do
     )
 
     expect(klass.all.map(&:attributes)).to eq([
-      { "id" => submission.id, "event_on" => today.to_date, "service_key" => "custom", "service" => "Test" },
+      { "id" => submission.id, "submission_version" => 1, "event_on" => today.to_date, "service_key" => "custom", "service" => "Test" },
     ])
   end
 end
