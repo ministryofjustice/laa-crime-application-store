@@ -222,7 +222,36 @@ RSpec.describe "Search" do
       end
     end
 
-    # context "with caseworker filter" do
-    # end
+    context "with caseworker filter" do
+      before do
+        create(:submission,
+               :with_pa_version,
+               ufn: "111111/111",
+               events: [build(:event, :new_version), build(:event, :assignment, primary_user_id: "primary-user-id-1")])
+
+        create(:submission,
+               :with_pa_version,
+               ufn: "222222/222",
+               events: [build(:event, :new_version),
+                        build(:event, :assignment, primary_user_id: "primary-user-id-1"),
+                        build(:event, :unassignment, primary_user_id: "primary-user-id-1"),
+                        build(:event, :assignment, primary_user_id: "primary-user-id-2")])
+
+        create(:submission,
+               :with_pa_version,
+               ufn: "333333/333",
+               events: [build(:event, :new_version), build(:event, :assignment, primary_user_id: "primary-user-id-2")])
+      end
+
+      it "brings back only those with a matching caseworker id" do
+        post "/v1/search", params: {
+          filters: { submission_type: "crm4",
+                     caseworker_id: "primary-user-id-1" },
+        }
+
+        expect(response.parsed_body["data"].size).to be 2
+        expect(response.parsed_body["data"].pluck("search_fields")).to all(match("111111/111|222222/222"))
+      end
+    end
   end
 end

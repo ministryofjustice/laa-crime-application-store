@@ -1,22 +1,19 @@
 module V1
   class SearchesController < ApplicationController
     def create
-      @data = base_query
-                .where(date_submitted: (submitted_from..submitted_to))
-                .where(date_updated: (updated_from..updated_to))
-                .where_terms(search_params[:query])
-
-      render json: build_results(@data), status: :created
+      render json: build_results(search_query), status: :created
     end
 
   private
 
-    def base_query
-      conditions = {}
-      conditions[:submission_type] = submission_type if submission_type
-      conditions[:status] = status if status
+    def search_query
+      relation = Search.where(date_submitted: (submitted_from..submitted_to))
+      relation = relation.where(date_updated: (updated_from..updated_to))
+      relation = relation.where(submission_type:) if submission_type
+      relation = relation.where(status:) if status
+      relation = relation.where("has_been_assigned_to ? :caseworker_id", caseworker_id:) if caseworker_id
 
-      Search.where(**conditions)
+      relation.where_terms(query)
     end
 
     def build_results(data)
@@ -54,6 +51,14 @@ module V1
       filters[:status]
     end
 
+    def caseworker_id
+      filters[:caseworker_id]
+    end
+
+    def query
+      search_params[:query]
+    end
+
     def limit
       search_params.fetch(:per_page, 20).to_i
     end
@@ -79,9 +84,8 @@ module V1
           submitted_to
           updated_from
           updated_to
-          assigned_caseworker
+          caseworker_id
           status
-          risk
         ],
       )
     end
