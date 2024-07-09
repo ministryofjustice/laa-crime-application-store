@@ -2,6 +2,8 @@ module V1
   class SearchesController < ApplicationController
     def create
       render json: build_results(search_query), status: :created
+    rescue StandardError => e
+      render json: { message: "AppStore search query raised #{e.message}" }, status: :unprocessable_entity
     end
 
   private
