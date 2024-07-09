@@ -14,7 +14,7 @@ RSpec.describe "autogrant_events" do
     create(
       :submission,
       :with_pa_version,
-      events: [{ id: 1, event_type: "new_version", submission_version: 1, created_at: today}],
+      events: [{ id: 1, event_type: "new_version", submission_version: 1, created_at: today }],
     )
 
     expect(klass.all).to eq([])
@@ -24,11 +24,11 @@ RSpec.describe "autogrant_events" do
     submission = create(
       :submission,
       :with_pa_version,
-      events: [{ id: 1, event_type: "auto_decision", submission_version: 1, created_at: today}],
+      events: [{ id: 1, event_type: "auto_decision", submission_version: 1, created_at: today }],
     )
 
     expect(klass.all.map(&:attributes)).to eq([
-      {"id" => submission.id, "event_on" => today.to_date, "service_key" => "ae_consultant", "service" => "A&E consultant"}
+      { "id" => submission.id, "event_on" => today.to_date, "service_key" => "ae_consultant", "service" => "A&E consultant" },
     ])
   end
 
@@ -36,11 +36,11 @@ RSpec.describe "autogrant_events" do
     submission = create(
       :submission,
       :with_custom_pa_version,
-      events: [{ id: 1, event_type: "auto_decision", submission_version: 1, created_at: today}],
+      events: [{ id: 1, event_type: "auto_decision", submission_version: 1, created_at: today }],
     )
 
     expect(klass.all.map(&:attributes)).to eq([
-      {"id" => submission.id, "event_on" => today.to_date, "service_key" => "custom", "service" => "Test"}
+      { "id" => submission.id, "event_on" => today.to_date, "service_key" => "custom", "service" => "Test" },
     ])
   end
 end

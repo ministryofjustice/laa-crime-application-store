@@ -11,11 +11,11 @@ FactoryBot.define do
     application { build(:application, defendant_name:, firm_name:, ufn: ufn || "010124/001") }
 
     trait :with_pa_application do
-      application { build(:application, :pa, defendant_name:, firm_name:, ufn: ufn || "010124/001", service_type: 'ae_consultant') }
+      application { build(:application, :pa, defendant_name:, firm_name:, ufn: ufn || "010124/001", service_type: "ae_consultant") }
     end
 
     trait :with_custom_pa_application do
-      application { build(:application, :pa, defendant_name:, firm_name:, ufn: ufn || "010124/001", service_type: 'custom', custom_service_name: 'Test') }
+      application { build(:application, :pa, defendant_name:, firm_name:, ufn: ufn || "010124/001", service_type: "custom", custom_service_name: "Test") }
     end
 
     trait :with_nsm_application do
