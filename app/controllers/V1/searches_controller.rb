@@ -29,31 +29,31 @@ module V1
     end
 
     def submission_type
-      filters[:submission_type]
+      search_params[:submission_type]
     end
 
     def submitted_from
-      filters[:submitted_from]&.to_date
+      search_params[:submitted_from]&.to_date
     end
 
     def submitted_to
-      filters[:submitted_to]&.to_date
+      search_params[:submitted_to]&.to_date
     end
 
     def updated_from
-      filters[:updated_from]&.to_date
+      search_params[:updated_from]&.to_date
     end
 
     def updated_to
-      filters[:updated_to]&.to_date
+      search_params[:updated_to]&.to_date
     end
 
     def status
-      filters[:status]
+      search_params[:status]
     end
 
     def caseworker_id
-      filters[:caseworker_id]
+      search_params[:caseworker_id]
     end
 
     def query
@@ -97,15 +97,13 @@ module V1
         :per_page,
         :sort_by,
         :sort_direction,
-        filters: %i[
-          submission_type
-          submitted_from
-          submitted_to
-          updated_from
-          updated_to
-          caseworker_id
-          status
-        ],
+        :submission_type,
+        :submitted_from,
+        :submitted_to,
+        :updated_from,
+        :updated_to,
+        :caseworker_id,
+        :status,
       )
     end
   end
