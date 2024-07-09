@@ -8,7 +8,6 @@ RSpec.describe "autogrant_events" do
   end
 
   let(:today) { Time.zone.now }
-  let(:application_id) { SecureRandom.uuid }
 
   it "returns no records when no autogranted applications exist" do
     create(
@@ -18,6 +17,7 @@ RSpec.describe "autogrant_events" do
     )
 
     expect(klass.all).to eq([])
+    expect(Translation.all).to eq([])
   end
 
   it "when autogranted application exists with a translated service" do
