@@ -9,7 +9,7 @@ RSpec.describe "Search" do
     end
 
     it "allow searches" do
-      post "/v1/search", params: { query: "whatever", filters: { submission_type: "crm4" } }
+      post "/v1/search", params: { query: "whatever", submission_type: "crm4" }
       expect(response).to have_http_status(:created)
     end
 
@@ -26,7 +26,7 @@ RSpec.describe "Search" do
           query: "Fred",
           per_page: "2",
           page: "0",
-          filters: { submission_type: "crm4" },
+          submission_type: "crm4",
         }
 
         expect(response.parsed_body["data"].size).to be 2
@@ -37,7 +37,7 @@ RSpec.describe "Search" do
           query: "Fred",
           per_page: "2",
           page: "2",
-          filters: { submission_type: "crm4" },
+          submission_type: "crm4",
         }
 
         expect(response.parsed_body["data"].size).to be 2
@@ -49,7 +49,7 @@ RSpec.describe "Search" do
           query: "Fred",
           per_page: "2",
           page: "0",
-          filters: { submission_type: "crm4" },
+          submission_type: "crm4",
         }
 
         expect(response.parsed_body["metadata"]["total_results"]).to be 4
@@ -83,9 +83,9 @@ RSpec.describe "Search" do
         it "brings back only those submitted between the dates" do
           post "/v1/search", params: {
             query: "Jim",
-            filters: { submission_type: "crm4",
-                       submitted_from:,
-                       submitted_to: },
+            submission_type: "crm4",
+            submitted_from:,
+            submitted_to:,
           }
 
           expect(response.parsed_body["data"].size).to be 3
@@ -99,8 +99,8 @@ RSpec.describe "Search" do
         it "brings back only those submitted after the from date" do
           post "/v1/search", params: {
             query: "Jim",
-            filters: { submission_type: "crm4",
-                       submitted_from: },
+            submission_type: "crm4",
+            submitted_from:,
           }
 
           expect(response.parsed_body["data"].size).to be 4
@@ -114,8 +114,8 @@ RSpec.describe "Search" do
         it "brings back only those submitted before the to date" do
           post "/v1/search", params: {
             query: "Jim",
-            filters: { submission_type: "crm4",
-                       submitted_to: },
+            submission_type: "crm4",
+            submitted_to:,
           }
 
           expect(response.parsed_body["data"].size).to be 4
@@ -156,9 +156,9 @@ RSpec.describe "Search" do
         it "brings back only those updated between the dates" do
           post "/v1/search", params: {
             query: "Jim",
-            filters: { submission_type: "crm4",
-                       updated_from:,
-                       updated_to: },
+            submission_type: "crm4",
+            updated_from:,
+            updated_to:,
           }
 
           expect(response.parsed_body["data"].size).to be 3
@@ -172,8 +172,8 @@ RSpec.describe "Search" do
         it "brings back only those updated after the from date" do
           post "/v1/search", params: {
             query: "Jim",
-            filters: { submission_type: "crm4",
-                       updated_from: },
+            submission_type: "crm4",
+            updated_from:,
           }
 
           expect(response.parsed_body["data"].size).to be 4
@@ -187,8 +187,8 @@ RSpec.describe "Search" do
         it "brings back only those updated before the to date" do
           post "/v1/search", params: {
             query: "Jim",
-            filters: { submission_type: "crm4",
-                       updated_to: },
+            submission_type: "crm4",
+            updated_to:,
           }
 
           expect(response.parsed_body["data"].size).to be 4
@@ -206,16 +206,16 @@ RSpec.describe "Search" do
 
       it "brings back only those with a matching status" do
         post "/v1/search", params: {
-          filters: { submission_type: "crm4",
-                     status: "auto_grant" },
+          submission_type: "crm4",
+          status: "auto_grant",
         }
 
         expect(response.parsed_body["data"].size).to be 3
         expect(response.parsed_body["data"].pluck("search_fields")).to all(include("111111/111"))
 
         post "/v1/search", params: {
-          filters: { submission_type: "crm4",
-                     status: "part_grant" },
+          submission_type: "crm4",
+          status: "part_grant",
         }
 
         expect(response.parsed_body["data"].size).to be 1
@@ -246,8 +246,8 @@ RSpec.describe "Search" do
 
       it "brings back only those with a matching caseworker id" do
         post "/v1/search", params: {
-          filters: { submission_type: "crm4",
-                     caseworker_id: "primary-user-id-1" },
+          submission_type: "crm4",
+          caseworker_id: "primary-user-id-1",
         }
 
         expect(response.parsed_body["data"].size).to be 2
@@ -285,7 +285,7 @@ RSpec.describe "Search" do
 
       it "defaults to sorting by date_updated, most recent first" do
         post "/v1/search", params: {
-          filters: { submission_type: "crm4" },
+          submission_type: "crm4",
         }
 
         expect(response.parsed_body["data"].first).to include(laa_reference: "LAA-CCCCCC")
@@ -295,7 +295,7 @@ RSpec.describe "Search" do
         post "/v1/search", params: {
           sort_by: "laa_reference",
           sort_direction: "ascending",
-          filters: { submission_type: "crm4" },
+          submission_type: "crm4",
         }
 
         expect(response.parsed_body["data"].first).to include(laa_reference: "LAA-AAAAAA")
@@ -305,7 +305,7 @@ RSpec.describe "Search" do
         post "/v1/search", params: {
           sort_by: "laa_reference",
           sort_direction: "descending",
-          filters: { submission_type: "crm4" },
+          submission_type: "crm4",
         }
 
         expect(response.parsed_body["data"].first).to include(laa_reference: "LAA-CCCCCC")
@@ -315,7 +315,7 @@ RSpec.describe "Search" do
         post "/v1/search", params: {
           sort_by: "firm_name",
           sort_direction: "asc",
-          filters: { submission_type: "crm4" },
+          submission_type: "crm4",
         }
 
         expect(response.parsed_body["data"].first).to include(firm_name: "Aardvark & Co")
@@ -325,7 +325,7 @@ RSpec.describe "Search" do
         post "/v1/search", params: {
           sort_by: "firm_name",
           sort_direction: "desc",
-          filters: { submission_type: "crm4" },
+          submission_type: "crm4",
         }
 
         expect(response.parsed_body["data"].first).to include(firm_name: "Xena & Daughters")
@@ -335,7 +335,7 @@ RSpec.describe "Search" do
         post "/v1/search", params: {
           sort_by: "client",
           sort_direction: "asc",
-          filters: { submission_type: "crm4" },
+          submission_type: "crm4",
         }
 
         expect(response.parsed_body["data"].first).to include(client: "Billy Bob")
@@ -345,7 +345,7 @@ RSpec.describe "Search" do
         post "/v1/search", params: {
           sort_by: "client",
           sort_direction: "desc",
-          filters: { submission_type: "crm4" },
+          submission_type: "crm4",
         }
 
         expect(response.parsed_body["data"].first).to include(client: "Zach Zeigler")
@@ -355,7 +355,7 @@ RSpec.describe "Search" do
         post "/v1/search", params: {
           sort_by: "status",
           sort_direction: "asc",
-          filters: { submission_type: "crm4" },
+          submission_type: "crm4",
         }
 
         expect(response.parsed_body["data"].first).to include(status: "auto_grant")
@@ -365,7 +365,7 @@ RSpec.describe "Search" do
         post "/v1/search", params: {
           sort_by: "status",
           sort_direction: "desc",
-          filters: { submission_type: "crm4" },
+          submission_type: "crm4",
         }
 
         expect(response.parsed_body["data"].first).to include(status: "rejected")
@@ -375,7 +375,7 @@ RSpec.describe "Search" do
         post "/v1/search", params: {
           sort_by: "date_updated",
           sort_direction: "asc",
-          filters: { submission_type: "crm4" },
+          submission_type: "crm4",
         }
 
         expect(response.parsed_body["data"].first).to include(laa_reference: "LAA-AAAAAA")
@@ -385,7 +385,7 @@ RSpec.describe "Search" do
         post "/v1/search", params: {
           sort_by: "date_updated",
           sort_direction: "desc",
-          filters: { submission_type: "crm4" },
+          submission_type: "crm4",
         }
 
         expect(response.parsed_body["data"].first).to include(laa_reference: "LAA-CCCCCC")
