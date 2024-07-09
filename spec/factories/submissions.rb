@@ -36,6 +36,10 @@ FactoryBot.define do
       build_scope { [:with_pa_application] }
     end
 
+    trait :with_custom_pa_version do
+      build_scope { [:with_custom_pa_application] }
+    end
+
     trait :with_nsm_version do
       build_scope { [:with_nsm_application] }
     end
