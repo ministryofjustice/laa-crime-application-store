@@ -1,2 +1,0 @@
-class ServiceTranslation < ApplicationRecord
-end

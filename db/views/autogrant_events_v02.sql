@@ -8,7 +8,7 @@ FROM   ((all_events e
          join application_version a
            ON (( ( a.application_id = e.id )
                  AND ( a.version = e.submission_version ) )))
-        left join service_translations s
+        left join translations s
                ON (( ( a.application ->> 'service_type' :: text ) =
                   ( s.KEY ) :: text )))
 WHERE  e.application_type = 'crm4'

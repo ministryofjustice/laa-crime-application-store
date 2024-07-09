@@ -11,7 +11,7 @@ FactoryBot.define do
     application { build(:application, defendant_name:, firm_name:, ufn: ufn || "010124/001") }
 
     trait :with_pa_application do
-      application { build(:application, :pa, defendant_name:, firm_name:, ufn: ufn || "010124/001") }
+      application { build(:application, :pa, defendant_name:, firm_name:, ufn: ufn || "010124/001", service_type: 'ae_consultant') }
     end
 
     trait :with_nsm_application do

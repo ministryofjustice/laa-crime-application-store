@@ -2,16 +2,16 @@ require 'csv'
 
 class CreateServiceTranslations < ActiveRecord::Migration[7.1]
   def change
-    create_table :service_translations do |t|
+    create_table :translations do |t|
       t.string :key
       t.string :translation
       t.string :translation_type
       t.timestamps
     end
 
-    add_index :service_translations, [:key, :translation_type], unique: true
+    add_index :translations, [:key, :translation_type], unique: true
 
-    ServiceTranslation.upsert_all(translations, unique_by: [:key, :translation_type])
+    Translation.upsert_all(translations, unique_by: [:key, :translation_type])
   end
 
   def translations
