@@ -8,980 +8,956 @@ metadata:
 data:
   grafana-sidekiq-metrics.json: |
     {
-      "annotations":{
-        "list":[
+      "annotations": {
+        "list": [
           {
-            "builtIn":1,
-            "datasource":{
-              "type":"datasource",
-              "uid":"grafana"
+            "builtIn": 1,
+            "datasource": {
+              "type": "datasource",
+              "uid": "grafana"
             },
-            "enable":true,
-            "hide":true,
-            "iconColor":"rgba(0, 211, 255, 1)",
-            "name":"Annotations & Alerts",
-            "type":"dashboard"
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
           }
         ]
       },
-      "description":"Visual Sidekiq Metrics",
-      "editable":true,
-      "fiscalYearStartMonth":0,
-      "graphTooltip":0,
-      "id":8,
-      "links":[
-
-      ],
-      "liveNow":false,
-      "panels":[
+      "description": "Visual Sidekiq Metrics",
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": 8,
+      "links": [],
+      "liveNow": false,
+      "panels": [
         {
-          "datasource":{
-            "type":"prometheus",
-            "uid":"prometheus"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
           },
-          "description":"",
-          "fieldConfig":{
-            "defaults":{
-              "color":{
-                "mode":"thresholds"
+          "description": "Total number of jobs executed (including SidekiqAlive) across all time. Affected by namespace filter only.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
               },
-              "mappings":[
+              "mappings": [
                 {
-                  "options":{
-                    "match":"null",
-                    "result":{
-                      "text":"N/A"
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "N/A"
                     }
                   },
-                  "type":"special"
+                  "type": "special"
                 }
               ],
-              "thresholds":{
-                "mode":"absolute",
-                "steps":[
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
                   {
-                    "color":"#299c46",
-                    "value":null
+                    "color": "#299c46",
+                    "value": null
                   },
                   {
-                    "color":"rgba(237, 129, 40, 0.89)",
-                    "value":1
+                    "color": "rgba(237, 129, 40, 0.89)",
+                    "value": 1
                   },
                   {
-                    "color":"#d44a3a",
-                    "value":10
+                    "color": "#d44a3a",
+                    "value": 10
                   }
                 ]
               },
-              "unit":"none"
+              "unit": "none"
             },
-            "overrides":[
-
-            ]
+            "overrides": []
           },
-          "gridPos":{
-            "h":4,
-            "w":3,
-            "x":2,
-            "y":0
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 2,
+            "y": 0
           },
-          "id":10,
-          "maxDataPoints":100,
-          "options":{
-            "colorMode":"value",
-            "graphMode":"area",
-            "justifyMode":"auto",
-            "orientation":"horizontal",
-            "reduceOptions":{
-              "calcs":[
+          "id": 10,
+          "maxDataPoints": 100,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
                 "lastNotNull"
               ],
-              "fields":"",
-              "values":false
+              "fields": "",
+              "values": false
             },
-            "showPercentChange":false,
-            "textMode":"auto",
-            "wideLayout":true
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
           },
-          "pluginVersion":"10.4.0",
-          "targets":[
+          "pluginVersion": "10.4.0",
+          "targets": [
             {
-              "datasource":{
-                "type":"prometheus",
-                "uid":"prometheus"
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
               },
-              "editorMode":"code",
-              "expr":"avg(ruby_sidekiq_stats_processed{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\"})",
-              "format":"time_series",
-              "intervalFactor":1,
-              "range":true,
-              "refId":"A"
+              "editorMode": "code",
+              "expr": "avg(ruby_sidekiq_stats_processed{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\"})",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "range": true,
+              "refId": "A"
             }
           ],
-          "title":"Processed",
-          "type":"stat"
+          "title": "Processed",
+          "type": "stat"
         },
         {
-          "datasource":{
-            "type":"prometheus",
-            "uid":"prometheus"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
           },
-          "fieldConfig":{
-            "defaults":{
-              "color":{
-                "fixedColor":"rgb(31, 120, 193)",
-                "mode":"fixed"
+          "description": "Total number of jobs failed across all time. Affected by namespace filter only.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "rgb(31, 120, 193)",
+                "mode": "fixed"
               },
-              "mappings":[
+              "mappings": [
                 {
-                  "options":{
-                    "match":"null",
-                    "result":{
-                      "text":"N/A"
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "N/A"
                     }
                   },
-                  "type":"special"
+                  "type": "special"
                 }
               ],
-              "thresholds":{
-                "mode":"absolute",
-                "steps":[
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
                   {
-                    "color":"green",
-                    "value":null
+                    "color": "green",
+                    "value": null
                   },
                   {
-                    "color":"red",
-                    "value":80
+                    "color": "red",
+                    "value": 80
                   }
                 ]
               },
-              "unit":"none"
+              "unit": "none"
             },
-            "overrides":[
-
-            ]
+            "overrides": []
           },
-          "gridPos":{
-            "h":4,
-            "w":3,
-            "x":5,
-            "y":0
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 5,
+            "y": 0
           },
-          "id":13,
-          "maxDataPoints":100,
-          "options":{
-            "colorMode":"none",
-            "graphMode":"area",
-            "justifyMode":"auto",
-            "orientation":"horizontal",
-            "reduceOptions":{
-              "calcs":[
+          "id": 13,
+          "maxDataPoints": 100,
+          "options": {
+            "colorMode": "none",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
                 "lastNotNull"
               ],
-              "fields":"",
-              "values":false
+              "fields": "",
+              "values": false
             },
-            "showPercentChange":false,
-            "textMode":"auto",
-            "wideLayout":true
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
           },
-          "pluginVersion":"10.4.0",
-          "targets":[
+          "pluginVersion": "10.4.0",
+          "targets": [
             {
-              "datasource":{
-                "type":"prometheus",
-                "uid":"prometheus"
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
               },
-              "editorMode":"code",
-              "expr":"avg(ruby_sidekiq_stats_failed{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\"})",
-              "format":"time_series",
-              "intervalFactor":1,
-              "range":true,
-              "refId":"A"
+              "editorMode": "code",
+              "expr": "avg(ruby_sidekiq_stats_failed{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\"})",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "range": true,
+              "refId": "A"
             }
           ],
-          "title":"Failed",
-          "type":"stat"
+          "title": "Failed",
+          "type": "stat"
         },
         {
-          "datasource":{
-            "type":"prometheus",
-            "uid":"prometheus"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
           },
-          "description":"",
-          "fieldConfig":{
-            "defaults":{
-              "color":{
-                "fixedColor":"rgb(31, 120, 193)",
-                "mode":"fixed"
+          "description": "Number of jobs currently busy. Affected by namespace filter only.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "rgb(31, 120, 193)",
+                "mode": "fixed"
               },
-              "mappings":[
+              "mappings": [
                 {
-                  "options":{
-                    "match":"null",
-                    "result":{
-                      "text":"N/A"
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "N/A"
                     }
                   },
-                  "type":"special"
+                  "type": "special"
                 }
               ],
-              "thresholds":{
-                "mode":"absolute",
-                "steps":[
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
                   {
-                    "color":"green",
-                    "value":null
+                    "color": "green",
+                    "value": null
                   },
                   {
-                    "color":"red",
-                    "value":80
+                    "color": "red",
+                    "value": 80
                   }
                 ]
               },
-              "unit":"none"
+              "unit": "none"
             },
-            "overrides":[
-
-            ]
+            "overrides": []
           },
-          "gridPos":{
-            "h":4,
-            "w":3,
-            "x":8,
-            "y":0
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 8,
+            "y": 0
           },
-          "id":4,
-          "maxDataPoints":100,
-          "options":{
-            "colorMode":"none",
-            "graphMode":"area",
-            "justifyMode":"auto",
-            "orientation":"horizontal",
-            "reduceOptions":{
-              "calcs":[
+          "id": 4,
+          "maxDataPoints": 100,
+          "options": {
+            "colorMode": "none",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
                 "lastNotNull"
               ],
-              "fields":"",
-              "values":false
+              "fields": "",
+              "values": false
             },
-            "showPercentChange":false,
-            "textMode":"auto",
-            "wideLayout":true
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
           },
-          "pluginVersion":"10.4.0",
-          "targets":[
+          "pluginVersion": "10.4.0",
+          "targets": [
             {
-              "datasource":{
-                "type":"prometheus",
-                "uid":"prometheus"
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
               },
-              "editorMode":"code",
-              "expr":"avg(ruby_sidekiq_process_busy{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\"})",
-              "format":"time_series",
-              "intervalFactor":1,
-              "range":true,
-              "refId":"A"
+              "editorMode": "code",
+              "expr": "avg(ruby_sidekiq_process_busy{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\"})",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "range": true,
+              "refId": "A"
             }
           ],
-          "title":"Busy",
-          "type":"stat"
+          "title": "Busy",
+          "type": "stat"
         },
         {
-          "datasource":{
-            "type":"prometheus",
-            "uid":"prometheus"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
           },
-          "fieldConfig":{
-            "defaults":{
-              "color":{
-                "fixedColor":"rgb(31, 120, 193)",
-                "mode":"fixed"
+          "description": "Number of jubs currently enqueued. Affected by namespace filter only. ",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "rgb(31, 120, 193)",
+                "mode": "fixed"
               },
-              "mappings":[
+              "mappings": [
                 {
-                  "options":{
-                    "match":"null",
-                    "result":{
-                      "text":"N/A"
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "N/A"
                     }
                   },
-                  "type":"special"
+                  "type": "special"
                 }
               ],
-              "thresholds":{
-                "mode":"absolute",
-                "steps":[
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
                   {
-                    "color":"green",
-                    "value":null
+                    "color": "green",
+                    "value": null
                   },
                   {
-                    "color":"red",
-                    "value":80
+                    "color": "red",
+                    "value": 80
                   }
                 ]
               },
-              "unit":"none"
+              "unit": "none"
             },
-            "overrides":[
-
-            ]
+            "overrides": []
           },
-          "gridPos":{
-            "h":4,
-            "w":3,
-            "x":11,
-            "y":0
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 11,
+            "y": 0
           },
-          "id":12,
-          "maxDataPoints":100,
-          "options":{
-            "colorMode":"none",
-            "graphMode":"area",
-            "justifyMode":"auto",
-            "orientation":"horizontal",
-            "reduceOptions":{
-              "calcs":[
+          "id": 12,
+          "maxDataPoints": 100,
+          "options": {
+            "colorMode": "none",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
                 "lastNotNull"
               ],
-              "fields":"",
-              "values":false
+              "fields": "",
+              "values": false
             },
-            "showPercentChange":false,
-            "textMode":"auto",
-            "wideLayout":true
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
           },
-          "pluginVersion":"10.4.0",
-          "targets":[
+          "pluginVersion": "10.4.0",
+          "targets": [
             {
-              "datasource":{
-                "type":"prometheus",
-                "uid":"prometheus"
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
               },
-              "editorMode":"code",
-              "expr":"avg(ruby_sidekiq_stats_enqueued{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\"})",
-              "format":"time_series",
-              "intervalFactor":1,
-              "range":true,
-              "refId":"A"
+              "editorMode": "code",
+              "expr": "avg(ruby_sidekiq_stats_enqueued{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\"})",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "range": true,
+              "refId": "A"
             }
           ],
-          "title":"Enqueued",
-          "type":"stat"
+          "title": "Enqueued",
+          "type": "stat"
         },
         {
-          "datasource":{
-            "type":"prometheus",
-            "uid":"prometheus"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
           },
-          "fieldConfig":{
-            "defaults":{
-              "color":{
-                "mode":"thresholds"
+          "description": "Current size of the retries queue. Affected by namespace filter only.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
               },
-              "mappings":[
+              "mappings": [
                 {
-                  "options":{
-                    "match":"null",
-                    "result":{
-                      "text":"N/A"
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "N/A"
                     }
                   },
-                  "type":"special"
+                  "type": "special"
                 }
               ],
-              "thresholds":{
-                "mode":"absolute",
-                "steps":[
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
                   {
-                    "color":"#299c46",
-                    "value":null
+                    "color": "#299c46",
+                    "value": null
                   },
                   {
-                    "color":"rgba(237, 129, 40, 0.89)",
-                    "value":1
+                    "color": "rgba(237, 129, 40, 0.89)",
+                    "value": 1
                   },
                   {
-                    "color":"#d44a3a",
-                    "value":10
+                    "color": "#d44a3a",
+                    "value": 10
                   }
                 ]
               },
-              "unit":"none"
+              "unit": "none"
             },
-            "overrides":[
-
-            ]
+            "overrides": []
           },
-          "gridPos":{
-            "h":4,
-            "w":3,
-            "x":14,
-            "y":0
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 14,
+            "y": 0
           },
-          "id":14,
-          "maxDataPoints":100,
-          "options":{
-            "colorMode":"value",
-            "graphMode":"area",
-            "justifyMode":"auto",
-            "orientation":"horizontal",
-            "reduceOptions":{
-              "calcs":[
+          "id": 14,
+          "maxDataPoints": 100,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
                 "lastNotNull"
               ],
-              "fields":"",
-              "values":false
+              "fields": "",
+              "values": false
             },
-            "showPercentChange":false,
-            "textMode":"auto",
-            "wideLayout":true
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
           },
-          "pluginVersion":"10.4.0",
-          "targets":[
+          "pluginVersion": "10.4.0",
+          "targets": [
             {
-              "datasource":{
-                "type":"prometheus",
-                "uid":"prometheus"
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
               },
-              "editorMode":"code",
-              "expr":"avg(ruby_sidekiq_stats_retry_size{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\"})",
-              "format":"time_series",
-              "intervalFactor":1,
-              "range":true,
-              "refId":"A"
+              "editorMode": "code",
+              "expr": "avg(ruby_sidekiq_stats_retry_size{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\"})",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "range": true,
+              "refId": "A"
             }
           ],
-          "title":"Retries",
-          "type":"stat"
+          "title": "Retries",
+          "type": "stat"
         },
         {
-          "datasource":{
-            "type":"prometheus",
-            "uid":"prometheus"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
           },
-          "fieldConfig":{
-            "defaults":{
-              "color":{
-                "fixedColor":"rgb(31, 120, 193)",
-                "mode":"fixed"
+          "description": "Number of jobs currently scheduled. Affected by namespace filter only.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "rgb(31, 120, 193)",
+                "mode": "fixed"
               },
-              "mappings":[
+              "mappings": [
                 {
-                  "options":{
-                    "match":"null",
-                    "result":{
-                      "text":"N/A"
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "N/A"
                     }
                   },
-                  "type":"special"
+                  "type": "special"
                 }
               ],
-              "thresholds":{
-                "mode":"absolute",
-                "steps":[
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
                   {
-                    "color":"green",
-                    "value":null
+                    "color": "green",
+                    "value": null
                   },
                   {
-                    "color":"red",
-                    "value":80
+                    "color": "red",
+                    "value": 80
                   }
                 ]
               },
-              "unit":"none"
+              "unit": "none"
             },
-            "overrides":[
-
-            ]
+            "overrides": []
           },
-          "gridPos":{
-            "h":4,
-            "w":3,
-            "x":17,
-            "y":0
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 17,
+            "y": 0
           },
-          "id":6,
-          "maxDataPoints":100,
-          "options":{
-            "colorMode":"none",
-            "graphMode":"area",
-            "justifyMode":"auto",
-            "orientation":"horizontal",
-            "reduceOptions":{
-              "calcs":[
+          "id": 6,
+          "maxDataPoints": 100,
+          "options": {
+            "colorMode": "none",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
                 "lastNotNull"
               ],
-              "fields":"",
-              "values":false
+              "fields": "",
+              "values": false
             },
-            "showPercentChange":false,
-            "textMode":"auto",
-            "wideLayout":true
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
           },
-          "pluginVersion":"10.4.0",
-          "targets":[
+          "pluginVersion": "10.4.0",
+          "targets": [
             {
-              "datasource":{
-                "type":"prometheus",
-                "uid":"prometheus"
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
               },
-              "editorMode":"code",
-              "expr":"avg(ruby_sidekiq_stats_scheduled_size{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\"})",
-              "format":"time_series",
-              "intervalFactor":1,
-              "range":true,
-              "refId":"A"
+              "editorMode": "code",
+              "expr": "avg(ruby_sidekiq_stats_scheduled_size{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\"})",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "range": true,
+              "refId": "A"
             }
           ],
-          "title":"Scheduled",
-          "type":"stat"
+          "title": "Scheduled",
+          "type": "stat"
         },
         {
-          "datasource":{
-            "type":"prometheus",
-            "uid":"prometheus"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
           },
-          "fieldConfig":{
-            "defaults":{
-              "color":{
-                "mode":"thresholds"
+          "description": "Size of the dead jobs queue. Affected by namespace filter only. ",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
               },
-              "mappings":[
+              "mappings": [
                 {
-                  "options":{
-                    "match":"null",
-                    "result":{
-                      "text":"N/A"
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "N/A"
                     }
                   },
-                  "type":"special"
+                  "type": "special"
                 }
               ],
-              "thresholds":{
-                "mode":"absolute",
-                "steps":[
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
                   {
-                    "color":"#299c46",
-                    "value":null
+                    "color": "#299c46",
+                    "value": null
                   },
                   {
-                    "color":"rgba(237, 129, 40, 0.89)",
-                    "value":10
+                    "color": "rgba(237, 129, 40, 0.89)",
+                    "value": 10
                   },
                   {
-                    "color":"#d44a3a",
-                    "value":20
+                    "color": "#d44a3a",
+                    "value": 20
                   }
                 ]
               },
-              "unit":"none"
+              "unit": "none"
             },
-            "overrides":[
-
-            ]
+            "overrides": []
           },
-          "gridPos":{
-            "h":4,
-            "w":3,
-            "x":20,
-            "y":0
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 20,
+            "y": 0
           },
-          "id":8,
-          "maxDataPoints":100,
-          "options":{
-            "colorMode":"value",
-            "graphMode":"area",
-            "justifyMode":"auto",
-            "orientation":"horizontal",
-            "reduceOptions":{
-              "calcs":[
+          "id": 8,
+          "maxDataPoints": 100,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
                 "lastNotNull"
               ],
-              "fields":"",
-              "values":false
+              "fields": "",
+              "values": false
             },
-            "showPercentChange":false,
-            "textMode":"auto",
-            "wideLayout":true
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
           },
-          "pluginVersion":"10.4.0",
-          "targets":[
+          "pluginVersion": "10.4.0",
+          "targets": [
             {
-              "datasource":{
-                "type":"prometheus",
-                "uid":"prometheus"
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
               },
-              "editorMode":"code",
-              "expr":"avg(ruby_sidekiq_stats_dead_size{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\"})",
-              "format":"time_series",
-              "intervalFactor":1,
-              "range":true,
-              "refId":"A"
+              "editorMode": "code",
+              "expr": "avg(ruby_sidekiq_stats_dead_size{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\"})",
+              "format": "time_series",
+              "intervalFactor": 1,
+              "range": true,
+              "refId": "A"
             }
           ],
-          "title":"Dead",
-          "type":"stat"
+          "title": "Dead",
+          "type": "stat"
         },
         {
-          "datasource":{
-            "type":"prometheus",
-            "uid":"prometheus"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
           },
-          "fieldConfig":{
-            "defaults":{
-              "color":{
-                "mode":"palette-classic"
+          "description": "Total jobs executed vs total jobs failed and total jobs restarted on the worker pods - average value across however many worker pods exist. Linked to namespace filter and job filter",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
               },
-              "custom":{
-                "axisBorderShow":false,
-                "axisCenteredZero":false,
-                "axisColorMode":"text",
-                "axisLabel":"",
-                "axisPlacement":"auto",
-                "barAlignment":0,
-                "drawStyle":"line",
-                "fillOpacity":0,
-                "gradientMode":"none",
-                "hideFrom":{
-                  "legend":false,
-                  "tooltip":false,
-                  "viz":false
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
                 },
-                "insertNulls":false,
-                "lineInterpolation":"linear",
-                "lineWidth":1,
-                "pointSize":5,
-                "scaleDistribution":{
-                  "type":"linear"
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
                 },
-                "showPoints":"auto",
-                "spanNulls":false,
-                "stacking":{
-                  "group":"A",
-                  "mode":"none"
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
                 },
-                "thresholdsStyle":{
-                  "mode":"off"
+                "thresholdsStyle": {
+                  "mode": "off"
                 }
               },
-              "mappings":[
-
-              ],
-              "thresholds":{
-                "mode":"absolute",
-                "steps":[
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
                   {
-                    "color":"green",
-                    "value":null
+                    "color": "green",
+                    "value": null
                   }
                 ]
               }
             },
-            "overrides":[
+            "overrides": [
               {
-                "__systemRef":"hideSeriesFrom",
-                "matcher":{
-                  "id":"byNames",
-                  "options":{
-                    "mode":"exclude",
-                    "names":[
+                "__systemRef": "hideSeriesFrom",
+                "matcher": {
+                  "id": "byNames",
+                  "options": {
+                    "mode": "exclude",
+                    "names": [
                       "Total jobs executed"
                     ],
-                    "prefix":"All except:",
-                    "readOnly":true
+                    "prefix": "All except:",
+                    "readOnly": true
                   }
                 },
-                "properties":[
+                "properties": [
                   {
-                    "id":"custom.hideFrom",
-                    "value":{
-                      "legend":false,
-                      "tooltip":false,
-                      "viz":true
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": true
                     }
                   }
                 ]
               }
             ]
           },
-          "gridPos":{
-            "h":8,
-            "w":24,
-            "x":0,
-            "y":4
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 4
           },
-          "id":15,
-          "options":{
-            "legend":{
-              "calcs":[
-
-              ],
-              "displayMode":"list",
-              "placement":"bottom",
-              "showLegend":true
+          "id": 15,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
             },
-            "tooltip":{
-              "mode":"single",
-              "sort":"none"
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
             }
           },
-          "pluginVersion":"10.4.0",
-          "targets":[
+          "pluginVersion": "10.4.0",
+          "targets": [
             {
-              "datasource":{
-                "type":"prometheus",
-                "uid":"prometheus"
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
               },
-              "editorMode":"code",
-              "exemplar":false,
-              "expr":"avg(ruby_sidekiq_failed_jobs_total{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\",job_name=\"$job\"})",
-              "instant":false,
-              "legendFormat":"Total failed jobs",
-              "range":true,
-              "refId":"A"
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "avg(ruby_sidekiq_failed_jobs_total{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\",job_name=\"$job\"})",
+              "instant": false,
+              "legendFormat": "Total failed jobs",
+              "range": true,
+              "refId": "A"
             },
             {
-              "datasource":{
-                "type":"prometheus",
-                "uid":"prometheus"
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
               },
-              "editorMode":"code",
-              "expr":"avg(ruby_sidekiq_jobs_total{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\",job_name=\"$job\"})",
-              "hide":false,
-              "instant":false,
-              "legendFormat":"Total jobs executed",
-              "range":true,
-              "refId":"B"
+              "editorMode": "code",
+              "expr": "avg(ruby_sidekiq_jobs_total{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\",job_name=\"$job\"})",
+              "hide": false,
+              "instant": false,
+              "legendFormat": "Total jobs executed",
+              "range": true,
+              "refId": "B"
             },
             {
-              "datasource":{
-                "type":"prometheus",
-                "uid":"prometheus"
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
               },
-              "editorMode":"code",
-              "expr":"avg(ruby_sidekiq_restarted_jobs_total{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\",job_name=\"$job\"})",
-              "hide":false,
-              "instant":false,
-              "legendFormat":"Jobs restarted",
-              "range":true,
-              "refId":"C"
+              "editorMode": "code",
+              "expr": "avg(ruby_sidekiq_restarted_jobs_total{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\",job_name=\"$job\"})",
+              "hide": false,
+              "instant": false,
+              "legendFormat": "Jobs restarted",
+              "range": true,
+              "refId": "C"
             }
           ],
-          "title":"Jobs executed by status",
-          "type":"timeseries"
+          "title": "Jobs executed by status",
+          "type": "timeseries"
         },
         {
-          "datasource":{
-            "type":"prometheus",
-            "uid":"prometheus"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
           },
-          "description":"Time spent executing jobs",
-          "fieldConfig":{
-            "defaults":{
-              "color":{
-                "mode":"palette-classic"
+          "description": "Time spent executing jobs - records the median value using the sidekiq_job_duration_seconds statistic. Since the statistic only provides total time spent across jobs and a set of percentiles, this chart uses the 50th percentile to get the median time spent executing individual jobs in a given time period. Affected by namespace and job filters",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
               },
-              "custom":{
-                "axisBorderShow":false,
-                "axisCenteredZero":false,
-                "axisColorMode":"text",
-                "axisLabel":"",
-                "axisPlacement":"auto",
-                "barAlignment":0,
-                "drawStyle":"line",
-                "fillOpacity":10,
-                "gradientMode":"none",
-                "hideFrom":{
-                  "legend":false,
-                  "tooltip":false,
-                  "viz":false
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
                 },
-                "insertNulls":false,
-                "lineInterpolation":"linear",
-                "lineWidth":1,
-                "pointSize":5,
-                "scaleDistribution":{
-                  "type":"linear"
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
                 },
-                "showPoints":"never",
-                "spanNulls":false,
-                "stacking":{
-                  "group":"A",
-                  "mode":"normal"
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
                 },
-                "thresholdsStyle":{
-                  "mode":"off"
+                "thresholdsStyle": {
+                  "mode": "off"
                 }
               },
-              "links":[
-
-              ],
-              "mappings":[
-
-              ],
-              "min":0,
-              "thresholds":{
-                "mode":"absolute",
-                "steps":[
+              "links": [],
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
                   {
-                    "color":"green",
-                    "value":null
+                    "color": "green",
+                    "value": null
                   },
                   {
-                    "color":"red",
-                    "value":80
+                    "color": "red",
+                    "value": 80
                   }
                 ]
               },
-              "unit":"short"
+              "unit": "short"
             },
-            "overrides":[
+            "overrides": [
               {
-                "matcher":{
-                  "id":"byValue",
-                  "options":{
-                    "op":"gte",
-                    "reducer":"allIsNull",
-                    "value":0
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
                   }
                 },
-                "properties":[
+                "properties": [
                   {
-                    "id":"custom.hideFrom",
-                    "value":{
-                      "legend":true,
-                      "tooltip":true,
-                      "viz":false
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
                     }
                   }
                 ]
               }
             ]
           },
-          "gridPos":{
-            "h":14,
-            "w":24,
-            "x":0,
-            "y":12
+          "gridPos": {
+            "h": 14,
+            "w": 24,
+            "x": 0,
+            "y": 12
           },
-          "id":1,
-          "options":{
-            "legend":{
-              "calcs":[
+          "id": 1,
+          "options": {
+            "legend": {
+              "calcs": [
                 "lastNotNull"
               ],
-              "displayMode":"table",
-              "placement":"right",
-              "showLegend":true
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
             },
-            "tooltip":{
-              "mode":"multi",
-              "sort":"desc"
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
             }
           },
-          "pluginVersion":"10.4.0",
-          "targets":[
+          "pluginVersion": "10.4.0",
+          "targets": [
             {
-              "datasource":{
-                "type":"prometheus",
-                "uid":"prometheus"
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
               },
-              "editorMode":"code",
-              "exemplar":false,
-              "expr":"avg by (job_name) (ruby_sidekiq_job_duration_seconds{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\",job_name=\"$job\"})",
-              "format":"time_series",
-              "instant":false,
-              "intervalFactor":2,
-              "legendFormat":"{{job_name}}",
-              "range":true,
-              "refId":"A"
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "avg by (job_name) (ruby_sidekiq_job_duration_seconds{namespace=\"$namespace\",pod=~\"laa-.+-worker-.+\",job_name=\"$job\"})",
+              "format": "time_series",
+              "instant": false,
+              "intervalFactor": 2,
+              "legendFormat": "{{job_name}}",
+              "range": true,
+              "refId": "A"
             }
           ],
-          "title":"Median job duration time ",
-          "type":"timeseries"
+          "title": "Median job duration time ",
+          "type": "timeseries"
         }
       ],
-      "refresh":"1m",
-      "schemaVersion":39,
-      "tags":[
-
-      ],
-      "templating":{
-        "list":[
+      "refresh": "1m",
+      "schemaVersion": 39,
+      "tags": [],
+      "templating": {
+        "list": [
           {
-            "current":{
-              "selected":true,
-              "text":"laa-crime-application-store-production",
-              "value":"laa-crime-application-store-production"
+            "current": {
+              "selected": true,
+              "text": "laa-assess-crime-forms-prod",
+              "value": "laa-assess-crime-forms-prod"
             },
-            "datasource":{
-              "type":"prometheus",
-              "uid":"prometheus"
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
             },
-            "definition":"label_values(nginx_ingress_controller_requests, exported_namespace)",
-            "hide":0,
-            "includeAll":false,
-            "multi":false,
-            "name":"namespace",
-            "options":[
-
-            ],
-            "query":{
-              "query":"label_values(nginx_ingress_controller_requests, exported_namespace)",
-              "refId":"Prometheus-namespace-Variable-Query"
+            "definition": "label_values(nginx_ingress_controller_requests, exported_namespace)",
+            "hide": 0,
+            "includeAll": false,
+            "multi": false,
+            "name": "namespace",
+            "options": [],
+            "query": {
+              "query": "label_values(nginx_ingress_controller_requests, exported_namespace)",
+              "refId": "Prometheus-namespace-Variable-Query"
             },
-            "refresh":1,
-            "regex":"/^laa-submit-crime-forms|^laa-assess-crime-forms|^laa-crime-application-store/",
-            "skipUrlSync":false,
-            "sort":1,
-            "tagValuesQuery":"",
-            "tagsQuery":"",
-            "type":"query",
-            "useTags":false
+            "refresh": 1,
+            "regex": "/^laa-submit-crime-forms|^laa-assess-crime-forms|^laa-crime-application-store/",
+            "skipUrlSync": false,
+            "sort": 1,
+            "tagValuesQuery": "",
+            "tagsQuery": "",
+            "type": "query",
+            "useTags": false
           },
           {
-            "current":{
-              "selected":true,
-              "text":"SidekiqAlive::Worker",
-              "value":"SidekiqAlive::Worker"
+            "current": {
+              "selected": true,
+              "text": "ExpireSendbacks",
+              "value": "ExpireSendbacks"
             },
-            "datasource":{
-              "type":"prometheus",
-              "uid":"prometheus"
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
             },
-            "definition":"label_values({namespace=\"$namespace\"},job_name)",
-            "description":"name of label job_name in metric",
-            "hide":0,
-            "includeAll":false,
-            "label":"job name",
-            "multi":false,
-            "name":"job",
-            "options":[
-
-            ],
-            "query":{
-              "qryType":1,
-              "query":"label_values({namespace=\"$namespace\"},job_name)",
-              "refId":"PrometheusVariableQueryEditor-VariableQuery"
+            "definition": "label_values({namespace=\"$namespace\"},job_name)",
+            "description": "name of label job_name in metric",
+            "hide": 0,
+            "includeAll": false,
+            "label": "job name",
+            "multi": false,
+            "name": "job",
+            "options": [],
+            "query": {
+              "qryType": 1,
+              "query": "label_values({namespace=\"$namespace\"},job_name)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
             },
-            "refresh":1,
-            "regex":"",
-            "skipUrlSync":false,
-            "sort":0,
-            "type":"query"
+            "refresh": 1,
+            "regex": "",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
           }
         ]
       },
-      "time":{
-        "from":"now-24h",
-        "to":"now"
+      "time": {
+        "from": "now-24h",
+        "to": "now"
       },
-      "timepicker":{
-        "refresh_intervals":[
+      "timepicker": {
+        "refresh_intervals": [
           "5s",
           "10s",
           "30s",
@@ -993,7 +969,7 @@ data:
           "2h",
           "1d"
         ],
-        "time_options":[
+        "time_options": [
           "5m",
           "15m",
           "1h",
@@ -1005,9 +981,9 @@ data:
           "30d"
         ]
       },
-      "timezone":"browser",
-      "title":"LAA non-standard crime claims / Sidekiq metrics",
-      "uid":"laa-submit-crime-forms-sidekiq-metrics",
-      "version":9,
-      "weekStart":""
+      "timezone": "browser",
+      "title": "LAA non-standard crime claims / Sidekiq metrics",
+      "uid": "laa-submit-crime-forms-sidekiq-metrics",
+      "version": 11,
+      "weekStart": ""
     }
