@@ -40,7 +40,8 @@ RSpec.describe "Search" do
           filters: { submission_type: "crm4" },
         }
 
-        expect(response.parsed_body["data"].pluck("search_fields")).to all(include("sullivan"))
+        expect(response.parsed_body["data"].size).to be 2
+        expect(response.parsed_body["data"].pluck("client")).to all(include("Fred"))
       end
 
       it "returns metadata about the result set" do
@@ -252,6 +253,147 @@ RSpec.describe "Search" do
         expect(response.parsed_body["data"].size).to be 2
         expect(response.parsed_body["data"].pluck("search_fields")).to all(match("111111/111|222222/222"))
       end
+    end
+
+    context "when sorting" do
+      before do
+        # create in order that will not return succcess without sorting
+        travel_to(2.days.ago) do
+          create(:submission, :with_pa_version,
+                 laa_reference: "LAA-BBBBBB",
+                 firm_name: "Aardvark & Co",
+                 defendant_name: "Billy Bob",
+                 application_state: "auto_grant")
+        end
+
+        travel_to(1.day.ago) do
+          create(:submission, :with_pa_version,
+                 laa_reference: "LAA-CCCCCC",
+                 firm_name: "Bob & Sons",
+                 defendant_name: "Dilly Dodger",
+                 application_state: "rejected")
+        end
+
+        travel_to(3.days.ago) do
+          create(:submission, :with_pa_version,
+                 laa_reference: "LAA-AAAAAA",
+                 firm_name: "Xena & Daughters",
+                 defendant_name: "Zach Zeigler",
+                 application_state: "granted")
+        end
+      end
+
+      it "defaults to sorting by date_updated, most recent first" do
+        post "/v1/search", params: {
+          filters: { submission_type: "crm4" },
+        }
+
+        expect(response.parsed_body["data"].first).to include(laa_reference: "LAA-CCCCCC")
+      end
+
+      it "can be sorted by laa_reference ascending" do
+        post "/v1/search", params: {
+          sort_by: "laa_reference",
+          sort_direction: "ascending",
+          filters: { submission_type: "crm4" },
+        }
+
+        expect(response.parsed_body["data"].first).to include(laa_reference: "LAA-AAAAAA")
+      end
+
+      it "can be sorted by laa_reference descending" do
+        post "/v1/search", params: {
+          sort_by: "laa_reference",
+          sort_direction: "descending",
+          filters: { submission_type: "crm4" },
+        }
+
+        expect(response.parsed_body["data"].first).to include(laa_reference: "LAA-CCCCCC")
+      end
+
+      it "can be sorted by firm_name ascending" do
+        post "/v1/search", params: {
+          sort_by: "firm_name",
+          sort_direction: "asc",
+          filters: { submission_type: "crm4" },
+        }
+
+        expect(response.parsed_body["data"].first).to include(firm_name: "Aardvark & Co")
+      end
+
+      it "can be sorted by firm_name descending" do
+        post "/v1/search", params: {
+          sort_by: "firm_name",
+          sort_direction: "desc",
+          filters: { submission_type: "crm4" },
+        }
+
+        expect(response.parsed_body["data"].first).to include(firm_name: "Xena & Daughters")
+      end
+
+      it "can be sorted by defendant_name ascending" do
+        post "/v1/search", params: {
+          sort_by: "client",
+          sort_direction: "asc",
+          filters: { submission_type: "crm4" },
+        }
+
+        expect(response.parsed_body["data"].first).to include(client: "Billy Bob")
+      end
+
+      it "can be sorted by defendant_name descending" do
+        post "/v1/search", params: {
+          sort_by: "client",
+          sort_direction: "desc",
+          filters: { submission_type: "crm4" },
+        }
+
+        expect(response.parsed_body["data"].first).to include(client: "Zach Zeigler")
+      end
+
+      it "can be sorted by status ascending" do
+        post "/v1/search", params: {
+          sort_by: "status",
+          sort_direction: "asc",
+          filters: { submission_type: "crm4" },
+        }
+
+        expect(response.parsed_body["data"].first).to include(status: "auto_grant")
+      end
+
+      it "can be sorted by status descending" do
+        post "/v1/search", params: {
+          sort_by: "status",
+          sort_direction: "desc",
+          filters: { submission_type: "crm4" },
+        }
+
+        expect(response.parsed_body["data"].first).to include(status: "rejected")
+      end
+
+      it "can be sorted by date_updated ascending" do
+        post "/v1/search", params: {
+          sort_by: "date_updated",
+          sort_direction: "asc",
+          filters: { submission_type: "crm4" },
+        }
+
+        expect(response.parsed_body["data"].first).to include(laa_reference: "LAA-AAAAAA")
+      end
+
+      it "can be sorted by date_updated descending" do
+        post "/v1/search", params: {
+          sort_by: "date_updated",
+          sort_direction: "desc",
+          filters: { submission_type: "crm4" },
+        }
+
+        expect(response.parsed_body["data"].first).to include(laa_reference: "LAA-CCCCCC")
+      end
+
+      # TODO: we need caseworker names in the database for this
+      # it "can be sorted by caseworker" do
+      # end
     end
   end
 end
