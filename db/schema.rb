@@ -23,8 +23,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_160153) do
     t.jsonb "events"
     t.datetime "created_at", precision: nil
     t.virtual "has_been_assigned_to", type: :jsonb, as: "jsonb_path_query_array(events, '$[*]?(@.\"event_type\" == \"assignment\").\"primary_user_id\"'::jsonpath)", stored: true
-    t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null", validate: false
-    t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null", validate: false
+    t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null"
+    t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null"
   end
 
   create_table "application_version", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -133,12 +133,13 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_08_160153) do
   SQL
   create_view "autogrant_events", sql_definition: <<-SQL
       SELECT e.id,
+      e.submission_version,
       e.event_on,
       (a.application ->> 'service_type'::text) AS service_key,
-      COALESCE((a.application ->> 'custom_service_name'::text), (COALESCE(s.translation, ((a.application ->> 'service_type'::text))::character varying))::text) AS service
+      COALESCE((a.application ->> 'custom_service_name'::text), (COALESCE(t.translation, ((a.application ->> 'service_type'::text))::character varying))::text) AS service
      FROM ((all_events e
        JOIN application_version a ON (((a.application_id = e.id) AND (a.version = e.submission_version))))
-       LEFT JOIN translations s ON (((a.application ->> 'service_type'::text) = (s.key)::text)))
-    WHERE ((e.application_type = 'crm4'::text) AND (e.event_type = 'auto_decision'::text) AND ((s.translation_type)::text = 'service'::text));
+       LEFT JOIN translations t ON ((((a.application ->> 'service_type'::text) = (t.key)::text) AND ((t.translation_type)::text = 'service'::text))))
+    WHERE ((e.application_type = 'crm4'::text) AND (e.event_type = 'auto_decision'::text));
   SQL
 end
