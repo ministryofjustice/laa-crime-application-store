@@ -92,10 +92,6 @@ module V1
       search_params.fetch(:page, 0).to_i
     end
 
-    def filters
-      search_params[:filters]
-    end
-
     def search_params
       params.permit(
         :query,
