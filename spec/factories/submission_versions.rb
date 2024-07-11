@@ -5,6 +5,7 @@ FactoryBot.define do
 
     transient do
       defendant_name { nil }
+      additional_defendant_names { nil }
       firm_name { nil }
       ufn { nil }
       laa_reference { nil }
@@ -27,7 +28,15 @@ FactoryBot.define do
     end
 
     trait :with_nsm_application do
-      application { build(:application, :nsm, defendant_name:, firm_name:, ufn: ufn || "010124/001", laa_reference: laa_reference || "LAA-123456") }
+      application do
+        build(:application,
+              :nsm,
+              defendant_name:,
+              additional_defendant_names:,
+              firm_name:,
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
+      end
     end
   end
 end

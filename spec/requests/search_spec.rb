@@ -29,7 +29,7 @@ RSpec.describe "Search" do
         create_list(:submission, 1, :with_nsm_version, application_type: "crm7")
       end
 
-      it "returns a subset of submissions based on pagination" do
+      it "returns an offset of submissions based on pagination" do
         post "/v1/search", params: {
           query: "Fred",
           per_page: "2",
@@ -38,9 +38,7 @@ RSpec.describe "Search" do
         }
 
         expect(response.parsed_body["data"].size).to be 2
-      end
 
-      it "returns an offset of submissions based on pagination" do
         post "/v1/search", params: {
           query: "Fred",
           per_page: "2",
@@ -49,7 +47,7 @@ RSpec.describe "Search" do
         }
 
         expect(response.parsed_body["data"].size).to be 2
-        expect(response.parsed_body["data"].pluck("client")).to all(include("Fred"))
+        expect(response.parsed_body["data"].pluck("client_name")).to all(include("Fred"))
       end
 
       it "returns metadata about the result set" do
@@ -207,9 +205,23 @@ RSpec.describe "Search" do
 
     context "with status filter" do
       before do
-        create_list(:submission, 3, :with_pa_version, ufn: "111111/111", application_state: "auto_grant")
-        create(:submission, :with_pa_version, ufn: "222222/222", application_state: "part_grant")
-        create(:submission, :with_pa_version, ufn: "333333/333", application_state: "rejected")
+        create_list(:submission, 2, :with_pa_version, laa_reference: "LAA-AAAAAA", application_state: "auto_grant")
+        create(:submission, :with_pa_version, laa_reference: "LAA-BBBBBB", application_state: "part_grant")
+        create(:submission, :with_pa_version, laa_reference: "LAA-CCCCCC", application_state: "rejected")
+
+        # in_progress pseudo status (submitted with an assignment)
+        create(:submission, :with_pa_version, laa_reference: "LAA-DDDDDD", application_state: "submitted",
+                                              events: [build(:event, :new_version),
+                                                       build(:event, :assignment),
+                                                       build(:event, :unassignment),
+                                                       build(:event, :assignment),
+                                                       build(:event, :decision)])
+
+        # not_assigned pseudo status (submitted without an assignment)
+        create(:submission, :with_pa_version, laa_reference: "LAA-EEEEEE", application_state: "submitted",
+                                              events: [build(:event, :new_version),
+                                                       build(:event, :assignment),
+                                                       build(:event, :unassignment)])
       end
 
       it "brings back only those with a matching status" do
@@ -218,8 +230,8 @@ RSpec.describe "Search" do
           status: "auto_grant",
         }
 
-        expect(response.parsed_body["data"].size).to be 3
-        expect(response.parsed_body["data"].pluck("search_fields")).to all(include("111111/111"))
+        expect(response.parsed_body["data"].size).to be 2
+        expect(response.parsed_body["data"].pluck("laa_reference")).to all(include("LAA-AAAAAA"))
 
         post "/v1/search", params: {
           submission_type: "crm4",
@@ -227,7 +239,33 @@ RSpec.describe "Search" do
         }
 
         expect(response.parsed_body["data"].size).to be 1
-        expect(response.parsed_body["data"].pluck("search_fields")).to all(include("222222/222"))
+        expect(response.parsed_body["data"].pluck("laa_reference")).to all(include("LAA-BBBBBB"))
+
+        post "/v1/search", params: {
+          submission_type: "crm4",
+          status: "rejected",
+        }
+
+        expect(response.parsed_body["data"].size).to be 1
+        expect(response.parsed_body["data"].pluck("laa_reference")).to all(include("LAA-CCCCC"))
+      end
+
+      it "brings back only those with a matching psuedo status" do
+        post "/v1/search", params: {
+          submission_type: "crm4",
+          status: "in_progress",
+        }
+
+        expect(response.parsed_body["data"].size).to be 1
+        expect(response.parsed_body["data"].pluck("laa_reference")).to all(include("LAA-DDDDDD"))
+
+        post "/v1/search", params: {
+          submission_type: "crm4",
+          status: "not_assigned",
+        }
+
+        expect(response.parsed_body["data"].size).to be 1
+        expect(response.parsed_body["data"].pluck("laa_reference")).to all(include("LAA-EEEEEE"))
       end
     end
 
@@ -260,6 +298,82 @@ RSpec.describe "Search" do
 
         expect(response.parsed_body["data"].size).to be 2
         expect(response.parsed_body["data"].pluck("search_fields")).to all(match("111111/111|222222/222"))
+      end
+    end
+
+    context "with defendant name query for PA" do
+      before do
+        create(:submission, :with_pa_version,
+               defendant_name: "Billy Bob")
+
+        create(:submission, :with_pa_version,
+               defendant_name: "Bob Billy")
+
+        create(:submission, :with_pa_version,
+               defendant_name: "Fred Bloggs")
+      end
+
+      it "returns those with matching first or last name from single defendant object" do
+        post "/v1/search", params: {
+          submission_type: "crm4",
+          query: "Billy",
+        }
+
+        expect(response.parsed_body["data"].size).to be 2
+        expect(response.parsed_body["data"].pluck("client_name")).to contain_exactly("Billy Bob", "Bob Billy")
+      end
+    end
+
+    context "with defendant name query for NSM with single defendant" do
+      before do
+        create(:submission, :with_nsm_version,
+               defendant_name: "Billy Bob")
+
+        create(:submission, :with_nsm_version,
+               defendant_name: "Bob Billy")
+
+        create(:submission, :with_nsm_version,
+               defendant_name: "Fred Bloggs")
+      end
+
+      it "returns those with matching first or last name from single defendant object" do
+        post "/v1/search", params: {
+          submission_type: "crm7",
+          query: "Billy",
+        }
+
+        expect(response.parsed_body["data"].size).to be 2
+        expect(response.parsed_body["data"].pluck("client_name")).to contain_exactly("Billy Bob", "Bob Billy")
+      end
+    end
+
+    context "with defendant name query for NSM with multiple defendants" do
+      before do
+        create(:submission, :with_nsm_version,
+               defendant_name: "Billy Bob",
+               additional_defendant_names: ["Fred Bob"])
+
+        create(:submission, :with_nsm_version,
+               defendant_name: "Fred Bloggs",
+               additional_defendant_names: ["John Simpson"])
+      end
+
+      it "returns those with matching first or last name from any defendant element" do
+        post "/v1/search", params: {
+          submission_type: "crm7",
+          query: "Fred",
+        }
+
+        expect(response.parsed_body["data"].size).to be 2
+        expect(response.parsed_body["data"].pluck("client_name")).to contain_exactly("Billy Bob", "Fred Bloggs")
+
+        post "/v1/search", params: {
+          submission_type: "crm7",
+          query: "Simpson",
+        }
+
+        expect(response.parsed_body["data"].size).to be 1
+        expect(response.parsed_body["data"].pluck("client_name")).to contain_exactly("Fred Bloggs")
       end
     end
 
@@ -341,22 +455,22 @@ RSpec.describe "Search" do
 
       it "can be sorted by defendant_name ascending" do
         post "/v1/search", params: {
-          sort_by: "client",
+          sort_by: "client_name",
           sort_direction: "asc",
           submission_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].first).to include(client: "Billy Bob")
+        expect(response.parsed_body["data"].first).to include(client_name: "Billy Bob")
       end
 
       it "can be sorted by defendant_name descending" do
         post "/v1/search", params: {
-          sort_by: "client",
+          sort_by: "client_name",
           sort_direction: "desc",
           submission_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].first).to include(client: "Zach Zeigler")
+        expect(response.parsed_body["data"].first).to include(client_name: "Zach Zeigler")
       end
 
       it "can be sorted by status ascending" do
