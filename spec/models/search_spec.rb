@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Search do
-  describe "#search_laa_reference" do
+  describe "#where_terms" do
     let(:search) { described_class.where_terms(query).pluck(:id) }
     let(:prepare) { build(:submission).tap(&:save) }
 
@@ -320,7 +320,7 @@ RSpec.describe Search do
             ]
           end
 
-          it "returns the both records" do
+          it "returns both records" do
             expect(search).to eq(prepare.map(&:id))
           end
         end

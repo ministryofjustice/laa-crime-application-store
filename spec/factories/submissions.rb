@@ -17,6 +17,7 @@ FactoryBot.define do
 
     transient do
       defendant_name { nil }
+      additional_defendant_names { nil }
       firm_name { nil }
       ufn { nil }
       laa_reference { nil }
@@ -28,6 +29,7 @@ FactoryBot.define do
         :submission_version, *a.build_scope,
         submission:,
         defendant_name: a.defendant_name,
+        additional_defendant_names: a.additional_defendant_names,
         firm_name: a.firm_name,
         ufn: a.ufn,
         laa_reference: a.laa_reference
@@ -35,14 +37,17 @@ FactoryBot.define do
     end
 
     trait :with_pa_version do
+      application_type { "crm4" }
       build_scope { [:with_pa_application] }
     end
 
     trait :with_custom_pa_version do
+      application_type { "crm4" }
       build_scope { [:with_custom_pa_application] }
     end
 
     trait :with_nsm_version do
+      application_type { "crm7" }
       build_scope { [:with_nsm_application] }
     end
   end
@@ -74,6 +79,10 @@ FactoryBot.define do
       event_type { "unassignment" }
       primary_user_id { SecureRandom.uuid }
       details { { comment: "wrongly assigned" } }
+    end
+
+    trait :decision do
+      event_type { "decision" }
     end
   end
 end
