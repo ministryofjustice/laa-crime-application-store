@@ -1,7 +1,10 @@
 module V1
   class SearchesController < ApplicationController
     def create
-      render json: build_results(search_query), status: :created
+      data = search_query
+      raw_data = Submission.where(id: data.pluck(:id))
+
+      render json: build_results(data, raw_data), status: :created
     rescue StandardError => e
       render json: { message: "AppStore search query raised #{e.message}" }, status: :unprocessable_entity
     end
@@ -19,7 +22,7 @@ module V1
       relation.where_terms(query)
     end
 
-    def build_results(data)
+    def build_results(data, raw_data)
       {
         metadata: {
           total_results: data.size,
@@ -27,6 +30,7 @@ module V1
           per_page: limit,
         },
         data: data.limit(limit).offset(offset),
+        raw_data: raw_data.limit(limit).offset(offset),
       }.to_json
     end
 
