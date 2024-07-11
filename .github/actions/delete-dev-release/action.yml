@@ -79,6 +79,7 @@ runs:
         then
           helm delete $release_name
           kubectl delete pvc data-$release_name-postgresql-0
+          kubectl delete pvc redis-data-$release_name-redis-master-0
           echo "message=\"Deleted DEV release ${release_name}\"" >> $GITHUB_OUTPUT
         else
           echo "message=\"DEV release, ${release_name}, not found\"" >> $GITHUB_OUTPUT
