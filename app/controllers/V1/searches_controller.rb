@@ -85,7 +85,7 @@ module V1
     end
 
     def limit
-      search_params.fetch(:per_page, 20).to_i
+      search_params.fetch(:per_page, 10).to_i
     end
 
     def offset
