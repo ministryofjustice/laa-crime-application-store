@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_09_131309) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_11_064140) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -130,19 +130,48 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_09_131309) do
     WHERE ((e.application_type = 'crm4'::text) AND (e.event_type = 'auto_decision'::text));
   SQL
   create_view "searches", sql_definition: <<-SQL
-      SELECT app.id,
+      WITH event_types AS (
+           SELECT application.id,
+              jsonb_path_query_array(application.events, '$[*]?(@."event_type" == "assignment" || @."event_type" == "unassignment")."event_type"'::jsonpath) AS assigment_arr
+             FROM application
+          ), assignments AS (
+           SELECT app_1.id,
+                  CASE
+                      WHEN ((et.assigment_arr ->> '-1'::integer) = 'assignment'::text) THEN true
+                      ELSE false
+                  END AS assigned
+             FROM (application app_1
+               JOIN event_types et ON ((et.id = app_1.id)))
+          ), defendants AS (
+           SELECT app_1.id,
+                  CASE
+                      WHEN (app_1.application_type = 'crm4'::text) THEN ((((app_ver_1.application -> 'defendant'::text) ->> 'first_name'::text) || ' '::text) || ((app_ver_1.application -> 'defendant'::text) ->> 'last_name'::text))
+                      ELSE ( SELECT (((defendants.value ->> 'first_name'::text) || ' '::text) || (defendants.value ->> 'last_name'::text))
+                         FROM jsonb_array_elements((app_ver_1.application -> 'defendants'::text)) defendants(value)
+                        WHERE ((defendants.value ->> 'main'::text) = 'true'::text))
+                  END AS client_name
+             FROM (application app_1
+               JOIN application_version app_ver_1 ON (((app_1.id = app_ver_1.application_id) AND (app_1.current_version = app_ver_1.version))))
+          )
+   SELECT app.id,
       app_ver.id AS application_version_id,
       (app_ver.application ->> 'laa_reference'::text) AS laa_reference,
       ((app_ver.application -> 'firm_office'::text) ->> 'name'::text) AS firm_name,
-      ((((app_ver.application -> 'defendant'::text) ->> 'first_name'::text) || ' '::text) || ((app_ver.application -> 'defendant'::text) ->> 'last_name'::text)) AS client,
+      def.client_name,
       app_ver.search_fields,
       app.has_been_assigned_to,
       app.created_at AS date_submitted,
       app.updated_at AS date_updated,
-      app.application_state AS status,
+          CASE
+              WHEN ((app.application_state = 'submitted'::text) AND ass.assigned) THEN 'in_progress'::text
+              WHEN ((app.application_state = 'submitted'::text) AND (NOT ass.assigned)) THEN 'not_assigned'::text
+              ELSE app.application_state
+          END AS status,
       app.application_type AS submission_type,
       app.application_risk AS risk
-     FROM (application app
-       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))));
+     FROM (((application app
+       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))))
+       JOIN assignments ass ON ((ass.id = app.id)))
+       JOIN defendants def ON ((def.id = app.id)));
   SQL
 end
