@@ -1,4 +1,4 @@
-name: Delete UAT release
+name: Delete DEV branch release
 
 on:
   pull_request:
