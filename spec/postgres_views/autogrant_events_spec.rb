@@ -9,6 +9,10 @@ RSpec.describe "autogrant_events" do
 
   let(:today) { Time.zone.now }
 
+  before do
+    create(:translation, key: "ae_consultant", translation:"A&E consultant", translation_type: "service" )
+  end
+
   it "returns no records when no autogranted applications exist" do
     create(
       :submission,
