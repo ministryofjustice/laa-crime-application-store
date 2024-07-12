@@ -168,7 +168,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_130618) do
               WHEN ((app.application_state = 'submitted'::text) AND (NOT ass.assigned)) THEN 'not_assigned'::text
               ELSE app.application_state
           END AS status_with_assignment,
-      app.application_type AS submission_type,
+      app.application_type,
       app.application_risk AS risk
      FROM (((application app
        JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))))

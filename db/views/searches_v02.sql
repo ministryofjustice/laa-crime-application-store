@@ -42,7 +42,7 @@ SELECT
        WHEN app.application_state = 'submitted' AND NOT ass.assigned THEN 'not_assigned'
        ELSE app.application_state
        END AS status_with_assignment,
-  app.application_type as submission_type,
+  app.application_type as application_type,
   app.application_risk as risk
 FROM application AS app
 JOIN application_version AS app_ver
