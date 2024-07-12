@@ -123,7 +123,7 @@ RSpec.describe "Authorization" do
       end
 
       it "does not allow searches" do
-        post "/v1/search", params: { search_terms: "whatever" }
+        post "/v1/submissions/searches", params: { search_terms: "whatever" }
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -142,7 +142,7 @@ RSpec.describe "Authorization" do
       end
 
       it "allow searches" do
-        post "/v1/search", params: { query: "whatever", filters: { submission_type: "crm4" } }
+        post "/v1/submissions/searches", params: { query: "whatever", filters: { submission_type: "crm4" } }
         expect(response).to have_http_status(:created)
       end
     end

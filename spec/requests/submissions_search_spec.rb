@@ -1,6 +1,8 @@
 require "rails_helper"
 
-RSpec.describe "Search" do
+RSpec.describe "Submission search" do
+  let(:search_endpoint) { "/v1/submissions/searches" }
+
   context "with caseworker app" do
     before do
       allow(Tokens::VerificationService)
@@ -9,13 +11,13 @@ RSpec.describe "Search" do
     end
 
     it "returns 201 when successful" do
-      post "/v1/search", params: { submission_type: "crm4" }
+      post search_endpoint, params: { submission_type: "crm4" }
       expect(response).to have_http_status(:created)
     end
 
     it "returns 422 when unsuccessful" do
       allow(Search).to receive(:where).and_raise(StandardError, "Some error output")
-      post "/v1/search", params: { submission_type: "crm4" }
+      post search_endpoint, params: { submission_type: "crm4" }
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(response.parsed_body).to include(message: "AppStore search query raised Some error output")
@@ -35,7 +37,7 @@ RSpec.describe "Search" do
         sort_by = "client_name"
         sort_direction = "asc"
 
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           query: "Fred",
           per_page: "2",
           page: "1",
@@ -46,7 +48,7 @@ RSpec.describe "Search" do
 
         expect(response.parsed_body["data"].pluck("client_name")).to match(["Fred Arbor", "Fred Bloggs"])
 
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           query: "Fred",
           per_page: "2",
           page: "2",
@@ -59,7 +61,7 @@ RSpec.describe "Search" do
       end
 
       it "returns metadata about the result set" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           query: "Fred",
           per_page: "2",
           page: "1",
@@ -95,7 +97,7 @@ RSpec.describe "Search" do
         let(:submitted_to) { to_date.iso8601 }
 
         it "brings back only those submitted between the dates" do
-          post "/v1/search", params: {
+          post search_endpoint, params: {
             query: "Jim",
             submission_type: "crm4",
             submitted_from:,
@@ -111,7 +113,7 @@ RSpec.describe "Search" do
         let(:submitted_from) { from_date.iso8601 }
 
         it "brings back only those submitted after the from date" do
-          post "/v1/search", params: {
+          post search_endpoint, params: {
             query: "Jim",
             submission_type: "crm4",
             submitted_from:,
@@ -126,7 +128,7 @@ RSpec.describe "Search" do
         let(:submitted_to) { to_date.iso8601 }
 
         it "brings back only those submitted before the to date" do
-          post "/v1/search", params: {
+          post search_endpoint, params: {
             query: "Jim",
             submission_type: "crm4",
             submitted_to:,
@@ -168,7 +170,7 @@ RSpec.describe "Search" do
         let(:updated_to) { to_date.iso8601 }
 
         it "brings back only those updated between the dates" do
-          post "/v1/search", params: {
+          post search_endpoint, params: {
             query: "Jim",
             submission_type: "crm4",
             updated_from:,
@@ -184,7 +186,7 @@ RSpec.describe "Search" do
         let(:updated_from) { from_date.iso8601 }
 
         it "brings back only those updated after the from date" do
-          post "/v1/search", params: {
+          post search_endpoint, params: {
             query: "Jim",
             submission_type: "crm4",
             updated_from:,
@@ -199,7 +201,7 @@ RSpec.describe "Search" do
         let(:updated_to) { to_date.iso8601 }
 
         it "brings back only those updated before the to date" do
-          post "/v1/search", params: {
+          post search_endpoint, params: {
             query: "Jim",
             submission_type: "crm4",
             updated_to:,
@@ -234,21 +236,21 @@ RSpec.describe "Search" do
       end
 
       it "brings back only those with a matching status_with_assignment" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           submission_type: "crm4",
           status_with_assignment: "auto_grant",
         }
 
         expect(response.parsed_body["data"].pluck("laa_reference")).to contain_exactly("LAA-AAAAA1", "LAA-AAAAA2")
 
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           submission_type: "crm4",
           status_with_assignment: "part_grant",
         }
 
         expect(response.parsed_body["data"].pluck("laa_reference")).to contain_exactly("LAA-BBBBBB")
 
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           submission_type: "crm4",
           status_with_assignment: "rejected",
         }
@@ -257,7 +259,7 @@ RSpec.describe "Search" do
       end
 
       it "brings back only those with a matching psuedo status_with_assignment" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           submission_type: "crm4",
           status_with_assignment: "in_progress",
         }
@@ -265,7 +267,7 @@ RSpec.describe "Search" do
         expect(response.parsed_body["data"].size).to be 1
         expect(response.parsed_body["data"].pluck("laa_reference")).to all(include("LAA-DDDDDD"))
 
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           submission_type: "crm4",
           status_with_assignment: "not_assigned",
         }
@@ -297,7 +299,7 @@ RSpec.describe "Search" do
       end
 
       it "brings back only those with a matching caseworker id" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           submission_type: "crm4",
           caseworker_id: "primary-user-id-1",
         }
@@ -320,7 +322,7 @@ RSpec.describe "Search" do
       end
 
       it "returns those with matching first or last name from single defendant object" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           submission_type: "crm4",
           query: "Billy",
         }
@@ -343,7 +345,7 @@ RSpec.describe "Search" do
       end
 
       it "returns those with matching first or last name from single defendant object" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           submission_type: "crm7",
           query: "Billy",
         }
@@ -365,7 +367,7 @@ RSpec.describe "Search" do
       end
 
       it "returns those with matching first or last name from any defendant element" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           submission_type: "crm7",
           query: "Fred",
         }
@@ -373,7 +375,7 @@ RSpec.describe "Search" do
         expect(response.parsed_body["data"].size).to be 2
         expect(response.parsed_body["data"].pluck("client_name")).to contain_exactly("Billy Bob", "Fred Bloggs")
 
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           submission_type: "crm7",
           query: "Simpson",
         }
@@ -412,7 +414,7 @@ RSpec.describe "Search" do
       end
 
       it "defaults to sorting by date_updated, most recent first" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           submission_type: "crm4",
         }
 
@@ -420,7 +422,7 @@ RSpec.describe "Search" do
       end
 
       it "can be sorted by laa_reference ascending" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           sort_by: "laa_reference",
           sort_direction: "ascending",
           submission_type: "crm4",
@@ -430,7 +432,7 @@ RSpec.describe "Search" do
       end
 
       it "can be sorted by laa_reference descending" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           sort_by: "laa_reference",
           sort_direction: "descending",
           submission_type: "crm4",
@@ -440,7 +442,7 @@ RSpec.describe "Search" do
       end
 
       it "can be sorted by firm_name ascending" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           sort_by: "firm_name",
           sort_direction: "asc",
           submission_type: "crm4",
@@ -450,7 +452,7 @@ RSpec.describe "Search" do
       end
 
       it "can be sorted by firm_name descending" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           sort_by: "firm_name",
           sort_direction: "desc",
           submission_type: "crm4",
@@ -460,7 +462,7 @@ RSpec.describe "Search" do
       end
 
       it "can be sorted by defendant_name ascending" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           sort_by: "client_name",
           sort_direction: "asc",
           submission_type: "crm4",
@@ -470,7 +472,7 @@ RSpec.describe "Search" do
       end
 
       it "can be sorted by defendant_name descending" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           sort_by: "client_name",
           sort_direction: "desc",
           submission_type: "crm4",
@@ -480,7 +482,7 @@ RSpec.describe "Search" do
       end
 
       it "can be sorted by status_with_assignment ascending" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           sort_by: "status_with_assignment",
           sort_direction: "asc",
           submission_type: "crm4",
@@ -490,7 +492,7 @@ RSpec.describe "Search" do
       end
 
       it "can be sorted by status_with_assignment descending" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           sort_by: "status_with_assignment",
           sort_direction: "desc",
           submission_type: "crm4",
@@ -500,7 +502,7 @@ RSpec.describe "Search" do
       end
 
       it "can be sorted by date_updated ascending" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           sort_by: "date_updated",
           sort_direction: "asc",
           submission_type: "crm4",
@@ -510,7 +512,7 @@ RSpec.describe "Search" do
       end
 
       it "can be sorted by date_updated descending" do
-        post "/v1/search", params: {
+        post search_endpoint, params: {
           sort_by: "date_updated",
           sort_direction: "desc",
           submission_type: "crm4",

@@ -23,7 +23,9 @@ Rails.application.routes.draw do
     resources :subscribers, only: %i[create]
     delete :subscribers, to: "subscribers#destroy"
 
-    resource :search, only: %[create]
+    namespace :submissions do
+      resource :searches, only: %[create]
+    end
 
     # Legacy endpoint aliases
     get :applications, to: "submissions#index"
