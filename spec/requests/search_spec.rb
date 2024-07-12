@@ -24,42 +24,50 @@ RSpec.describe "Search" do
     context "when paginating" do
       before do
         create_list(:submission, 2, :with_pa_version, defendant_name: "Joe Bloggs")
-        create_list(:submission, 2, :with_pa_version, defendant_name: "Fred Bloggs")
-        create_list(:submission, 2, :with_pa_version, defendant_name: "Fred Sullivan")
-        create_list(:submission, 1, :with_nsm_version, application_type: "crm7")
+        create(:submission, :with_pa_version, defendant_name: "Fred Arbor")
+        create(:submission, :with_pa_version, defendant_name: "Fred Bloggs")
+        create(:submission, :with_pa_version, defendant_name: "Fred Yankowitz")
+        create(:submission, :with_pa_version, defendant_name: "Fred Zeigler")
+        create(:submission, :with_nsm_version, application_type: "crm7")
       end
 
       it "returns an offset of submissions based on pagination" do
+        sort_by = "client_name"
+        sort_direction = "asc"
+
         post "/v1/search", params: {
           query: "Fred",
           per_page: "2",
-          page: "0",
+          page: "1",
           submission_type: "crm4",
+          sort_by:,
+          sort_direction:,
         }
 
-        expect(response.parsed_body["data"].size).to be 2
+        expect(response.parsed_body["data"].pluck("client_name")).to match(["Fred Arbor", "Fred Bloggs"])
 
         post "/v1/search", params: {
           query: "Fred",
           per_page: "2",
           page: "2",
           submission_type: "crm4",
+          sort_by:,
+          sort_direction:,
         }
 
-        expect(response.parsed_body["data"].size).to be 2
-        expect(response.parsed_body["data"].pluck("client_name")).to all(include("Fred"))
+        expect(response.parsed_body["data"].pluck("client_name")).to match(["Fred Yankowitz", "Fred Zeigler"])
       end
 
       it "returns metadata about the result set" do
         post "/v1/search", params: {
           query: "Fred",
           per_page: "2",
-          page: "0",
+          page: "1",
           submission_type: "crm4",
         }
 
         expect(response.parsed_body["metadata"]["total_results"]).to be 4
-        expect(response.parsed_body["metadata"]["page"]).to be 0
+        expect(response.parsed_body["metadata"]["page"]).to be 1
         expect(response.parsed_body["metadata"]["per_page"]).to be 2
       end
     end

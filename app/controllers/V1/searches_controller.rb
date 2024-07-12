@@ -26,8 +26,8 @@ module V1
       {
         metadata: {
           total_results: data.size,
-          page: offset,
-          per_page: limit,
+          page:,
+          per_page:,
         },
         data: data.limit(limit).offset(offset),
         raw_data: raw_data.limit(limit).offset(offset),
@@ -84,12 +84,23 @@ module V1
                             .gsub("descending", "desc")
     end
 
+    # page 1: (1-1) * 10 = 0 (rows 1 to 10) - offset should be 0
+    # page 2: (2-1) * 10 = 10 (rows 11 to 20) - offset should be 10
+    # ...
+    def offset
+      (page - 1) * limit
+    end
+
     def limit
+      per_page
+    end
+
+    def per_page
       search_params.fetch(:per_page, 10).to_i
     end
 
-    def offset
-      search_params.fetch(:page, 0).to_i
+    def page
+      search_params.fetch(:page, 1).to_i
     end
 
     def search_params
