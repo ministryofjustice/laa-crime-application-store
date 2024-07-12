@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_11_064140) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_09_131309) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -166,7 +166,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_11_064140) do
               WHEN ((app.application_state = 'submitted'::text) AND ass.assigned) THEN 'in_progress'::text
               WHEN ((app.application_state = 'submitted'::text) AND (NOT ass.assigned)) THEN 'not_assigned'::text
               ELSE app.application_state
-          END AS status,
+          END AS status_with_assignment,
       app.application_type AS submission_type,
       app.application_risk AS risk
      FROM (((application app

@@ -211,13 +211,14 @@ RSpec.describe "Search" do
       end
     end
 
-    context "with status filter" do
+    context "with status_with_assignment filter" do
       before do
-        create_list(:submission, 2, :with_pa_version, laa_reference: "LAA-AAAAAA", application_state: "auto_grant")
+        create(:submission, :with_pa_version, laa_reference: "LAA-AAAAA1", application_state: "auto_grant")
+        create(:submission, :with_pa_version, laa_reference: "LAA-AAAAA2", application_state: "auto_grant")
         create(:submission, :with_pa_version, laa_reference: "LAA-BBBBBB", application_state: "part_grant")
         create(:submission, :with_pa_version, laa_reference: "LAA-CCCCCC", application_state: "rejected")
 
-        # in_progress pseudo status (submitted with an assignment)
+        # in_progress pseudo status_with_assignment (submitted with an assignment)
         create(:submission, :with_pa_version, laa_reference: "LAA-DDDDDD", application_state: "submitted",
                                               events: [build(:event, :new_version),
                                                        build(:event, :assignment),
@@ -225,43 +226,40 @@ RSpec.describe "Search" do
                                                        build(:event, :assignment),
                                                        build(:event, :decision)])
 
-        # not_assigned pseudo status (submitted without an assignment)
+        # not_assigned pseudo status_with_assignment (submitted without an assignment)
         create(:submission, :with_pa_version, laa_reference: "LAA-EEEEEE", application_state: "submitted",
                                               events: [build(:event, :new_version),
                                                        build(:event, :assignment),
                                                        build(:event, :unassignment)])
       end
 
-      it "brings back only those with a matching status" do
+      it "brings back only those with a matching status_with_assignment" do
         post "/v1/search", params: {
           submission_type: "crm4",
-          status: "auto_grant",
+          status_with_assignment: "auto_grant",
         }
 
-        expect(response.parsed_body["data"].size).to be 2
-        expect(response.parsed_body["data"].pluck("laa_reference")).to all(include("LAA-AAAAAA"))
-
-        post "/v1/search", params: {
-          submission_type: "crm4",
-          status: "part_grant",
-        }
-
-        expect(response.parsed_body["data"].size).to be 1
-        expect(response.parsed_body["data"].pluck("laa_reference")).to all(include("LAA-BBBBBB"))
+        expect(response.parsed_body["data"].pluck("laa_reference")).to contain_exactly("LAA-AAAAA1", "LAA-AAAAA2")
 
         post "/v1/search", params: {
           submission_type: "crm4",
-          status: "rejected",
+          status_with_assignment: "part_grant",
         }
 
-        expect(response.parsed_body["data"].size).to be 1
-        expect(response.parsed_body["data"].pluck("laa_reference")).to all(include("LAA-CCCCC"))
+        expect(response.parsed_body["data"].pluck("laa_reference")).to contain_exactly("LAA-BBBBBB")
+
+        post "/v1/search", params: {
+          submission_type: "crm4",
+          status_with_assignment: "rejected",
+        }
+
+        expect(response.parsed_body["data"].pluck("laa_reference")).to contain_exactly("LAA-CCCCCC")
       end
 
-      it "brings back only those with a matching psuedo status" do
+      it "brings back only those with a matching psuedo status_with_assignment" do
         post "/v1/search", params: {
           submission_type: "crm4",
-          status: "in_progress",
+          status_with_assignment: "in_progress",
         }
 
         expect(response.parsed_body["data"].size).to be 1
@@ -269,7 +267,7 @@ RSpec.describe "Search" do
 
         post "/v1/search", params: {
           submission_type: "crm4",
-          status: "not_assigned",
+          status_with_assignment: "not_assigned",
         }
 
         expect(response.parsed_body["data"].size).to be 1
@@ -481,24 +479,24 @@ RSpec.describe "Search" do
         expect(response.parsed_body["data"].first).to include(client_name: "Zach Zeigler")
       end
 
-      it "can be sorted by status ascending" do
+      it "can be sorted by status_with_assignment ascending" do
         post "/v1/search", params: {
-          sort_by: "status",
+          sort_by: "status_with_assignment",
           sort_direction: "asc",
           submission_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].first).to include(status: "auto_grant")
+        expect(response.parsed_body["data"].first).to include(status_with_assignment: "auto_grant")
       end
 
-      it "can be sorted by status descending" do
+      it "can be sorted by status_with_assignment descending" do
         post "/v1/search", params: {
-          sort_by: "status",
+          sort_by: "status_with_assignment",
           sort_direction: "desc",
           submission_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].first).to include(status: "rejected")
+        expect(response.parsed_body["data"].first).to include(status_with_assignment: "rejected")
       end
 
       it "can be sorted by date_updated ascending" do

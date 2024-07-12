@@ -15,7 +15,7 @@ module V1
       relation = Search.where(date_submitted: (submitted_from..submitted_to))
       relation = relation.where(date_updated: (updated_from..updated_to))
       relation = relation.where(submission_type:) if submission_type
-      relation = relation.where(status:) if status
+      relation = relation.where(status_with_assignment:) if status_with_assignment
       relation = relation.where("has_been_assigned_to ? :caseworker_id", caseworker_id:) if caseworker_id
       relation = relation.order(**sort_clause)
 
@@ -54,8 +54,8 @@ module V1
       search_params[:updated_to]&.to_date
     end
 
-    def status
-      search_params[:status]
+    def status_with_assignment
+      search_params[:status_with_assignment]
     end
 
     def caseworker_id
@@ -116,7 +116,7 @@ module V1
         :updated_from,
         :updated_to,
         :caseworker_id,
-        :status,
+        :status_with_assignment,
       )
     end
   end
