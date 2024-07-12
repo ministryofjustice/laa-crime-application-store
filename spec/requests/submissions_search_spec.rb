@@ -26,10 +26,15 @@ RSpec.describe "Submission search" do
     context "when paginating" do
       before do
         create_list(:submission, 2, :with_pa_version, defendant_name: "Joe Bloggs")
+
+        # This travel_to is used to test that "raw data" and [view] data are sync'd by page and order.
+        travel_to(1.day.ago) do
+          create(:submission, :with_pa_version, defendant_name: "Fred Yankowitz")
+          create(:submission, :with_pa_version, defendant_name: "Fred Zeigler")
+        end
+
         create(:submission, :with_pa_version, defendant_name: "Fred Arbor")
         create(:submission, :with_pa_version, defendant_name: "Fred Bloggs")
-        create(:submission, :with_pa_version, defendant_name: "Fred Yankowitz")
-        create(:submission, :with_pa_version, defendant_name: "Fred Zeigler")
         create(:submission, :with_nsm_version, application_type: "crm7")
       end
 
@@ -71,6 +76,41 @@ RSpec.describe "Submission search" do
         expect(response.parsed_body["metadata"]["total_results"]).to be 4
         expect(response.parsed_body["metadata"]["page"]).to be 1
         expect(response.parsed_body["metadata"]["per_page"]).to be 2
+      end
+
+      it "returns raw data result matching the page and order of the data result" do
+        sort_by = "client_name"
+        sort_direction = "asc"
+
+        post search_endpoint, params: {
+          query: "Fred",
+          per_page: "2",
+          page: "1",
+          application_type: "crm4",
+          sort_by:,
+          sort_direction:,
+        }
+
+        client_names = response.parsed_body["raw_data"].each_with_object([]) do |raw, arr|
+          arr << "#{raw.dig('application', 'defendant', 'first_name')} #{raw.dig('application', 'defendant', 'last_name')}"
+        end
+
+        expect(client_names).to match(["Fred Arbor", "Fred Bloggs"])
+
+        post search_endpoint, params: {
+          query: "Fred",
+          per_page: "2",
+          page: "2",
+          application_type: "crm4",
+          sort_by:,
+          sort_direction:,
+        }
+
+        client_names = response.parsed_body["raw_data"].each_with_object([]) do |raw, arr|
+          arr << "#{raw.dig('application', 'defendant', 'first_name')} #{raw.dig('application', 'defendant', 'last_name')}"
+        end
+
+        expect(client_names).to match(["Fred Yankowitz", "Fred Zeigler"])
       end
     end
 
@@ -418,7 +458,7 @@ RSpec.describe "Submission search" do
           application_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].first).to include(laa_reference: "LAA-CCCCCC")
+        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
       end
 
       it "can be sorted by laa_reference ascending" do
@@ -428,7 +468,7 @@ RSpec.describe "Submission search" do
           application_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].first).to include(laa_reference: "LAA-AAAAAA")
+        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-AAAAAA LAA-BBBBBB LAA-CCCCCC])
       end
 
       it "can be sorted by laa_reference descending" do
@@ -438,7 +478,7 @@ RSpec.describe "Submission search" do
           application_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].first).to include(laa_reference: "LAA-CCCCCC")
+        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
       end
 
       it "can be sorted by firm_name ascending" do
@@ -448,7 +488,7 @@ RSpec.describe "Submission search" do
           application_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].first).to include(firm_name: "Aardvark & Co")
+        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Aardvark & Co", "Bob & Sons", "Xena & Daughters"])
       end
 
       it "can be sorted by firm_name descending" do
@@ -458,7 +498,7 @@ RSpec.describe "Submission search" do
           application_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].first).to include(firm_name: "Xena & Daughters")
+        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Xena & Daughters", "Bob & Sons", "Aardvark & Co"])
       end
 
       it "can be sorted by defendant_name ascending" do
@@ -468,7 +508,7 @@ RSpec.describe "Submission search" do
           application_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].first).to include(client_name: "Billy Bob")
+        expect(response.parsed_body["data"].pluck("client_name")).to match(["Billy Bob", "Dilly Dodger", "Zach Zeigler"])
       end
 
       it "can be sorted by defendant_name descending" do
@@ -478,7 +518,7 @@ RSpec.describe "Submission search" do
           application_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].first).to include(client_name: "Zach Zeigler")
+        expect(response.parsed_body["data"].pluck("client_name")).to match(["Zach Zeigler", "Dilly Dodger", "Billy Bob"])
       end
 
       it "can be sorted by status_with_assignment ascending" do
@@ -488,7 +528,7 @@ RSpec.describe "Submission search" do
           application_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].first).to include(status_with_assignment: "auto_grant")
+        expect(response.parsed_body["data"].pluck("status_with_assignment")).to match(%w[auto_grant granted rejected])
       end
 
       it "can be sorted by status_with_assignment descending" do
@@ -498,7 +538,7 @@ RSpec.describe "Submission search" do
           application_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].first).to include(status_with_assignment: "rejected")
+        expect(response.parsed_body["data"].pluck("status_with_assignment")).to match(%w[rejected granted auto_grant])
       end
 
       it "can be sorted by date_updated ascending" do
@@ -508,7 +548,7 @@ RSpec.describe "Submission search" do
           application_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].first).to include(laa_reference: "LAA-AAAAAA")
+        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-AAAAAA LAA-BBBBBB LAA-CCCCCC])
       end
 
       it "can be sorted by date_updated descending" do
@@ -518,12 +558,22 @@ RSpec.describe "Submission search" do
           application_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].first).to include(laa_reference: "LAA-CCCCCC")
+        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
       end
 
-      # TODO: we need caseworker names in the database for this
-      # it "can be sorted by caseworker" do
-      # end
+      it "sorts raw data to match the order of data" do
+        post search_endpoint, params: {
+          sort_by: "date_updated",
+          sort_direction: "desc",
+          application_type: "crm4",
+        }
+
+        laa_references = response.parsed_body["raw_data"].each_with_object([]) do |raw, arr|
+          arr << raw.dig("application", "laa_reference")
+        end
+
+        expect(laa_references).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
+      end
     end
   end
 end

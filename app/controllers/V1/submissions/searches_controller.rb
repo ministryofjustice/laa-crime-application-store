@@ -2,11 +2,11 @@ module V1
   module Submissions
     class SearchesController < ApplicationController
       def create
-        data = search_query
-        raw_data = Submission.where(id: data.pluck(:id))
+        @data = search_query
 
-        render json: build_results(data, raw_data), status: :created
+        render json: build_results, status: :created
       rescue StandardError => e
+        Rails.logger.fatal("AppStore search query raised #{e.message}")
         render json: { message: "AppStore search query raised #{e.message}" }, status: :unprocessable_entity
       end
 
@@ -23,16 +23,28 @@ module V1
         relation.where_terms(query)
       end
 
-      def build_results(data, raw_data)
+      def build_results
         {
           metadata: {
-            total_results: data.size,
+            total_results: @data.size,
             page:,
             per_page:,
           },
-          data: data.limit(limit).offset(offset),
-          raw_data: raw_data.limit(limit).offset(offset),
+          data: @data.limit(limit).offset(offset),
+          raw_data: raw_data_for_page,
         }.to_json
+      end
+
+      def raw_data_for_page
+        # Ensures sorting and paginating works for the raw_data query.
+        # Paginate (offset/limit) here just to get an array of ordered ids for
+        # the page then query the "raw data" for just those ids, sorting by the
+        # order they were in from the "data".
+        ids = @data.limit(limit).offset(offset).pluck(:id)
+
+        Submission.find(ids).sort_by do |submission|
+          ids.index(submission.id)
+        end
       end
 
       def application_type
