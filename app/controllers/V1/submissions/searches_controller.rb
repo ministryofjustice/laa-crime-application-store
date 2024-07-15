@@ -1,6 +1,8 @@
 module V1
   module Submissions
     class SearchesController < ApplicationController
+      SORTABLE_COLUMNS = %w[laa_reference firm_name client_name date_updated status_with_assignment].freeze
+
       def create
         @data = search_query
 
@@ -18,7 +20,7 @@ module V1
         relation = relation.where(application_type:) if application_type
         relation = relation.where(status_with_assignment:) if status_with_assignment
         relation = relation.where("has_been_assigned_to ? :caseworker_id", caseworker_id:) if caseworker_id
-        relation = relation.order(**sort_clause)
+        relation = relation.order(sort_clause)
 
         relation.where_terms(query)
       end
@@ -80,13 +82,18 @@ module V1
       end
 
       def sort_clause
-        return { date_updated: :desc } unless search_params[:sort_by]
+        return "date_updated desc" unless search_params[:sort_by]
+        raise "Unsortable column \"#{sort_by}\" supplied as sort_by argument" unless SORTABLE_COLUMNS.include?(sort_by.downcase)
 
-        { sort_by => sort_direction }
+        if sort_by == "date_updated"
+          "#{sort_by} #{sort_direction}"
+        else
+          "LOWER(#{sort_by}) #{sort_direction}"
+        end
       end
 
       def sort_by
-        search_params.fetch(:sort_by, :date_updated)
+        search_params.fetch(:sort_by, "date_updated")
       end
 
       def sort_direction

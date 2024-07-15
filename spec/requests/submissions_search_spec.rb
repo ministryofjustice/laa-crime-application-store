@@ -461,6 +461,13 @@ RSpec.describe "Submission search" do
         expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
       end
 
+      it "raises an error when unsortable column supplied" do
+        post search_endpoint, params: { sort_by: "foobar" }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.parsed_body).to include(message: "AppStore search query raised Unsortable column \"foobar\" supplied as sort_by argument")
+      end
+
       it "can be sorted by laa_reference ascending" do
         post search_endpoint, params: {
           sort_by: "laa_reference",
@@ -479,6 +486,19 @@ RSpec.describe "Submission search" do
         }
 
         expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
+      end
+
+      it "can be sorted by laa_reference case-insensitively" do
+        create(:submission, :with_pa_version,
+               laa_reference: "LAA-bbbbbb")
+
+        post search_endpoint, params: {
+          sort_by: "laa_reference",
+          sort_direction: "ascending",
+          application_type: "crm4",
+        }
+
+        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-AAAAAA LAA-BBBBBB LAA-bbbbbb LAA-CCCCCC])
       end
 
       it "can be sorted by firm_name ascending" do
@@ -501,6 +521,19 @@ RSpec.describe "Submission search" do
         expect(response.parsed_body["data"].pluck("firm_name")).to match(["Xena & Daughters", "Bob & Sons", "Aardvark & Co"])
       end
 
+      it "can be sorted by firm_name case-insensitively" do
+        create(:submission, :with_pa_version,
+               firm_name: "aardvark & co")
+
+        post search_endpoint, params: {
+          sort_by: "firm_name",
+          sort_direction: "ascending",
+          application_type: "crm4",
+        }
+
+        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Aardvark & Co", "aardvark & co", "Bob & Sons", "Xena & Daughters"])
+      end
+
       it "can be sorted by defendant_name ascending" do
         post search_endpoint, params: {
           sort_by: "client_name",
@@ -519,6 +552,19 @@ RSpec.describe "Submission search" do
         }
 
         expect(response.parsed_body["data"].pluck("client_name")).to match(["Zach Zeigler", "Dilly Dodger", "Billy Bob"])
+      end
+
+      it "can be sorted by defendant_name case-insensitively" do
+        create(:submission, :with_pa_version,
+               defendant_name: "billy bob")
+
+        post search_endpoint, params: {
+          sort_by: "client_name",
+          sort_direction: "asc",
+          application_type: "crm4",
+        }
+
+        expect(response.parsed_body["data"].pluck("client_name")).to match(["Billy Bob", "billy bob", "Dilly Dodger", "Zach Zeigler"])
       end
 
       it "can be sorted by status_with_assignment ascending" do
