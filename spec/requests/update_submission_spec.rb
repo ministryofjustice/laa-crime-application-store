@@ -11,8 +11,9 @@ RSpec.describe "Update submission" do
     expect(submission.reload.latest_version.application).to eq({ "new" => "data" })
   end
 
-  it "updates events" do
-    submission = create(:submission, application_state: "further_info")
+  it "adds the event and updates last_updated_at" do
+    submission = create(:submission, application_state: "further_info", last_updated_at: 1.day.ago)
+
     freeze_time do
       patch "/v1/submissions/#{submission.id}",
             params: {
@@ -28,14 +29,50 @@ RSpec.describe "Update submission" do
             }
 
       submission.reload
-      expect(submission.events.count).to eq 1
-      expect(submission.events.first).to include(
-        "id" => "123",
-        "details" => "foo",
-      )
+      expect(submission.events).to contain_exactly(hash_including("id" => "123", "details" => "foo"))
       expect(submission.application_state).to eq("granted")
       expect(submission.ordered_submission_versions.count).to eq(2)
       expect(submission.last_updated_at).to eql submission.events.first["created_at"].to_time
+    end
+  end
+
+  context "with multiple events" do
+    let(:events) do
+      [
+        {
+          id: "123",
+          details: "foo",
+        },
+        {
+          id: "321",
+          details: "bar",
+        },
+      ]
+    end
+
+    it "adds multiple events and updates last_updated_at" do
+      submission = create(:submission, application_state: "further_info", last_updated_at: 1.day.ago)
+
+      freeze_time do
+        patch "/v1/submissions/#{submission.id}",
+              params: {
+                application_state: "granted",
+                events:,
+                application: { new: :data },
+                json_schema_version: 1,
+              }
+
+        submission.reload
+        expect(submission.events)
+          .to contain_exactly(
+            hash_including("id" => "123", "details" => "foo"),
+            hash_including("id" => "321", "details" => "bar"),
+          )
+
+        expect(submission.application_state).to eq("granted")
+        expect(submission.ordered_submission_versions.count).to eq(2)
+        expect(submission.last_updated_at).to eql(submission.events.first["created_at"].to_time)
+      end
     end
   end
 

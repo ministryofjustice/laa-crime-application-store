@@ -21,8 +21,10 @@ module Submissions
           event["updated_at"] ||= event["created_at"]
 
           submission.events << event.as_json
-          submission.last_updated_at = event["created_at"]
         end
+
+        latest_event = submission.events.max_by { |ev| ev["created_at"] }
+        submission.last_updated_at = latest_event["created_at"] if latest_event
         save && submission.save!
       end
 
