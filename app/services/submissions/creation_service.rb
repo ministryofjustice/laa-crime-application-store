@@ -12,6 +12,8 @@ module Submissions
             application: params[:application],
             version: 1,
           )
+
+          submission.update_columns(last_updated_at: submission.created_at)
         end
         NotificationService.call(params[:application_id], role)
       end

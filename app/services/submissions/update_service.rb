@@ -21,6 +21,7 @@ module Submissions
           event["updated_at"] ||= event["created_at"]
 
           submission.events << event.as_json
+          submission.last_updated_at = event["created_at"]
         end
         save && submission.save!
       end

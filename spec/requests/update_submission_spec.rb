@@ -13,27 +13,30 @@ RSpec.describe "Update submission" do
 
   it "updates events" do
     submission = create(:submission, application_state: "further_info")
-    patch "/v1/submissions/#{submission.id}",
-          params: {
-            application_state: "granted",
-            events: [
-              {
-                id: "123",
-                details: "foo",
-              },
-            ],
-            application: { new: :data },
-            json_schema_version: 1,
-          }
+    freeze_time do
+      patch "/v1/submissions/#{submission.id}",
+            params: {
+              application_state: "granted",
+              events: [
+                {
+                  id: "123",
+                  details: "foo",
+                },
+              ],
+              application: { new: :data },
+              json_schema_version: 1,
+            }
 
-    submission.reload
-    expect(submission.events.count).to eq 1
-    expect(submission.events.first).to include(
-      "id" => "123",
-      "details" => "foo",
-    )
-    expect(submission.application_state).to eq("granted")
-    expect(submission.ordered_submission_versions.count).to eq(2)
+      submission.reload
+      expect(submission.events.count).to eq 1
+      expect(submission.events.first).to include(
+        "id" => "123",
+        "details" => "foo",
+      )
+      expect(submission.application_state).to eq("granted")
+      expect(submission.ordered_submission_versions.count).to eq(2)
+      expect(submission.last_updated_at).to eql submission.events.first["created_at"].to_time
+    end
   end
 
   it "does not allow overwriting events" do
