@@ -13,7 +13,8 @@ module Submissions
             version: 1,
           )
 
-          submission.update_columns(last_updated_at: submission.created_at)
+          last_updated_at = params.dig(:application, :updated_at)&.to_time || submission.created_at
+          submission.update_columns(last_updated_at:)
         end
         NotificationService.call(params[:application_id], role)
       end

@@ -23,12 +23,51 @@ RSpec.describe "Create submission" do
         application_type: "crm4",
         application_risk: "low",
         current_version: 1,
+        last_updated_at: created_record.created_at,
       )
 
       expect(created_record.latest_version).to have_attributes(
         json_schema_version: 1,
         application: { "foo" => "bar" },
       )
+    end
+
+    it "updates last_updated_at from params" do
+      freeze_time do
+        id = SecureRandom.uuid
+        updated_at_time = 1.hour.ago
+
+        post "/v1/submissions", params: {
+          application_id: id,
+          application_type: "crm4",
+          application_risk: "low",
+          json_schema_version: 1,
+          application: {
+            foo: :bar,
+            "created_at" => (updated_at_time - 15.minutes).iso8601,
+            "updated_at" => updated_at_time.iso8601,
+          },
+        }
+
+        expect(created_record).to have_attributes(
+          id:,
+          application_state: "submitted",
+          application_type: "crm4",
+          application_risk: "low",
+          current_version: 1,
+          last_updated_at: updated_at_time,
+        )
+
+        expect(created_record.latest_version)
+          .to have_attributes(
+            json_schema_version: 1,
+            application: {
+              "foo" => "bar",
+              "created_at" => (updated_at_time - 15.minutes).iso8601,
+              "updated_at" => updated_at_time.iso8601,
+            },
+          )
+      end
     end
 
     it "validates what I send" do
