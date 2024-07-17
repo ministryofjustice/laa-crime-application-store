@@ -59,19 +59,19 @@ module Submissions
     end
 
     def submitted_from
-      search_params[:submitted_from]&.to_date
+      search_params[:submitted_from]&.to_date&.beginning_of_day
     end
 
     def submitted_to
-      search_params[:submitted_to]&.to_date
+      search_params[:submitted_to]&.to_date&.end_of_day
     end
 
     def updated_from
-      search_params[:updated_from]&.to_date
+      search_params[:updated_from]&.to_date&.beginning_of_day
     end
 
     def updated_to
-      search_params[:updated_to]&.to_date
+      search_params[:updated_to]&.to_date&.end_of_day
     end
 
     def status_with_assignment

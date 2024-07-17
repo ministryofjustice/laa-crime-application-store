@@ -116,25 +116,25 @@ RSpec.describe "Submission search" do
 
     context "with submitted date filter" do
       before do
-        travel_to(from_date) do
+        travel_to(start_date) do
           create_list(:submission, 3, :with_pa_version, defendant_name: "Jim RightOn")
         end
 
-        travel_to(from_date - 1.day) do
+        travel_to(start_date - 1.day) do
           create(:submission, :with_pa_version, defendant_name: "Jim TooOld")
         end
 
-        travel_to(to_date + 1.day) do
+        travel_to(end_date + 1.day) do
           create(:submission, :with_pa_version, defendant_name: "Jim TooYoung")
         end
       end
 
-      let(:from_date) { 4.weeks.ago.to_date }
-      let(:to_date) { 1.week.ago.to_date }
+      let(:start_date) { 4.weeks.ago }
+      let(:end_date) { 1.week.ago }
 
       context "with a date range" do
-        let(:submitted_from) { from_date.iso8601 }
-        let(:submitted_to) { to_date.iso8601 }
+        let(:submitted_from) { start_date.to_date.iso8601 }
+        let(:submitted_to) { end_date.to_date.iso8601 }
 
         it "brings back only those submitted between the dates" do
           post search_endpoint, params: {
@@ -149,8 +149,25 @@ RSpec.describe "Submission search" do
         end
       end
 
+      context "with a date range of the same day" do
+        let(:submitted_from) { start_date.to_date.iso8601 }
+        let(:submitted_to) { start_date.to_date.iso8601 }
+
+        it "brings back those updated between the beginning of day and end of day" do
+          post search_endpoint, params: {
+            query: "Jim",
+            application_type: "crm4",
+            submitted_from:,
+            submitted_to:,
+          }
+
+          expect(response.parsed_body["data"].size).to be 3
+          expect(response.parsed_body["data"].pluck("search_fields")).to all(include("righton"))
+        end
+      end
+
       context "with an endless date range" do
-        let(:submitted_from) { from_date.iso8601 }
+        let(:submitted_from) { start_date.to_date.iso8601 }
 
         it "brings back only those submitted after the from date" do
           post search_endpoint, params: {
@@ -165,7 +182,7 @@ RSpec.describe "Submission search" do
       end
 
       context "with a beginless date range" do
-        let(:submitted_to) { to_date.iso8601 }
+        let(:submitted_to) { end_date.to_date.iso8601 }
 
         it "brings back only those submitted before the to date" do
           post search_endpoint, params: {
@@ -182,17 +199,17 @@ RSpec.describe "Submission search" do
 
     context "with last_updated filter" do
       before do
-        create_list(:submission, 3, :with_pa_version, defendant_name: "Jim RightOn", ufn: "111111/111", last_updated_at: from_date)
-        create(:submission, :with_pa_version, defendant_name: "Jim TooOld", ufn: "222222/222", last_updated_at: from_date - 1.day)
-        create(:submission, :with_pa_version, defendant_name: "Jim TooYoung", ufn: "333333/333", last_updated_at: to_date + 1.day)
+        create_list(:submission, 3, :with_pa_version, defendant_name: "Jim RightOn", ufn: "111111/111", last_updated_at: start_date)
+        create(:submission, :with_pa_version, defendant_name: "Jim TooOld", ufn: "222222/222", last_updated_at: start_date - 1.day)
+        create(:submission, :with_pa_version, defendant_name: "Jim TooYoung", ufn: "333333/333", last_updated_at: end_date + 1.day)
       end
 
-      let(:from_date) { 4.weeks.ago.to_date }
-      let(:to_date) { 1.week.ago.to_date }
+      let(:start_date) { 4.weeks.ago }
+      let(:end_date) { 1.week.ago }
 
       context "with a date range" do
-        let(:updated_from) { from_date.iso8601 }
-        let(:updated_to) { to_date.iso8601 }
+        let(:updated_from) { start_date.to_date.iso8601 }
+        let(:updated_to) { end_date.to_date.iso8601 }
 
         it "brings back only those updated between the dates" do
           post search_endpoint, params: {
@@ -207,8 +224,25 @@ RSpec.describe "Submission search" do
         end
       end
 
+      context "with a date range of the same day" do
+        let(:updated_from) { start_date.to_date.iso8601 }
+        let(:updated_to) { start_date.to_date.iso8601 }
+
+        it "brings back those updated between the beginning of day and end of day" do
+          post search_endpoint, params: {
+            query: "Jim",
+            application_type: "crm4",
+            updated_from:,
+            updated_to:,
+          }
+
+          expect(response.parsed_body["data"].size).to be 3
+          expect(response.parsed_body["data"].pluck("search_fields")).to all(include("righton"))
+        end
+      end
+
       context "with an endless date range" do
-        let(:updated_from) { from_date.iso8601 }
+        let(:updated_from) { start_date.to_date.iso8601 }
 
         it "brings back only those last updated after the from date" do
           post search_endpoint, params: {
@@ -223,7 +257,7 @@ RSpec.describe "Submission search" do
       end
 
       context "with a beginless date range" do
-        let(:updated_to) { to_date.iso8601 }
+        let(:updated_to) { end_date.to_date.iso8601 }
 
         it "brings back only those last updated before the to date" do
           post search_endpoint, params: {
