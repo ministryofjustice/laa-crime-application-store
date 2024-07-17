@@ -1,11 +1,19 @@
 require "rails_helper"
 
 RSpec.describe Search do
-  describe "#search_laa_reference" do
-    let(:search) { described_class.search(query).pluck(:id) }
+  describe "#where_terms" do
+    let(:search) { described_class.where_terms(query).pluck(:id) }
     let(:prepare) { build(:submission).tap(&:save) }
 
     before { prepare }
+
+    context "when search text is nil" do
+      let(:query) { nil }
+
+      it "returns all records" do
+        expect(search).to eq([prepare.id])
+      end
+    end
 
     context "when search text is LAA reference" do
       let(:query) { "LAA-123456" }
@@ -312,7 +320,7 @@ RSpec.describe Search do
             ]
           end
 
-          it "returns the both records" do
+          it "returns both records" do
             expect(search).to eq(prepare.map(&:id))
           end
         end

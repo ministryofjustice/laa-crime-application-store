@@ -1,7 +1,7 @@
 module V1
   class EventsController < ApplicationController
     def create
-      Submissions::UpdateService.add_events(current_submission, params, save: true)
+      ::Submissions::UpdateService.add_events(current_submission, params, save: true)
       head :created
     end
 

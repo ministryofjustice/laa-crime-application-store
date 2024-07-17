@@ -1,7 +1,7 @@
 module V1
   class SubmissionsController < ApplicationController
     def index
-      applications = Submissions::ListService.call(params)
+      applications = ::Submissions::ListService.call(params)
       render json: { applications: }
     end
 
@@ -10,16 +10,16 @@ module V1
     end
 
     def create
-      Submissions::CreationService.call(params, current_client_role)
+      ::Submissions::CreationService.call(params, current_client_role)
       head :created
-    rescue Submissions::CreationService::AlreadyExistsError
+    rescue ::Submissions::CreationService::AlreadyExistsError
       head :conflict
     rescue ActiveRecord::RecordInvalid
       head :unprocessable_entity
     end
 
     def update
-      Submissions::UpdateService.call(current_submission, params, current_client_role)
+      ::Submissions::UpdateService.call(current_submission, params, current_client_role)
       head :created
     rescue ActiveRecord::RecordInvalid => e
       render json: { errors: e.message }, status: :unprocessable_entity

@@ -26,6 +26,9 @@ module Authorization
         events: {
           create: ->(object, _params) { object.application_state.in?(%w[submitted provider_updated]) },
         },
+        searches: {
+          create: true,
+        },
       },
     }.freeze
 

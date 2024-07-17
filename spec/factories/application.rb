@@ -20,6 +20,7 @@ FactoryBot.define do
 
     transient do
       defendant_name { nil }
+      additional_defendant_names { nil }
       firm_name { nil }
       first_name { defendant_name.present? ? defendant_name.split.first : "Joe" }
       last_name { defendant_name.present? ? defendant_name.split(" ", 2).last : "Bloggs" }
@@ -33,7 +34,15 @@ FactoryBot.define do
 
     trait :nsm do
       defendants do
-        [{ first_name:, last_name: }]
+        list = [{ first_name:, last_name:, main: true }]
+
+        additional_defendant_names&.each do |defendant_name|
+          first_name = defendant_name.present? ? defendant_name.split.first : "Joe"
+          last_name = defendant_name.present? ? defendant_name.split(" ", 2).last : "Bloggs"
+          list << { first_name:, last_name: }
+        end
+
+        list
       end
     end
   end
