@@ -14,7 +14,8 @@ module Submissions
 
     def call
       @data = search_query
-      build_results
+
+      search_results
     end
 
   private
@@ -30,7 +31,7 @@ module Submissions
       relation.where_terms(query)
     end
 
-    def build_results
+    def search_results
       {
         metadata: {
           total_results: @data.size,
