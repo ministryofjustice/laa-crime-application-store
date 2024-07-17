@@ -1,7 +1,7 @@
 module V1
   module Submissions
     class SearchesController < ApplicationController
-      SORTABLE_COLUMNS = %w[laa_reference firm_name client_name date_updated last_updated status_with_assignment].freeze
+      SORTABLE_COLUMNS = %w[laa_reference firm_name client_name last_updated status_with_assignment].freeze
 
       def create
         @data = search_query
@@ -85,7 +85,7 @@ module V1
         return "last_updated desc" unless search_params[:sort_by]
         raise "Unsortable column \"#{sort_by}\" supplied as sort_by argument" unless SORTABLE_COLUMNS.include?(sort_by.downcase)
 
-        if sort_by.in?(%w[date_updated last_updated])
+        if sort_by == "last_updated"
           "#{sort_by} #{sort_direction}"
         else
           "LOWER(#{sort_by}) #{sort_direction}"

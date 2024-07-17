@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_17_092256) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_17_120005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -162,7 +162,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_17_092256) do
       app_ver.search_fields,
       app.has_been_assigned_to,
       app.created_at AS date_submitted,
-      app.updated_at AS date_updated,
       app.last_updated_at AS last_updated,
           CASE
               WHEN ((app.application_state = 'submitted'::text) AND ass.assigned) THEN 'in_progress'::text
