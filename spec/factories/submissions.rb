@@ -13,6 +13,7 @@ FactoryBot.define do
     application_risk { "low" }
     application_type { "crm4" }
     current_version { 1 }
+    last_updated_at { Time.current }
     events { [] }
 
     transient do

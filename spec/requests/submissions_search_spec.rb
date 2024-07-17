@@ -180,28 +180,13 @@ RSpec.describe "Submission search" do
       end
     end
 
-    context "with date updated filter" do
+    context "with last_updated filter" do
       before do
-        travel_to(a_date) do
-          create_list(:submission, 3, :with_pa_version, defendant_name: "Jim RightOn", ufn: "111111/111")
-          create(:submission, :with_pa_version, defendant_name: "Jim TooOld", ufn: "222222/222")
-          create(:submission, :with_pa_version, defendant_name: "Jim TooYoung", ufn: "333333/333")
-        end
-
-        travel_to(from_date) do
-          SubmissionVersion.where("application ->> 'ufn' = ?", "111111/111").find_each { |ver| ver.submission.touch }
-        end
-
-        travel_to(from_date - 1.day) do
-          SubmissionVersion.find_by("application ->> 'ufn' = ?", "222222/222").submission.touch
-        end
-
-        travel_to(to_date + 1.day) do
-          SubmissionVersion.find_by("application ->> 'ufn' = ?", "333333/333").submission.touch
-        end
+        create_list(:submission, 3, :with_pa_version, defendant_name: "Jim RightOn", ufn: "111111/111", last_updated_at: from_date)
+        create(:submission, :with_pa_version, defendant_name: "Jim TooOld", ufn: "222222/222", last_updated_at: from_date - 1.day)
+        create(:submission, :with_pa_version, defendant_name: "Jim TooYoung", ufn: "333333/333", last_updated_at: to_date + 1.day)
       end
 
-      let(:a_date) { 2.months.ago.to_date }
       let(:from_date) { 4.weeks.ago.to_date }
       let(:to_date) { 1.week.ago.to_date }
 
@@ -225,7 +210,7 @@ RSpec.describe "Submission search" do
       context "with an endless date range" do
         let(:updated_from) { from_date.iso8601 }
 
-        it "brings back only those updated after the from date" do
+        it "brings back only those last updated after the from date" do
           post search_endpoint, params: {
             query: "Jim",
             application_type: "crm4",
@@ -240,7 +225,7 @@ RSpec.describe "Submission search" do
       context "with a beginless date range" do
         let(:updated_to) { to_date.iso8601 }
 
-        it "brings back only those updated before the to date" do
+        it "brings back only those last updated before the to date" do
           post search_endpoint, params: {
             query: "Jim",
             application_type: "crm4",
@@ -453,7 +438,7 @@ RSpec.describe "Submission search" do
         end
       end
 
-      it "defaults to sorting by date_updated, most recent first" do
+      it "defaults to sorting by last_updated, most recent first" do
         post search_endpoint, params: {
           application_type: "crm4",
         }
@@ -587,9 +572,9 @@ RSpec.describe "Submission search" do
         expect(response.parsed_body["data"].pluck("status_with_assignment")).to match(%w[rejected granted auto_grant])
       end
 
-      it "can be sorted by date_updated ascending" do
+      it "can be sorted by last_updated ascending" do
         post search_endpoint, params: {
-          sort_by: "date_updated",
+          sort_by: "last_updated",
           sort_direction: "asc",
           application_type: "crm4",
         }
@@ -597,9 +582,9 @@ RSpec.describe "Submission search" do
         expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-AAAAAA LAA-BBBBBB LAA-CCCCCC])
       end
 
-      it "can be sorted by date_updated descending" do
+      it "can be sorted by last_updated descending" do
         post search_endpoint, params: {
-          sort_by: "date_updated",
+          sort_by: "last_updated",
           sort_direction: "desc",
           application_type: "crm4",
         }
@@ -609,7 +594,7 @@ RSpec.describe "Submission search" do
 
       it "sorts raw data to match the order of data" do
         post search_endpoint, params: {
-          sort_by: "date_updated",
+          sort_by: "last_updated",
           sort_direction: "desc",
           application_type: "crm4",
         }
