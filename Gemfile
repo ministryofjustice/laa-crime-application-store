@@ -20,6 +20,8 @@ gem "bootsnap", require: false
 
 gem "httparty"
 gem "jwt", "~> 2.8.2"
+gem "lograge"
+gem "logstash-event"
 gem "oauth2"
 gem "prometheus_exporter"
 gem "scenic"

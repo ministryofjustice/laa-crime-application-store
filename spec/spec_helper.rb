@@ -4,6 +4,7 @@ unless ENV["NOCOVERAGE"]
     add_filter "config/initializers/prometheus.rb"
     add_filter "config/initializers/sentry.rb"
     add_filter "config/initializers/sidekiq.rb"
+    add_filter "config/initializers/lograge.rb"
     add_filter "config/routes.rb"
     add_filter "lib/tasks/"
     add_filter "spec/"
