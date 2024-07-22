@@ -10,7 +10,7 @@ class Search < ApplicationRecord
   def self.where_terms(string)
     return all unless string
 
-    sub_strings = string.downcase.split(/\s+/).map do |str|
+    sub_strings = string.strip.downcase.split(/\s+/).map do |str|
       if str.start_with?("laa-")
         clean_str = str.sub(/\Alaa-/, "laa")
         "#{clean_str}:A"
