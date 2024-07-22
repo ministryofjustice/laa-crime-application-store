@@ -1,6 +1,6 @@
 Rails.application.configure do
   config.lograge.enabled = Rails.env.production?
-  config.lograge.base_controller_class = 'ActionController::Base'
+  config.lograge.base_controller_class = 'ActionController::API'
   config.lograge.logger = ActiveSupport::Logger.new($stdout)
   config.lograge.formatter = Lograge::Formatters::Logstash.new
 
