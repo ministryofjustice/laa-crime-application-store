@@ -155,6 +155,26 @@ RSpec.describe Search do
       end
     end
 
+    context "when search text has a leading space" do
+      let(:query) { " joe" }
+
+      context "with prior authority application" do
+        let(:prepare) { build(:submission, :with_pa_version).tap(&:save) }
+
+        it "returns the record" do
+          expect(search).to eq([prepare.id])
+        end
+      end
+
+      context "with non-standard magistrate application" do
+        let(:prepare) { build(:submission, :with_nsm_version).tap(&:save) }
+
+        it "returns the record" do
+          expect(search).to eq([prepare.id])
+        end
+      end
+    end
+
     context "when user name is Jason/Jim" do
       let(:query) { "Jason/Jim" }
 
