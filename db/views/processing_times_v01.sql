@@ -1,6 +1,7 @@
 with base as (
 	SELECT
-	  application.application_type as submission_type,
+    application.id,
+	  application.application_type,
 		application_version.version,
 		COALESCE(LAG(application_version.application ->> 'status', 1) OVER (
 	  	  PARTITION BY application_version.application_id

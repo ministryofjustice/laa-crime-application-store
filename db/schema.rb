@@ -177,7 +177,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_160621) do
   SQL
   create_view "active_providers", sql_definition: <<-SQL
       WITH submissions AS (
-           SELECT application.application_type AS submission_type,
+           SELECT application.application_type,
               ((application_version.application -> 'firm_office'::text) ->> 'account_number'::text) AS office_code,
               ((application_version.application -> 'firm_office'::text) ->> 'name'::text) AS firm_name,
               date_trunc('week'::text, application_version.created_at) AS submitted_start
@@ -186,20 +186,21 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_160621) do
             WHERE (application_version.version = 1)
             GROUP BY application.application_type, ((application_version.application -> 'firm_office'::text) ->> 'account_number'::text), ((application_version.application -> 'firm_office'::text) ->> 'name'::text), (date_trunc('week'::text, application_version.created_at))
           )
-   SELECT submissions.submission_type,
+   SELECT submissions.application_type,
       submissions.submitted_start,
       count(DISTINCT submissions.office_code) AS office_codes_submitting_during_the_period,
       ( SELECT count(DISTINCT subs.office_code) AS count
              FROM submissions subs
-            WHERE ((submissions.submitted_start >= subs.submitted_start) AND (submissions.submission_type = subs.submission_type))) AS total_office_codes_submitters,
+            WHERE ((submissions.submitted_start >= subs.submitted_start) AND (submissions.application_type = subs.application_type))) AS total_office_codes_submitters,
       jsonb_agg(DISTINCT submissions.office_code) AS office_codes_during_the_period
      FROM submissions
-    GROUP BY submissions.submission_type, submissions.submitted_start
-    ORDER BY submissions.submission_type, submissions.submitted_start;
+    GROUP BY submissions.application_type, submissions.submitted_start
+    ORDER BY submissions.application_type, submissions.submitted_start;
   SQL
   create_view "processing_times", sql_definition: <<-SQL
       WITH base AS (
-           SELECT application.application_type AS submission_type,
+           SELECT application.id,
+              application.application_type,
               application_version.version,
               COALESCE(lag((application_version.application ->> 'status'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), 'draft'::text) AS from_status,
               (COALESCE(lag((application_version.application ->> 'updated_at'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), (application_version.application ->> 'created_at'::text)))::timestamp without time zone AS from_time,
@@ -208,7 +209,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_160621) do
              FROM (application_version
                JOIN application ON ((application_version.application_id = application.id)))
           )
-   SELECT base.submission_type,
+   SELECT base.id,
+      base.application_type,
       base.version,
       base.from_status,
       base.from_time,
