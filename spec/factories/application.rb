@@ -7,7 +7,7 @@ FactoryBot.define do
     ufn { "010124/001" }
     firm_office do
       {
-        "account_number" => "1A123B",
+        "account_number" => account_number,
         "address_line_1" => "2 Laywer Suite",
         "address_line_2" => nil,
         "name" => firm_name,
@@ -22,6 +22,7 @@ FactoryBot.define do
       defendant_name { nil }
       additional_defendant_names { nil }
       firm_name { nil }
+      account_number { "1A123B" }
       first_name { defendant_name.present? ? defendant_name.split.first : "Joe" }
       last_name { defendant_name.present? ? defendant_name.split(" ", 2).last : "Bloggs" }
     end
