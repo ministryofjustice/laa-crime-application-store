@@ -17,9 +17,9 @@ FactoryBot.define do
         "vat_registered" => "yes",
       }
     end
-    status { 'submitted' }
+    status { "submitted" }
     updated_at { Time.current }
-    created_at { status == 'submitted' ? 10.minutes.ago : updated_at }
+    created_at { status == "submitted" ? 10.minutes.ago : updated_at }
 
     transient do
       defendant_name { nil }

@@ -10,7 +10,7 @@ FactoryBot.define do
       account_number { "1A123B" }
       ufn { nil }
       laa_reference { nil }
-      status { 'submitted' }
+      status { "submitted" }
     end
 
     application do
