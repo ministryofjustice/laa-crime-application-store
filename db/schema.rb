@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_23_144044) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_24_160621) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -195,5 +195,29 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_23_144044) do
      FROM submissions
     GROUP BY submissions.application_type, submissions.submitted_start
     ORDER BY submissions.application_type, submissions.submitted_start;
+  SQL
+  create_view "processing_times", sql_definition: <<-SQL
+      WITH base AS (
+           SELECT application.id,
+              application.application_type,
+              application_version.version,
+              COALESCE(lag((application_version.application ->> 'status'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), 'draft'::text) AS from_status,
+              (COALESCE(lag((application_version.application ->> 'updated_at'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), (application_version.application ->> 'created_at'::text)))::timestamp without time zone AS from_time,
+              (application_version.application ->> 'status'::text) AS to_status,
+              ((application_version.application ->> 'updated_at'::text))::timestamp without time zone AS to_time
+             FROM (application_version
+               JOIN application ON ((application_version.application_id = application.id)))
+          )
+   SELECT base.id,
+      base.application_type,
+      base.version,
+      base.from_status,
+      base.from_time,
+      base.to_status,
+      base.to_time,
+      (base.from_time)::date AS from_date,
+      (base.to_time)::date AS to_date,
+      GREATEST(EXTRACT(epoch FROM (base.to_time - base.from_time)), (0)::numeric) AS processing_seconds
+     FROM base;
   SQL
 end

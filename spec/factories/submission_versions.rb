@@ -10,6 +10,7 @@ FactoryBot.define do
       account_number { "1A123B" }
       ufn { nil }
       laa_reference { nil }
+      status { 'submitted' }
     end
 
     application do
@@ -17,6 +18,7 @@ FactoryBot.define do
             defendant_name:,
             firm_name:,
             account_number:,
+            status:,
             ufn: ufn || "010124/001",
             laa_reference: laa_reference || "LAA-123456")
     end
@@ -28,6 +30,7 @@ FactoryBot.define do
               defendant_name:,
               account_number:,
               firm_name:,
+              status:,
               ufn: ufn || "010124/001",
               service_type: "ae_consultant",
               laa_reference: laa_reference || "LAA-123456")
@@ -41,6 +44,7 @@ FactoryBot.define do
               defendant_name:,
               account_number:,
               firm_name:,
+              status:,
               ufn: ufn || "010124/001",
               service_type: "custom",
               custom_service_name: "Test")
@@ -55,6 +59,7 @@ FactoryBot.define do
               additional_defendant_names:,
               account_number:,
               firm_name:,
+              status:,
               ufn: ufn || "010124/001",
               laa_reference: laa_reference || "LAA-123456")
       end

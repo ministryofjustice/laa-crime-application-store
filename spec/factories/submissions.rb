@@ -24,6 +24,7 @@ FactoryBot.define do
       ufn { nil }
       laa_reference { nil }
       build_scope { [] }
+      status { application_state }
     end
 
     after(:build) do |submission, a|
@@ -35,7 +36,8 @@ FactoryBot.define do
         firm_name: a.firm_name,
         ufn: a.ufn,
         laa_reference: a.laa_reference,
-        account_number: a.account_number
+        account_number: a.account_number,
+        status: a.status
       )
     end
 
