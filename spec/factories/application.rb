@@ -5,6 +5,7 @@ FactoryBot.define do
     service_type { "other" }
     court_type { "other" }
     ufn { "010124/001" }
+    office_code { account_number }
     firm_office do
       {
         "account_number" => account_number,

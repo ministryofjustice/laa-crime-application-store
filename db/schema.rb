@@ -178,12 +178,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_24_160621) do
   create_view "active_providers", sql_definition: <<-SQL
       WITH submissions AS (
            SELECT application.application_type,
-              ((application_version.application -> 'firm_office'::text) ->> 'account_number'::text) AS office_code,
+              (application_version.application -> 'office_code'::text) AS office_code,
               date_trunc('week'::text, application_version.created_at) AS submitted_start
              FROM (application_version
                JOIN application ON ((application_version.application_id = application.id)))
             WHERE (application_version.version = 1)
-            GROUP BY application.application_type, ((application_version.application -> 'firm_office'::text) ->> 'account_number'::text), (date_trunc('week'::text, application_version.created_at))
+            GROUP BY application.application_type, (application_version.application -> 'office_code'::text), (date_trunc('week'::text, application_version.created_at))
           )
    SELECT submissions.application_type,
       submissions.submitted_start,
