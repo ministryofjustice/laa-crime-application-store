@@ -5,9 +5,10 @@ FactoryBot.define do
     service_type { "other" }
     court_type { "other" }
     ufn { "010124/001" }
+    office_code { account_number }
     firm_office do
       {
-        "account_number" => "1A123B",
+        "account_number" => account_number,
         "address_line_1" => "2 Laywer Suite",
         "address_line_2" => nil,
         "name" => firm_name,
@@ -17,11 +18,15 @@ FactoryBot.define do
         "vat_registered" => "yes",
       }
     end
+    status { "submitted" }
+    updated_at { Time.current }
+    created_at { status == "submitted" ? 10.minutes.ago : updated_at }
 
     transient do
       defendant_name { nil }
       additional_defendant_names { nil }
       firm_name { nil }
+      account_number { "1A123B" }
       first_name { defendant_name.present? ? defendant_name.split.first : "Joe" }
       last_name { defendant_name.present? ? defendant_name.split(" ", 2).last : "Bloggs" }
     end

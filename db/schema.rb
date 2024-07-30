@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_17_120005) do
+ActiveRecord::Schema[7.1].define(version: 2024_07_24_160621) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -58,35 +58,35 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_17_120005) do
   add_foreign_key "application_version", "application", name: "application_version_application_id_fkey"
 
   create_view "events_raw", sql_definition: <<-SQL
-      SELECT id,
-      application_type,
-      jsonb_array_elements(events) AS event_json
+      SELECT application.id,
+      application.application_type,
+      jsonb_array_elements(application.events) AS event_json
      FROM application;
   SQL
   create_view "all_events", sql_definition: <<-SQL
-      SELECT id,
-      application_type,
-      event_json,
-      (event_json ->> 'id'::text) AS event_id,
-      ((event_json ->> 'submission_version'::text))::integer AS submission_version,
-      (event_json ->> 'event_type'::text) AS event_type,
-      ((event_json ->> 'created_at'::text))::timestamp without time zone AS event_at,
-      (((event_json ->> 'created_at'::text))::timestamp without time zone)::date AS event_on,
-      (event_json ->> 'primary_user_id'::text) AS primary_user_id,
-      (event_json ->> 'secondary_user_id'::text) AS secondary_user_id,
-      (event_json -> 'details'::text) AS details
+      SELECT events_raw.id,
+      events_raw.application_type,
+      events_raw.event_json,
+      (events_raw.event_json ->> 'id'::text) AS event_id,
+      ((events_raw.event_json ->> 'submission_version'::text))::integer AS submission_version,
+      (events_raw.event_json ->> 'event_type'::text) AS event_type,
+      ((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone AS event_at,
+      (((events_raw.event_json ->> 'created_at'::text))::timestamp without time zone)::date AS event_on,
+      ((events_raw.event_json ->> 'primary_user_id'::text))::integer AS primary_user_id,
+      ((events_raw.event_json ->> 'secondary_user_id'::text))::integer AS secondary_user_id,
+      (events_raw.event_json -> 'details'::text) AS details
      FROM events_raw;
   SQL
   create_view "submissions_by_date", sql_definition: <<-SQL
-      SELECT event_on,
-      application_type,
-      count(*) FILTER (WHERE (event_type = 'new_version'::text)) AS submission,
-      count(*) FILTER (WHERE (event_type = 'provider_updated'::text)) AS resubmission,
+      SELECT all_events.event_on,
+      all_events.application_type,
+      count(*) FILTER (WHERE (all_events.event_type = 'new_version'::text)) AS submission,
+      count(*) FILTER (WHERE (all_events.event_type = 'provider_updated'::text)) AS resubmission,
       count(*) AS total
      FROM all_events
-    WHERE (event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text]))
-    GROUP BY application_type, event_on
-    ORDER BY application_type, event_on;
+    WHERE (all_events.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text]))
+    GROUP BY all_events.application_type, all_events.event_on
+    ORDER BY all_events.application_type, all_events.event_on;
   SQL
   create_view "eod_assignment_count", sql_definition: <<-SQL
       WITH dates AS (
@@ -174,5 +174,50 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_17_120005) do
        JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))))
        JOIN assignments ass ON ((ass.id = app.id)))
        JOIN defendants def ON ((def.id = app.id)));
+  SQL
+  create_view "active_providers", sql_definition: <<-SQL
+      WITH submissions AS (
+           SELECT application.application_type,
+              (application_version.application -> 'office_code'::text) AS office_code,
+              date_trunc('week'::text, application_version.created_at) AS submitted_start
+             FROM (application_version
+               JOIN application ON ((application_version.application_id = application.id)))
+            WHERE (application_version.version = 1)
+            GROUP BY application.application_type, (application_version.application -> 'office_code'::text), (date_trunc('week'::text, application_version.created_at))
+          )
+   SELECT submissions.application_type,
+      submissions.submitted_start,
+      count(DISTINCT submissions.office_code) AS office_codes_submitting_during_the_period,
+      ( SELECT count(DISTINCT subs.office_code) AS count
+             FROM submissions subs
+            WHERE ((submissions.submitted_start >= subs.submitted_start) AND (submissions.application_type = subs.application_type))) AS total_office_codes_submitters,
+      jsonb_agg(DISTINCT submissions.office_code) AS office_codes_during_the_period
+     FROM submissions
+    GROUP BY submissions.application_type, submissions.submitted_start
+    ORDER BY submissions.application_type, submissions.submitted_start;
+  SQL
+  create_view "processing_times", sql_definition: <<-SQL
+      WITH base AS (
+           SELECT application.id,
+              application.application_type,
+              application_version.version,
+              COALESCE(lag((application_version.application ->> 'status'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), 'draft'::text) AS from_status,
+              (COALESCE(lag((application_version.application ->> 'updated_at'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), (application_version.application ->> 'created_at'::text)))::timestamp without time zone AS from_time,
+              (application_version.application ->> 'status'::text) AS to_status,
+              ((application_version.application ->> 'updated_at'::text))::timestamp without time zone AS to_time
+             FROM (application_version
+               JOIN application ON ((application_version.application_id = application.id)))
+          )
+   SELECT base.id,
+      base.application_type,
+      base.version,
+      base.from_status,
+      base.from_time,
+      base.to_status,
+      base.to_time,
+      (base.from_time)::date AS from_date,
+      (base.to_time)::date AS to_date,
+      GREATEST(EXTRACT(epoch FROM (base.to_time - base.from_time)), (0)::numeric) AS processing_seconds
+     FROM base;
   SQL
 end

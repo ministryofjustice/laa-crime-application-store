@@ -26,7 +26,7 @@ spec:
       containers:
       - name: metabase
         # If bumping this image version, also bump the version scanned by Snyk in .circleci/config.yml
-        image: metabase/metabase:v0.49.13
+        image: {{ .Values.metabase.image }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
           - containerPort: 3000

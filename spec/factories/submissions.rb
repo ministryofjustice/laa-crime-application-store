@@ -20,9 +20,11 @@ FactoryBot.define do
       defendant_name { nil }
       additional_defendant_names { nil }
       firm_name { nil }
+      account_number { "1A123B" }
       ufn { nil }
       laa_reference { nil }
       build_scope { [] }
+      status { application_state }
     end
 
     after(:build) do |submission, a|
@@ -33,7 +35,9 @@ FactoryBot.define do
         additional_defendant_names: a.additional_defendant_names,
         firm_name: a.firm_name,
         ufn: a.ufn,
-        laa_reference: a.laa_reference
+        laa_reference: a.laa_reference,
+        account_number: a.account_number,
+        status: a.status
       )
     end
 
