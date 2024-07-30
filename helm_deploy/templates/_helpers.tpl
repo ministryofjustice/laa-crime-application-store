@@ -56,6 +56,18 @@ app: laa-crime-application-store-prometheus
 {{- end }}
 
 {{/*
+Default Security Context
+*/}}
+{{- define "helm_deploy.defaultSecurityContext" -}}
+runAsNonRoot: true
+allowPrivilegeEscalation: false
+seccompProfile:
+  type: RuntimeDefault
+capabilities:
+  drop: [ "ALL" ]
+{{- end }}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "laa-crime-application-store.serviceAccountName" -}}
