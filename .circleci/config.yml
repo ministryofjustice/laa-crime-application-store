@@ -43,6 +43,14 @@ references:
           kubectl config use-context ${K8S_CLUSTER_NAME}
           kubectl --namespace=${K8S_NAMESPACE} get pods
 
+  _install-yamllint: &install-yamllint
+    run:
+      name: Install yamllint to use to check yaml formatting issues
+      command: |
+        sudo apt update
+        sudo apt install -y python3-pip
+        pip install yamllint
+
 commands:
   install-requirements:
     steps:
@@ -104,11 +112,33 @@ commands:
           path: ~/repo/coverage
           destination: coverage
 
-  run-linting:
+  run-rubocop:
     steps:
       - run:
           name: Run rubocop
           command: bundle exec rubocop
+
+
+  # using a more recent version of yamllink so we can use the key_duplicates rule
+  # https://yamllint.readthedocs.io/en/stable/rules.html#module-yamllint.rules.key_duplicates
+
+  lint-and-verify-helm-config:
+      description:
+      parameters:
+        environment:
+          description: Name of environment to check helm template of
+          type: string
+      steps:
+        - helm/install_helm_client:
+            version: 3.7.2
+        - *install-yamllint
+        - run:
+            name: Lint helm chart for <<parameters.environment>>
+            command: helm lint helm_deploy --values helm_deploy/values-<<parameters.environment>>.yaml
+        - run:
+            name: Check helm template for <<parameters.environment>>
+            command: helm template --debug helm_deploy --values helm_deploy/values-<<parameters.environment>>.yaml | yamllint -
+
 
   build-docker-image-for-scan:
     steps:
@@ -153,7 +183,13 @@ jobs:
     steps:
       - checkout
       - install-requirements
-      - run-linting
+      - run-rubocop
+      - lint-and-verify-helm-config:
+          environment: development
+      - lint-and-verify-helm-config:
+          environment: uat
+      - lint-and-verify-helm-config:
+          environment: production
 
   test-app:
     working_directory: ~/repo
