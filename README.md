@@ -83,7 +83,7 @@ Rubocop can be run as below
 bundle exec rubocop
 ```
 
-### Metababase
+### Metabase
 
 An analytics database user/role is created in the application database which is granted limited permission to access views, not tables, on the database.
 
@@ -93,3 +93,12 @@ This user will be created if migrations are run via an enhancement added to the 
 The views are generated and maintained using the [scenic gem's](https://github.com/scenic-views/scenic) idiomatic location, `db/views`. UAT and production have Metabase database RDS instances plus a web UI available. The web UI is used to create database connections to the application/target database using the analytics user. The web UI can then use this connection to generate widgets that can be embedded in parts of the app.
 
 See [Metabase setup for NSCC confluence document](https://dsdmoj.atlassian.net/wiki/x/XABEJAE) for more
+
+
+### Security Context
+We have a default [k8s security context ](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.30/#securitycontext-v1-core) defined in our _helpers.tpl template file. It sets the following:
+
+- runAsNonRoot - Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. Currently defaults to true, this reduces attack surface
+- allowPrivilegeEscalation - AllowPrivilegeEscalation controls whether a process can gain more privileges than its parent process. Currently defaults to false, this limits the level of access for bad actors/destructive processes
+- seccompProfile.type - The Secure Computing Mode (Linux kernel feature that limits syscalls that processes can run) options to use by this container. Currenly defaults to RuntimeDefault which is the [widely accepted default profile](https://docs.docker.com/engine/security/seccomp/#significant-syscalls-blocked-by-the-default-profile)
+- capabilities - The POSIX capabilities to add/drop when running containers. Currently defaults to drop["ALL"] which means all of these capabilities will be dropped - since this doesn't cause any issues, it's best to keep as is for security reasons until there's a need for change
