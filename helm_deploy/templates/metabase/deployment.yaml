@@ -22,7 +22,7 @@ spec:
       serviceAccountName: {{ .Values.service_account.name }}
       {{- end }}
       securityContext:
-        {{- include "helm_deploy.defaultSecurityContext" . | nindent 8 }}
+        {{- include "laa-crime-application-store.defaultSecurityContext" . | nindent 8 }}
       containers:
       - name: metabase
         # If bumping this image version, also bump the version scanned by Snyk in .circleci/config.yml

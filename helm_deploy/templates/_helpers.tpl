@@ -58,7 +58,7 @@ app: laa-crime-application-store-prometheus
 {{/*
 Default Security Context
 */}}
-{{- define "helm_deploy.defaultSecurityContext" -}}
+{{- define "laa-crime-application-store.defaultSecurityContext" -}}
 runAsNonRoot: true
 allowPrivilegeEscalation: false
 seccompProfile:
