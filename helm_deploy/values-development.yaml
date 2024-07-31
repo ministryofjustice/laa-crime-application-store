@@ -16,18 +16,6 @@ fullnameOverride: laa-crime-application-store-app
 
 podAnnotations: {}
 
-podSecurityContext: {}
-  # fsGroup: 2000
-
-securityContext:
-  runAsNonRoot: true
-  allowPrivilegeEscalation: false
-  seccompProfile:
-    type: RuntimeDefault
-  capabilities:
-    drop: [ "ALL" ]
-
-
 service:
   type: ClusterIP
   port: 80
