@@ -129,6 +129,8 @@ commands:
           description: Name of environment to check helm template of
           type: string
       steps:
+        - helm/install_helm_client:
+            version: 3.7.2
         - run:
             name: Lint helm chart for <<parameters.environment>>
             command: helm lint helm_deploy --values helm_deploy/values-<<parameters.environment>>.yaml
@@ -174,13 +176,6 @@ commands:
               ./bin/deploy << parameters.environment >>
 
 jobs:
-  install-helm:
-    working_directory: ~/repo
-    executor: test-executor
-    steps:
-      - helm/install_helm_client:
-        version: 3.7.2
-
   lint-app:
     working_directory: ~/repo
     executor: test-executor
@@ -340,18 +335,11 @@ workflows:
 
   test-opened-pr:
     jobs:
-      - install-helm:
-        filters:
-          branches:
-            ignore:
-              - main
       - lint-app:
           filters:
             branches:
               ignore:
                 - main
-          requires:
-            - install-helm
       - test-app:
           filters:
             branches:
@@ -362,8 +350,6 @@ workflows:
             branches:
               ignore:
                 - main
-          requires:
-            - install-helm
       - scan-metabase-docker-image:
           filters:
             branches:
@@ -396,18 +382,11 @@ workflows:
 
   test-build-deploy-merged-pr:
     jobs:
-      - install-helm:
-        filters:
-          branches:
-            only:
-              - main
       - lint-app:
           filters:
             branches:
               only:
                 - main
-          requires:
-            - install-helm
       - test-app:
           filters:
             branches:
@@ -418,8 +397,6 @@ workflows:
             branches:
               only:
                 - main
-          requires:
-            - install-helm
       - scan-metabase-docker-image:
           filters:
             branches:
