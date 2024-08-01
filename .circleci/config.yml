@@ -341,10 +341,10 @@ workflows:
   test-opened-pr:
     jobs:
       - install-helm:
-        filters:
-          branches:
-            ignore:
-              - main
+          filters:
+            branches:
+              ignore:
+                - main
       - lint-app:
           filters:
             branches:
@@ -397,10 +397,10 @@ workflows:
   test-build-deploy-merged-pr:
     jobs:
       - install-helm:
-        filters:
-          branches:
-            only:
-              - main
+          filters:
+            branches:
+              only:
+                - main
       - lint-app:
           filters:
             branches:
