@@ -72,7 +72,6 @@ commands:
           paths:
             - ~/.bundle
             - vendor/bundle
-      - *install-yamllint
 
   db-setup:
     steps:
@@ -183,6 +182,7 @@ jobs:
     steps:
       - checkout
       - install-requirements
+      - *install-yamllint
       - run-rubocop
       - lint-and-verify-helm-config:
           environment: development
@@ -222,8 +222,6 @@ jobs:
       - run:
           name: Monitor container image for vulnerabilities
           command: snyk container monitor app
-      - helm/install_helm_client:
-          version: 3.7.2
       - run:
           name: Test IaC files
           command: |
