@@ -1,7 +1,7 @@
 # This contains the used bits of data to replicate the application state issue that currently exists in Production
 # The rake task fixes all by 8 of this issues. the remain 8 appears to be genuine duplciations of versions and can potentially be deleted
 
-require 'factory_bot'
+require "factory_bot"
 
 # query used to extract the data
 # irb(main):005> puts SubmissionVersion.joins(:submission).joins("join application_version av on av.application_id = application_version.application_id and av.application ->> 'status' = application_version.application ->> 'status' and av.version = application_version.version - 1")
@@ -12,8 +12,16 @@ data = [
   ["5e6fa81e-4c52-46dd-b22e-2631e708866d", "77cfa567-8652-4a68-811b-31ef5cd77b25", "auto_grant", [["b8527801-305f-4d51-9c9a-8ee58168ab10", "auto_decision", "2024-06-12T08:35:49.202Z", 1], ["6abb5334-5cf3-4322-a587-aa301e6626fe", "new_version", "2024-06-12T08:35:49.205Z", 1]], "2024-06-12T08:35:49.202Z", "submitted", 2, 2],
   ["5e6fa81e-4c52-46dd-b22e-2631e708866d", "e31cddad-8165-4b51-b150-9c9c720c2e98", "auto_grant", [["b8527801-305f-4d51-9c9a-8ee58168ab10", "auto_decision", "2024-06-12T08:35:49.202Z", 1], ["6abb5334-5cf3-4322-a587-aa301e6626fe", "new_version", "2024-06-12T08:35:49.205Z", 1]], "2024-06-12T08:35:49.202Z", "submitted", 1, 2],
   ["603c3d9a-2493-40d5-9691-5339c71c801a", "70076a3d-a51a-472c-924d-c23b1f7ccac2", "granted", [["c6a64aec-946a-41e9-bf74-ae30255f4b32", "new_version", "2024-06-11T09:17:35.434Z", 1], ["febce945-59c6-4b72-a9c8-74e86c5b8b56", "assignment", "2024-06-11T11:50:12.864Z", 1], ["52b10f45-ebe5-4857-bdcf-e83ea7f5e170", "decision", "2024-06-13T15:16:33.719Z", 2]], "2024-06-13T15:16:33.719Z", "granted", 3, 3],
-  ["603c3d9a-2493-40d5-9691-5339c71c801a", "79d08836-ab0c-4cae-9772-1bae4cd6206f", "granted", [["c6a64aec-946a-41e9-bf74-ae30255f4b32", "new_version", "2024-06-11T09:17:35.434Z", 1],
-  ["febce945-59c6-4b72-a9c8-74e86c5b8b56", "assignment", "2024-06-11T11:50:12.864Z", 1], ["52b10f45-ebe5-4857-bdcf-e83ea7f5e170", "decision", "2024-06-13T15:16:33.719Z", 2]], "2024-06-11T09:17:35.434Z", "submitted", 2, 3],
+  ["603c3d9a-2493-40d5-9691-5339c71c801a",
+   "79d08836-ab0c-4cae-9772-1bae4cd6206f",
+   "granted",
+   [["c6a64aec-946a-41e9-bf74-ae30255f4b32", "new_version", "2024-06-11T09:17:35.434Z", 1],
+    ["febce945-59c6-4b72-a9c8-74e86c5b8b56", "assignment", "2024-06-11T11:50:12.864Z", 1],
+    ["52b10f45-ebe5-4857-bdcf-e83ea7f5e170", "decision", "2024-06-13T15:16:33.719Z", 2]],
+   "2024-06-11T09:17:35.434Z",
+   "submitted",
+   2,
+   3],
   ["603c3d9a-2493-40d5-9691-5339c71c801a", "6dab3035-ce45-4120-9555-b2d7bdab6c93", "granted", [["c6a64aec-946a-41e9-bf74-ae30255f4b32", "new_version", "2024-06-11T09:17:35.434Z", 1], ["febce945-59c6-4b72-a9c8-74e86c5b8b56", "assignment", "2024-06-11T11:50:12.864Z", 1], ["52b10f45-ebe5-4857-bdcf-e83ea7f5e170", "decision", "2024-06-13T15:16:33.719Z", 2]], "2024-06-11T09:17:35.434Z", "submitted", 1, 3],
   ["88a7bd7b-7cac-4a11-b13c-b6ddc187f4d0", "c709aa9f-03bb-48d7-9f44-109940347f97", "part_grant", [["19772d44-91fe-4201-801f-e8ba25cf5a03", "new_version", "2024-06-05T10:20:06.814Z", 1], ["deb24b90-af63-4e83-9c0b-6200dea16867", "assignment", "2024-06-06T10:37:02.818Z", 1], ["8629eeed-c898-4232-bd99-e8c1ef4b2517", "send_back", "2024-06-06T10:41:42.586Z", 1], ["cdf51b41-d633-4a8c-93ee-d2da8494f661", "provider_updated", "2024-06-11T15:29:32.802+00:00", 3], ["bfa58530-bd07-4de3-99e5-3dd50ee63a42", "assignment", "2024-06-12T12:41:17.480Z", 3], ["97bb79e6-d240-4f1f-b521-f7a00039c083", "unassignment", "2024-06-12T12:44:51.580Z", 3], ["f013fbc0-80d7-40c2-ac44-1c32cefd1ab1", "assignment", "2024-06-12T12:46:19.693Z", 3], ["22c6f283-5197-4f22-a3b3-f000b926a476", "send_back", "2024-06-12T13:00:36.994Z", 3], ["1f03be18-ed56-4e16-a90f-b40ecb1b2865", "provider_updated", "2024-06-13T15:15:07.656+00:00", 6], ["48b9359e-3cd6-4c48-aba4-bf85dabff5fb", "assignment", "2024-06-14T11:23:08.641Z", 6], ["2daad5cb-fb36-419d-b641-9cba439b44bb", "send_back", "2024-06-14T11:35:00.204Z", 6], ["4c72a40a-df29-4dce-881e-6b082b1bb234", "provider_updated", "2024-06-14T12:19:16.311+00:00", 8], ["55b111aa-edd6-4349-bb42-16903359d455", "assignment", "2024-06-17T10:19:54.628Z", 8], ["7b4a1f1f-230d-458f-8e63-dd9d7ad372da", "edit", "2024-06-17T10:35:36.166Z", 8], ["fd702b5e-39c9-443c-abf3-35ad0dd14e5d", "decision", "2024-06-17T10:35:59.976Z", 8]], "2024-06-17T10:35:59.976Z", "part_grant", 9, 9],
   ["88a7bd7b-7cac-4a11-b13c-b6ddc187f4d0", "95a18e65-9b97-43aa-af11-008684d3dc47", "part_grant", [["19772d44-91fe-4201-801f-e8ba25cf5a03", "new_version", "2024-06-05T10:20:06.814Z", 1], ["deb24b90-af63-4e83-9c0b-6200dea16867", "assignment", "2024-06-06T10:37:02.818Z", 1], ["8629eeed-c898-4232-bd99-e8c1ef4b2517", "send_back", "2024-06-06T10:41:42.586Z", 1], ["cdf51b41-d633-4a8c-93ee-d2da8494f661", "provider_updated", "2024-06-11T15:29:32.802+00:00", 3], ["bfa58530-bd07-4de3-99e5-3dd50ee63a42", "assignment", "2024-06-12T12:41:17.480Z", 3], ["97bb79e6-d240-4f1f-b521-f7a00039c083", "unassignment", "2024-06-12T12:44:51.580Z", 3], ["f013fbc0-80d7-40c2-ac44-1c32cefd1ab1", "assignment", "2024-06-12T12:46:19.693Z", 3], ["22c6f283-5197-4f22-a3b3-f000b926a476", "send_back", "2024-06-12T13:00:36.994Z", 3], ["1f03be18-ed56-4e16-a90f-b40ecb1b2865", "provider_updated", "2024-06-13T15:15:07.656+00:00", 6], ["48b9359e-3cd6-4c48-aba4-bf85dabff5fb", "assignment", "2024-06-14T11:23:08.641Z", 6], ["2daad5cb-fb36-419d-b641-9cba439b44bb", "send_back", "2024-06-14T11:35:00.204Z", 6], ["4c72a40a-df29-4dce-881e-6b082b1bb234", "provider_updated", "2024-06-14T12:19:16.311+00:00", 8], ["55b111aa-edd6-4349-bb42-16903359d455", "assignment", "2024-06-17T10:19:54.628Z", 8], ["7b4a1f1f-230d-458f-8e63-dd9d7ad372da", "edit", "2024-06-17T10:35:36.166Z", 8], ["fd702b5e-39c9-443c-abf3-35ad0dd14e5d", "decision", "2024-06-17T10:35:59.976Z", 8]], "2024-06-05T10:20:06.814Z", "provider_updated", 8, 9],
@@ -135,28 +143,27 @@ data = [
   ["2e7e3f3e-11e4-4db8-8abf-cdb478f58a0b", "74e3e0c0-357e-43ce-b48d-2483f92e00e3", "auto_grant", [["ff787740-89cd-4e2c-993d-e080b2b58193", "new_version", "2024-07-31T13:46:59.386Z", 1], ["c6505ee7-79de-4fd2-803f-2e57758701d4", "auto_decision", "2024-07-31T13:46:59.362Z", 1]], "2024-07-31T13:46:57.967Z", "submitted", 2, 2],
   ["2e7e3f3e-11e4-4db8-8abf-cdb478f58a0b", "d742b3b0-7490-44f2-85e9-edda51d3b105", "auto_grant", [["ff787740-89cd-4e2c-993d-e080b2b58193", "new_version", "2024-07-31T13:46:59.386Z", 1], ["c6505ee7-79de-4fd2-803f-2e57758701d4", "auto_decision", "2024-07-31T13:46:59.362Z", 1]], "2024-07-31T13:46:57.967Z", "submitted", 1, 2],
   ["aa9e2bbd-27a2-4fd4-b6f2-833d319ede75", "91b006bf-1f02-4219-92d2-2ad43611fdc1", "auto_grant", [["18d41dcd-bc6e-4461-98d0-b23847fe6363", "new_version", "2024-07-31T15:57:12.831Z", 1], ["58cc9559-5cf2-48f8-aba7-0a8976b63e5d", "auto_decision", "2024-07-31T15:57:12.810Z", 1]], "2024-07-31T15:57:12.060Z", "submitted", 2, 2],
-  ["aa9e2bbd-27a2-4fd4-b6f2-833d319ede75", "ec1bae2a-9d33-4096-8c0b-6206f284705d", "auto_grant", [["18d41dcd-bc6e-4461-98d0-b23847fe6363", "new_version", "2024-07-31T15:57:12.831Z", 1], ["58cc9559-5cf2-48f8-aba7-0a8976b63e5d", "auto_decision", "2024-07-31T15:57:12.810Z", 1]], "2024-07-31T15:57:12.060Z", "submitted", 1, 2]
+  ["aa9e2bbd-27a2-4fd4-b6f2-833d319ede75", "ec1bae2a-9d33-4096-8c0b-6206f284705d", "auto_grant", [["18d41dcd-bc6e-4461-98d0-b23847fe6363", "new_version", "2024-07-31T15:57:12.831Z", 1], ["58cc9559-5cf2-48f8-aba7-0a8976b63e5d", "auto_decision", "2024-07-31T15:57:12.810Z", 1]], "2024-07-31T15:57:12.060Z", "submitted", 1, 2],
 ]
 
 applications = {}
 data.each do |app_id, ver_id, app_state, events_array, ver_updated_at, ver_status, ver_version, app_version|
   application = applications[app_id] ||= Submission.find_by(id: app_id) || begin
-
     events = events_array.map do |event_id, event_type, event_updated_at, event_ver|
       {
         id: event_id,
-        event_type: event_type,
+        event_type:,
         updated_at: event_updated_at,
-        submission_version: event_ver
+        submission_version: event_ver,
       }
     end
-    FactoryBot.create(:event_submission, id: app_id, current_version: app_version, application_state: app_state, events: events)
+    FactoryBot.create(:event_submission, id: app_id, current_version: app_version, application_state: app_state, events:)
   end
 
   next if SubmissionVersion.find_by(id: ver_id)
 
   app_hash = FactoryBot.build(:application,
-            status: ver_status,
-            updated_at: ver_updated_at)
+                              status: ver_status,
+                              updated_at: ver_updated_at)
   FactoryBot.create(:submission_version, submission: application, application: app_hash, version: ver_version, id: ver_id)
 end
