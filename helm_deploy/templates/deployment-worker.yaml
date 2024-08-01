@@ -13,7 +13,7 @@ spec:
       maxSurge: 100%
   selector:
     matchLabels:
-      app:  {{ include "laa-crime-application-store.fullname" . }}-worker
+      app: {{ include "laa-crime-application-store.fullname" . }}-worker
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -21,7 +21,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        app:  {{ include "laa-crime-application-store.fullname" . }}-worker
+        app: {{ include "laa-crime-application-store.fullname" . }}-worker
         metrics-target: {{ include "laa-crime-application-store.fullname" . }}-metrics-target
     spec:
       {{ if .Values.service_account.required }}

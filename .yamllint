@@ -1,0 +1,12 @@
+---
+extends: default
+
+rules:
+  line-length: disable
+  trailing-spaces: disable
+  indentation: disable
+  brackets: disable
+  comments: disable
+  comments-indentation: disable
+  key-duplicates:
+    forbid-duplicated-merge-keys: true
