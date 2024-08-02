@@ -22,10 +22,53 @@ namespace :adjust do
       event_for_version = version.submission.events.filter { _1['submission_version'] == (version.version - 1) }
       event = event_for_version.sort_by { _1['updated_at'] }.last
 
+      unless event
+        puts "Missing Event #{version.application_id}:#{version.id} from #{version.application['updated_at']}"
+        next
+      end
+
       puts "updating #{version.application_id}:#{version.id} from #{version.application['updated_at']} to #{event['updated_at']} FROM #{event['event_type']}"
       version.application['updated_at'] = event['updated_at']
 
       version.save if ENV['PERSIST_ADJUSTMENT']
+    end
+  end
+
+  desc "Correct set state in JSON blob"
+  task update_state: :environment do
+    versions = SubmissionVersion.includes(:submission)
+                .joins("join application_version av on av.application_id = application_version.application_id and " \
+                      "av.application ->> 'status' = application_version.application ->> 'status' and " \
+                      "av.version = application_version.version - 1")
+
+
+    versions.each do |version|
+      if version.version != version.submission.current_version
+        puts "Not the last version (believe these are duplicates) #{version.application_id}:#{version.id} from #{version.application['status']} to #{version.submission.application_state}, version: #{version.version},  current: #{version.submission.current_version}"
+        next
+      end
+
+      event_for_version = version.submission.events.filter do
+        _1['submission_version'] == (version.version - (version.submission.application_state == 'expired' ? 2 : 1))
+      end
+      event = event_for_version.sort_by { _1['updated_at'] }.last
+
+      unless event
+        puts "Missing Event #{version.application_id}:#{version.id} from #{version.application['status']} to #{version.submission.application_state}"
+        next
+      end
+
+
+
+      if version.submission.application_state.in?(["auto_grant", "expired", "grant", "part_grant"])
+        puts "Updating #{version.application_id}:#{version.id} from #{version.application['status']} to #{version.submission.application_state}"
+        version.application['status'] = version.submission.application_state
+        version.application['updated_at'] = event['updated_at']
+
+        version.save(touch: false) if ENV['PERSIST_ADJUSTMENT']
+      else
+        puts "Unknown status #{version.application_id}:#{version.id} from #{version.application['status']} to #{version.submission.application_state}"
+      end
     end
   end
 end
