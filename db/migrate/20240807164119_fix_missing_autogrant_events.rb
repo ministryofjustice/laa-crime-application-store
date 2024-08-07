@@ -91,10 +91,11 @@ class FixMissingAutograntEvents < ActiveRecord::Migration[7.1]
 
     events_to_create.each do |submission_data|
       submission_to_update = Submission.find(submission_data[:submission_id])
-      submission_to_update.events << submission_date[:event].as_json
-      submission_to_update.save(touch: false)
-
-      sleep(0.001)  # throttle
+      if submission_to_update
+        submission_to_update.events << submission_date[:event].as_json
+        submission_to_update.save(touch: false)
+        sleep(0.001)  # throttle
+      end
     end
   end
 end
