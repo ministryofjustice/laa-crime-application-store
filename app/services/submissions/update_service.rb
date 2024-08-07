@@ -32,7 +32,7 @@ module Submissions
 
     private
 
-      def process_events
+      def process_events(submission, params)
         submission.events ||= []
         params[:events]&.each do |event|
           next if submission.events.any? { _1["id"] == event["id"] }
