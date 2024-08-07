@@ -89,5 +89,9 @@ FactoryBot.define do
     trait :decision do
       event_type { "decision" }
     end
+
+    trait :auto_decision do
+      event_type { "auto_decision" }
+    end
   end
 end
