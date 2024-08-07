@@ -12,21 +12,13 @@ module Submissions
       end
 
       def add_events(submission, params, save: false)
-        submission.with_lock do
-          submission.events ||= []
-          params[:events]&.each do |event|
-            next if submission.events.any? { _1["id"] == event["id"] }
-
-            event["submission_version"] ||= submission.current_version
-            event["created_at"] ||= Time.zone.now
-            event["updated_at"] ||= event["created_at"]
-
-            submission.events << event.as_json
+        if save
+          submission.with_lock do
+            process_events(submission, params)
+            submission.save!
           end
-
-          latest_event = submission.events.max_by { |ev| ev["created_at"] }
-          submission.last_updated_at = latest_event["created_at"] if latest_event
-          save && submission.save!
+        else
+          process_events(submission, params)
         end
       end
 
@@ -36,6 +28,24 @@ module Submissions
           application: params[:application],
           version: submission.current_version,
         )
+      end
+
+    private
+
+      def process_events
+        submission.events ||= []
+        params[:events]&.each do |event|
+          next if submission.events.any? { _1["id"] == event["id"] }
+
+          event["submission_version"] ||= submission.current_version
+          event["created_at"] ||= Time.zone.now
+          event["updated_at"] ||= event["created_at"]
+
+          submission.events << event.as_json
+        end
+
+        latest_event = submission.events.max_by { |ev| ev["created_at"] }
+        submission.last_updated_at = latest_event["created_at"] if latest_event
       end
     end
   end
