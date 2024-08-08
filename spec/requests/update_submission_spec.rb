@@ -12,7 +12,7 @@ RSpec.describe "Update submission" do
   end
 
   it "adds the event and updates last_updated_at" do
-    submission = create(:submission, application_state: "further_info", last_updated_at: 1.day.ago)
+    submission = create(:submission, application_state: "sent_back", last_updated_at: 1.day.ago)
 
     freeze_time do
       patch "/v1/submissions/#{submission.id}",
@@ -51,7 +51,7 @@ RSpec.describe "Update submission" do
     end
 
     it "adds multiple events and updates last_updated_at" do
-      submission = create(:submission, application_state: "further_info", last_updated_at: 1.day.ago)
+      submission = create(:submission, application_state: "sent_back", last_updated_at: 1.day.ago)
 
       freeze_time do
         patch "/v1/submissions/#{submission.id}",
