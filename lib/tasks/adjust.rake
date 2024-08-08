@@ -71,4 +71,23 @@ namespace :adjust do
       end
     end
   end
+
+  desc "Fix updated at on last sent back before expiry as expiry version does not update"
+  task fix_expired: :environment do
+    Submission.where(application_state: 'expired').each do |submission|
+      version = submission.ordered_submission_versions[1]
+      wrong_event = submission.events.filter { _1['submission_version'] == (version.version - 1) }
+                              .sort_by { _1['updated_at'] }.last
+      right_event = submission.events.filter { _1['submission_version'] == (version.version - 1) && _1['event_type'] != 'expiry' }
+                              .sort_by { _1['updated_at'] }.last
+
+      if wrong_event['updated_at'] != right_event['updated_at'] && version.application['updated_at'] == wrong_event['updated_at']
+        puts "Fixing incorrect time #{submission.id}:#{version.id} from #{wrong_event['updated_at']} to #{right_event['updated_at']}"
+        version.application['updated_at'] = right_event['updated_at']
+        version.save(touch: false) if ENV['PERSIST_ADJUSTMENT']
+      else
+        puts "Time fix not found for #{submission.id}:#{version.id}"
+      end
+    end
+  end
 end

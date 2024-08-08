@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe "adjust:update_state" do
   before do
-    load "spec/lib/tasks/adjust_update_state_test_data.rb"
+    load "spec/lib/tasks/adjust_update_state_data.rb"
   end
 
   it "Processes as expected" do
