@@ -1,6 +1,5 @@
 class NotifySubscriber < ApplicationJob
   ClientResponseError = Class.new(StandardError)
-  retry_on ClientResponseError, wait: :polynomially_longer, attempts: 10
 
   def perform(subscriber_id, submission_id)
     subscriber = Subscriber.find(subscriber_id)
