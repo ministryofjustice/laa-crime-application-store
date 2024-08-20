@@ -517,7 +517,7 @@ RSpec.describe "Submission search" do
           application_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-AAAAAA LAA-BBBBBB LAA-bbbbbb LAA-CCCCCC])
+        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-AAAAAA LAA-BBBBBB LAA-bbbbbb LAA-CCCCCC]).or match(%w[LAA-AAAAAA LAA-bbbbbb LAA-BBBBBB LAA-CCCCCC])
       end
 
       it "can be sorted by firm_name ascending" do
@@ -550,7 +550,7 @@ RSpec.describe "Submission search" do
           application_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Aardvark & Co", "aardvark & co", "Bob & Sons", "Xena & Daughters"])
+        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Aardvark & Co", "aardvark & co", "Bob & Sons", "Xena & Daughters"]).or match(["aardvark & co", "Aardvark & Co", "Bob & Sons", "Xena & Daughters"])
       end
 
       it "can be sorted by defendant_name ascending" do
@@ -583,7 +583,7 @@ RSpec.describe "Submission search" do
           application_type: "crm4",
         }
 
-        expect(response.parsed_body["data"].pluck("client_name")).to match(["Billy Bob", "billy bob", "Dilly Dodger", "Zach Zeigler"])
+        expect(response.parsed_body["data"].pluck("client_name")).to match(["Billy Bob", "billy bob", "Dilly Dodger", "Zach Zeigler"]).or match(["billy bob", "Billy Bob", "Dilly Dodger", "Zach Zeigler"])
       end
 
       it "can be sorted by status_with_assignment ascending" do

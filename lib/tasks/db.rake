@@ -1,4 +1,20 @@
 namespace :db do
+  namespace :connection do
+    desc "Check ActiveRecord connection to database"
+    task check_connection: :environment do
+      ActiveRecord::Base.establish_connection # Establishes connection
+      ActiveRecord::Base.connection # Calls connection object
+      # output appropriate response depending on whether ActiveRecord can establish connection or not
+      if ActiveRecord::Base.connected?
+        print "ActiveRecord was able to establish connection with DB"
+      else
+        print "ActiveRecord unable to establish connection with DB"
+      end
+    rescue PG::ConnectionBad, ActiveRecord::ConnectionNotEstablished
+      print "ActiveRecord unable to establish connection with DB"
+    end
+  end
+
   namespace :preparation do
     desc "Run db:prepare and retry if 2-pods-running-this-at-once issues encountered"
     task run_with_retry: :environment do
