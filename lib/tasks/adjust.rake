@@ -58,8 +58,6 @@ namespace :adjust do
         next
       end
 
-
-
       if version.submission.application_state.in?(["auto_grant", "expired", "grant", "part_grant"])
         puts "Updating #{version.application_id}:#{version.id} from #{version.application['status']} to #{version.submission.application_state}"
         version.application['status'] = version.submission.application_state
@@ -90,4 +88,36 @@ namespace :adjust do
       end
     end
   end
+
+  desc "Fix applications that did not get status update before being sent across"
+  task fix_status: :environment do
+    versions = SubmissionVersion.where(Arel.sql('application ->> \'status\' = \'draft\'')).where(version: 1)
+    versions.each do |version|
+      version.application['status'] = 'submitted'
+      puts "Updating ID: #{version.application_id}, Version: #{version.version} from #{version.application['status']} to submitted"
+      version.save(touch: false) if ENV['PERSIST_ADJUSTMENT']
+    end
+  end
+
+  desc "Fix timestamp on Provider updated where was previous set incorrectly"
+  task fix_provider_updated: :environment do
+    processing_time = Class.new(ApplicationRecord) do
+      self.table_name = :processing_times
+    end
+    records = processing_time.where(Arel.sql('from_time > to_time')).where(to_status: 'provider_updated')
+
+    records.each do |record|
+      version = SubmissionVersion.find_by(application_id: record.id, version: record.version)
+      event = version.submission.events.detect { _1['submission_version'] == record.version && _1['event_type'] == 'provider_updated' }
+
+      if event['created_at'] == version.application['updated_at']
+        puts "Skipping as no match ID: #{record.id}, Version: #{record.version}"
+      else
+        puts "Updating ID: #{record.id}, Version: #{record.version} from #{version.application['updated_at']} to #{event['created_at']}"
+        version.application['updated_at'] = event['created_at']
+        version.save(touch: false) if ENV['PERSIST_ADJUSTMENT']
+      end
+    end
+  end
 end
+
