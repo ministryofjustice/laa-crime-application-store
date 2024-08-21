@@ -11,6 +11,7 @@ RSpec.describe "Create submission" do
       post "/v1/submissions", params: {
         application_id: id,
         application_type: "crm4",
+        application_state: "submitted",
         application_risk: "low",
         json_schema_version: 1,
         application: { foo: :bar },
@@ -40,6 +41,7 @@ RSpec.describe "Create submission" do
         post "/v1/submissions", params: {
           application_id: id,
           application_type: "crm4",
+          application_state: "submitted",
           application_risk: "low",
           json_schema_version: 1,
           application: {
@@ -73,14 +75,29 @@ RSpec.describe "Create submission" do
     it "validates what I send" do
       post "/v1/submissions", params: {
         application_id: SecureRandom.uuid,
+        application_state: "submitted",
       }
       expect(response).to have_http_status :unprocessable_entity
+    end
+
+    it "detects a forbidden state" do
+      post "/v1/submissions", params: {
+        application_id: SecureRandom.uuid,
+        application_state: "granted",
+        application_type: "crm4",
+        application_risk: "low",
+        json_schema_version: 1,
+        application: { foo: :bar },
+      }
+
+      expect(response).to have_http_status :forbidden
     end
 
     it "detects conflicting information" do
       submission = create(:submission)
       post "/v1/submissions", params: {
         application_id: submission.id,
+        application_state: "submitted",
       }
       expect(response).to have_http_status :conflict
     end
@@ -89,6 +106,7 @@ RSpec.describe "Create submission" do
       create(:subscriber, subscriber_type: "caseworker")
       params = {
         application_id: SecureRandom.uuid,
+        application_state: "submitted",
         application_type: "crm4",
         application_risk: "low",
         json_schema_version: 1,
@@ -102,6 +120,7 @@ RSpec.describe "Create submission" do
       create(:subscriber, subscriber_type: "provider")
       params = {
         application_id: SecureRandom.uuid,
+        application_state: "submitted",
         application_type: "crm4",
         application_risk: "low",
         json_schema_version: 1,
@@ -123,6 +142,7 @@ RSpec.describe "Create submission" do
       create(:subscriber, subscriber_type: "caseworker")
       params = {
         application_id: SecureRandom.uuid,
+        application_state: "submitted",
         application_type: "crm4",
         application_risk: "low",
         json_schema_version: 1,
@@ -136,6 +156,7 @@ RSpec.describe "Create submission" do
       create(:subscriber, subscriber_type: "provider")
       params = {
         application_id: SecureRandom.uuid,
+        application_state: "submitted",
         application_type: "crm4",
         application_risk: "low",
         json_schema_version: 1,
