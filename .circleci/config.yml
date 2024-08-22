@@ -218,10 +218,10 @@ jobs:
           command: snyk monitor --all-projects
       - run:
           name: Scan container image for vulnerabilities
-          command: snyk container test app --file=./Dockerfile --policy-path=.snyk --severity-threshold=high
+          command: snyk -d container test app --file=./Dockerfile --policy-path=.snyk --severity-threshold=high
       - run:
           name: Monitor container image for vulnerabilities
-          command: snyk container monitor app
+          command: snyk -d container monitor app
       - helm/install_helm_client:
           version: 3.7.2
       - run:
