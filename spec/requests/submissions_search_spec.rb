@@ -274,13 +274,13 @@ RSpec.describe "Submission search" do
 
     context "with status_with_assignment filter" do
       before do
-        create(:submission, :with_pa_version, laa_reference: "LAA-AAAAA1", application_state: "auto_grant")
-        create(:submission, :with_pa_version, laa_reference: "LAA-AAAAA2", application_state: "auto_grant")
-        create(:submission, :with_pa_version, laa_reference: "LAA-BBBBBB", application_state: "part_grant")
-        create(:submission, :with_pa_version, laa_reference: "LAA-CCCCCC", application_state: "rejected")
+        create(:submission, :with_pa_version, laa_reference: "LAA-AAAAA1", state: "auto_grant")
+        create(:submission, :with_pa_version, laa_reference: "LAA-AAAAA2", state: "auto_grant")
+        create(:submission, :with_pa_version, laa_reference: "LAA-BBBBBB", state: "part_grant")
+        create(:submission, :with_pa_version, laa_reference: "LAA-CCCCCC", state: "rejected")
 
         # in_progress pseudo status_with_assignment (submitted with an assignment)
-        create(:submission, :with_pa_version, laa_reference: "LAA-DDDDDD", application_state: "submitted",
+        create(:submission, :with_pa_version, laa_reference: "LAA-DDDDDD", state: "submitted",
                                               events: [build(:event, :new_version),
                                                        build(:event, :assignment),
                                                        build(:event, :unassignment),
@@ -288,7 +288,7 @@ RSpec.describe "Submission search" do
                                                        build(:event, :decision)])
 
         # not_assigned pseudo status_with_assignment (submitted without an assignment)
-        create(:submission, :with_pa_version, laa_reference: "LAA-EEEEEE", application_state: "submitted",
+        create(:submission, :with_pa_version, laa_reference: "LAA-EEEEEE", state: "submitted",
                                               events: [build(:event, :new_version),
                                                        build(:event, :assignment),
                                                        build(:event, :unassignment)])
@@ -452,7 +452,7 @@ RSpec.describe "Submission search" do
                  laa_reference: "LAA-BBBBBB",
                  firm_name: "Aardvark & Co",
                  defendant_name: "Billy Bob",
-                 application_state: "auto_grant")
+                 state: "auto_grant")
         end
 
         travel_to(1.day.ago) do
@@ -460,7 +460,7 @@ RSpec.describe "Submission search" do
                  laa_reference: "LAA-CCCCCC",
                  firm_name: "Bob & Sons",
                  defendant_name: "Dilly Dodger",
-                 application_state: "rejected")
+                 state: "rejected")
         end
 
         travel_to(3.days.ago) do
@@ -468,7 +468,7 @@ RSpec.describe "Submission search" do
                  laa_reference: "LAA-AAAAAA",
                  firm_name: "Xena & Daughters",
                  defendant_name: "Zach Zeigler",
-                 application_state: "granted")
+                 state: "granted")
         end
       end
 

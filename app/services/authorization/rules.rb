@@ -24,7 +24,7 @@ module Authorization
           update: ->(object, params) { state_pair_allowed?(object, params, PERMITTED_SUBMISSION_STATE_CHANGES[:caseworker]) },
         },
         events: {
-          create: ->(object, _params) { object.application_state.in?(%w[submitted provider_updated]) },
+          create: ->(object, _params) { object.state.in?(%w[submitted provider_updated]) },
         },
         searches: {
           create: true,
@@ -44,10 +44,9 @@ module Authorization
                    auto_grant
                    part_grant
                    rejected
-                   provider_requested
                    sent_back],
         },
-        { pre: %w[sent_back provider_requested], post: %w[granted part_grant rejected] },
+        { pre: %w[sent_back], post: %w[granted part_grant rejected] },
       ],
     }.freeze
 
@@ -55,7 +54,7 @@ module Authorization
 
     def self.state_pair_allowed?(object, params, pairs)
       pairs.any? do |pair|
-        object.application_state.in?(pair[:pre]) && params[:application_state].in?(pair[:post])
+        object.state.in?(pair[:pre]) && params[:application_state].in?(pair[:post])
       end
     end
   end

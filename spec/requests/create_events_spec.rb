@@ -2,8 +2,8 @@ require "rails_helper"
 
 RSpec.describe "Create events" do
   context "when authenticated with bearer token" do
-    let(:submission) { create(:submission, application_state:) }
-    let(:application_state) { "submitted" }
+    let(:submission) { create(:submission, state:) }
+    let(:state) { "submitted" }
 
     before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker) }
 
@@ -61,7 +61,7 @@ RSpec.describe "Create events" do
       expect(submission.reload.current_version).to eq(1)
     end
 
-    it "not not allow update of application_state" do
+    it "not not allow update of state" do
       post "/v1/submissions/#{submission.id}/events", params: {
         application_state: "granted",
         events: [
@@ -72,7 +72,7 @@ RSpec.describe "Create events" do
         ],
       }
       expect(response).to have_http_status :created
-      expect(submission.reload.application_state).to eq("submitted")
+      expect(submission.reload.state).to eq("submitted")
     end
   end
 end

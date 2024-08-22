@@ -20,7 +20,7 @@ RSpec.describe "Create submission" do
 
       expect(created_record).to have_attributes(
         id:,
-        application_state: "submitted",
+        state: "submitted",
         application_type: "crm4",
         application_risk: "low",
         current_version: 1,
@@ -53,7 +53,7 @@ RSpec.describe "Create submission" do
 
         expect(created_record).to have_attributes(
           id:,
-          application_state: "submitted",
+          state: "submitted",
           application_type: "crm4",
           application_risk: "low",
           current_version: 1,

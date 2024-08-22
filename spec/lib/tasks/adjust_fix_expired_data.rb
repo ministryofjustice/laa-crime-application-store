@@ -4,9 +4,9 @@
 require "factory_bot"
 
 # query used to extract the data
-# irb(main):005> puts Submission.where(application_state: 'expired')
+# irb(main):005> puts Submission.where(state: 'expired')
 #   .flat_map { |sub| sub.ordered_submission_versions.map { |ver|
-#     [ver.application_id, ver.id, ver.submission.application_state, ver.application['status'], ver.application['updated_at'], ver.submission.events.map { |eve| [eve['id'], eve['event_type'], eve['updated_at'], eve['submission_version']] }, ver.submission.current_version, ver.version] }
+#     [ver.application_id, ver.id, ver.submission.state, ver.application['status'], ver.application['updated_at'], ver.submission.events.map { |eve| [eve['id'], eve['event_type'], eve['updated_at'], eve['submission_version']] }, ver.submission.current_version, ver.version] }
 #   }.inspect
 data = [
   ["fcc2f94e-a2bd-422e-b59a-53210fa52bd5", "76254e88-854d-46b2-ac9b-9544b11e494a", "expired", "expired", "2024-07-25T21:16:05.753Z", [["1896e445-2af2-4486-8f03-af34371cc370", "new_version", "2024-07-10T11:10:16.456Z", 1], ["c775ad35-31c3-4aba-b202-59992a61bc3a", "assignment", "2024-07-11T11:35:48.419Z", 1], ["884c5af0-5f57-4981-8408-eb7e9cff4fc5", "send_back", "2024-07-11T11:38:56.864Z", 1], ["69912c62-aea2-4690-867a-707facf93fc6", "expiry", "2024-07-25T21:16:05.753Z", 1]], 3, 3],
@@ -34,7 +34,7 @@ data.each do |app_id, ver_id, app_state, ver_status, ver_updated_at, events_arra
         submission_version: event_ver,
       }
     end
-    FactoryBot.create(:event_submission, id: app_id, current_version: app_version, application_state: app_state, events:)
+    FactoryBot.create(:event_submission, id: app_id, current_version: app_version, state: app_state, events:)
   end
 
   next if SubmissionVersion.find_by(id: ver_id)
