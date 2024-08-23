@@ -146,7 +146,7 @@ namespace :adjust do
   end
 
   desc "provider_updated after approval - incorrect data was not visible in app so good to apply to eariler versions"
-  task fix_provider_updated: :environment do
+  task fix_approved_provider_updated: :environment do
     v1, v2, v3 = SubmissionVersion.where(application_id: 'a67d8256-fdea-4cda-bb2f-8b5786cde74b').order(:version)
     quote_id = '20844ebe-3dff-45d0-9548-020eb60bdf30'
 
@@ -156,7 +156,7 @@ namespace :adjust do
     raise "Quote not found v1" if v1.application['quotes'].count != 1
     raise "Quote not found v2" if v2.application['quotes'].count != 1
 
-    if if ENV['PERSIST_ADJUSTMENT']
+    if ENV['PERSIST_ADJUSTMENT']
       v1.save(touch: false)
       v2.save(touch: false)
       v3.delete
