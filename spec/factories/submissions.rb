@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :event_submission, class: "Submission" do
     id { SecureRandom.uuid }
-    application_state { "submitted" }
+    state { "submitted" }
     application_risk { "low" }
     application_type { "crm4" }
     current_version { 1 }
@@ -9,7 +9,7 @@ FactoryBot.define do
 
   factory :submission do
     id { SecureRandom.uuid }
-    application_state { "submitted" }
+    state { "submitted" }
     application_risk { "low" }
     application_type { "crm4" }
     current_version { 1 }
@@ -24,7 +24,7 @@ FactoryBot.define do
       ufn { nil }
       laa_reference { nil }
       build_scope { [] }
-      status { application_state }
+      status { state }
     end
 
     after(:build) do |submission, a|

@@ -2,7 +2,7 @@ require "rails_helper"
 
 describe "adjust:status", type: :task do
   let(:notifier) { instance_double(NotifySubscriber, perform: true) }
-  let(:submission) { create(:submission, application_state: "granted") }
+  let(:submission) { create(:submission, state: "granted") }
   let(:subscriber) { create(:subscriber, subscriber_type: "caseworker") }
   let(:args) { [submission.id, "rejected"] }
 
@@ -18,7 +18,7 @@ describe "adjust:status", type: :task do
   end
 
   it "updates the status" do
-    expect(submission.reload.application_state).to eq "rejected"
+    expect(submission.reload.state).to eq "rejected"
   end
 
   it "does not notify anyone by default" do

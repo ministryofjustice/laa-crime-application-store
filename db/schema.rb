@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_08_19_134005) do
+ActiveRecord::Schema[7.2].define(version: 2024_08_22_122916) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "application", id: :uuid, default: nil, force: :cascade do |t|
     t.integer "current_version", null: false
-    t.text "application_state", null: false
+    t.text "state", null: false
     t.text "application_risk", null: false
     t.text "application_type", null: false
     t.datetime "updated_at", precision: nil
@@ -130,51 +130,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_19_134005) do
        LEFT JOIN translations t ON ((((t.key)::text = (a.application ->> 'service_type'::text)) AND ((t.translation_type)::text = 'service'::text))))
     WHERE ((e.application_type = 'crm4'::text) AND (e.event_type = 'auto_decision'::text));
   SQL
-  create_view "searches", sql_definition: <<-SQL
-      WITH event_types AS (
-           SELECT application.id,
-              jsonb_path_query_array(application.events, '$[*]?(@."event_type" == "assignment" || @."event_type" == "unassignment")."event_type"'::jsonpath) AS assigment_arr
-             FROM application
-          ), assignments AS (
-           SELECT app_1.id,
-                  CASE
-                      WHEN ((et.assigment_arr ->> '-1'::integer) = 'assignment'::text) THEN true
-                      ELSE false
-                  END AS assigned
-             FROM (application app_1
-               JOIN event_types et ON ((et.id = app_1.id)))
-          ), defendants AS (
-           SELECT app_1.id,
-                  CASE
-                      WHEN (app_1.application_type = 'crm4'::text) THEN ((((app_ver_1.application -> 'defendant'::text) ->> 'first_name'::text) || ' '::text) || ((app_ver_1.application -> 'defendant'::text) ->> 'last_name'::text))
-                      ELSE ( SELECT (((defendants.value ->> 'first_name'::text) || ' '::text) || (defendants.value ->> 'last_name'::text))
-                         FROM jsonb_array_elements((app_ver_1.application -> 'defendants'::text)) defendants(value)
-                        WHERE ((defendants.value ->> 'main'::text) = 'true'::text))
-                  END AS client_name
-             FROM (application app_1
-               JOIN application_version app_ver_1 ON (((app_1.id = app_ver_1.application_id) AND (app_1.current_version = app_ver_1.version))))
-          )
-   SELECT app.id,
-      app_ver.id AS application_version_id,
-      (app_ver.application ->> 'laa_reference'::text) AS laa_reference,
-      ((app_ver.application -> 'firm_office'::text) ->> 'name'::text) AS firm_name,
-      def.client_name,
-      app_ver.search_fields,
-      app.has_been_assigned_to,
-      app.created_at AS date_submitted,
-      app.last_updated_at AS last_updated,
-          CASE
-              WHEN ((app.application_state = 'submitted'::text) AND ass.assigned) THEN 'in_progress'::text
-              WHEN ((app.application_state = 'submitted'::text) AND (NOT ass.assigned)) THEN 'not_assigned'::text
-              ELSE app.application_state
-          END AS status_with_assignment,
-      app.application_type,
-      app.application_risk AS risk
-     FROM (((application app
-       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))))
-       JOIN assignments ass ON ((ass.id = app.id)))
-       JOIN defendants def ON ((def.id = app.id)));
-  SQL
   create_view "active_providers", sql_definition: <<-SQL
       WITH submissions AS (
            SELECT application.application_type,
@@ -219,5 +174,50 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_19_134005) do
       (base.to_time)::date AS to_date,
       GREATEST(EXTRACT(epoch FROM (base.to_time - base.from_time)), (0)::numeric) AS processing_seconds
      FROM base;
+  SQL
+  create_view "searches", sql_definition: <<-SQL
+      WITH event_types AS (
+           SELECT application.id,
+              jsonb_path_query_array(application.events, '$[*]?(@."event_type" == "assignment" || @."event_type" == "unassignment")."event_type"'::jsonpath) AS assigment_arr
+             FROM application
+          ), assignments AS (
+           SELECT app_1.id,
+                  CASE
+                      WHEN ((et.assigment_arr ->> '-1'::integer) = 'assignment'::text) THEN true
+                      ELSE false
+                  END AS assigned
+             FROM (application app_1
+               JOIN event_types et ON ((et.id = app_1.id)))
+          ), defendants AS (
+           SELECT app_1.id,
+                  CASE
+                      WHEN (app_1.application_type = 'crm4'::text) THEN ((((app_ver_1.application -> 'defendant'::text) ->> 'first_name'::text) || ' '::text) || ((app_ver_1.application -> 'defendant'::text) ->> 'last_name'::text))
+                      ELSE ( SELECT (((defendants.value ->> 'first_name'::text) || ' '::text) || (defendants.value ->> 'last_name'::text))
+                         FROM jsonb_array_elements((app_ver_1.application -> 'defendants'::text)) defendants(value)
+                        WHERE ((defendants.value ->> 'main'::text) = 'true'::text))
+                  END AS client_name
+             FROM (application app_1
+               JOIN application_version app_ver_1 ON (((app_1.id = app_ver_1.application_id) AND (app_1.current_version = app_ver_1.version))))
+          )
+   SELECT app.id,
+      app_ver.id AS application_version_id,
+      (app_ver.application ->> 'laa_reference'::text) AS laa_reference,
+      ((app_ver.application -> 'firm_office'::text) ->> 'name'::text) AS firm_name,
+      def.client_name,
+      app_ver.search_fields,
+      app.has_been_assigned_to,
+      app.created_at AS date_submitted,
+      app.last_updated_at AS last_updated,
+          CASE
+              WHEN ((app.state = 'submitted'::text) AND ass.assigned) THEN 'in_progress'::text
+              WHEN ((app.state = 'submitted'::text) AND (NOT ass.assigned)) THEN 'not_assigned'::text
+              ELSE app.state
+          END AS status_with_assignment,
+      app.application_type,
+      app.application_risk AS risk
+     FROM (((application app
+       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))))
+       JOIN assignments ass ON ((ass.id = app.id)))
+       JOIN defendants def ON ((def.id = app.id)));
   SQL
 end

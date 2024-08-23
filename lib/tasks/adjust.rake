@@ -3,7 +3,7 @@ namespace :adjust do
   desc "Change the status of an application"
   task :status, [:submission_id, :status, :role_to_notify] => :environment do |_, args|
     submission = Submission.find(args.submission_id)
-    submission.update!(application_state: args.status)
+    submission.update!(state: args.status)
 
     next if args.role_to_notify.blank?
 
@@ -44,35 +44,35 @@ namespace :adjust do
 
     versions.each do |version|
       if version.version != version.submission.current_version
-        puts "Not the last version (believe these are duplicates) #{version.application_id}:#{version.id} from #{version.application['status']} to #{version.submission.application_state}, version: #{version.version},  current: #{version.submission.current_version}"
+        puts "Not the last version (believe these are duplicates) #{version.application_id}:#{version.id} from #{version.application['status']} to #{version.submission.state}, version: #{version.version},  current: #{version.submission.current_version}"
         next
       end
 
       event_for_version = version.submission.events.filter do
-        _1['submission_version'] == (version.version - (version.submission.application_state == 'expired' ? 2 : 1))
+        _1['submission_version'] == (version.version - (version.submission.state == 'expired' ? 2 : 1))
       end
       event = event_for_version.sort_by { _1['updated_at'] }.last
 
       unless event
-        puts "Missing Event #{version.application_id}:#{version.id} from #{version.application['status']} to #{version.submission.application_state}"
+        puts "Missing Event #{version.application_id}:#{version.id} from #{version.application['status']} to #{version.submission.state}"
         next
       end
 
-      if version.submission.application_state.in?(["auto_grant", "expired", "grant", "part_grant"])
-        puts "Updating #{version.application_id}:#{version.id} from #{version.application['status']} to #{version.submission.application_state}"
-        version.application['status'] = version.submission.application_state
+      if version.submission.state.in?(["auto_grant", "expired", "grant", "part_grant"])
+        puts "Updating #{version.application_id}:#{version.id} from #{version.application['status']} to #{version.submission.state}"
+        version.application['status'] = version.submission.state
         version.application['updated_at'] = event['updated_at']
 
         version.save(touch: false) if ENV['PERSIST_ADJUSTMENT']
       else
-        puts "Unknown status #{version.application_id}:#{version.id} from #{version.application['status']} to #{version.submission.application_state}"
+        puts "Unknown status #{version.application_id}:#{version.id} from #{version.application['status']} to #{version.submission.state}"
       end
     end
   end
 
   desc "Fix updated at on last sent back before expiry as expiry version does not update"
   task fix_expired: :environment do
-    Submission.where(application_state: 'expired').each do |submission|
+    Submission.where(state: 'expired').each do |submission|
       version = submission.ordered_submission_versions[1]
       wrong_event = submission.events.filter { _1['submission_version'] == (version.version - 1) }
                               .sort_by { _1['updated_at'] }.last

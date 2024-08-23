@@ -1,8 +1,8 @@
 require "rails_helper"
 
 describe "check_autogrants:retrieve_all", type: :task do
-  let(:valid_submissions) { create_list(:submission, 2, :with_pa_version, events: [build(:event, :new_version), build(:event, :auto_decision)], application_state: "auto_grant") }
-  let(:faulty_submissions) { create_list(:submission, 2, :with_pa_version, events: [build(:event, :new_version)], application_state: "auto_grant") }
+  let(:valid_submissions) { create_list(:submission, 2, :with_pa_version, events: [build(:event, :new_version), build(:event, :auto_decision)], state: "auto_grant") }
+  let(:faulty_submissions) { create_list(:submission, 2, :with_pa_version, events: [build(:event, :new_version)], state: "auto_grant") }
 
   before do
     valid_submissions

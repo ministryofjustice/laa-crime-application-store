@@ -12,7 +12,7 @@ RSpec.describe "Update submission" do
   end
 
   it "adds the event and updates last_updated_at" do
-    submission = create(:submission, application_state: "sent_back", last_updated_at: 1.day.ago)
+    submission = create(:submission, state: "sent_back", last_updated_at: 1.day.ago)
 
     freeze_time do
       patch "/v1/submissions/#{submission.id}",
@@ -30,7 +30,7 @@ RSpec.describe "Update submission" do
 
       submission.reload
       expect(submission.events).to contain_exactly(hash_including("id" => "123", "details" => "foo"))
-      expect(submission.application_state).to eq("granted")
+      expect(submission.state).to eq("granted")
       expect(submission.ordered_submission_versions.count).to eq(2)
       expect(submission.last_updated_at).to eql submission.events.first["created_at"].to_time
     end
@@ -51,7 +51,7 @@ RSpec.describe "Update submission" do
     end
 
     it "adds multiple events and updates last_updated_at" do
-      submission = create(:submission, application_state: "sent_back", last_updated_at: 1.day.ago)
+      submission = create(:submission, state: "sent_back", last_updated_at: 1.day.ago)
 
       freeze_time do
         patch "/v1/submissions/#{submission.id}",
@@ -69,7 +69,7 @@ RSpec.describe "Update submission" do
             hash_including("id" => "321", "details" => "bar"),
           )
 
-        expect(submission.application_state).to eq("granted")
+        expect(submission.state).to eq("granted")
         expect(submission.ordered_submission_versions.count).to eq(2)
         expect(submission.last_updated_at).to eql(submission.events.first["created_at"].to_time)
       end

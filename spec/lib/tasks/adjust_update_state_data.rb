@@ -6,7 +6,7 @@ require "factory_bot"
 # query used to extract the data
 # irb(main):005> puts SubmissionVersion.joins(:submission).joins("join application_version av on av.application_id = application_version.application_id and av.application ->> 'status' = application_version.application ->> 'status' and av.version = application_version.version - 1")
 #  .flat_map {|version| version.submission.ordered_submission_versions.map { |ver|
-#    [ver.submission.id, ver.id, ver.submission.application_state, ver.submission.events.map { |eve| [eve['id'], eve['event_type'], eve['updated_at'], eve['submission_version']] }, ver.application['updated_at'], ver.application['status'], ver.version, ver.submission.current_version ] }
+#    [ver.submission.id, ver.id, ver.submission.state, ver.submission.events.map { |eve| [eve['id'], eve['event_type'], eve['updated_at'], eve['submission_version']] }, ver.application['updated_at'], ver.application['status'], ver.version, ver.submission.current_version ] }
 #  }.inspect
 data = [
   ["5e6fa81e-4c52-46dd-b22e-2631e708866d", "77cfa567-8652-4a68-811b-31ef5cd77b25", "auto_grant", [["b8527801-305f-4d51-9c9a-8ee58168ab10", "auto_decision", "2024-06-12T08:35:49.202Z", 1], ["6abb5334-5cf3-4322-a587-aa301e6626fe", "new_version", "2024-06-12T08:35:49.205Z", 1]], "2024-06-12T08:35:49.202Z", "submitted", 2, 2],
@@ -157,7 +157,7 @@ data.each do |app_id, ver_id, app_state, events_array, ver_updated_at, ver_statu
         submission_version: event_ver,
       }
     end
-    FactoryBot.create(:event_submission, id: app_id, current_version: app_version, application_state: app_state, events:)
+    FactoryBot.create(:event_submission, id: app_id, current_version: app_version, state: app_state, events:)
   end
 
   next if SubmissionVersion.find_by(id: ver_id)

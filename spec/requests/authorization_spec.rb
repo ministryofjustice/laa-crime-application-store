@@ -62,17 +62,17 @@ RSpec.describe "Authorization" do
     end
 
     it "denies requests if the object is not in a state that permits modifications" do
-      submission = create(:submission, application_state: "granted")
+      submission = create(:submission, state: "granted")
       # providers can only modify submissions that are in the 'sent_back' state
       patch "/v1/submissions/#{submission.id}", headers: { "X-Client-Type" => "provider" }
       expect(response).to have_http_status :forbidden
     end
 
     it "denies requests if the specific change requested is forbidden" do
-      submission = create(:submission, application_state: "submitted")
+      submission = create(:submission, state: "submitted")
       # caseworkers cannot mark submissions as provider_updated
       patch "/v1/submissions/#{submission.id}",
-            params: { application_state: "provider_updated" },
+            params: { state: "provider_updated" },
             headers: { "X-Client-Type" => "caseworker" }
       expect(response).to have_http_status :forbidden
     end
@@ -89,7 +89,7 @@ RSpec.describe "Authorization" do
       let(:role) { "Caseworker" }
 
       it "allows them to do it" do
-        submission = create(:submission, application_state: "submitted")
+        submission = create(:submission, state: "submitted")
         patch "/v1/submissions/#{submission.id}",
               headers: { "Authorization" => "Bearer ABC" },
               params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
@@ -101,7 +101,7 @@ RSpec.describe "Authorization" do
       let(:role) { "Provider" }
 
       it "does not allow them to do it" do
-        submission = create(:submission, application_state: "submitted")
+        submission = create(:submission, state: "submitted")
         patch "/v1/submissions/#{submission.id}",
               headers: { "Authorization" => "Bearer ABC" },
               params: { application_state: "granted" }

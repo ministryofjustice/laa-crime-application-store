@@ -5,7 +5,7 @@ module Submissions
         submission.with_lock do
           submission.current_version += 1
           EventAdditionService.call(submission, params)
-          submission.update!(params.permit(:application_state, :application_risk))
+          submission.update!(params.permit(:application_risk).merge(state: params[:application_state]))
           add_new_version(submission, params)
         end
         NotificationService.call(params[:id], role)

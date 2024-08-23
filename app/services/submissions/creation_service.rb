@@ -20,8 +20,9 @@ module Submissions
       end
 
       def initial_data(params)
-        params.permit(:application_type, :application_risk, :application_state)
+        params.permit(:application_type, :application_risk)
               .merge(current_version: 1,
+                     state: params[:application_state],
                      id: params[:application_id])
       end
     end
