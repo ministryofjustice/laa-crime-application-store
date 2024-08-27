@@ -7,6 +7,7 @@ FactoryBot.define do
       defendant_name { nil }
       additional_defendant_names { nil }
       firm_name { nil }
+      solicitor { nil }
       account_number { "1A123B" }
       ufn { nil }
       laa_reference { nil }
@@ -18,6 +19,7 @@ FactoryBot.define do
             defendant_name:,
             firm_name:,
             account_number:,
+            solicitor:,
             status:,
             ufn: ufn || "010124/001",
             laa_reference: laa_reference || "LAA-123456")
@@ -30,6 +32,7 @@ FactoryBot.define do
               defendant_name:,
               account_number:,
               firm_name:,
+              solicitor:,
               status:,
               ufn: ufn || "010124/001",
               service_type: "ae_consultant",
@@ -44,6 +47,7 @@ FactoryBot.define do
               defendant_name:,
               account_number:,
               firm_name:,
+              solicitor:,
               status:,
               ufn: ufn || "010124/001",
               service_type: "custom",
@@ -59,6 +63,7 @@ FactoryBot.define do
               additional_defendant_names:,
               account_number:,
               firm_name:,
+              solicitor:,
               status:,
               ufn: ufn || "010124/001",
               laa_reference: laa_reference || "LAA-123456")
