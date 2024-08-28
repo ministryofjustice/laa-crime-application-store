@@ -18,6 +18,17 @@ FactoryBot.define do
         "vat_registered" => "yes",
       }
     end
+    solicitor do
+      {
+        "last_name" => "Doe",
+        "first_name" => "John",
+        "previous_id" => nil,
+        "contact_email" => "john@doe.com",
+        "reference_number" => "1234567",
+        "contact_last_name" => "Doe",
+        "contact_first_name" => "John",
+      }
+    end
     status { "submitted" }
     updated_at { Time.current }
     created_at { status == "submitted" ? 10.minutes.ago : updated_at }

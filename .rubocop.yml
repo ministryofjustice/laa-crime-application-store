@@ -23,3 +23,6 @@ AllCops:
     - 'lib/generators/**/*'
     - 'features/**/*'
     - 'vendor/**/*'
+
+RSpec/MessageChain:
+  Enabled: false
