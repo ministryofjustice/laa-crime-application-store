@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "adjust:fix_expired" do
+RSpec.describe "adjust:fix_expired", type: :task do
   before do
     load "spec/lib/tasks/adjust_fix_provider_updated_data.rb"
   end

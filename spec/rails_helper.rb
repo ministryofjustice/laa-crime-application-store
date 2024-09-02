@@ -63,4 +63,9 @@ RSpec.configure do |config|
   config.include ActiveSupport::Testing::TimeHelpers
 
   require "webmock/rspec"
+
+  # swallow sdtdout to keep output from rspec clean
+  config.before(:each, type: :task) do
+    allow($stdout).to receive(:write)
+  end
 end
