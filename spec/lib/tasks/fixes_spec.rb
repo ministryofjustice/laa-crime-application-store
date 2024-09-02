@@ -3,8 +3,6 @@ require "rails_helper"
 describe "fixes:", type: :task do
   before do
     Rails.application.load_tasks if Rake::Task.tasks.empty?
-
-    allow($stdout).to receive(:write) # silence output from rake tasks
   end
 
   describe "update_contact_email" do

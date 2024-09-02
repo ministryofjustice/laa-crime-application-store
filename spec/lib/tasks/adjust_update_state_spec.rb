@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "adjust:update_state" do
+RSpec.describe "adjust:update_state", type: :task do
   before do
     load "spec/lib/tasks/adjust_update_state_data.rb"
   end
