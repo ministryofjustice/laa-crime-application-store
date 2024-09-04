@@ -6,7 +6,7 @@ namespace :fixes do
       versions = submission.ordered_submission_versions
       unique_references = versions.pluck(Arel.sql("application -> 'laa_reference'")).uniq().sort
       if unique_references.count > 1
-        print "Submission ID: #{submission.id} Original Ref: #{versions.first.application['laa_reference']} All References: #{unique_references.join(",")}}"
+        print "Submission ID: #{submission.id} Original Ref: #{versions.last.application['laa_reference']} All References: #{unique_references.join(",")}}"
       end
     end
   end
