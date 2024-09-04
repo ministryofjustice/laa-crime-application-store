@@ -1,10 +1,10 @@
 require "rails_helper"
 
 describe "fixes:find_mismatched_references", type: :task do
-  let(:valid_submission) { create(:submission, :with_pa_version, current_version: 2) }
+  let(:valid_submission) { create(:submission, :with_pa_version, current_version: 3) }
   let(:additional_version) { create(:submission_version, :with_pa_application, submission: valid_submission) }
-  let(:invalid_submission) { create(:submission, :with_pa_version, current_version: 2) }
-  let(:additional_invalid_version) { create(:submission_version, submission: invalid_submission, laa_reference: "LAA-654321") }
+  let(:invalid_submission) { create(:submission, :with_pa_version, current_version: 3) }
+  let(:additional_invalid_version) { create(:submission_version, laa_reference: "LAA-654321", submission: invalid_submission) }
 
   before do
     valid_submission
