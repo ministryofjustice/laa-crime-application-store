@@ -4,7 +4,7 @@ describe "fixes:find_mismatched_references", type: :task do
   let(:valid_submission) { create(:submission, :with_pa_version, current_version: 2) }
   let(:additional_version) { create(:submission_version, :with_pa_application, submission: valid_submission) }
   let(:invalid_submission) { create(:submission, :with_pa_version, current_version: 2) }
-  let(:additional_invalid_version) { create(:submission_version, :with_fixed_ref_pa_application, submission: invalid_submission) }
+  let(:additional_invalid_version) { create(:submission_version, submission: invalid_submission, laa_reference: "LAA-654321") }
 
   before do
     valid_submission

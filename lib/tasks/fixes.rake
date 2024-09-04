@@ -1,7 +1,7 @@
 namespace :fixes do
   desc "Find mismatched LAA references"
   task find_mismatched_references: :environment do
-    submissions_to_check = Submission.where("application.current_version > 1")
+    submissions_to_check = Submission.where("application.current_version > 2")
     submissions_to_check.each do |submission|
       versions = submission.ordered_submission_versions
       unique_references = versions.pluck(Arel.sql("application -> 'laa_reference'")).uniq()
