@@ -40,6 +40,21 @@ FactoryBot.define do
       end
     end
 
+    trait :with_fixed_ref_pa_application do
+      application do
+        build(:application,
+              :pa,
+              defendant_name:,
+              account_number:,
+              firm_name:,
+              solicitor:,
+              status:,
+              ufn: ufn || "010124/001",
+              service_type: "ae_consultant",
+              laa_reference: "LAA-654321")
+      end
+    end
+
     trait :with_custom_pa_application do
       application do
         build(:application,

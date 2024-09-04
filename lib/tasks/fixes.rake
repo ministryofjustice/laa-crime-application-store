@@ -1,4 +1,16 @@
 namespace :fixes do
+  desc "Find mismatched LAA references"
+  task find_mismatched_references: :environment do
+    submissions_to_check = Submission.where("application.current_version > 1")
+    submissions_to_check.each do |submission|
+      versions = submission.ordered_submission_versions
+      unique_references = versions.pluck(Arel.sql("application -> 'laa_reference'")).uniq()
+      if unique_references.count > 1
+        print "Submission ID: #{submission.id} Original Ref: #{versions.first.application['laa_reference']} All References: #{unique_references}}"
+      end
+    end
+  end
+
   desc "Amend a contact email address. Typically because user has added a valid but undeliverable address"
   task :update_contact_email, [:id, :new_contact_email] => :environment do |_, args|
     submission = Submission.find(args[:id])

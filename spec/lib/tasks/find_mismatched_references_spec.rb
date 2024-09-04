@@ -1,0 +1,25 @@
+require "rails_helper"
+
+describe "fixes:find_mismatched_references", type: :task do
+  let(:valid_submission) { create(:submission, :with_pa_version, current_version: 2) }
+  let(:additional_version) { create(:submission_version, :with_pa_application, submission: valid_submission) }
+  let(:invalid_submission) { create(:submission, :with_pa_version, current_version: 2) }
+  let(:additional_invalid_version) { create(:submission_version, :with_fixed_ref_pa_application, submission: invalid_submission) }
+
+  before do
+    valid_submission
+    additional_version
+    invalid_submission
+    additional_invalid_version
+    Rails.application.load_tasks if Rake::Task.tasks.empty?
+  end
+
+  after do
+    Rake::Task["fixes:find_mismatched_references"].reenable
+  end
+
+  it "prints out the correct submission ids" do
+    expected_output = Submission.all.sort_by(&:created_at).map(&:id).join(",")
+    expect { Rake::Task["fixes:find_mismatched_references"].execute }.to output(expected_output).to_stdout
+  end
+end
