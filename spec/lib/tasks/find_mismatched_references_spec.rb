@@ -18,8 +18,9 @@ describe "fixes:find_mismatched_references", type: :task do
     Rake::Task["fixes:find_mismatched_references"].reenable
   end
 
-  it "prints out the correct submission ids" do
-    expected_output = Submission.all.sort_by(&:created_at).map(&:id).join(",")
+  it "prints out the correct information" do
+    invalid_versions = invalid_submission.ordered_submission_versions.pluck(Arel.sql("application -> 'laa_reference'")).uniq().join(",")
+    expected_output = "Submission ID: #{invalid_submission.id} Original Ref: #{additional_version.application['laa_reference']} All References: #{invalid_versions}}"
     expect { Rake::Task["fixes:find_mismatched_references"].execute }.to output(expected_output).to_stdout
   end
 end
