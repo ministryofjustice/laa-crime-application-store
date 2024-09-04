@@ -4,9 +4,10 @@ namespace :fixes do
     submissions_to_check = Submission.where("application.current_version > 2")
     submissions_to_check.each do |submission|
       versions = submission.ordered_submission_versions
+      original_ref = versions.last.application['laa_reference']
       unique_references = versions.pluck(Arel.sql("application -> 'laa_reference'")).uniq()
       if unique_references.count > 1
-        print "Submission ID: #{submission.id} Original Ref: #{versions.last.application['laa_reference']} All References: #{unique_references.join(",")}}"
+        print "Submission ID: #{submission.id} Original Ref: #{original_ref} All References: #{unique_references.join(",")}}"
       end
     end
   end
