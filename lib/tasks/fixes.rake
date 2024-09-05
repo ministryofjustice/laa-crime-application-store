@@ -15,12 +15,17 @@ namespace :fixes do
         submission = entry['submission']
         original_ref = entry['original_ref']
         if entry.present? && original_ref.present?
+          puts "Fixing #{entry}"
           versions_to_fix = SubmissionVersion.where({application_id: submission.id})
           versions_to_fix.each do |version|
             current_ref = version.application['laa_reference']
             if current_ref != original_ref
-              version.application['laa_reference'] = original_ref
-              version.save!(touch: false)
+              fixed_application = version.application
+              fixed_application['laa_reference'] = original_ref
+              version.application = fixed_application
+              if version.save!(touch: false)
+                puts "Fixed Submission #{version.id}"
+              end
             end
           end
         end
