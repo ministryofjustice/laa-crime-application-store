@@ -1,17 +1,28 @@
 namespace :fixes do
-  desc "Find mismatched LAA references"
-  task find_mismatched_references: :environment do
-    submissions_to_check = Submission.where("application.current_version > 2")
-    submissions_to_check.each do |submission|
-      versions = submission.ordered_submission_versions
-      original_ref = versions.last.application['laa_reference']
-      unique_references = versions.pluck(Arel.sql("application -> 'laa_reference'")).uniq()
-      if unique_references.count > 1
-        puts "Submission ID: #{submission.id} Original Ref: #{original_ref} All References: #{unique_references.join(",")}"
+  namespace :mismatched_references do
+    desc "Find mismatched LAA references"
+    task find: :environment do
+      mismatched_submissions = get_mismatched_submissions
+      mismatched_submissions.each do |entry|
+        puts "Submission ID: #{entry['submission'].id} Original Ref: #{entry['original_ref']} All References: #{entry['unique_references'].join(",")}"
       end
     end
-  end
 
+    def get_mismatched_submissions
+      faulty_submissions = []
+      submissions_to_check = Submission.where("application.current_version > 2")
+      submissions_to_check.each do |submission|
+        versions = submission.ordered_submission_versions
+        original_ref = versions.last.application['laa_reference']
+        unique_references = versions.pluck(Arel.sql("application -> 'laa_reference'")).uniq()
+        if unique_references.count > 1
+          entry = { 'submission' => submission, 'original_ref' => original_ref, 'unique_references' => unique_references}
+          faulty_submissions.push entry
+        end
+      end
+      faulty_submissions
+    end
+  end
   desc "Amend a contact email address. Typically because user has added a valid but undeliverable address"
   task :update_contact_email, [:id, :new_contact_email] => :environment do |_, args|
     submission = Submission.find(args[:id])
