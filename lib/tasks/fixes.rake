@@ -18,6 +18,7 @@ namespace :fixes do
 
     desc "Fix mismatched LAA references from list of submission ids"
     task manual_fix: :environment do
+      # populate affected_submission_ids with array of submission id strings that need fixing
       affected_submission_ids = []
       affected_submission_ids.each do |submission_id|
         submission = Submission.find(submission_id)
