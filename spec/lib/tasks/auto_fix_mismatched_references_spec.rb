@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe "fixes:mismatched_references:fix", type: :task do
+describe "fixes:mismatched_references:auto_fix", type: :task do
   let(:valid_reference) { "LAA-123456" }
   let(:invalid_reference) { "LAA-ABCDEF" }
   let(:valid_submission) { create(:submission, :with_pa_version, current_version: 3, laa_reference: valid_reference) }
@@ -17,11 +17,11 @@ describe "fixes:mismatched_references:fix", type: :task do
   end
 
   after do
-    Rake::Task["fixes:mismatched_references:find"].reenable
+    Rake::Task["fixes:mismatched_references:auto_fix"].reenable
   end
 
   it "invalid laa references are corrected" do
-    Rake::Task["fixes:mismatched_references:fix"].execute
+    Rake::Task["fixes:mismatched_references:auto_fix"].execute
     valid_versions = valid_submission.ordered_submission_versions.map(&:application)
     fixed_versions = invalid_submission.ordered_submission_versions.map(&:application)
     expect(valid_versions.select { _1["laa_reference"] == valid_reference }.count).to eq(3)
