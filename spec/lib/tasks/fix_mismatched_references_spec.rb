@@ -24,7 +24,7 @@ describe "fixes:mismatched_references:fix", type: :task do
     Rake::Task["fixes:mismatched_references:fix"].execute
     valid_versions = valid_submission.ordered_submission_versions.map(&:application)
     fixed_versions = invalid_submission.ordered_submission_versions.map(&:application)
-    expect(valid_versions.select{ _1['laa_reference'] == valid_reference}.count).to eq(3)
-    expect(fixed_versions.select{ _1['laa_reference'] == invalid_reference}.count).to eq(3)
+    expect(valid_versions.select { _1["laa_reference"] == valid_reference }.count).to eq(3)
+    expect(fixed_versions.select { _1["laa_reference"] == invalid_reference }.count).to eq(3)
   end
 end
