@@ -8,6 +8,25 @@ namespace :fixes do
       end
     end
 
+    desc "Fix mismatched LAA references"
+    task fix: :environment do
+      mismatched_submissions = get_mismatched_submissions
+      mismatched_submissions.each do |entry|
+        submission = entry['submission']
+        original_ref = entry['original_ref']
+        if entry.present? && original_ref.present?
+          versions_to_fix = SubmissionVersion.where({application_id: submission.id})
+          versions_to_fix.each do |version|
+            current_ref = version.application['laa_reference']
+            if current_ref != original_ref
+              version.application['laa_reference'] = original_ref
+              version.save!(touch: false)
+            end
+          end
+        end
+      end
+    end
+
     def get_mismatched_submissions
       faulty_submissions = []
       submissions_to_check = Submission.where("application.current_version > 2")
