@@ -1,9 +1,8 @@
 require "rails_helper"
 
-describe "fixes:mismatched_references:find", type: :task do
+describe "fixes:mismatched_references:auto_fix", type: :task do
   let(:valid_reference) { "LAA-123456" }
   let(:invalid_reference) { "LAA-ABCDEF" }
-  let(:changed_reference) { "LAA-654321" }
   let(:valid_submission) { create(:submission, :with_pa_version, current_version: 3, laa_reference: valid_reference) }
   let(:invalid_submission) { create(:submission, :with_pa_version, current_version: 3, laa_reference: invalid_reference) }
 
@@ -18,12 +17,14 @@ describe "fixes:mismatched_references:find", type: :task do
   end
 
   after do
-    Rake::Task["fixes:mismatched_references:find"].reenable
+    Rake::Task["fixes:mismatched_references:auto_fix"].reenable
   end
 
-  it "prints out the correct information" do
-    invalid_versions = invalid_submission.ordered_submission_versions.pluck(Arel.sql("application -> 'laa_reference'")).uniq.join(",")
-    expected_output = "Submission ID: #{invalid_submission.id} Original Ref: #{invalid_reference} All References: #{invalid_versions}\n"
-    expect { Rake::Task["fixes:mismatched_references:find"].execute }.to output(expected_output).to_stdout
+  it "invalid laa references are corrected" do
+    Rake::Task["fixes:mismatched_references:auto_fix"].execute
+    valid_versions = valid_submission.ordered_submission_versions.map(&:application)
+    fixed_versions = invalid_submission.ordered_submission_versions.map(&:application)
+    expect(valid_versions.select { _1["laa_reference"] == valid_reference }.count).to eq(3)
+    expect(fixed_versions.select { _1["laa_reference"] == invalid_reference }.count).to eq(3)
   end
 end
