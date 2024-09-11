@@ -84,4 +84,36 @@ namespace :fixes do
       puts "#{subver.application['laa_reference']}'s contact email is now #{subver.reload.application['solicitor']['contact_email']}"
     end
   end
+
+  desc "Remove corrupt submission versions"
+  task fix_corrupt_versions: :environment do
+    versions_to_fix = [
+      { submission_id: "84fabfe2-844f-4bbe-8460-1be4a18912e3", version_no: 3},
+      { submission_id: "88a7bd7b-7cac-4a11-b13c-b6ddc187f4d0", version_no: 3},
+      { submission_id: "603c3d9a-2493-40d5-9691-5339c71c801a", version_no: 1 },
+      { submission_id: "dec31825-1bd1-461e-8857-5ddf9f839992", version_no: 2 },
+      { submission_id: "6e319bb2-d450-4451-aed5-eeea57d7c329", version_no: 1 }
+    ]
+
+    versions_to_fix.each do |version|
+      ActiveRecord::Base.transaction do
+        version_to_delete = SubmissionVersion.find_by(application_id: version[:submission_id], version: version[:version_no])
+
+          # delete corrupt record
+          version_to_delete.destroy if version_to_delete
+
+          # decrement subsequent record version numbers
+          versions_to_decrement = SubmissionVersion.where("application_id = ? AND version > ?", version[:submission_id], version[:version_no])
+          versions_to_decrement.each do |record|
+            record.version -= 1
+            record.save!(touch: false)
+          end
+
+          # set correct current_version on Submission
+          submission = Submission.find(version[:submission_id])
+          submission.current_version = submission.ordered_submission_versions.first.current_version
+          submission.save!(touch: false)
+        end
+     end
+  end
 end
