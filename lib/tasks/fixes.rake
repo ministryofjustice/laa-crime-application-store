@@ -98,22 +98,30 @@ namespace :fixes do
     versions_to_fix.each do |version|
       ActiveRecord::Base.transaction do
         version_to_delete = SubmissionVersion.find_by(application_id: version[:submission_id], version: version[:version_no])
-
+        if version_to_delete.present?
+          puts "Fixing Submission with id: #{version[:submission_id]}"
           # delete corrupt record
-          version_to_delete.destroy if version_to_delete
-
+          version_to_delete.destroy
+          puts "Removed SubmissionVersion with id: #{version_to_delete.id}"
           # decrement subsequent record version numbers
           versions_to_decrement = SubmissionVersion.where("application_id = ? AND version > ?", version[:submission_id], version[:version_no])
           versions_to_decrement.each do |record|
             record.version -= 1
             record.save!(touch: false)
           end
+          puts "Decremented SubmissionVersions for #{version[:submission_id]} with versions >#{version[:version_no]}"
 
           # set correct current_version on Submission
-          submission = Submission.find(version[:submission_id])
-          submission.current_version = submission.ordered_submission_versions.first.current_version
-          submission.save!(touch: false)
+          submission = Submission.find_by(id: version[:submission_id])
+          if submission.present?
+            submission.current_version = submission.ordered_submission_versions.first.version
+            submission.save!(touch: false)
+            puts "Set current_version for Submission with id: #{version[:submission_id]} to correct value"
+          end
+        else
+          puts "SubmissionVersion not found"
         end
-     end
+      end
+    end
   end
 end
