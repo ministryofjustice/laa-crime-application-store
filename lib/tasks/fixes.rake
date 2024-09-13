@@ -147,7 +147,17 @@ namespace :fixes do
     update_event_submission_version(submission_2_id, "7b4a1f1f-230d-458f-8e63-dd9d7ad372da", 7)
     update_event_submission_version(submission_2_id, "1b903d5f-4b98-400c-a683-a4330c4eb56d", 7)
 
-
+    submission_3_id = "84fabfe2-844f-4bbe-8460-1be4a18912e3"
+    # 1. Set all events between first provider_updated event and subsequent send_back to have submission_version = 3
+    # 2. Set second provider_updated event to have submission_version = 5
+    # 3. Set all events between second provider_updated event and decision event to have submission_version = 5
+    update_event_submission_version(submission_3_id, "90471804-1f86-4268-9ec7-274edf4ee0cc", 3)
+    update_event_submission_version(submission_3_id, "2cbb9632-f6bc-49c3-baf7-434cc7a56d0a", 3)
+    update_event_submission_version(submission_3_id, "40329710-8bbb-489b-af0a-72cafd5cafd9", 5)
+    update_event_submission_version(submission_3_id, "6e329df9-45c7-4685-91ac-df882cac7503", 5)
+    update_event_submission_version(submission_3_id, "1b4f807c-ccd5-45c5-9ee6-4aa0b67b8db5", 5)
+    update_event_submission_version(submission_3_id, "85ad0b84-e3bb-4663-ae2f-a218ad1b6ba6", 5)
+    update_event_submission_version(submission_3_id, "e906d7be-0091-44dc-9d88-b4692b5e89e4", 5)
   end
 
   def update_event_submission_version(submission_id, event_id, submission_version)
