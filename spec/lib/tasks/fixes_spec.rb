@@ -92,4 +92,38 @@ describe "fixes:", type: :task do
       expect(Submission.find(unaffected_submission.id).current_version).to eq(3)
     end
   end
+
+  describe "fix_corrupt_events" do
+    let(:event_to_fix_id) { "d3003451-39f5-48c3-ba9f-f210491dad9b" }
+    let(:unchanged_event_id) { SecureRandom.uuid }
+    let(:events) do
+      [
+        {
+          "id" => event_to_fix_id,
+          "submission_version" => 1
+        },
+        {
+          "id" => unchanged_event_id,
+          "submission_version" => 1
+        }
+      ]
+    end
+    let(:submission) { create(:submission, :with_pa_version, id: "dec31825-1bd1-461e-8857-5ddf9f839992", events:) }
+
+    before do
+      submission
+    end
+
+    after do
+      Rake::Task["fixes:fix_corrupt_versions"].reenable
+    end
+
+    it "fixes the correct event" do
+      Rake::Task["fixes:fix_corrupt_events"].execute
+      changed_event_version = Submission.all.first.events.find{|event| event["id"] == event_to_fix_id}
+      unchanged_event_version = Submission.all.first.events.find{|event| event["id"] == unchanged_event_id}
+      expect(changed_event_version["submission_version"]).to eq(2)
+      expect(unchanged_event_version["submission_version"]).to eq(1)
+    end
+  end
 end

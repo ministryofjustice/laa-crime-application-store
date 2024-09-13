@@ -124,4 +124,17 @@ namespace :fixes do
       end
     end
   end
+
+  desc "Fix corrupt submission events"
+  task fix_corrupt_events: :environment do
+    # Update final submission event to have submission_version = 2
+    submission_1 = Submission.find_by(id: "dec31825-1bd1-461e-8857-5ddf9f839992")
+    if submission_1.present?
+      event_to_change = submission_1.events.find { |event| event["id"] == "d3003451-39f5-48c3-ba9f-f210491dad9b" }
+      event_index = submission_1.events.find_index(event_to_change)
+      event_to_change["submission_version"] = 2
+      submission_1.events[event_index] = event_to_change
+      submission_1.save!(touch: false)
+    end
+  end
 end
