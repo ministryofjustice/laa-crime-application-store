@@ -127,14 +127,38 @@ namespace :fixes do
 
   desc "Fix corrupt submission events"
   task fix_corrupt_events: :environment do
+    submission_1_id = "dec31825-1bd1-461e-8857-5ddf9f839992"
     # Update final submission event to have submission_version = 2
-    submission_1 = Submission.find_by(id: "dec31825-1bd1-461e-8857-5ddf9f839992")
-    if submission_1.present?
-      event_to_change = submission_1.events.find { |event| event["id"] == "d3003451-39f5-48c3-ba9f-f210491dad9b" }
-      event_index = submission_1.events.find_index(event_to_change)
-      event_to_change["submission_version"] = 2
-      submission_1.events[event_index] = event_to_change
-      submission_1.save!(touch: false)
+    update_event_submission_version(submission_1_id, "d3003451-39f5-48c3-ba9f-f210491dad9b", 2)
+
+    submission_2_id = "88a7bd7b-7cac-4a11-b13c-b6ddc187f4d0"
+    # 1. Update first sent_back submission event to have submission_version = 2
+    # 2. Update second sent_back submission event to have submission_version = 4
+    # 3. Update second provider_updated submission event to have submission_version = 5
+    # 4. Update subsequent assignment event to have submission_version = 5
+    # 5. Update third provider_updated submission event to have submission_version = 7
+    # 6. Update all subsequent events apart from decision to have submission_version = 7
+    update_event_submission_version(submission_2_id, "8629eeed-c898-4232-bd99-e8c1ef4b2517", 2)
+    update_event_submission_version(submission_2_id, "22c6f283-5197-4f22-a3b3-f000b926a476", 4)
+    update_event_submission_version(submission_2_id, "1f03be18-ed56-4e16-a90f-b40ecb1b2865", 5)
+    update_event_submission_version(submission_2_id, "48b9359e-3cd6-4c48-aba4-bf85dabff5fb", 5)
+    update_event_submission_version(submission_2_id, "4c72a40a-df29-4dce-881e-6b082b1bb234", 7)
+    update_event_submission_version(submission_2_id, "55b111aa-edd6-4349-bb42-16903359d455", 7)
+    update_event_submission_version(submission_2_id, "7b4a1f1f-230d-458f-8e63-dd9d7ad372da", 7)
+    update_event_submission_version(submission_2_id, "1b903d5f-4b98-400c-a683-a4330c4eb56d", 7)
+
+
+  end
+
+  def update_event_submission_version(submission_id, event_id, submission_version)
+    submission = Submission.find_by(id: submission_id)
+    if submission.present?
+      event_to_change = submission.events.find { |event| event["id"] == event_id }
+      event_index = submission.events.find_index(event_to_change)
+      event_to_change["submission_version"] = submission_version
+      submission.events[event_index] = event_to_change
+      submission.save!(touch: false)
+      puts "Event: #{event_id} for Submission: #{submission_id} submission_version updated to #{submission_version}"
     end
   end
 end

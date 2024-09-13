@@ -94,6 +94,7 @@ describe "fixes:", type: :task do
   end
 
   describe "fix_corrupt_events" do
+    # NOTE: only testing the first example to prove that the re-usable method #update_event_submission_version works
     let(:event_to_fix_id) { "d3003451-39f5-48c3-ba9f-f210491dad9b" }
     let(:unchanged_event_id) { SecureRandom.uuid }
     let(:events) do
