@@ -178,6 +178,7 @@ GEM
       rack (>= 1.2, < 4)
       snaky_hash (~> 2.0)
       version_gem (~> 1.1)
+    ostruct (0.6.0)
     parallel (1.25.1)
     parser (3.3.3.0)
       ast (~> 2.4.1)
@@ -371,6 +372,7 @@ DEPENDENCIES
   lograge
   logstash-event
   oauth2
+  ostruct
   pg (~> 1.5)
   prometheus_exporter
   pry-nav
@@ -392,7 +394,7 @@ DEPENDENCIES
   webmock (>= 3.13.0)
 
 RUBY VERSION
-   ruby 3.3.4
+   ruby 3.3.5p100
 
 BUNDLED WITH
    2.5.11
