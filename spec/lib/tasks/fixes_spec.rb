@@ -100,12 +100,12 @@ describe "fixes:", type: :task do
       [
         {
           "id" => event_to_fix_id,
-          "submission_version" => 1
+          "submission_version" => 1,
         },
         {
           "id" => unchanged_event_id,
-          "submission_version" => 1
-        }
+          "submission_version" => 1,
+        },
       ]
     end
     let(:submission) { create(:submission, :with_pa_version, id: "dec31825-1bd1-461e-8857-5ddf9f839992", events:) }
@@ -120,8 +120,8 @@ describe "fixes:", type: :task do
 
     it "fixes the correct event" do
       Rake::Task["fixes:fix_corrupt_events"].execute
-      changed_event_version = Submission.all.first.events.find{|event| event["id"] == event_to_fix_id}
-      unchanged_event_version = Submission.all.first.events.find{|event| event["id"] == unchanged_event_id}
+      changed_event_version = Submission.first.events.find { |event| event["id"] == event_to_fix_id }
+      unchanged_event_version = Submission.first.events.find { |event| event["id"] == unchanged_event_id }
       expect(changed_event_version["submission_version"]).to eq(2)
       expect(unchanged_event_version["submission_version"]).to eq(1)
     end
