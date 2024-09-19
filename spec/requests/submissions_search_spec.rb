@@ -368,6 +368,29 @@ RSpec.describe "Submission search" do
       end
     end
 
+    context "with risk filter" do
+      before do
+        create(:submission, :with_nsm_version,
+               application_risk: "high")
+
+        create(:submission, :with_nsm_version,
+               application_risk: "low")
+
+        create(:submission, :with_nsm_version,
+               application_risk: "medium")
+      end
+
+      it "brings back only those with a matching risk" do
+        post search_endpoint, params: {
+          application_type: "crm7",
+          risk: "high",
+        }
+
+        expect(response.parsed_body["data"].size).to be 1
+        expect(response.parsed_body["data"].pluck("risk")).to all(include("high"))
+      end
+    end
+
     context "with defendant name query for PA" do
       before do
         create(:submission, :with_pa_version,

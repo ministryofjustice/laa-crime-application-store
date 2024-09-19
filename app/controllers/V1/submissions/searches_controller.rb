@@ -24,6 +24,7 @@ module V1
           :submitted_to,
           :updated_from,
           :updated_to,
+          :risk,
           :caseworker_id,
           :status_with_assignment,
         )
