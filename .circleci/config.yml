@@ -237,7 +237,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - build-docker-image-for-scan
       - snyk/install:
           token-variable: SNYK_TOKEN
