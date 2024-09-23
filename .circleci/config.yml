@@ -204,7 +204,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - snyk/install:
           token-variable: SNYK_TOKEN
       - run:
