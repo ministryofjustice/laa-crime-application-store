@@ -25,7 +25,7 @@ executors:
           RAILS_ENV: test
           DATABASE_URL: postgres://postgres:circleci@127.0.0.1:5432/laa_crime_application_store_test
           TZ: Europe/London
-      - image: cimg/postgres:13.12-postgis
+      - image: cimg/postgres:16.4-postgis
         environment:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: "circleci"
