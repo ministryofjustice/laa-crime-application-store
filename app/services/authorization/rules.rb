@@ -21,6 +21,7 @@ module Authorization
         submissions: {
           index: true,
           show: true,
+          metadata: true,
           update: ->(object, params) { state_pair_allowed?(object, params, PERMITTED_SUBMISSION_STATE_CHANGES[:caseworker]) },
         },
         events: {
