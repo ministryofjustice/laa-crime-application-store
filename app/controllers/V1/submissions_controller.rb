@@ -25,6 +25,13 @@ module V1
       render json: { errors: e.message }, status: :unprocessable_entity
     end
 
+    def metadata
+      ::Submissions::MetadataUpdateService.call(current_submission, params)
+      head :ok
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { errors: e.message }, status: :unprocessable_entity
+    end
+
     def current_submission
       @current_submission ||= Submission.find(params[:id])
     end

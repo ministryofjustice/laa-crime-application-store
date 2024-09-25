@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   namespace "v1" do
     resources :submissions, only: %i[show create index update] do
       resources :events, only: %i[create]
+      member { patch :metadata }
     end
     resources :subscribers, only: %i[create]
     delete :subscribers, to: "subscribers#destroy"
