@@ -19,7 +19,7 @@ gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 gem "bootsnap", require: false
 
 gem "httparty"
-gem "jwt", "~> 2.9.0"
+gem "jwt", "~> 2.9.1"
 gem "lograge"
 gem "logstash-event"
 gem "oauth2"
