@@ -75,6 +75,8 @@ spec:
               value: {{ .Values.postgresql.analyticsUsername }}
             - name: ANALYTICS_PASSWORD
               value: {{ .Values.postgresql.auth.analyticsPassword }}
+            - name: DATABASE_SSLMODE
+              value: 'prefer'
           {{ else }}
             - name: POSTGRES_NAME
               valueFrom:
