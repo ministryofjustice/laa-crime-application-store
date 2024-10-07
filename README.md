@@ -1,6 +1,6 @@
 # laa-crime-application-store
 
-LAA Crime Application Store is a service to provide the ability to store and version crime applications from CRM forms.
+LAA Crime Application Store is a service to provide the ability to store and version crime applications from CRM forms.-
 
 * Ruby version
 ruby 3.3.5
