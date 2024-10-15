@@ -7,8 +7,8 @@ module Submissions
           EventAdditionService.call(submission, params)
           submission.update!(params.permit(:application_risk).merge(state: params[:application_state]))
           add_new_version(submission, params)
+          NotificationService.call(submission, role)
         end
-        NotificationService.call(params[:id], role)
       end
 
       def add_new_version(submission, params)

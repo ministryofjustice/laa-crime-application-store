@@ -1,29 +1,35 @@
 class NotifySubscriber < ApplicationJob
   ClientResponseError = Class.new(StandardError)
 
-  def self.perform_later(subscriber_id, submission_id)
-    Submission.find(submission_id).update!(notify_subscriber_completed: false)
-    super
+  def self.perform_later(subscriber_id, submission)
+    submission.update!(notify_subscriber_completed: false)
+    super(subscriber_id, submission.id)
   end
 
   def perform(subscriber_id, submission_id)
+    raise_error = false
     subscriber = Subscriber.find(subscriber_id)
     submission = Submission.find(submission_id)
+    # This lock is important because it forces the job to wait until
+    # the locked transaction that enqueued this job is released,
+    # ensuring that when this job runs it is working with fresh
+    # data
+    submission.with_lock do
+      raise_error = handle_failure(subscriber) unless send_message_to_webhook(subscriber.webhook_url, submission)
 
-    handle_failure(subscriber, submission_id) unless send_message_to_webhook(subscriber.webhook_url, submission)
-
-    submission.update!(notify_subscriber_completed: false)
-  end
-
-  def handle_failure(subscriber, submission_id)
-    subscriber.with_lock do
-      subscriber.failed_attempts += 1
-      subscriber.save!
+      submission.update!(notify_subscriber_completed: false)
     end
 
-    return if delete_subscriber(subscriber)
+    raise ClientResponseError, "Failed to notify subscriber about #{submission_id} - #{subscriber.webhook_url} returned error" if raise_error
+  end
 
-    raise ClientResponseError, "Failed to notify subscriber about #{submission_id} - #{subscriber.webhook_url} returned error"
+  def handle_failure(subscriber)
+    subscriber.failed_attempts += 1
+    subscriber.save!
+
+    return false if delete_subscriber(subscriber)
+
+    true
   end
 
   def send_message_to_webhook(webhook_url, submission)

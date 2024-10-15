@@ -8,7 +8,7 @@ RSpec.describe NotifySubscriber do
 
   describe ".perform_later" do
     it "sets a flag" do
-      described_class.perform_later(subscriber.id, submission.id)
+      described_class.perform_later(subscriber.id, submission)
       expect(submission.reload.notify_subscriber_completed).to be false
     end
   end
