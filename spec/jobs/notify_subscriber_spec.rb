@@ -4,7 +4,14 @@ RSpec.describe NotifySubscriber do
   subject(:job) { described_class.new }
 
   let(:subscriber) { create(:subscriber, webhook_url: "https://example.com/webhook") }
-  let(:submission) { create(:submission) }
+  let(:submission) { create(:submission, notify_subscriber_completed: nil) }
+
+  describe ".perform_later" do
+    it "sets a flag" do
+      described_class.perform_later(subscriber.id, submission.id)
+      expect(submission.reload.notify_subscriber_completed).to be false
+    end
+  end
 
   context "when webhook authentication is not required" do
     around do |example|
@@ -83,9 +90,10 @@ RSpec.describe NotifySubscriber do
       ENV["TENANT_ID"] = nil
     end
 
-    # Reset class instance variables between tests
+    # Reset class instance variables between tests, and keep timestamps stable
     before do
       Tokens::GenerationService.instance_variable_set(:@access_token, nil)
+      travel_to 1.day.ago
     end
 
     let(:token_stub) do

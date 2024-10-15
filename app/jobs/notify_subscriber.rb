@@ -1,12 +1,21 @@
 class NotifySubscriber < ApplicationJob
   ClientResponseError = Class.new(StandardError)
 
+  def self.perform_later(subscriber_id, submission_id)
+    Submission.find(submission_id).update!(notify_subscriber_completed: false)
+    super
+  end
+
   def perform(subscriber_id, submission_id)
     subscriber = Subscriber.find(subscriber_id)
     submission = Submission.find(submission_id)
 
-    return if send_message_to_webhook(subscriber.webhook_url, submission)
+    handle_failure(subscriber, submission_id) unless send_message_to_webhook(subscriber.webhook_url, submission)
 
+    submission.update!(notify_subscriber_completed: false)
+  end
+
+  def handle_failure(subscriber, submission_id)
     subscriber.with_lock do
       subscriber.failed_attempts += 1
       subscriber.save!
