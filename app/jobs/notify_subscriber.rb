@@ -3,13 +3,12 @@ class NotifySubscriber < ApplicationJob
 
   def self.perform_later(subscriber_id, submission)
     submission.update!(notify_subscriber_completed: false)
-    super(subscriber_id, submission.id)
+    super
   end
 
-  def perform(subscriber_id, submission_id)
+  def perform(subscriber_id, submission)
     raise_error = false
     subscriber = Subscriber.find(subscriber_id)
-    submission = Submission.find(submission_id)
     # This lock is important because it forces the job to wait until
     # the locked transaction that enqueued this job is released,
     # ensuring that when this job runs it is working with fresh
@@ -20,7 +19,7 @@ class NotifySubscriber < ApplicationJob
       submission.update!(notify_subscriber_completed: false)
     end
 
-    raise ClientResponseError, "Failed to notify subscriber about #{submission_id} - #{subscriber.webhook_url} returned error" if raise_error
+    raise ClientResponseError, "Failed to notify subscriber about #{submission.id} - #{subscriber.webhook_url} returned error" if raise_error
   end
 
   def handle_failure(subscriber)
