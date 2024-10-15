@@ -16,7 +16,7 @@ class NotifySubscriber < ApplicationJob
     submission.with_lock do
       raise_error = handle_failure(subscriber) unless send_message_to_webhook(subscriber.webhook_url, submission)
 
-      submission.update!(notify_subscriber_completed: false)
+      submission.update!(notify_subscriber_completed: true)
     end
 
     raise ClientResponseError, "Failed to notify subscriber about #{submission.id} - #{subscriber.webhook_url} returned error" if raise_error
