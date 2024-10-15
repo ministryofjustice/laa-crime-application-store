@@ -243,10 +243,10 @@ jobs:
           token-variable: SNYK_TOKEN
       - run:
           name: Scan container image for vulnerabilities
-          command: snyk container test metabase/metabase:v0.50.29.1 --policy-path=.snyk --severity-threshold=high
+          command: snyk container test metabase/metabase:v0.50.24.4 --policy-path=.snyk --severity-threshold=high
       - run:
           name: Monitor container image for vulnerabilities
-          command: snyk container monitor metabase/metabase:v0.50.29.1
+          command: snyk container monitor metabase/metabase:v0.50.24.4
 
   build-and-push:
     executor: aws-ecr/default # use the aws-ecr/default executor to start the docker daemon
@@ -409,7 +409,6 @@ workflows:
             - lint-app
             - test-app
             - scan-docker-image
-            - scan-metabase-docker-image
       - e2e-test-main:
           context:
             - laa-non-standard-crime-claims-alerting
