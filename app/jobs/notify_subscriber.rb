@@ -26,9 +26,7 @@ class NotifySubscriber < ApplicationJob
     subscriber.failed_attempts += 1
     subscriber.save!
 
-    return false if delete_subscriber(subscriber)
-
-    true
+    !delete_subscriber(subscriber)
   end
 
   def send_message_to_webhook(webhook_url, submission)
