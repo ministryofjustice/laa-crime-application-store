@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_08_22_122916) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_15_101440) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -24,8 +24,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_22_122916) do
     t.datetime "created_at", precision: nil
     t.virtual "has_been_assigned_to", type: :jsonb, as: "jsonb_path_query_array(events, '$[*]?(@.\"event_type\" == \"assignment\").\"primary_user_id\"'::jsonpath)", stored: true
     t.datetime "last_updated_at", precision: nil
-    t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null", validate: false
-    t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null", validate: false
+    t.boolean "notify_subscriber_completed"
+    t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null"
+    t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null"
   end
 
   create_table "application_version", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
