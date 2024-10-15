@@ -8,7 +8,7 @@ RSpec.describe NotifySubscriber do
 
   describe ".perform_later" do
     it "sets a flag" do
-      described_class.perform_later(subscriber.id, submission.id)
+      described_class.perform_later(subscriber.id, submission)
       expect(submission.reload.notify_subscriber_completed).to be false
     end
   end
@@ -25,7 +25,7 @@ RSpec.describe NotifySubscriber do
         body: { submission_id: submission.id, data: submission.as_json },
       ).to_return(status: 200)
 
-      job.perform(subscriber.id, submission.id)
+      job.perform(subscriber.id, submission)
       expect(stub).to have_been_requested
     end
 
@@ -37,13 +37,13 @@ RSpec.describe NotifySubscriber do
       end
 
       it "raises an error if a non-200 status is returned" do
-        expect { job.perform(subscriber.id, submission.id) }.to raise_error NotifySubscriber::ClientResponseError
+        expect { job.perform(subscriber.id, submission) }.to raise_error NotifySubscriber::ClientResponseError
       end
 
       it "bumps the failed_attempts count" do
         expect {
           begin
-            job.perform(subscriber.id, submission.id)
+            job.perform(subscriber.id, submission)
           rescue NotifySubscriber::ClientResponseError
             nil
           end
@@ -61,11 +61,11 @@ RSpec.describe NotifySubscriber do
           before { subscriber.update(failed_attempts: 1) }
 
           it "raises no error" do
-            expect { job.perform(subscriber.id, submission.id) }.not_to raise_error
+            expect { job.perform(subscriber.id, submission) }.not_to raise_error
           end
 
           it "deletes the subscriber" do
-            job.perform(subscriber.id, submission.id)
+            job.perform(subscriber.id, submission)
             expect(Subscriber.find_by(id: subscriber.id)).to be_nil
           end
         end
@@ -78,7 +78,7 @@ RSpec.describe NotifySubscriber do
       end
 
       it "raises an appropriate error" do
-        expect { job.perform(subscriber.id, submission.id) }.to raise_error NotifySubscriber::ClientResponseError
+        expect { job.perform(subscriber.id, submission) }.to raise_error NotifySubscriber::ClientResponseError
       end
     end
   end
@@ -115,7 +115,7 @@ RSpec.describe NotifySubscriber do
       token_stub
       webhook_stub
 
-      job.perform(subscriber.id, submission.id)
+      job.perform(subscriber.id, submission)
 
       expect(token_stub).to have_been_requested
       expect(webhook_stub).to have_been_requested
@@ -125,7 +125,7 @@ RSpec.describe NotifySubscriber do
       token_stub
       webhook_stub
 
-      2.times { job.perform(subscriber.id, submission.id) }
+      2.times { job.perform(subscriber.id, submission) }
 
       expect(token_stub).to have_been_requested.once
     end

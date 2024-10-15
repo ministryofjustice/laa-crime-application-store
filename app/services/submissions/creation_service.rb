@@ -7,16 +7,14 @@ module Submissions
 
         Submission.transaction do
           submission = Submission.create!(initial_data(params))
-          submission.ordered_submission_versions.create!(
-            json_schema_version: params[:json_schema_version],
-            application: params[:application],
-            version: 1,
-          )
+          submission.with_lock do
+            add_version(submission, params)
 
-          last_updated_at = params.dig(:application, :updated_at)&.to_time || submission.created_at
-          submission.update_columns(last_updated_at:)
+            last_updated_at = params.dig(:application, :updated_at)&.to_time || submission.created_at
+            submission.update_columns(last_updated_at:)
+            NotificationService.call(submission, role)
+          end
         end
-        NotificationService.call(params[:application_id], role)
       end
 
       def initial_data(params)
@@ -24,6 +22,14 @@ module Submissions
               .merge(current_version: 1,
                      state: params[:application_state],
                      id: params[:application_id])
+      end
+
+      def add_version(submission, params)
+        submission.ordered_submission_versions.create!(
+          json_schema_version: params[:json_schema_version],
+          application: params[:application],
+          version: 1,
+        )
       end
     end
   end
