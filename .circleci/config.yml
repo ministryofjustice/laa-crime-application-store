@@ -409,7 +409,6 @@ workflows:
             - lint-app
             - test-app
             - scan-docker-image
-            - scan-metabase-docker-image
       - e2e-test-main:
           context:
             - laa-non-standard-crime-claims-alerting
