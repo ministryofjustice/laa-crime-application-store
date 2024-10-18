@@ -13,17 +13,24 @@ class NotifySubscriber < ApplicationJob
   def perform(subscriber_id, submission)
     raise_error = false
     subscriber = Subscriber.find(subscriber_id)
-    raise_error = handle_failure(subscriber) unless send_message_to_webhook(subscriber.webhook_url, submission)
+    unless send_message_to_webhook(subscriber.webhook_url, submission)
+      raise_error = handle_failure_and_decide_whether_to_raise_error(subscriber)
+    end
 
     submission.update!(notify_subscriber_completed: true)
     raise ClientResponseError, "Failed to notify subscriber about #{submission.id} - #{subscriber.webhook_url} returned error" if raise_error
   end
 
-  def handle_failure(subscriber)
+  def handle_failure_and_decide_whether_to_raise_error(subscriber)
     subscriber.failed_attempts += 1
     subscriber.save!
 
-    !delete_subscriber(subscriber)
+    subscriber_deleted = delete_subscriber(subscriber)
+
+    # If we have just deleted the subscriber, we do not want to raise the error,
+    # because that will prompt the job to be retried, and retrying cannot work if the subscriber
+    #  has been deleted
+    !subscriber_deleted
   end
 
   def send_message_to_webhook(webhook_url, submission)
@@ -37,17 +44,20 @@ class NotifySubscriber < ApplicationJob
     )
 
     response.code == 200
-  rescue Socket::ResolutionError
-    # If the subscriber web app has been taken fully offline and its DNS removed, this will fire
+  rescue Socket::ResolutionError, Net::OpenTimeout, Errno::ECONNREFUSED
+    # These errors could be a sign that a client web app has been taken offline, so we
+    # want to catch them in order to run `handle_failure`
     false
   end
 
+  # Returns a boolean indicating whether the subscriber has been deleted.
   def delete_subscriber(subscriber)
     deletion_threshold = ENV.fetch("SUBSCRIBER_FAILED_ATTEMPT_DELETION_THRESHOLD", nil)
 
-    return unless deletion_threshold&.to_i&.positive? && deletion_threshold.to_i <= subscriber.failed_attempts
+    return false unless deletion_threshold&.to_i&.positive? && deletion_threshold.to_i <= subscriber.failed_attempts
 
     subscriber.destroy!
+    true
   end
 
   def headers
