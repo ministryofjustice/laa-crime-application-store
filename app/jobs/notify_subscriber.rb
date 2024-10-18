@@ -2,6 +2,10 @@ class NotifySubscriber < ApplicationJob
   ClientResponseError = Class.new(StandardError)
 
   def self.perform_later(subscriber_id, submission)
+    # If there is a Redis problem and we cannot enqueue the job,
+    # this flag will at least mean that we identify which records
+    # are going to need syncing to provider/caseworker so we
+    # can re-attain consistency
     submission.update!(notify_subscriber_completed: false)
     super
   end
@@ -9,16 +13,9 @@ class NotifySubscriber < ApplicationJob
   def perform(subscriber_id, submission)
     raise_error = false
     subscriber = Subscriber.find(subscriber_id)
-    # This lock is important because it forces the job to wait until
-    # the locked transaction that enqueued this job is released,
-    # ensuring that when this job runs it is working with fresh
-    # data
-    submission.with_lock do
-      raise_error = handle_failure(subscriber) unless send_message_to_webhook(subscriber.webhook_url, submission)
+    raise_error = handle_failure(subscriber) unless send_message_to_webhook(subscriber.webhook_url, submission)
 
-      submission.update!(notify_subscriber_completed: true)
-    end
-
+    submission.update!(notify_subscriber_completed: true)
     raise ClientResponseError, "Failed to notify subscriber about #{submission.id} - #{subscriber.webhook_url} returned error" if raise_error
   end
 
