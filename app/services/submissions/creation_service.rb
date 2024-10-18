@@ -5,16 +5,14 @@ module Submissions
       def call(params, role)
         raise AlreadyExistsError if Submission.find_by(id: params[:application_id])
 
-        Submission.transaction do
-          submission = Submission.create!(initial_data(params))
-          submission.with_lock do
-            add_version(submission, params)
+        submission = Submission.create!(initial_data(params))
+        submission.with_lock do
+          add_version(submission, params)
 
-            last_updated_at = params.dig(:application, :updated_at)&.to_time || submission.created_at
-            submission.update_columns(last_updated_at:)
-            NotificationService.call(submission, role)
-          end
+          last_updated_at = params.dig(:application, :updated_at)&.to_time || submission.created_at
+          submission.update_columns(last_updated_at:)
         end
+        NotificationService.call(submission, role)
       end
 
       def initial_data(params)
