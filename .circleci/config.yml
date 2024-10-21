@@ -213,7 +213,7 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: false
       - build-docker-image-for-scan
-      - **install-snyk
+      - *install-snyk
       - run:
           name: Run static code analysis
           command: snyk code test --severity-threshold=high
