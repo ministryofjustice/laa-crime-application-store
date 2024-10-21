@@ -245,8 +245,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
-      - snyk/install:
-          token-variable: SNYK_TOKEN
+      - *install-snyk
       - run:
           name: Scan container image for vulnerabilities
           command: snyk container test metabase/metabase:v0.50.24.4 --policy-path=.snyk --severity-threshold=high
