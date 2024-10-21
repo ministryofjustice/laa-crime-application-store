@@ -1,7 +1,6 @@
 version: 2.1
 
 orbs:
-  snyk: snyk/snyk@2.2.0
   aws-cli: circleci/aws-cli@4.1.3 # use v4 of this orb
   aws-ecr: circleci/aws-ecr@9.0.2 # this orb doesn't support OIDC v2, so we use aws-cli to authenticate
   crime-forms-end-to-end-tests: ministryofjustice/crime-forms-end-to-end-tests@volatile
@@ -50,6 +49,14 @@ references:
         sudo apt update
         sudo apt install -y python3-pip
         pip install yamllint
+
+  _install-snyk: &install-snyk
+    run:
+      name: Install snyk CLI
+      command: |
+        curl --compressed https://downloads.snyk.io/cli/stable/snyk-linux -o snyk
+        chmod +x ./snyk
+        sudo mv ./snyk /usr/local/bin/
 
 commands:
   install-requirements:
@@ -206,8 +213,7 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: false
       - build-docker-image-for-scan
-      - snyk/install:
-          token-variable: SNYK_TOKEN
+      - **install-snyk
       - run:
           name: Run static code analysis
           command: snyk code test --severity-threshold=high
