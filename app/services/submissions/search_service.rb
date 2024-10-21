@@ -1,6 +1,6 @@
 module Submissions
   class SearchService
-    SORTABLE_COLUMNS = %w[laa_reference firm_name client_name last_updated status_with_assignment].freeze
+    SORTABLE_COLUMNS = %w[laa_reference firm_name client_name last_updated status_with_assignment risk].freeze
 
     attr_reader :search_params
 
@@ -25,10 +25,21 @@ module Submissions
       relation = relation.where(last_updated: (updated_from..updated_to))
       relation = relation.where(application_type:) if application_type
       relation = relation.where(status_with_assignment:) if status_with_assignment
+      relation = relation.where(risk:) if risk
       relation = relation.where("has_been_assigned_to ? :caseworker_id", caseworker_id:) if caseworker_id
-      relation = relation.order(sort_clause)
+      relation = sort_results(relation)
 
       relation.where_terms(query)
+    end
+
+    def sort_results(relation)
+      case sort_by
+      when "risk"
+        direction = sort_direction == "asc" ? %w[high medium low] : %w[low medium high]
+        relation.in_order_of(:risk, direction)
+      else
+        relation.order(sort_clause)
+      end
     end
 
     def search_results
@@ -85,6 +96,10 @@ module Submissions
 
     def query
       search_params[:query]
+    end
+
+    def risk
+      search_params[:risk]
     end
 
     def sort_clause

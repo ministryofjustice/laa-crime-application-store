@@ -368,6 +368,54 @@ RSpec.describe "Submission search" do
       end
     end
 
+    context "with risk filter" do
+      let(:submitted_to) { 1.day.ago.to_date.iso8601 }
+      let(:submitted_from) { 5.days.ago.to_date.iso8601 }
+
+      before do
+        travel_to 3.days.ago do
+          create(:submission, :with_nsm_version, application_risk: "high")
+          create(:submission, :with_nsm_version, application_risk: "high")
+          create(:submission, :with_nsm_version, application_risk: "high")
+          create(:submission, :with_nsm_version, application_risk: "low")
+          create(:submission, :with_nsm_version, application_risk: "medium")
+          create(:submission, :with_nsm_version, application_risk: "medium")
+        end
+      end
+
+      it "brings back only those with a matching risk" do
+        post search_endpoint, params: {
+          application_type: "crm7",
+          risk: "high",
+        }
+        expect(response.parsed_body["data"].size).to be 3
+        expect(response.parsed_body["data"].pluck("risk")).to all(include("high"))
+      end
+
+      it "orders default asc sort_by risk search as expected" do
+        post search_endpoint, params: {
+          application_type: "crm7",
+          submitted_from:,
+          submitted_to:,
+          sort_by: "risk",
+        }
+        expect(response.parsed_body["data"].size).to be 6
+        expect(response.parsed_body["data"].pluck("risk")).to eq %w[high high high medium medium low]
+      end
+
+      it "orders desc sort_by risk search as expected" do
+        post search_endpoint, params: {
+          application_type: "crm7",
+          submitted_from:,
+          submitted_to:,
+          sort_by: "risk",
+          sort_direction: "desc",
+        }
+        expect(response.parsed_body["data"].size).to be 6
+        expect(response.parsed_body["data"].pluck("risk")).to eq %w[low medium medium high high high]
+      end
+    end
+
     context "with defendant name query for PA" do
       before do
         create(:submission, :with_pa_version,
