@@ -14,14 +14,14 @@ class NotifySubscriber < ApplicationJob
     raise_error = false
     subscriber = Subscriber.find(subscriber_id)
     unless send_message_to_webhook(subscriber.webhook_url, submission)
-      raise_error = handle_failure_and_decide_whether_to_raise_error(subscriber)
+      raise_error = handle_failure_maybe_raise(subscriber)
     end
 
     submission.update!(notify_subscriber_completed: true)
     raise ClientResponseError, "Failed to notify subscriber about #{submission.id} - #{subscriber.webhook_url} returned error" if raise_error
   end
 
-  def handle_failure_and_decide_whether_to_raise_error(subscriber)
+  def handle_failure_maybe_raise(subscriber)
     subscriber.failed_attempts += 1
     subscriber.save!
 
