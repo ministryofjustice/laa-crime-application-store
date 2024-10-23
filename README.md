@@ -1,12 +1,12 @@
 # laa-crime-application-store
 
-LAA Crime Application Store is a service to provide the ability to store and version crime applications from CRM forms.
+LAA Crime Application Store is a service to store and version crime applications from 'Submit a crime form'.
 
 * Ruby version
 ruby 3.3.5
 
 * Rails version
-rails 7.1+
+rails 7.2+
 
 ## Getting Started
 
@@ -44,7 +44,7 @@ b) `rails server` - will only run the rails server, which is fine if you are not
 
 ### Authenticating Requests
 
-When running locally you can switch of authentication for message sending to subscribers by providing the following env var:
+When running locally you can switch off authentication for message sending to subscribers by providing the following env var:
 
 ```
 AUTHENTICATION_REQUIRED=false
@@ -70,11 +70,11 @@ We use rspec for unit/integration testing. This can be run as below:
 bundle exec rspec
 ```
 
-#### API Tests
+#### Integration tests
 
-API testing can be performed using the Postman tooling. This can be downloaded from [the Postman website](https://www.postman.com/) and a free account created. Once this is done you can import the collections and environments found in the postman folder to begin testing. You will need to get a secret token from Entra ID from the Tenant and Application ID as setup above to be able to authenticate requests.
-
-See [Postman Tests](postman/README.md) for more.
+We have Playwright-driven [end-to-end tests](https://github.com/ministryofjustice/nsm-e2e-test/pulls) that drive the submission
+of applications to the app store from 'Submit a crime forms' and assessment of those applications via 'Assess a crime form'. These
+tests run on all open PRs of both those services and this repository, as well as pre deployment to all three.
 
 ### Running linters
 
@@ -94,8 +94,13 @@ The views are generated and maintained using the [scenic gem's](https://github.c
 
 See [Metabase setup for NSCC confluence document](https://dsdmoj.atlassian.net/wiki/x/XABEJAE) for more
 
+### Deployment
+The app store is deployed to Cloud Platform, in three different namespaces, one each for dev, UAT and production. Our K8s configuration does
+not include an ingress. This is because all requests to the app store from 'Submit a crime form' and 'Assess a crime form' happen via internal
+network requests that do not go via the public internet. Therefore they are routed directly to the service, which forwards requests on directly
+to the application pods.
 
-### Security Context
+#### Security Context
 We have a default [k8s security context ](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.30/#securitycontext-v1-core) defined in our _helpers.tpl template file. It sets the following:
 
 - runAsNonRoot - Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. Currently defaults to true, this reduces attack surface
