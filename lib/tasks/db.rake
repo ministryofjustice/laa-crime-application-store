@@ -16,12 +16,14 @@ namespace :db do
   end
 
   namespace :preparation do
-    desc "Run db:prepare and retry if 2-pods-running-this-at-once issues encountered"
+    desc "Run db:prepare, setup/update analytics and translations and retry if 2-pods-running-this-at-once issues encountered"
     task run_with_retry: :environment do
       attempts = 0
       begin
         Rake::Task["db:prepare"].reenable
         Rake::Task["db:prepare"].invoke
+        AnalyticsCreator.run
+        load Rails.root.join("db/seeds/translations.rb")
 
       # If the DB isn't ready yet, ConnectionNotEstablished will be thrown
       # If 2 pods try to run a migration at once on the same database, a ConcurrentMigrationError may be encountered.
