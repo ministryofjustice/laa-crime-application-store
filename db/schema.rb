@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_23_170454) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_30_164739) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -77,17 +77,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_23_170454) do
       ((events_raw.event_json ->> 'secondary_user_id'::text))::integer AS secondary_user_id,
       (events_raw.event_json -> 'details'::text) AS details
      FROM events_raw;
-  SQL
-  create_view "submissions_by_date", sql_definition: <<-SQL
-      SELECT all_events.event_on,
-      all_events.application_type,
-      count(*) FILTER (WHERE (all_events.event_type = 'new_version'::text)) AS submission,
-      count(*) FILTER (WHERE (all_events.event_type = 'provider_updated'::text)) AS resubmission,
-      count(*) AS total
-     FROM all_events
-    WHERE (all_events.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text]))
-    GROUP BY all_events.application_type, all_events.event_on
-    ORDER BY all_events.application_type, all_events.event_on;
   SQL
   create_view "eod_assignment_count", sql_definition: <<-SQL
       WITH dates AS (
@@ -228,5 +217,16 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_23_170454) do
        JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1))))
     WHERE (app.application_type = 'crm4'::text)
     GROUP BY COALESCE(((app_ver.application -> 'service_type'::text))::text, 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
+  SQL
+  create_view "submissions_by_date", sql_definition: <<-SQL
+      SELECT all_events.event_on,
+      all_events.application_type,
+      count(*) FILTER (WHERE ((all_events.event_type = 'new_version'::text) AND (all_events.submission_version = 1))) AS submission,
+      count(*) FILTER (WHERE ((all_events.event_type = 'new_version'::text) AND (all_events.submission_version > 1))) AS resubmission,
+      count(*) AS total
+     FROM all_events
+    WHERE (all_events.event_type = 'new_version'::text)
+    GROUP BY all_events.application_type, all_events.event_on
+    ORDER BY all_events.application_type, all_events.event_on;
   SQL
 end
