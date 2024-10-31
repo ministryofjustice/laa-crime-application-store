@@ -104,7 +104,7 @@ RSpec.describe "submissions_by_date" do
       ])
     end
 
-    it "does not use crm4 criteria for resubmissions" do
+    it "does not use crm7 criteria for resubmissions" do
       create(
         :event_submission,
         application_type:,
