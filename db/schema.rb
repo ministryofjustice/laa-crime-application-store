@@ -219,14 +219,18 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_31_110650) do
     GROUP BY COALESCE(((app_ver.application -> 'service_type'::text))::text, 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
   SQL
   create_view "submissions_by_date", sql_definition: <<-SQL
-      SELECT all_events.event_on,
-      all_events.application_type,
-      count(*) FILTER (WHERE ((all_events.event_type = 'new_version'::text) AND (all_events.submission_version = 1))) AS submission,
-      count(*) FILTER (WHERE (((all_events.event_type = 'new_version'::text) AND (all_events.submission_version > 1) AND (all_events.application_type = 'crm7'::text)) OR ((all_events.event_type = 'provider_updated'::text) AND (all_events.application_type = 'crm4'::text)))) AS resubmission,
-      count(*) AS total
-     FROM all_events
-    WHERE (all_events.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text]))
-    GROUP BY all_events.application_type, all_events.event_on
-    ORDER BY all_events.application_type, all_events.event_on;
+      SELECT counted_values.event_on,
+      counted_values.application_type,
+      counted_values.submission,
+      counted_values.resubmission,
+      (counted_values.submission + counted_values.resubmission) AS total
+     FROM ( SELECT all_events.event_on,
+              all_events.application_type,
+              count(*) FILTER (WHERE ((all_events.event_type = 'new_version'::text) AND (all_events.submission_version = 1))) AS submission,
+              count(*) FILTER (WHERE (((all_events.event_type = 'new_version'::text) AND (all_events.submission_version > 1) AND (all_events.application_type = 'crm7'::text)) OR ((all_events.event_type = 'provider_updated'::text) AND (all_events.application_type = 'crm4'::text)))) AS resubmission
+             FROM all_events
+            WHERE (all_events.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text]))
+            GROUP BY all_events.application_type, all_events.event_on
+            ORDER BY all_events.application_type, all_events.event_on) counted_values;
   SQL
 end
