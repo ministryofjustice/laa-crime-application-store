@@ -7,7 +7,7 @@ RSpec.describe "submissions_by_date" do
     end
   end
 
-  context "application type is crm7" do
+  context "when application type is crm7" do
     let(:application_type) { "crm7" }
 
     it "reports submissions and resubmissions for a given date" do
@@ -63,7 +63,7 @@ RSpec.describe "submissions_by_date" do
     end
   end
 
-  context "application type is crm4" do
+  context "when application type is crm4" do
     let(:application_type) { "crm4" }
 
     it "reports submissions and resubmissions for a given date" do
