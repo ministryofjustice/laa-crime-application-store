@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_30_164739) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_31_110650) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -222,10 +222,10 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_30_164739) do
       SELECT all_events.event_on,
       all_events.application_type,
       count(*) FILTER (WHERE ((all_events.event_type = 'new_version'::text) AND (all_events.submission_version = 1))) AS submission,
-      count(*) FILTER (WHERE ((all_events.event_type = 'new_version'::text) AND (all_events.submission_version > 1))) AS resubmission,
+      count(*) FILTER (WHERE (((all_events.event_type = 'new_version'::text) AND (all_events.submission_version > 1) AND (all_events.application_type = 'crm7'::text)) OR ((all_events.event_type = 'provider_updated'::text) AND (all_events.application_type = 'crm4'::text)))) AS resubmission,
       count(*) AS total
      FROM all_events
-    WHERE (all_events.event_type = 'new_version'::text)
+    WHERE (all_events.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text]))
     GROUP BY all_events.application_type, all_events.event_on
     ORDER BY all_events.application_type, all_events.event_on;
   SQL
