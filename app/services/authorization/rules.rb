@@ -27,6 +27,10 @@ module Authorization
         events: {
           create: ->(object, _params) { object.state.in?(%w[submitted sent_back provider_updated]) },
         },
+        assignments: {
+          create: true,
+          destroy: true,
+        },
         searches: {
           create: true,
         },

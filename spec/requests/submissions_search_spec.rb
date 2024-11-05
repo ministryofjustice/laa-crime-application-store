@@ -280,18 +280,10 @@ RSpec.describe "Submission search" do
         create(:submission, :with_pa_version, laa_reference: "LAA-CCCCCC", state: "rejected")
 
         # in_progress pseudo status_with_assignment (submitted with an assignment)
-        create(:submission, :with_pa_version, laa_reference: "LAA-DDDDDD", state: "submitted",
-                                              events: [build(:event, :new_version),
-                                                       build(:event, :assignment),
-                                                       build(:event, :unassignment),
-                                                       build(:event, :assignment),
-                                                       build(:event, :decision)])
+        create(:submission, :with_pa_version, laa_reference: "LAA-DDDDDD", state: "submitted", assigned_user_id: "123")
 
         # not_assigned pseudo status_with_assignment (submitted without an assignment)
-        create(:submission, :with_pa_version, laa_reference: "LAA-EEEEEE", state: "submitted",
-                                              events: [build(:event, :new_version),
-                                                       build(:event, :assignment),
-                                                       build(:event, :unassignment)])
+        create(:submission, :with_pa_version, laa_reference: "LAA-EEEEEE", state: "submitted", assigned_user_id: nil)
       end
 
       it "brings back only those with a matching status_with_assignment" do
@@ -315,6 +307,15 @@ RSpec.describe "Submission search" do
         }
 
         expect(response.parsed_body["data"].pluck("laa_reference")).to contain_exactly("LAA-CCCCCC")
+      end
+
+      it "can handle a status array" do
+        post search_endpoint, params: {
+          application_type: "crm4",
+          status_with_assignment: %w[part_grant rejected],
+        }
+
+        expect(response.parsed_body["data"].pluck("laa_reference")).to contain_exactly("LAA-BBBBBB", "LAA-CCCCCC")
       end
 
       it "brings back only those with a matching psuedo status_with_assignment" do
@@ -365,6 +366,93 @@ RSpec.describe "Submission search" do
 
         expect(response.parsed_body["data"].size).to be 2
         expect(response.parsed_body["data"].pluck("search_fields")).to all(match("111111/111|222222/222"))
+      end
+    end
+
+    context "with current caseworker filter" do
+      before do
+        create(:submission,
+               :with_pa_version,
+               ufn: "111111/111",
+               assigned_user_id: "123-456",
+               unassigned_user_ids: [])
+
+        create(:submission,
+               :with_pa_version,
+               ufn: "222222/222",
+               assigned_user_id: "789-789",
+               unassigned_user_ids: [])
+
+        create(:submission,
+               :with_pa_version,
+               ufn: "333333/333",
+               assigned_user_id: nil,
+               unassigned_user_ids: %w[123-456])
+      end
+
+      it "brings back only those with a matching caseworker id" do
+        post search_endpoint, params: {
+          application_type: "crm4",
+          current_caseworker_id: "123-456",
+        }
+
+        expect(response.parsed_body["raw_data"].size).to eq 1
+        expect(response.parsed_body["raw_data"].pluck("application").pluck("ufn")).to eq(["111111/111"])
+      end
+    end
+
+    context "with account number filter" do
+      before do
+        create(:submission,
+               :with_pa_version,
+               ufn: "111111/111",
+               account_number: "ABC123")
+
+        create(:submission,
+               :with_pa_version,
+               ufn: "222222/222",
+               account_number: nil)
+
+        create(:submission,
+               :with_pa_version,
+               ufn: "333333/333",
+               account_number: "DEF456")
+      end
+
+      it "brings back only those with a matching account number id" do
+        post search_endpoint, params: {
+          application_type: "crm4",
+          account_number: "ABC123",
+        }
+
+        expect(response.parsed_body["raw_data"].size).to eq 1
+        expect(response.parsed_body["raw_data"].pluck("application").pluck("ufn")).to eq(["111111/111"])
+      end
+    end
+
+    context "with id_to_exclude filter" do
+      let(:excluded_id) { SecureRandom.uuid }
+
+      before do
+        create(:submission,
+               :with_pa_version,
+               id: excluded_id,
+               ufn: "111111/111")
+
+        create(:submission,
+               :with_pa_version,
+               id: SecureRandom.uuid,
+               ufn: "222222/222")
+      end
+
+      it "brings back only those that do not" do
+        post search_endpoint, params: {
+          application_type: "crm4",
+          id_to_exclude: excluded_id,
+        }
+
+        expect(response.parsed_body["raw_data"].size).to eq 1
+        expect(response.parsed_body["raw_data"].pluck("application").pluck("ufn")).to eq(["222222/222"])
       end
     end
 
