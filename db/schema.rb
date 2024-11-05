@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_31_110650) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_05_152058) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -210,14 +210,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_31_110650) do
        JOIN assignments ass ON ((ass.id = app.id)))
        JOIN defendants def ON ((def.id = app.id)));
   SQL
-  create_view "submission_by_services", sql_definition: <<-SQL
-      SELECT COALESCE(((app_ver.application -> 'service_type'::text))::text, 'not_found'::text) AS service_type,
-      date_trunc('DAY'::text, app.created_at) AS date_submitted
-     FROM (application app
-       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1))))
-    WHERE (app.application_type = 'crm4'::text)
-    GROUP BY COALESCE(((app_ver.application -> 'service_type'::text))::text, 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
-  SQL
   create_view "submissions_by_date", sql_definition: <<-SQL
       SELECT counted_values.event_on,
       counted_values.application_type,
@@ -232,5 +224,13 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_31_110650) do
             WHERE (all_events.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text]))
             GROUP BY all_events.application_type, all_events.event_on
             ORDER BY all_events.application_type, all_events.event_on) counted_values;
+  SQL
+  create_view "submission_by_services", sql_definition: <<-SQL
+      SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
+      date_trunc('DAY'::text, app.created_at) AS date_submitted
+     FROM (application app
+       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1))))
+    WHERE (app.application_type = 'crm4'::text)
+    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
   SQL
 end
