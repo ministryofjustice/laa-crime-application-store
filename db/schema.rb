@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_05_152058) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_05_163348) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -227,7 +227,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_05_152058) do
   SQL
   create_view "submission_by_services", sql_definition: <<-SQL
       SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
-      date_trunc('DAY'::text, app.created_at) AS date_submitted
+      date_trunc('DAY'::text, app.created_at) AS date_submitted,
+      count(*) AS submissions
      FROM (application app
        JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1))))
     WHERE (app.application_type = 'crm4'::text)
