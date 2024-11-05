@@ -640,5 +640,160 @@ RSpec.describe "Submission search" do
         expect(laa_references).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
       end
     end
+
+    context "when searching for queries that may be invalid" do
+      before do
+        create(:submission,
+               :with_pa_version,
+               laa_reference: "LAA-AAAAAA",
+               defendant_name: "Fred Arbor",
+               firm_name: "Aardvark & Co")
+
+        create(:submission,
+               :with_pa_version,
+               laa_reference: "LAA-BBBBBB",
+               defendant_name: "Fred Bloggs",
+               firm_name: "Smith & (Partners) Ltd.")
+
+        create(:submission,
+               :with_pa_version,
+               laa_reference: "LAA-CCC123",
+               defendant_name: "Jimmy Buffer",
+               firm_name: "Über Legal Co.",
+               ufn: "311223/001")
+
+        create(:submission,
+               :with_pa_version,
+               laa_reference: "LAA-MiXeD1",
+               defendant_name: "Test Person",
+               firm_name: "Aardvark Smithson",
+               ufn: "123456")
+
+        create(:submission,
+               :with_pa_version,
+               laa_reference: "LAA-PUNC28",
+               defendant_name: "James O'Connor-Smith",
+               firm_name: "Legal & Law (International) Ltd.")
+      end
+
+      it "handles a completely invalid query" do
+        post search_endpoint, params: { query: "." }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"]).to match([])
+      end
+
+      it "ignores unmatched parentheses" do
+        post search_endpoint, params: { query: "Fred)" }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"].pluck("client_name")).to match(["Fred Bloggs", "Fred Arbor"])
+      end
+
+      it "ignores a real query attempt" do
+        post search_endpoint, params: { query: "LAA-AAAAAA)" }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-AAAAAA])
+      end
+
+      it "handles mixed case references" do
+        post search_endpoint, params: { query: "LAA-MiXeD1" }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-MiXeD1])
+      end
+
+      it "handles complex names" do
+        post search_endpoint, params: { query: "O'Connor-Smith" }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"].pluck("client_name")).to eq(["James O'Connor-Smith"])
+      end
+
+      it "ignores unescaped ampersands" do
+        post search_endpoint, params: { query: "Aardvark & Co" }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Aardvark & Co"])
+      end
+
+      it "doesn't treat ampersands as tokens" do
+        post search_endpoint, params: { query: "Aardvark &" }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Aardvark Smithson", "Aardvark & Co"])
+      end
+
+      it "handles records with multiple matches that have punctuation" do
+        post search_endpoint, params: { query: "Smith" }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Legal & Law (International) Ltd.", "Aardvark Smithson", "Smith & (Partners) Ltd."])
+      end
+
+      it "handles records that have punctuation and being in the query" do
+        post search_endpoint, params: { query: "Smith & (Partners) Ltd." }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Smith & (Partners) Ltd."])
+      end
+
+      it "handles UFNs" do
+        post search_endpoint, params: { query: "311223/001" }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Über Legal Co."])
+      end
+
+      it "handles 6 digit strings of numbers that could be UFNs" do
+        post search_endpoint, params: { query: "311223" }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Über Legal Co."])
+      end
+
+      it "does not handle 9 digit strings of numbers that could be UFNs" do
+        post search_endpoint, params: { query: "311223001" }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"]).to match([])
+      end
+
+      it "handles multiple spaces between words" do
+        post search_endpoint, params: { query: "Aardvark       &                     Co" }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Aardvark & Co"])
+      end
+
+      it "handles leading & trailing spaces" do
+        post search_endpoint, params: { query: " Aardvark & Co   " }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Aardvark & Co"])
+      end
+
+      it "handles zero-width spaces" do
+        post search_endpoint, params: { query: "LAA-AB\u200BC" }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"]).to match([])
+      end
+
+      it "handles emojis" do
+        post search_endpoint, params: { query: "Aardvark😊 & Co" }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Aardvark & Co"])
+      end
+
+      it "handles umlauts and accents" do
+        post search_endpoint, params: { query: "Über" }
+
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Über Legal Co."])
+      end
+    end
   end
 end
