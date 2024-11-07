@@ -34,6 +34,7 @@ module Authorization
         searches: {
           create: true,
         },
+        auto_assignments: true
       },
     }.freeze
 

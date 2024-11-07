@@ -21,6 +21,7 @@ Rails.application.routes.draw do
       resources :events, only: %i[create]
       resource :assignment, only: %i[create destroy]
       member { patch :metadata }
+      resources :auto_assignments, only: %i[create]
     end
     resources :subscribers, only: %i[create]
     delete :subscribers, to: "subscribers#destroy"

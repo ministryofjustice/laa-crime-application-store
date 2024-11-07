@@ -30,6 +30,7 @@ gem "sentry-rails", ">= 5.17.2"
 gem "sentry-ruby"
 gem "sidekiq", "~> 7.3"
 gem "sidekiq_alive", "~> 2.4"
+gem "with_advisory_lock"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
