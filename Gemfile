@@ -20,6 +20,8 @@ gem "bootsnap", require: false
 
 gem "httparty"
 gem "jwt", "~> 2.9.3"
+# TODO: Remove ref
+gem "laa_crime_forms_common", "~> 0.4.0", github: "ministryofjustice/laa-crime-forms-common", ref: "0d6de17"
 gem "lograge"
 gem "logstash-event"
 gem "oauth2"

@@ -23,6 +23,7 @@ module Authorization
           show: true,
           metadata: true,
           update: ->(object, params) { state_pair_allowed?(object, params, PERMITTED_SUBMISSION_STATE_CHANGES[:caseworker]) },
+          auto_assignments: true,
         },
         events: {
           create: ->(object, _params) { object.state.in?(%w[submitted sent_back provider_updated]) },
@@ -34,7 +35,6 @@ module Authorization
         searches: {
           create: true,
         },
-        auto_assignments: true
       },
     }.freeze
 
