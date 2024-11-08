@@ -106,7 +106,7 @@ module Submissions
       return "last_updated desc" unless search_params[:sort_by]
       raise "Unsortable column \"#{sort_by}\" supplied as sort_by argument" unless SORTABLE_COLUMNS.include?(sort_by.downcase)
 
-      if sort_by == "last_updated"
+      if sort_by.in?(%w[last_updated risk_level])
         "#{sort_by} #{sort_direction}"
       else
         "LOWER(#{sort_by}) #{sort_direction}"

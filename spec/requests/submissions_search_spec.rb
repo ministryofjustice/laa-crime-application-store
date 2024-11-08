@@ -537,6 +537,7 @@ RSpec.describe "Submission search" do
         # create in order that will not return succcess without sorting
         travel_to(2.days.ago) do
           create(:submission, :with_pa_version,
+                 application_risk: "high",
                  laa_reference: "LAA-BBBBBB",
                  firm_name: "Aardvark & Co",
                  defendant_name: "Billy Bob",
@@ -545,6 +546,7 @@ RSpec.describe "Submission search" do
 
         travel_to(1.day.ago) do
           create(:submission, :with_pa_version,
+                 application_risk: "medium",
                  laa_reference: "LAA-CCCCCC",
                  firm_name: "Bob & Sons",
                  defendant_name: "Dilly Dodger",
@@ -553,6 +555,7 @@ RSpec.describe "Submission search" do
 
         travel_to(3.days.ago) do
           create(:submission, :with_pa_version,
+                 application_risk: "low",
                  laa_reference: "LAA-AAAAAA",
                  firm_name: "Xena & Daughters",
                  defendant_name: "Zach Zeigler",
@@ -712,6 +715,16 @@ RSpec.describe "Submission search" do
         }
 
         expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
+      end
+
+      it "can be sorted by risk_level descending" do
+        post search_endpoint, params: {
+          sort_by: "risk_level",
+          sort_direction: "desc",
+          application_type: "crm4",
+        }
+
+        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-BBBBBB LAA-CCCCCC LAA-AAAAAA])
       end
 
       it "sorts raw data to match the order of data" do
