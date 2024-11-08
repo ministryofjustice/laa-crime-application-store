@@ -3,7 +3,7 @@ class AddAssignmentFieldsToApplication < ActiveRecord::Migration[7.2]
     add_column :application, :assigned_user_id, :string
     add_column :application, :unassigned_user_ids, :string, array: true, default: []
 
-    Submission.find_each do |submission|
+    Submission.where(state: %i[submitted sent_back provider_updated]).find_each do |submission|
       ass_and_unass_events = submission.events.select { _1['event_type'].in?(%w[assignment unassignment send_back]) }
                                        .sort_by { DateTime.parse(_1['created_at']) }
       last_event = ass_and_unass_events.last
