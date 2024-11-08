@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/ministryofjustice/laa-crime-forms-common.git
+  revision: 0c6fb69c30b7c5e0904ca22c3c67e0a310e48290
+  specs:
+    laa_crime_forms_common (0.4.0)
+      i18n (>= 1.8.11, < 2)
+      json-schema (>= 5.0.0, < 6)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -130,6 +138,8 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     json (2.7.2)
+    json-schema (5.0.1)
+      addressable (~> 2.8)
     jwt (2.9.3)
       base64
     language_server-protocol (3.17.0.3)
@@ -351,6 +361,9 @@ GEM
     websocket-driver (0.7.6)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
+    with_advisory_lock (5.1.0)
+      activerecord (>= 6.1)
+      zeitwerk (>= 2.6)
     zeitwerk (2.7.1)
 
 PLATFORMS
@@ -367,6 +380,7 @@ DEPENDENCIES
   factory_bot_rails (>= 6.2.0)
   httparty
   jwt (~> 2.9.3)
+  laa_crime_forms_common (~> 0.4.0)!
   lograge
   logstash-event
   oauth2
@@ -390,6 +404,7 @@ DEPENDENCIES
   simplecov
   tzinfo-data
   webmock (>= 3.13.0)
+  with_advisory_lock
 
 RUBY VERSION
    ruby 3.3.6

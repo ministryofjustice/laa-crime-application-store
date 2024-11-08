@@ -32,6 +32,17 @@ module V1
       render json: { errors: e.message }, status: :unprocessable_entity
     end
 
+    def auto_assignments
+      submission = ::Submissions::AutoAssignmentService.call(params)
+      if submission
+        render json: submission, status: :created
+      else
+        head :not_found
+      end
+    end
+
+  private
+
     def current_submission
       @current_submission ||= Submission.find(params[:id])
     end

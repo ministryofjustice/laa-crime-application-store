@@ -20,6 +20,7 @@ gem "bootsnap", require: false
 
 gem "httparty"
 gem "jwt", "~> 2.9.3"
+gem "laa_crime_forms_common", "~> 0.4.0", github: "ministryofjustice/laa-crime-forms-common"
 gem "lograge"
 gem "logstash-event"
 gem "oauth2"
@@ -30,6 +31,7 @@ gem "sentry-rails", ">= 5.17.2"
 gem "sentry-ruby"
 gem "sidekiq", "~> 7.3"
 gem "sidekiq_alive", "~> 2.4"
+gem "with_advisory_lock"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
