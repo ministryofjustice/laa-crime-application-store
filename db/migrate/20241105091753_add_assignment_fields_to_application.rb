@@ -8,6 +8,8 @@ class AddAssignmentFieldsToApplication < ActiveRecord::Migration[7.2]
                                        .sort_by { DateTime.parse(_1['created_at']) }
       last_event = ass_and_unass_events.last
 
+      next unless last_event
+
       if last_event['event_type'] == 'assignment'
         assigned_user_id = last_event['primary_user_id']
       end
