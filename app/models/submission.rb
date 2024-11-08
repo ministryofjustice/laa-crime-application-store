@@ -14,7 +14,7 @@ class Submission < ApplicationRecord
   end
 
   def as_json(*)
-    super(only: %i[application_risk application_type updated_at created_at last_updated_at]).merge(
+    super(only: %i[application_risk application_type updated_at created_at last_updated_at assigned_user_id]).merge(
       application_state: state,
       version: current_version,
       json_schema_version: latest_version.json_schema_version,

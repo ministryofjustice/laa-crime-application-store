@@ -1,6 +1,6 @@
 module Submissions
   class SearchService
-    SORTABLE_COLUMNS = %w[laa_reference firm_name client_name last_updated status_with_assignment].freeze
+    SORTABLE_COLUMNS = %w[laa_reference firm_name client_name last_updated status_with_assignment risk_level service_name].freeze
 
     attr_reader :search_params
 
@@ -26,6 +26,9 @@ module Submissions
       relation = relation.where(application_type:) if application_type
       relation = relation.where(status_with_assignment:) if status_with_assignment
       relation = relation.where("has_been_assigned_to ? :caseworker_id", caseworker_id:) if caseworker_id
+      relation = relation.where(assigned_user_id:) if assigned_user_id
+      relation = relation.where(account_number:) if account_number
+      relation = relation.where.not(id: id_to_exclude) if id_to_exclude
       relation = relation.order(sort_clause)
 
       relation.where_terms(query)
@@ -81,6 +84,18 @@ module Submissions
 
     def caseworker_id
       search_params[:caseworker_id]
+    end
+
+    def assigned_user_id
+      search_params[:current_caseworker_id]
+    end
+
+    def account_number
+      search_params[:account_number]
+    end
+
+    def id_to_exclude
+      search_params[:id_to_exclude]
     end
 
     def query
