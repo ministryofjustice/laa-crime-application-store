@@ -123,4 +123,11 @@ RSpec.describe "Update submission" do
     }
     expect { patch("/v1/submissions/#{submission.id}", params:) }.to have_enqueued_job
   end
+
+  it "clears out pending versions" do
+    submission = create(:submission)
+    pending_version = create :submission_version, submission:, pending: true
+    patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
+    expect(submission.ordered_submission_versions.find_by(id: pending_version.id)).to be_nil
+  end
 end

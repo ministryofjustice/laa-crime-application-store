@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   namespace "v1" do
     resources :submissions, only: %i[show create index update] do
       resources :events, only: %i[create]
+      resources :adjustments, only: %i[create]
       resource :assignment, only: %i[create destroy]
       member { patch :metadata }
       collection { post :auto_assignments }

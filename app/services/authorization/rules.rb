@@ -26,7 +26,7 @@ module Authorization
           auto_assignments: true,
         },
         events: {
-          create: ->(object, _params) { object.state.in?(%w[submitted sent_back provider_updated]) },
+          create: ->(object, _params) { object.state.in?(EDITABLE_BY_CASEWORKER_STATES) },
         },
         assignments: {
           create: true,
@@ -35,8 +35,14 @@ module Authorization
         searches: {
           create: true,
         },
+        adjustments: {
+          create: ->(object, _params) { object.state.in?(EDITABLE_BY_CASEWORKER_STATES) },
+        },
       },
     }.freeze
+
+    # Pre-RFI NSM claims are editable in the sent-back state.
+    EDITABLE_BY_CASEWORKER_STATES = %w[submitted sent_back provider_updated].freeze
 
     PERMITTED_SUBMISSION_STATE_CHANGES = {
       provider: [
