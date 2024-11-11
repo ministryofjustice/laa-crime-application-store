@@ -14,7 +14,7 @@ module Submissions
           submission.events << event.as_json
         end
 
-        latest_event = submission.events.max_by { |ev| ev["created_at"] }
+        latest_event = submission.events.reject { _1["does_not_constitute_update"] }.max_by { _1["created_at"] }
         submission.last_updated_at = latest_event["created_at"] if latest_event
       end
     end

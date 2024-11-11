@@ -6,6 +6,7 @@ module Submissions
           submission.current_version += 1
           EventAdditionService.call(submission, params)
           submission.update!(params.permit(:application_risk).merge(state: params[:application_state]))
+          submission.ordered_submission_versions.where(pending: true).destroy_all
           add_new_version(submission, params)
         end
         NotificationService.call(submission, role)
