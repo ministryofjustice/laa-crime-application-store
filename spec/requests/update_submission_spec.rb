@@ -130,4 +130,17 @@ RSpec.describe "Update submission" do
     patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
     expect(submission.ordered_submission_versions.find_by(id: pending_version.id)).to be_nil
   end
+
+  context "when provider is updating" do
+    before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider) }
+
+    it "adds a new version event if appropriate" do
+      submission = create(:submission, application_type: "crm7", state: :sent_back)
+      patch "/v1/submissions/#{submission.id}", params: { application_state: "provider_updated", application: { new: :data }, json_schema_version: 1 }
+      expect(response).to have_http_status(:created)
+      expect(submission.reload.events.first).to include(
+        "event_type" => "new_version",
+      )
+    end
+  end
 end

@@ -5,7 +5,9 @@ module Submissions
         submission.with_lock do
           submission.current_version += 1
           EventAdditionService.call(submission, params)
-          submission.update!(params.permit(:application_risk).merge(state: params[:application_state]))
+          submission.assign_attributes(params.permit(:application_risk).merge(state: params[:application_state]))
+          LaaCrimeFormsCommon::Hooks.submission_updated(submission, Time.zone.now)
+          submission.save!
           submission.ordered_submission_versions.where(pending: true).destroy_all
           add_new_version(submission, params)
         end
