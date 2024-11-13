@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ministryofjustice/laa-crime-forms-common.git
-  revision: a8e32041c550a52bfa7b12d2692441914cbcf6b8
-  ref: a8e3204
+  revision: 7a3e6f8f9acccf7fd8f5bbf3f1675138a9c6a2b1
+  ref: 7a3e6f8
   specs:
     laa_crime_forms_common (0.5.0)
       httparty (>= 0.22.0, < 1)
@@ -130,6 +130,9 @@ GEM
       raabro (~> 1.4)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    govuk_notify_rails (3.0.0)
+      notifications-ruby-client (~> 6.2)
+      rails (>= 4.1.0)
     gserver (0.0.1)
     hashdiff (1.1.1)
     hashie (5.0.0)
@@ -190,6 +193,8 @@ GEM
       racc (~> 1.4)
     nokogiri (1.16.7-x86_64-linux)
       racc (~> 1.4)
+    notifications-ruby-client (6.2.0)
+      jwt (>= 1.5, < 3)
     oauth2 (2.0.9)
       faraday (>= 0.17.3, < 3.0)
       jwt (>= 1.0, < 3.0)
@@ -390,6 +395,7 @@ DEPENDENCIES
   debug
   dotenv-rails
   factory_bot_rails (>= 6.2.0)
+  govuk_notify_rails (~> 3.0.0)
   httparty
   jwt (~> 2.9.3)
   laa_crime_forms_common (~> 0.5.0)!

@@ -148,6 +148,11 @@ spec:
                 secretKeyRef:
                   name: app-secrets
                   key: os_api_key
+            - name: GOVUK_NOTIFY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: notify_api_key
             - name: RACK_ENV
               value: 'production'
             - name: RAILS_ENV
