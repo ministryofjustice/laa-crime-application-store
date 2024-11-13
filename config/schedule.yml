@@ -1,0 +1,7 @@
+expiry_job:
+  # Arbitrary out-of-office-hours time:
+  #  avoids round number times, which might be congested by other processes.
+  #  avoids DEV/UAT rds stop times 22:00 to 06:00 UTC
+  cron: "16 21 * * *"
+  class: "ExpireSendbacks"
+  queue: pooling

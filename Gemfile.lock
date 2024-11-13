@@ -1,8 +1,9 @@
 GIT
   remote: https://github.com/ministryofjustice/laa-crime-forms-common.git
-  revision: 0c6fb69c30b7c5e0904ca22c3c67e0a310e48290
+  revision: d87b3554c5b9eab918fd58ead50bbd962f725408
   specs:
-    laa_crime_forms_common (0.4.0)
+    laa_crime_forms_common (0.5.0)
+      httparty (>= 0.22.0, < 1)
       i18n (>= 1.8.11, < 2)
       json-schema (>= 5.0.0, < 6)
 
@@ -112,6 +113,8 @@ GEM
       railties (>= 6.1)
     drb (2.2.1)
     erubi (1.13.0)
+    et-orbi (1.2.11)
+      tzinfo
     factory_bot (6.5.0)
       activesupport (>= 5.0.0)
     factory_bot_rails (6.4.4)
@@ -121,8 +124,14 @@ GEM
       faraday-net_http (>= 2.0, < 3.2)
     faraday-net_http (3.1.0)
       net-http
+    fugit (1.11.1)
+      et-orbi (~> 1, >= 1.2.11)
+      raabro (~> 1.4)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    govuk_notify_rails (3.0.0)
+      notifications-ruby-client (~> 6.2)
+      rails (>= 4.1.0)
     gserver (0.0.1)
     hashdiff (1.1.1)
     hashie (5.0.0)
@@ -183,6 +192,8 @@ GEM
       racc (~> 1.4)
     nokogiri (1.16.7-x86_64-linux)
       racc (~> 1.4)
+    notifications-ruby-client (6.2.0)
+      jwt (>= 1.5, < 3)
     oauth2 (2.0.9)
       faraday (>= 0.17.3, < 3.0)
       jwt (>= 1.0, < 3.0)
@@ -214,6 +225,7 @@ GEM
     public_suffix (6.0.1)
     puma (6.4.3)
       nio4r (~> 2.0)
+    raabro (1.4.0)
     racc (1.8.1)
     rack (3.1.8)
     rack-session (2.0.0)
@@ -332,6 +344,10 @@ GEM
       logger
       rack (>= 2.2.4)
       redis-client (>= 0.22.2)
+    sidekiq-cron (1.12.0)
+      fugit (~> 1.8)
+      globalid (>= 1.0.1)
+      sidekiq (>= 6)
     sidekiq_alive (2.4.0)
       gserver (~> 0.0.1)
       sidekiq (>= 5, < 8)
@@ -378,9 +394,10 @@ DEPENDENCIES
   debug
   dotenv-rails
   factory_bot_rails (>= 6.2.0)
+  govuk_notify_rails (~> 3.0.0)
   httparty
   jwt (~> 2.9.3)
-  laa_crime_forms_common (~> 0.4.0)!
+  laa_crime_forms_common (~> 0.5.0)!
   lograge
   logstash-event
   oauth2
@@ -400,6 +417,7 @@ DEPENDENCIES
   sentry-rails (>= 5.17.2)
   sentry-ruby
   sidekiq (~> 7.3)
+  sidekiq-cron
   sidekiq_alive (~> 2.4)
   simplecov
   tzinfo-data

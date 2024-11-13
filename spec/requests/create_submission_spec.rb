@@ -129,6 +129,70 @@ RSpec.describe "Create submission" do
 
       expect { post("/v1/submissions", params:) }.not_to have_enqueued_job
     end
+
+    it "automatically adds a new version event" do
+      id = SecureRandom.uuid
+      post "/v1/submissions", params: {
+        application_id: id,
+        application_type: "crm4",
+        application_state: "submitted",
+        application_risk: "n/a",
+        json_schema_version: 1,
+        application: { foo: :bar },
+      }
+      expect(response).to have_http_status :created
+
+      expect(created_record.reload.events.first).to include(
+        "event_type" => "new_version",
+      )
+    end
+
+    it "can autogrant" do
+      stub_request(:get, "https://api.os.uk/search/names/v1/find?key=123&query=SW11AA").to_return(
+        status: 200,
+        body: {
+          results: [
+            {
+              "GAZETTEER_ENTRY" => {
+                "ID" => "SW11AA",
+                "GEOMETRY_X" => 527_614.0,
+                "GEOMETRY_Y" => 175_539.0,
+              },
+            },
+          ],
+        }.to_json,
+        headers: { "Content-Type" => "application/json; charset=utf-8" },
+      )
+      id = SecureRandom.uuid
+      post "/v1/submissions",
+           params: {
+             application_id: id,
+             application_type: "crm4",
+             application_state: "submitted",
+             application_risk: "n/a",
+             json_schema_version: 1,
+             application: {
+               service_type: "ae_consultant",
+               prison_law: false,
+               rep_order_date: "2022-01-01",
+               quotes: [
+                 {
+                   primary: true,
+                   cost_type: :per_hour,
+                   period: 60,
+                   cost_per_hour: 10,
+                   postcode: "SW1 1AA",
+                 },
+               ],
+             },
+           }.to_json,
+           headers: { "Content-type": "application/json" }
+      expect(response).to have_http_status :created
+
+      expect(created_record.events.count).to eq 2
+      expect(created_record.ordered_submission_versions.count).to eq 2
+      expect(created_record.state).to eq "auto_grant"
+    end
   end
 
   context "when not using token" do
