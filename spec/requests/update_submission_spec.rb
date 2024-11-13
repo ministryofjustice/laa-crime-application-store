@@ -142,5 +142,12 @@ RSpec.describe "Update submission" do
         "event_type" => "new_version",
       )
     end
+
+    it "adds no new version event if not appropriate" do
+      submission = create(:submission, application_type: "crm4", state: :sent_back)
+      patch "/v1/submissions/#{submission.id}", params: { application_state: "provider_updated", application: { new: :data }, json_schema_version: 1 }
+      expect(response).to have_http_status(:created)
+      expect(submission.reload.events.count).to eq 0
+    end
   end
 end
