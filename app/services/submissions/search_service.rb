@@ -28,6 +28,7 @@ module Submissions
       relation = relation.where("has_been_assigned_to ? :caseworker_id", caseworker_id:) if caseworker_id
       relation = relation.where(assigned_user_id:) if assigned_user_id
       relation = relation.where(account_number:) if account_number
+      relation = relation.where(high_value:) if high_value
       relation = relation.where.not(id: id_to_exclude) if id_to_exclude
       relation = relation.order(sort_clause)
 
@@ -100,6 +101,10 @@ module Submissions
 
     def query
       search_params[:query]
+    end
+
+    def high_value
+      search_params[:high_value]
     end
 
     def sort_clause
