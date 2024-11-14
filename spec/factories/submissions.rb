@@ -40,7 +40,8 @@ FactoryBot.define do
         ufn: a.ufn,
         laa_reference: a.laa_reference,
         account_number: a.account_number,
-        status: a.status
+        status: a.status,
+        high_value: a.high_value
       )
     end
 

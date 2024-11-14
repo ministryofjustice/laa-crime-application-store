@@ -22,6 +22,7 @@ FactoryBot.define do
             account_number:,
             solicitor:,
             status:,
+            high_value:,
             ufn: ufn || "010124/001",
             laa_reference: laa_reference || "LAA-123456")
     end
