@@ -479,6 +479,31 @@ RSpec.describe "Submission search" do
       end
     end
 
+    context "with high_value query for NSM" do
+      before do
+        create(:submission, :with_nsm_version,
+               high_value: true,
+               laa_reference: "LAA-AAAAA1")
+
+        create(:submission, :with_nsm_version,
+               high_value: true,
+               laa_reference: "LAA-AAAAA2")
+
+        create(:submission, :with_nsm_version,
+               laa_reference: "LAA-AAAAA3")
+      end
+
+      it "returns those with has high_value" do
+        post search_endpoint, params: {
+          application_type: "crm7",
+          high_value: true,
+        }
+
+        expect(response.parsed_body["data"].size).to be 2
+        expect(response.parsed_body["data"].pluck("laa_reference")).to contain_exactly("LAA-AAAAA1", "LAA-AAAAA2")
+      end
+    end
+
     context "with defendant name query for NSM with single defendant" do
       before do
         create(:submission, :with_nsm_version,
