@@ -26,6 +26,7 @@ FactoryBot.define do
       laa_reference { nil }
       build_scope { [] }
       status { state }
+      high_value { false }
     end
 
     after(:build) do |submission, a|
