@@ -490,6 +490,7 @@ RSpec.describe "Submission search" do
                laa_reference: "LAA-AAAAA2")
 
         create(:submission, :with_nsm_version,
+               high_value: false,
                laa_reference: "LAA-AAAAA3")
       end
 
