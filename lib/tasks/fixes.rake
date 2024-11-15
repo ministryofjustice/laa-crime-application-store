@@ -160,6 +160,35 @@ namespace :fixes do
     update_event_submission_version(submission_3_id, "e906d7be-0091-44dc-9d88-b4692b5e89e4", 5)
   end
 
+  desc "Append high_value flag to submissions"
+  task adds_high_value: :environment do
+    # Query to select all submission versions that doesn't have a high_value flag
+    # and go through each submission version to add the high_value flag
+    # and show logs for total affected submission versions
+    # and show logs for successful submission versions
+    # and show logs for failed submission versions
+    submission_versions = SubmissionVersion.where("application -> 'cost_summary' ->> 'high_value' IS NULL")
+    total_affected_submission_versions = submission_versions.count
+    successful_submission_versions = 0
+    failed_submission_versions = 0
+    submission_versions.each do |submission_version|
+      if submission_version.application['cost_summary']['profit_costs']['gross_cost'].to_f >= 5000
+        submission_version.application['cost_summary']['high_value'] = true
+      else
+        submission_version.application['cost_summary']['high_value'] = false
+      end
+
+      if submission_version.save!(touch: false)
+        successful_submission_versions += 1
+      else
+        failed_submission_versions += 1
+      end
+    end
+    puts "Total affected submission versions: #{total_affected_submission_versions}"
+    puts "Successful submission versions updated: #{successful_submission_versions}"
+    puts "Failed submission version updates: #{failed_submission_versions}"
+  end
+
   def update_event_submission_version(submission_id, event_id, submission_version)
     submission = Submission.find_by(id: submission_id)
     if submission.present?
