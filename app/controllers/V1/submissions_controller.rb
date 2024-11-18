@@ -10,8 +10,8 @@ module V1
     end
 
     def create
-      ::Submissions::CreationService.call(params, current_client_role)
-      head :created
+      submission = ::Submissions::CreationService.call(params)
+      render json: submission, status: :created
     rescue ::Submissions::CreationService::AlreadyExistsError
       head :conflict
     rescue ActiveRecord::RecordInvalid
@@ -20,9 +20,12 @@ module V1
 
     def update
       ::Submissions::UpdateService.call(current_submission, params, current_client_role)
-      head :created
+      render json: current_submission, status: :created
     rescue ActiveRecord::RecordInvalid => e
       render json: { errors: e.message }, status: :unprocessable_entity
+    rescue NotifySubscriber::ClientResponseError => e
+      Sentry.capture_exception(e)
+      render json: { errors: e.message }, status: :internal_server_error
     end
 
     def metadata

@@ -10,8 +10,8 @@ module Submissions
           submission.save!
           submission.ordered_submission_versions.where(pending: true).destroy_all
           add_new_version(submission, params)
+          NotificationService.call(submission, role)
         end
-        NotificationService.call(submission, role)
       end
 
       def add_new_version(submission, params)

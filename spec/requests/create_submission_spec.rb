@@ -102,32 +102,28 @@ RSpec.describe "Create submission" do
       expect(response).to have_http_status :conflict
     end
 
-    it "enqueues a job to notify a subscriber with a different role" do
-      create(:subscriber, subscriber_type: "caseworker")
-      params = {
-        application_id: SecureRandom.uuid,
-        application_state: "submitted",
-        application_type: "crm4",
-        application_risk: "low",
-        json_schema_version: 1,
-        application: { foo: :bar },
-      }
+    context "when the gem hook dictates a state change" do
+      before do
+        allow(LaaCrimeFormsCommon::Hooks).to receive(:submission_created).and_yield(
+          "auto_grant",
+          LaaCrimeFormsCommon::Messages::PriorAuthority::Granted,
+        )
+      end
 
-      expect { post("/v1/submissions", params:) }.to have_enqueued_job
-    end
-
-    it "ignores subscribers with same roles as client" do
-      create(:subscriber, subscriber_type: "provider")
-      params = {
-        application_id: SecureRandom.uuid,
-        application_state: "submitted",
-        application_type: "crm4",
-        application_risk: "low",
-        json_schema_version: 1,
-        application: { foo: :bar },
-      }
-
-      expect { post("/v1/submissions", params:) }.not_to have_enqueued_job
+      it "returns the new state in the response" do
+        id = SecureRandom.uuid
+        post "/v1/submissions", params: {
+          application_id: id,
+          application_type: "crm4",
+          application_state: "submitted",
+          application_risk: "low",
+          json_schema_version: 1,
+          application: { foo: :bar },
+        }
+        expect(response.parsed_body["application_id"]).to eq id
+        expect(response.parsed_body["application_state"]).to eq "auto_grant"
+        expect(response.parsed_body["application"]["status"]).to eq "auto_grant"
+      end
     end
 
     it "automatically adds a new version event" do
@@ -200,20 +196,6 @@ RSpec.describe "Create submission" do
       ENV["AUTHENTICATION_REQUIRED"] = "false"
       example.run
       ENV["AUTHENTICATION_REQUIRED"] = nil
-    end
-
-    it "enqueues a job to notify a subscriber with a different role" do
-      create(:subscriber, subscriber_type: "caseworker")
-      params = {
-        application_id: SecureRandom.uuid,
-        application_state: "submitted",
-        application_type: "crm4",
-        application_risk: "low",
-        json_schema_version: 1,
-        application: { foo: :bar },
-      }
-
-      expect { post("/v1/submissions", params:, headers: { "X-Client-Type": "provider" }) }.to have_enqueued_job
     end
 
     it "ignores subscribers with same roles as client" do
