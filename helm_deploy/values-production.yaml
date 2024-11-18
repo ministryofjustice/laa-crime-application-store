@@ -2,7 +2,10 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 environment: "prod"
-replicaCount: 2
+replicaCount:
+  app: 4
+  worker: 2
+
 
 image:
   repository: nginx
