@@ -2,21 +2,20 @@ module Submissions
   class CreationService
     AlreadyExistsError = Class.new(StandardError)
     class << self
-      def call(params, role)
+      def call(params)
         raise AlreadyExistsError if Submission.find_by(id: params[:application_id])
 
-        tell_both_parties = false
         submission = Submission.create!(initial_data(params))
         submission.with_lock do
           add_version(submission, params)
           LaaCrimeFormsCommon::Hooks.submission_created(submission, ActiveRecord::Base.connection, Time.zone.now) do |new_state, message_class|
-            tell_both_parties = true
             on_state_change(submission, new_state, message_class)
           end
           last_updated_at = params.dig(:application, :updated_at)&.to_time || submission.created_at
           submission.update!(last_updated_at:)
         end
-        NotificationService.call(submission, tell_both_parties ? :app_store : role)
+
+        submission
       end
 
       def initial_data(params)
