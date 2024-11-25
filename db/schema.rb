@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_15_101721) do
+ActiveRecord::Schema[7.2].define(version: 2024_11_25_171006) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -198,10 +198,12 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_15_101721) do
           )
    SELECT app.id,
       app_ver.id AS application_version_id,
+      (app_ver.application ->> 'ufn'::text) AS ufn,
       (app_ver.application ->> 'laa_reference'::text) AS laa_reference,
       ((app_ver.application -> 'firm_office'::text) ->> 'name'::text) AS firm_name,
       ((app_ver.application -> 'firm_office'::text) ->> 'account_number'::text) AS account_number,
       (app_ver.application ->> 'service_name'::text) AS service_name,
+      app_ver.created_at AS last_state_change,
           CASE app.application_risk
               WHEN 'high'::text THEN 3
               WHEN 'medium'::text THEN 2

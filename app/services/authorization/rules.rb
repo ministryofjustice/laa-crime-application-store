@@ -12,12 +12,11 @@ module Authorization
           create: ->(_, params) { params[:application_state].in?(PERMITTED_INITIAL_SUBMISSION_STATES) },
           update: ->(object, params) { state_pair_allowed?(object, params, PERMITTED_SUBMISSION_STATE_CHANGES[:provider]) },
         },
+        searches: {
+          create: true,
+        },
       },
       caseworker: {
-        subscribers: {
-          create: true,
-          destroy: ->(object, _) { !object || object.subscriber_type == "caseworker" },
-        },
         submissions: {
           index: true,
           show: true,

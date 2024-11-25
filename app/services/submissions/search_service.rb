@@ -1,6 +1,17 @@
 module Submissions
   class SearchService
-    SORTABLE_COLUMNS = %w[laa_reference firm_name client_name last_updated status_with_assignment risk_level service_name].freeze
+    SORTABLE_COLUMNS = %w[
+      ufn
+      laa_reference
+      firm_name
+      client_name
+      last_updated
+      status_with_assignment
+      risk_level
+      service_name
+      account_number
+      last_state_change
+    ].freeze
 
     attr_reader :search_params
 
@@ -106,7 +117,7 @@ module Submissions
       return "last_updated desc" unless search_params[:sort_by]
       raise "Unsortable column \"#{sort_by}\" supplied as sort_by argument" unless SORTABLE_COLUMNS.include?(sort_by.downcase)
 
-      if sort_by.in?(%w[last_updated risk_level])
+      if sort_by.in?(%w[last_updated risk_level last_state_change])
         "#{sort_by} #{sort_direction}"
       else
         "LOWER(#{sort_by}) #{sort_direction}"
