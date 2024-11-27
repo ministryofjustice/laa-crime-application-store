@@ -226,7 +226,7 @@ GEM
     psych (5.2.0)
       stringio
     public_suffix (6.0.1)
-    puma (6.4.3)
+    puma (6.5.0)
       nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.8.1)
@@ -341,7 +341,7 @@ GEM
     sentry-ruby (5.21.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
-    sidekiq (7.3.5)
+    sidekiq (7.3.6)
       connection_pool (>= 2.3.0)
       logger
       rack (>= 2.2.4)
@@ -411,7 +411,7 @@ DEPENDENCIES
   pry-nav
   pry-rescue
   pry-stack_explorer
-  puma (~> 6.4)
+  puma (~> 6.5)
   rails (~> 8.0.0)
   rspec-rails
   rspec_junit_formatter
