@@ -12,6 +12,7 @@ FactoryBot.define do
       ufn { nil }
       laa_reference { nil }
       status { "submitted" }
+      high_value { false }
     end
 
     application do
@@ -21,6 +22,7 @@ FactoryBot.define do
             account_number:,
             solicitor:,
             status:,
+            high_value:,
             ufn: ufn || "010124/001",
             laa_reference: laa_reference || "LAA-123456")
     end
@@ -66,7 +68,10 @@ FactoryBot.define do
               solicitor:,
               status:,
               ufn: ufn || "010124/001",
-              laa_reference: laa_reference || "LAA-123456")
+              laa_reference: laa_reference || "LAA-123456",
+              cost_summary: {
+                high_value:,
+              })
       end
     end
   end
