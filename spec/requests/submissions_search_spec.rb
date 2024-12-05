@@ -428,6 +428,15 @@ RSpec.describe "Submission search" do
         expect(response.parsed_body["raw_data"].size).to eq 1
         expect(response.parsed_body["raw_data"].pluck("application").pluck("ufn")).to eq(["111111/111"])
       end
+
+      it "accepts arrays" do
+        post search_endpoint, params: {
+          application_type: "crm4",
+          account_number: %w[ABC123 DEF456],
+        }
+
+        expect(response.parsed_body["raw_data"].size).to eq 2
+      end
     end
 
     context "with id_to_exclude filter" do

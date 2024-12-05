@@ -10,7 +10,7 @@ gem "rails", "~> 8.0.0"
 gem "pg", "~> 1.5"
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", "~> 6.4"
+gem "puma", "~> 6.5"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
@@ -21,7 +21,7 @@ gem "bootsnap", require: false
 gem "govuk_notify_rails", "~> 3.0.0"
 gem "httparty"
 gem "jwt", "~> 2.9.3"
-gem "laa_crime_forms_common", "~> 0.5.0", github: "ministryofjustice/laa-crime-forms-common"
+gem "laa_crime_forms_common", "~> 0.5.5", github: "ministryofjustice/laa-crime-forms-common"
 gem "lograge"
 gem "logstash-event"
 gem "oauth2"

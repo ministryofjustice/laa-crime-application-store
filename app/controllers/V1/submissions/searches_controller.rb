@@ -31,6 +31,7 @@ module V1
           :status_with_assignment,
           :id_to_exclude,
           status_with_assignment: [],
+          account_number: [],
         )
       end
     end

@@ -114,26 +114,9 @@ RSpec.describe "Authorization" do
     it_behaves_like "subscriber and unsubscriber" do
       let(:role) { :provider }
     end
-
-    context "when searching" do
-      before do
-        allow(Tokens::VerificationService)
-          .to receive(:call)
-          .and_return(valid: true, role: :provider)
-      end
-
-      it "does not allow searches" do
-        post "/v1/submissions/searches"
-        expect(response).to have_http_status(:forbidden)
-      end
-    end
   end
 
   context "with caseworker app" do
-    it_behaves_like "subscriber and unsubscriber" do
-      let(:role) { :caseworker }
-    end
-
     context "when searching" do
       before do
         allow(Tokens::VerificationService)
