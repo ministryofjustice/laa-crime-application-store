@@ -108,6 +108,25 @@ We have a default [k8s security context ](https://kubernetes.io/docs/reference/g
 - seccompProfile.type - The Secure Computing Mode (Linux kernel feature that limits syscalls that processes can run) options to use by this container. Currenly defaults to RuntimeDefault which is the [widely accepted default profile](https://docs.docker.com/engine/security/seccomp/#significant-syscalls-blocked-by-the-default-profile)
 - capabilities - The POSIX capabilities to add/drop when running containers. Currently defaults to drop["ALL"] which means all of these capabilities will be dropped - since this doesn't cause any issues, it's best to keep as is for security reasons until there's a need for change
 
+## Debugging production data
+We are often asked to investigate the state of records in our production environment. To
+make it safer to explore, we have a script that pulls an anonymised version (all PII removed) of a record
+to a local DB. To use it, run the following:
+
+```
+./bin/download_anonymised LAA-REFERENCE
+```
+
+You can then either open up the rails console (`bundle exec rails c`) to explore the data that way,
+or load up the rails server (`bundle exec rails s -p 3003`) and point your local caseworker app
+at it to see the record in the UI.
+
+When you are done, clear the record entirely with:
+
+```
+./bin/delete_anonymised LAA-REFERENCE
+```
+
 ## Licence
 
 This project is licensed under the [MIT License][mit].
