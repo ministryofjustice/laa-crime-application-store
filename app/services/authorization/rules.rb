@@ -2,10 +2,6 @@ module Authorization
   module Rules
     PERMISSIONS = {
       provider: {
-        subscribers: {
-          create: true,
-          destroy: ->(object, _) { !object || object.subscriber_type == "provider" },
-        },
         submissions: {
           index: true,
           show: true,
