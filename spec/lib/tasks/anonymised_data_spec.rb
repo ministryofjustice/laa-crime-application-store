@@ -128,12 +128,12 @@ RSpec.describe "anonymised:" do
   describe "import" do
     subject(:import) { Rake::Task["anonymised:import"].execute(arguments) }
 
-    let(:arguments) { { file_name: } }
-    let(:file_name) { "temp.txt" }
+    let(:arguments) { { env_var: } }
+    let(:env_var) { "DATA" }
     let(:submission_id) { SecureRandom.uuid }
 
     before do
-      allow(File).to receive(:read).with(file_name).and_return(download_output)
+      allow(ENV).to receive(:[]).with(env_var).and_return(download_output)
     end
 
     after { Rake::Task["anonymised:download"].reenable }

@@ -14,9 +14,9 @@ namespace :anonymised do
     puts "JSONEND"
   end
 
-  desc "Import a submission from a text file containing JSON"
-  task :import, [:file_name] => :environment do |_, args|
-    data = File.read(args[:file_name])
+  desc "Import a submission from a named env var"
+  task :import, [:env_var] => :environment do |_, args|
+    data = ENV[args[:env_var]]
     json = data.split("JSONSTART").last.split("JSONEND").first
     content = JSON.parse(json)
     Submission.transaction do
