@@ -1,42 +1,5 @@
 require "rails_helper"
 
-RSpec.shared_examples "subscriber and unsubscriber" do
-  before do
-    allow(Tokens::VerificationService)
-      .to receive(:call)
-      .and_return(valid: true, role:)
-  end
-
-  let(:other_role) { role == :provider ? :caseworker : :provider }
-
-  it "allowed to subscribe" do
-    post "/v1/subscribers", params: { webhook_url: "a", subscriber_type: "b" }
-    expect(response).to have_http_status(:created)
-  end
-
-  context "when unsubscribing" do
-    before do
-      post "/v1/subscribers", params: { webhook_url: "a", subscriber_type: role.to_s }
-      post "/v1/subscribers", params: { webhook_url: "b", subscriber_type: other_role.to_s }
-    end
-
-    it "not found when subscription does not exist" do
-      delete "/v1/subscribers", params: { webhook_url: "c", subscriber_type: "whatever" }
-      expect(response).to have_http_status(:not_found)
-    end
-
-    it "forbidden when subscription belongs to other type" do
-      delete "/v1/subscribers", params: { webhook_url: "b", subscriber_type: other_role.to_s }
-      expect(response).to have_http_status(:forbidden)
-    end
-
-    it "allowed to unsubscribe when found and belongs to same type" do
-      delete "/v1/subscribers", params: { webhook_url: "a", subscriber_type: role.to_s }
-      expect(response).to have_http_status(:no_content)
-    end
-  end
-end
-
 RSpec.describe "Authorization" do
   context "when authentication is not being done" do
     around do |example|
@@ -107,12 +70,6 @@ RSpec.describe "Authorization" do
               params: { application_state: "granted" }
         expect(response).to have_http_status :forbidden
       end
-    end
-  end
-
-  context "with provider app" do
-    it_behaves_like "subscriber and unsubscriber" do
-      let(:role) { :provider }
     end
   end
 

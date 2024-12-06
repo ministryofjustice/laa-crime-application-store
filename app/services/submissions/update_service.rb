@@ -1,7 +1,7 @@
 module Submissions
   class UpdateService
     class << self
-      def call(submission, params, role)
+      def call(submission, params)
         submission.with_lock do
           submission.current_version += 1
           EventAdditionService.call(submission, params)
@@ -10,7 +10,6 @@ module Submissions
           submission.save!
           submission.ordered_submission_versions.where(pending: true).destroy_all
           add_new_version(submission, params)
-          NotificationService.call(submission, role)
         end
       end
 

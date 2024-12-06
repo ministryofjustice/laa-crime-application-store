@@ -49,7 +49,6 @@ envVars:
   environment: uat
   swaggerEndpoint: /docs
   authenticationRequired: True
-  subscriberFailedAttemptDeletionThreshold: ''
 
 # Instead of a temporary postgres pod we use RDS
 postgresql:

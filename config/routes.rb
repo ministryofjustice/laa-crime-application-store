@@ -24,8 +24,6 @@ Rails.application.routes.draw do
       member { patch :metadata }
       collection { post :auto_assignments }
     end
-    resources :subscribers, only: %i[create]
-    delete :subscribers, to: "subscribers#destroy"
 
     namespace :submissions do
       resource :searches, only: %[create]
@@ -36,8 +34,6 @@ Rails.application.routes.draw do
     post :application, to: "submissions#create"
     get "application/:id", to: "submissions#show"
     put "application/:id", to: "submissions#update"
-    post :subscriber, to: "subscribers#create"
-    delete :subscriber, to: "subscribers#destroy"
   end
 
   root to: "v1/submissions#index"

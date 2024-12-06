@@ -190,26 +190,4 @@ RSpec.describe "Create submission" do
       expect(created_record.state).to eq "auto_grant"
     end
   end
-
-  context "when not using token" do
-    around do |example|
-      ENV["AUTHENTICATION_REQUIRED"] = "false"
-      example.run
-      ENV["AUTHENTICATION_REQUIRED"] = nil
-    end
-
-    it "ignores subscribers with same roles as client" do
-      create(:subscriber, subscriber_type: "provider")
-      params = {
-        application_id: SecureRandom.uuid,
-        application_state: "submitted",
-        application_type: "crm4",
-        application_risk: "low",
-        json_schema_version: 1,
-        application: { foo: :bar },
-      }
-
-      expect { post("/v1/submissions", params:, headers: { "X-Client-Type": "provider" }) }.not_to have_enqueued_job
-    end
-  end
 end

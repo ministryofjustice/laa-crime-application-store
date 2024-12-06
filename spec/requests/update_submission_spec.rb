@@ -112,68 +112,6 @@ RSpec.describe "Update submission" do
     expect(response.parsed_body).to eq("errors" => "Validation failed: Application can't be blank")
   end
 
-  context "when there is a subscriber" do
-    let(:fixed_arbitrary_date) { Time.zone.local(2024, 11, 1, 10, 11, 12) }
-    let(:submission) { create :submission }
-    let(:webhook_url) { "https://webhook.example.com" }
-    let(:token_stub) do
-      stub_request(:post, %r{https.*/oauth2/v2.0/token}).to_return(
-        status: 200,
-        body: '{"access_token":"test-bearer-token","token_type":"Bearer","expires_in":3600,"created_at":1582809000}',
-        headers: { "Content-Type" => "application/json; charset=utf-8" },
-      )
-    end
-
-    let(:webhook_stub) do
-      stub_request(:post, webhook_url).with(
-        headers: { "Content-Type" => "application/json", "Authorization" => "Bearer test-bearer-token" },
-        body: { submission_id: submission.id, data: expected_payload }.as_json,
-      ).to_return(status: webhook_status)
-    end
-
-    let(:webhook_status) { 200 }
-
-    let(:expected_payload) do
-      submission.as_json.merge(
-        application: { new: :data },
-        application_state: "sent_back",
-        version: 2,
-        updated_at: Time.current.utc.as_json,
-      )
-    end
-
-    let(:params) do
-      {
-        application_state: "sent_back",
-        application: { new: :data },
-        json_schema_version: 1,
-      }
-    end
-
-    before do
-      submission
-      travel_to fixed_arbitrary_date
-      create(:subscriber, subscriber_type: "provider", webhook_url:)
-      token_stub
-      webhook_stub
-    end
-
-    it "notifies them synchronously" do
-      patch("/v1/submissions/#{submission.id}", params:)
-      expect(webhook_stub).to have_been_requested
-    end
-
-    context "when the webhook fails" do
-      let(:webhook_status) { 500 }
-
-      it "cancels the entire update" do
-        patch("/v1/submissions/#{submission.id}", params:)
-        expect(response).to have_http_status :internal_server_error
-        expect(submission.reload.state).to eq "submitted"
-      end
-    end
-  end
-
   it "clears out pending versions" do
     submission = create(:submission)
     pending_version = create :submission_version, submission:, pending: true
