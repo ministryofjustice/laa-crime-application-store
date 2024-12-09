@@ -2,13 +2,21 @@
 set -e
 
 LAA_REF=$1
+DESTINATION_ENVIRONMENT=$2
 
-echo "Downloading anonymised record..."
+echo "Downloading anonymised record from production..."
 OUTPUT=$(kubectl exec deploy/laa-crime-application-store-app \
 -it -n laa-crime-application-store-production -- \
 bundle exec rails anonymised:download\[$LAA_REF\])
 
-echo "Importing anonymised record..."
-ANONYMISED_DOWNLOAD_OUTPUT=$OUTPUT bundle exec rails anonymised:import\[ANONYMISED_DOWNLOAD_OUTPUT\]
+echo "Importing anonymised record to $2..."
+
+if [[ $DESTINATION_ENVIRONMENT == "local" ]]; then
+  ANONYMISED_DOWNLOAD_OUTPUT=$OUTPUT bundle exec rails anonymised:import\[ANONYMISED_DOWNLOAD_OUTPUT\]
+else
+  kubectl exec deploy/laa-crime-application-store-app \
+  -it -n laa-crime-application-store-$DESTINATION_ENVIRONMENT -- \
+  env ANONYMISED_DOWNLOAD_OUTPUT="$OUTPUT" bundle exec rails anonymised:import\[ANONYMISED_DOWNLOAD_OUTPUT\]
+fi
 
 echo "Done."
