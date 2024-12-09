@@ -16,7 +16,7 @@ if [[ $DESTINATION_ENVIRONMENT == "local" ]]; then
 else
   kubectl exec deploy/laa-crime-application-store-app \
   -it -n laa-crime-application-store-$DESTINATION_ENVIRONMENT -- \
-  env ANONYMISED_DOWNLOAD_OUTPUT="${OUTPUT}" bundle exec rails anonymised:import\[ANONYMISED_DOWNLOAD_OUTPUT\]
+  env ANONYMISED_DOWNLOAD_OUTPUT="$OUTPUT" bundle exec rails anonymised:import\[ANONYMISED_DOWNLOAD_OUTPUT\]
 fi
 
 echo "Done."
