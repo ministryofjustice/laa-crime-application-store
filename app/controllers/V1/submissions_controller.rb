@@ -19,13 +19,10 @@ module V1
     end
 
     def update
-      ::Submissions::UpdateService.call(current_submission, params, current_client_role)
+      ::Submissions::UpdateService.call(current_submission, params)
       render json: current_submission, status: :created
     rescue ActiveRecord::RecordInvalid => e
       render json: { errors: e.message }, status: :unprocessable_entity
-    rescue NotifySubscriber::ClientResponseError => e
-      Sentry.capture_exception(e)
-      render json: { errors: e.message }, status: :internal_server_error
     end
 
     def metadata

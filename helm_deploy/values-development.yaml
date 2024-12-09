@@ -55,7 +55,6 @@ envVars:
   environment: development
   swaggerEndpoint: /docs
   authenticationRequired: True
-  subscriberFailedAttemptDeletionThreshold: '100'
 # This is used to configure the temporary non-RDS postgres DB
 postgresql:
   enabled: true

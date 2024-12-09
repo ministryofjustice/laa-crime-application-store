@@ -6,7 +6,6 @@ RSpec.describe ExpireSendbacks do
 
     before do
       submission.latest_version.update!(application: { resubmission_deadline: deadline })
-      allow(NotificationService).to receive(:call)
       described_class.new.perform
     end
 
@@ -20,10 +19,6 @@ RSpec.describe ExpireSendbacks do
 
       it "creates an event" do
         expect(submission.reload.events.first).to include("event_type" => "expiry")
-      end
-
-      it "updates subscribers" do
-        expect(NotificationService).to have_received(:call).with(submission, :app_store)
       end
     end
 

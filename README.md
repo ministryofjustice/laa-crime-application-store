@@ -44,17 +44,16 @@ b) `rails server` - will only run the rails server, which is fine if you are not
 
 ### Authenticating Requests
 
-When running locally you can switch off authentication for message sending to subscribers by providing the following env var:
+When running locally you can switch off authentication for messages received from clients by providing the following env var:
 
 ```
 AUTHENTICATION_REQUIRED=false
 ```
 
-To authenticate messages sent to subscribers you will need to provide these env vars with values. The values can be retrieved from the relevant namespace's kubernetes secret, named `azure-secret`. *Do no use the production secret's values*
+To authenticate messages sent by clients you will need to provide these env vars with values. The values can be retrieved from the relevant namespace's kubernetes secret, named `azure-secret`. *Do no use the production secret's values*
 
 ```sh
 APP_CLIENT_ID=app-store-application-identifier
-ENTRA_CLIENT_SECRET=app-store-application-secret
 TENANT_ID=app-store-application-entra-tenant
 ```
 

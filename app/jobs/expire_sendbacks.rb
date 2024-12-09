@@ -27,8 +27,6 @@ private
         version: submission.current_version,
       )
     end
-
-    NotificationService.call(submission, :app_store)
   end
 
   def build_expiry_event(now, current_version)
