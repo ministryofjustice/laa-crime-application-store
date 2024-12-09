@@ -113,8 +113,10 @@ make it safer to explore, we have a script that pulls an anonymised version (all
 to UAT. To use it, run the following:
 
 ```
-./bin/move_anonymised_to_uat LAA-REFERENCE
+./bin/download_anonymised LAA-REFERENCE uat
 ```
+
+(Note you can also download to your local machine by substituring "local" for "uat" in the above.)
 
 You can then either open up the rails console to explore the data that way:
 
@@ -127,7 +129,7 @@ or access the record via the UAT caseworker UI (https://uat.assess-crime-forms.s
 When you are done, clear the record entirely with:
 
 ```
-./bin/delete_anonymised_from_uat LAA-REFERENCE
+./bin/delete_anonymised LAA-REFERENCE uat
 ```
 
 ## Licence

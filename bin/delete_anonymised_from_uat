@@ -1,7 +1,0 @@
-#!/bin/sh
-
-LAA_REF=$1
-
-kubectl exec deploy/laa-crime-application-store-app \
--it -n laa-crime-application-store-uat -- \
-bundle exec rails anonymised:delete\[$LAA_REF\]

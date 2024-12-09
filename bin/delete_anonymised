@@ -1,0 +1,12 @@
+#!/bin/sh
+
+LAA_REF=$1
+DESTINATION_ENVIRONMENT=$2
+
+if [[ $DESTINATION_ENVIRONMENT == "local" ]]; then
+  bundle exec rails anonymised:delete\[$LAA_REF\]
+else
+  kubectl exec deploy/laa-crime-application-store-app \
+  -it -n laa-crime-application-store-$DESTINATION_ENVIRONMENT -- \
+  bundle exec rails anonymised:delete\[$LAA_REF\]
+fi
