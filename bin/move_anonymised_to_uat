@@ -9,6 +9,8 @@ OUTPUT=$(kubectl exec deploy/laa-crime-application-store-app \
 bundle exec rails anonymised:download\[$LAA_REF\])
 
 echo "Importing anonymised record..."
-ANONYMISED_DOWNLOAD_OUTPUT=$OUTPUT bundle exec rails anonymised:import\[ANONYMISED_DOWNLOAD_OUTPUT\]
+kubectl exec deploy/laa-crime-application-store-app \
+-it -n laa-crime-application-store-uat -- \
+env ANONYMISED_DOWNLOAD_OUTPUT="${OUTPUT}" bundle exec rails anonymised:import\[ANONYMISED_DOWNLOAD_OUTPUT\]
 
 echo "Done."

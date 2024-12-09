@@ -1,5 +1,0 @@
-#!/bin/sh
-
-LAA_REF=$1
-
-bundle exec rails anonymised:delete\[$LAA_REF\]

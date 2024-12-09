@@ -110,20 +110,24 @@ We have a default [k8s security context ](https://kubernetes.io/docs/reference/g
 ## Debugging production data
 We are often asked to investigate the state of records in our production environment. To
 make it safer to explore, we have a script that pulls an anonymised version (all PII removed) of a record
-to a local DB. To use it, run the following:
+to UAT. To use it, run the following:
 
 ```
-./bin/download_anonymised LAA-REFERENCE
+./bin/move_anonymised_to_uat LAA-REFERENCE
 ```
 
-You can then either open up the rails console (`bundle exec rails c`) to explore the data that way,
-or load up the rails server (`bundle exec rails s -p 3003`) and point your local caseworker app
-at it to see the record in the UI.
+You can then either open up the rails console to explore the data that way:
+
+```
+kubectl exec deploy/laa-crime-application-store-app -it -n laa-crime-application-store-uat -- bundle exec rails c
+```
+
+or access the record via the UAT caseworker UI (https://uat.assess-crime-forms.service.justice.gov.uk/).
 
 When you are done, clear the record entirely with:
 
 ```
-./bin/delete_anonymised LAA-REFERENCE
+./bin/delete_anonymised_from_uat LAA-REFERENCE
 ```
 
 ## Licence

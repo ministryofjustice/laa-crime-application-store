@@ -178,7 +178,7 @@ RSpec.describe "anonymised:" do
     end
 
     context "when in production" do
-      before { allow(Rails.env).to receive(:production?).and_return(true) }
+      before { allow(ENV).to receive(:[]).with("ENV").and_return("production") }
 
       it "raises and error" do
         expect { delete }.to raise_error "Cannot delete in a production environment"
