@@ -162,43 +162,55 @@ namespace :fixes do
 
   desc "Append high_value flag to submissions"
   task adds_high_value: :environment do
-    # Query to select all submission versions that doesn't have a high_value flag
-    # and go through each submission version to add the high_value flag
-    # and show logs for total affected submission versions
-    # and show logs for successful submission versions
-    # and show logs for failed submission versions
-    submission_versions = SubmissionVersion
-                            .where("application -> 'cost_summary' ->> 'high_value' IS NULL")
-                            .includes(:submission)
+    # Query to select all submissions that don't have a high_value flag
+    # and go through each submission version to add the high_value flag:
+    # use cost_summary's gross_cost if present, otherwise use submission's application risk
+    submissions = Submission.joins(:ordered_submission_versions)
+                            .where("application_version.application -> 'cost_summary' ->> 'high_value' IS NULL")
                             .where(submission: {application_type: 'crm7'})
-    total_affected_submission_versions = submission_versions.count
-    successful_submission_versions = 0
-    failed_submission_versions = 0
+    total_affected_versions = 0
+    successful_updates = 0
+    failed_updates = 0
+    failed_ids = []
 
-    submission_versions.each do |submission_version|
-      if submission_version.application['cost_summary'].nil?
-        LaaCrimeFormsCommon::Pricing::Nsm.totals(data_for_calculation(submission_version.application))
-      end
-      if high_value?(submission_version)
-        submission_version.application['cost_summary']['high_value'] = true
-      else
-        submission_version.application['cost_summary']['high_value'] = false
-      end
-
-      if submission_version.save(touch: false)
-        successful_submission_versions += 1
-      else
-        failed_submission_versions += 1
+    submissions.each do |submission|
+      submission.ordered_submission_versions.each |version|
+        total_affected_versions += 1
+        high_value = high_value_version?(version)
+        version.application.merge({ 'cost_summary': { 'high_value': high_value }})
+        if version.save(touch: false)
+          successful_updates += 1
+        else
+          failed_updates += 1
+          failed_ids << version.id
+        end
       end
     end
-    puts "Total affected submission versions: #{total_affected_submission_versions}"
-    puts "Successful submission versions updated: #{successful_submission_versions}"
-    puts "Failed submission version updates: #{failed_submission_versions}"
+    puts "Total affected submissions: #{total_affected_versions}"
+    puts "Successful submission versions updated: #{successful_updates}"
+    if failed_updates > 0
+      puts "Failed submission version updates: #{failed_updates}"
+      puts "Versions failed to update:"
+      puts failed_ids
+    end
   end
 
-  # Method to return true if the gross cost is more than 5000 and cost_summary is not null
-  def high_value?(submission_version)
-      submission_version.application['cost_summary']['profit_costs']['gross_cost'].to_f >= 5000
+  # High value assessment:
+  # If cost_summary is present in version payload use gross_cost...
+  # otherwise, use application risk
+  def high_value_version?(submission, version)
+    if version.application['cost_summary'].present?
+      version.application['cost_summary']['profit_costs']['gross_cost'].to_f >= 5000
+    else
+      submission.application_risk == 'high'
+    end
+  end
+
+  def set_high_value(submission_version, high_value)
+    updated_application = submission_version.application
+    updated_application.merge({'cost_summary': { 'high_value': high_value }})
+    submission_version.application = updated_application
+    submission_version.save
   end
 
   def update_event_submission_version(submission_id, event_id, submission_version)
@@ -211,45 +223,6 @@ namespace :fixes do
       submission.save!(touch: false)
       puts "Event: #{event_id} for Submission: #{submission_id} submission_version updated to #{submission_version}"
     end
-  end
-
-  def data_for_work_item(application)
-    application.fetch('work_items', []).map do |work_item|
-      {
-      claimed_time_spent_in_minutes: work_item['time_spent'].present? && work_item['time_spent'],
-      claimed_work_type: work_item['work_type'].to_s,
-      claimed_uplift_percentage: allow_uplift?(application) ? work_item['uplift'] : 0,
-      assessed_time_spent_in_minutes: work_item['allowed_time_spent'] || work_item['time_spent'],
-      assessed_work_type: work_item['allowed_work_type'].presence || work_item['work_type'],
-      assessed_uplift_percentage: allow_uplift?(application) ? work_item['assessed_uplift'] : 0,
-      }
-    end
-  end
-
-  def data_for_disbursement(application)
-    application.fetch('disbursements', []).map do |disbursement|
-      {
-        disbursement_type: disbursement['disbursement_type'],
-        claimed_cost: disbursement['total_cost_without_vat'],
-        claimed_miles: disbursement['miles'],
-        claimed_apply_vat: disbursement['apply_vat'],
-        assessed_cost: disbursement['assessed_total_cost_without_vat'],
-        assessed_miles: disbursement['assessed_miles'],
-        assessed_apply_vat: disbursement['assessed_apply_vat']
-      }
-    end
-  end
-
-  def data_for_calculation(application)
-    {
-      claim_type: application['claim_type'],
-      work_items: data_for_work_item(application),
-      disbursements: data_for_disbursement(application),
-      letters_and_calls: LaaCrimeFormsCommon::Pricing::Nsm::Calculators::LettersAndCalls.call(application),
-      rep_order_date: application['rep_order_date'],
-      cntp_date: application['cntp_date'],
-      vat_registered: application['vat_registered'],
-    }
   end
 
   def allow_uplift?(application)
