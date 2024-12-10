@@ -177,6 +177,15 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_06_171615) do
             GROUP BY all_events.application_type, all_events.event_on
             ORDER BY all_events.application_type, all_events.event_on) counted_values;
   SQL
+  create_view "submission_by_services", sql_definition: <<-SQL
+      SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
+      date_trunc('DAY'::text, app.created_at) AS date_submitted,
+      count(*) AS submissions
+     FROM (application app
+       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1))))
+    WHERE (app.application_type = 'crm4'::text)
+    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
+  SQL
   create_view "searches", sql_definition: <<-SQL
       WITH defendants AS (
            SELECT app_1.id,
@@ -196,6 +205,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_06_171615) do
       ((app_ver.application -> 'firm_office'::text) ->> 'name'::text) AS firm_name,
       ((app_ver.application -> 'firm_office'::text) ->> 'account_number'::text) AS account_number,
       (app_ver.application ->> 'service_name'::text) AS service_name,
+      (((app_ver.application -> 'cost_summary'::text) ->> 'high_value'::text))::boolean AS high_value,
       app_ver.created_at AS last_state_change,
           CASE app.application_risk
               WHEN 'high'::text THEN 3
@@ -218,14 +228,5 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_06_171615) do
      FROM ((application app
        JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))))
        JOIN defendants def ON ((def.id = app.id)));
-  SQL
-  create_view "submission_by_services", sql_definition: <<-SQL
-      SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
-      date_trunc('DAY'::text, app.created_at) AS date_submitted,
-      count(*) AS submissions
-     FROM (application app
-       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1))))
-    WHERE (app.application_type = 'crm4'::text)
-    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
   SQL
 end
