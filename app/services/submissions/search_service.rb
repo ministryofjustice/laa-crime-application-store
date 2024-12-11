@@ -13,14 +13,15 @@ module Submissions
       last_state_change
     ].freeze
 
-    attr_reader :search_params
+    attr_reader :search_params, :client_role
 
-    def initialize(search_params)
+    def initialize(search_params, client_role)
       @search_params = search_params
+      @client_role = client_role
     end
 
-    def self.call(search_params)
-      new(search_params).call
+    def self.call(search_params, client_role)
+      new(search_params, client_role).call
     end
 
     def call
@@ -64,9 +65,9 @@ module Submissions
       # order they were in from the "data".
       ids = @data.limit(limit).offset(offset).pluck(:id)
 
-      Submission.find(ids).sort_by do |submission|
-        ids.index(submission.id)
-      end
+      Submission.find(ids)
+                .sort_by { ids.index(_1.id) }
+                .map { _1.as_json(client_role:) }
     end
 
     def application_type

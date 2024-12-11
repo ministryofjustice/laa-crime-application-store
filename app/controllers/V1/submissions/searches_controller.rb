@@ -2,7 +2,7 @@ module V1
   module Submissions
     class SearchesController < ApplicationController
       def create
-        @results = ::Submissions::SearchService.call(search_params)
+        @results = ::Submissions::SearchService.call(search_params, current_client_role)
 
         render json: @results, status: :created
       rescue StandardError => e
