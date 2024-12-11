@@ -20,7 +20,7 @@ RSpec.describe Submissions::SearchService do
   end
 
   describe "#call" do
-    subject(:call) { described_class.new(params).call }
+    subject(:call) { described_class.new(params, :caseworker).call }
 
     it "returns JSON string" do
       expect(call).to be_a(String)
@@ -32,7 +32,7 @@ RSpec.describe Submissions::SearchService do
   end
 
   describe ".call" do
-    subject(:call) { described_class.call(params) }
+    subject(:call) { described_class.call(params, :caseworker) }
 
     it "returns JSON of expected structure" do
       expect(JSON.parse(call)).to match(expected_result_as_hash)

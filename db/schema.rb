@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_06_171615) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_11_102459) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -18,7 +18,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_06_171615) do
   create_table "application", id: :uuid, default: nil, force: :cascade do |t|
     t.integer "current_version", null: false
     t.text "state", null: false
-    t.text "application_risk", null: false
+    t.text "application_risk"
     t.text "application_type", null: false
     t.datetime "updated_at", precision: nil
     t.jsonb "events"

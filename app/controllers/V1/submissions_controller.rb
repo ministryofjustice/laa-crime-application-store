@@ -6,7 +6,7 @@ module V1
     end
 
     def show
-      render json: current_submission
+      render json: current_submission.as_json(client_role: current_client_role)
     end
 
     def create
