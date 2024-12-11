@@ -9,7 +9,6 @@ class Submission < ApplicationRecord
 
   validates :state, presence: true
   validates :application_type, presence: true
-  validates :application_risk, presence: true
 
   def latest_version
     ordered_submission_versions.first

@@ -21,7 +21,8 @@ gem "bootsnap", require: false
 gem "govuk_notify_rails", "~> 3.0.0"
 gem "httparty"
 gem "jwt", "~> 2.9.3"
-gem "laa_crime_forms_common", "~> 0.6.1", github: "ministryofjustice/laa-crime-forms-common"
+# TODO: Remove ref when gem PR merged
+gem "laa_crime_forms_common", "~> 0.7.0", github: "ministryofjustice/laa-crime-forms-common", ref: "952e785"
 gem "lograge"
 gem "logstash-event"
 gem "oauth2"

@@ -12,7 +12,7 @@ RSpec.describe "Create submission" do
         application_id: id,
         application_type: "crm4",
         application_state: "submitted",
-        application_risk: "low",
+        application_risk: nil,
         json_schema_version: 1,
         application: { foo: :bar },
       }
@@ -22,7 +22,7 @@ RSpec.describe "Create submission" do
         id:,
         state: "submitted",
         application_type: "crm4",
-        application_risk: "low",
+        application_risk: nil,
         current_version: 1,
         last_updated_at: created_record.created_at,
       )
@@ -100,6 +100,31 @@ RSpec.describe "Create submission" do
         application_state: "submitted",
       }
       expect(response).to have_http_status :conflict
+    end
+
+    it "sets risk and value if appropriate" do
+      id = SecureRandom.uuid
+      post "/v1/submissions", headers: { "Content-Type" => "application/json" }, params: {
+        application_id: id,
+        application_type: "crm7",
+        application_state: "submitted",
+        application_risk: nil,
+        json_schema_version: 1,
+        application: {
+          claim_type: "non_standard_magistrate",
+          rep_order_date: "2024-1-1",
+          reasons_for_claim: %w[other],
+          work_items: [],
+          letters_and_calls: [],
+          disbursements: [],
+        },
+      }.to_json
+      expect(response).to have_http_status :created
+
+      expect(created_record).to have_attributes(
+        application_risk: "low",
+      )
+      expect(created_record.latest_version.application.dig("cost_summary", "high_value")).to be false
     end
 
     context "when the gem hook dictates a state change" do
