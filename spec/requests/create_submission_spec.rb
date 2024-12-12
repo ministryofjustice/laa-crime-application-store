@@ -103,9 +103,8 @@ RSpec.describe "Create submission" do
     end
 
     it "sets risk and value if appropriate" do
-      id = SecureRandom.uuid
       post "/v1/submissions", headers: { "Content-Type" => "application/json" }, params: {
-        application_id: id,
+        application_id: SecureRandom.uuid,
         application_type: "crm7",
         application_state: "submitted",
         application_risk: nil,
@@ -125,6 +124,27 @@ RSpec.describe "Create submission" do
         application_risk: "low",
       )
       expect(created_record.latest_version.application.dig("cost_summary", "high_value")).to be false
+    end
+
+    it "does not leave a vestigial record if submission fails" do
+      params = {
+        application_id: SecureRandom.uuid,
+        application_type: "crm7",
+        application_state: "submitted",
+        application_risk: nil,
+        json_schema_version: 1,
+        application: {
+          invalid: :content,
+          work_items: [],
+          disbursements: [],
+          letters_and_calls: [],
+        },
+      }.to_json
+
+      expect { post("/v1/submissions", headers: { "Content-Type" => "application/json" }, params:) }.to raise_error(
+        "'claim_type' in LaaCrimeFormsCommon::Pricing::Nsm::Wrappers::Claim is nil, but must not be",
+      )
+      expect(created_record).to be_nil
     end
 
     context "when the gem hook dictates a state change" do
