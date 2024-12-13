@@ -13,14 +13,14 @@ class BackfillWorkItemPosition < ActiveRecord::Migration[7.1]
     # OR submission version with any work_items
     # SubmissionVersion.where("application ->'work_items' IS NOT NULL")
 
-    claims = Submission.where(application_type: "crm7")
+    # claims = Submission.where(application_type: "crm7")
 
-    claims.each do |claim|
-      claim.ordered_submission_versions.each do |sub_ver|
-        updater = DataMigrationTools::WorkItemPositionUpdater.new(sub_ver)
-        updater.call
-      end
-    end
+    # claims.each do |claim|
+    #   claim.ordered_submission_versions.each do |sub_ver|
+    #     updater = DataMigrationTools::WorkItemPositionUpdater.new(sub_ver)
+    #     updater.call
+    #   end
+    # end
   end
 end
 

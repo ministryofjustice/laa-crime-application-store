@@ -14,13 +14,13 @@ class BackfillDisbursementPosition < ActiveRecord::Migration[7.1]
     # OR submission version with any disbursements
     # SubmissionVersion.where("application ->'disbursements' IS NOT NULL")
 
-    claims = Submission.where(application_type: "crm7")
+    # claims = Submission.where(application_type: "crm7")
 
-    claims.each do |claim|
-      claim.ordered_submission_versions.each do |sub_ver|
-        updater = DataMigrationTools::DisbursementPositionUpdater.new(sub_ver)
-        updater.call
-      end
-    end
+    # claims.each do |claim|
+    #   claim.ordered_submission_versions.each do |sub_ver|
+    #     updater = DataMigrationTools::DisbursementPositionUpdater.new(sub_ver)
+    #     updater.call
+    #   end
+    # end
   end
 end
