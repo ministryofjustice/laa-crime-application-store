@@ -37,7 +37,7 @@ module Submissions
       relation = relation.where(last_updated: (updated_from..updated_to))
       relation = relation.where(application_type:) if application_type
       relation = relation.where(status_with_assignment:) if status_with_assignment
-      relation = relation.where("has_been_assigned_to ? :caseworker_id", caseworker_id:) if caseworker_id
+      relation = has_been_assigned_to(relation) if caseworker_id
       relation = relation.where(assigned_user_id:) if assigned_user_id
       relation = relation.where(account_number:) if account_number
       relation = relation.where.not(id: id_to_exclude) if id_to_exclude
@@ -154,6 +154,10 @@ module Submissions
 
     def page
       search_params.fetch(:page, 1).to_i
+    end
+
+    def has_been_assigned_to(relation)
+      relation.where("assigned_user_id = :caseworker_id OR :caseworker_id = ANY(unassigned_user_ids)", caseworker_id:)
     end
   end
 end

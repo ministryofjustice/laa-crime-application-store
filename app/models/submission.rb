@@ -5,7 +5,8 @@ class Submission < ApplicationRecord
            foreign_key: "application_id",
            class_name: "SubmissionVersion"
 
-  attribute :events, :jsonb, default: -> { [] }
+  attribute :caseworker_history_events, :jsonb, default: -> { [] }
+  alias_attribute :events, :caseworker_history_events
 
   validates :state, presence: true
   validates :application_type, presence: true

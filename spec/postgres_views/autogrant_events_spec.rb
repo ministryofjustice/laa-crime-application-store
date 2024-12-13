@@ -17,7 +17,7 @@ RSpec.describe "autogrant_events" do
     create(
       :submission,
       :with_pa_version,
-      events: [{ id: 1, event_type: "new_version", submission_version: 1, created_at: today }],
+      state: :granted,
     )
 
     expect(klass.all).to eq([])
@@ -27,7 +27,7 @@ RSpec.describe "autogrant_events" do
     submission = create(
       :submission,
       :with_pa_version,
-      events: [{ id: 1, event_type: "auto_decision", submission_version: 1, created_at: today }],
+      state: :auto_grant,
     )
 
     expect(klass.all.map(&:attributes)).to eq([
@@ -39,7 +39,7 @@ RSpec.describe "autogrant_events" do
     submission = create(
       :submission,
       :with_custom_pa_version,
-      events: [{ id: 1, event_type: "auto_decision", submission_version: 1, created_at: today }],
+      state: :auto_grant,
     )
 
     expect(klass.all.map(&:attributes)).to eq([

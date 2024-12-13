@@ -342,20 +342,18 @@ RSpec.describe "Submission search" do
         create(:submission,
                :with_pa_version,
                ufn: "111111/111",
-               events: [build(:event, :new_version), build(:event, :assignment, primary_user_id: "primary-user-id-1")])
+               assigned_user_id: "primary-user-id-1")
 
         create(:submission,
                :with_pa_version,
                ufn: "222222/222",
-               events: [build(:event, :new_version),
-                        build(:event, :assignment, primary_user_id: "primary-user-id-1"),
-                        build(:event, :unassignment, primary_user_id: "primary-user-id-1"),
-                        build(:event, :assignment, primary_user_id: "primary-user-id-2")])
+               assigned_user_id: "primary-user-id-2",
+               unassigned_user_ids: %w[primary-user-id-1])
 
         create(:submission,
                :with_pa_version,
                ufn: "333333/333",
-               events: [build(:event, :new_version), build(:event, :assignment, primary_user_id: "primary-user-id-2")])
+               assigned_user_id: "primary-user-id-2")
       end
 
       it "brings back only those with a matching caseworker id" do

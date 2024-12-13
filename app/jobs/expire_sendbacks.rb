@@ -17,7 +17,7 @@ private
       submission.state = "expired"
       submission.current_version += 1
       submission.last_updated_at = now
-      submission.events << build_expiry_event(now, submission.current_version)
+      submission.caseworker_history_events << build_expiry_event(now, submission.current_version)
       submission.save!
 
       latest_version = submission.latest_version
