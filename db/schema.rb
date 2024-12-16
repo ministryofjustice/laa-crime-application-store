@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_11_102459) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_13_150530) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -21,9 +21,8 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_11_102459) do
     t.text "application_risk"
     t.text "application_type", null: false
     t.datetime "updated_at", precision: nil
-    t.jsonb "events"
+    t.jsonb "caseworker_history_events"
     t.datetime "created_at", precision: nil
-    t.virtual "has_been_assigned_to", type: :jsonb, as: "jsonb_path_query_array(events, '$[*]?(@.\"event_type\" == \"assignment\").\"primary_user_id\"'::jsonpath)", stored: true
     t.datetime "last_updated_at", precision: nil
     t.boolean "notify_subscriber_completed"
     t.string "assigned_user_id"
@@ -55,68 +54,6 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_11_102459) do
 
   add_foreign_key "application_version", "application", name: "application_version_application_id_fkey"
 
-  create_view "events_raw", sql_definition: <<-SQL
-      SELECT id,
-      application_type,
-      jsonb_array_elements(events) AS event_json
-     FROM application;
-  SQL
-  create_view "all_events", sql_definition: <<-SQL
-      SELECT id,
-      application_type,
-      event_json,
-      (event_json ->> 'id'::text) AS event_id,
-      ((event_json ->> 'submission_version'::text))::integer AS submission_version,
-      (event_json ->> 'event_type'::text) AS event_type,
-      ((event_json ->> 'created_at'::text))::timestamp without time zone AS event_at,
-      (((event_json ->> 'created_at'::text))::timestamp without time zone)::date AS event_on,
-      ((event_json ->> 'primary_user_id'::text))::integer AS primary_user_id,
-      ((event_json ->> 'secondary_user_id'::text))::integer AS secondary_user_id,
-      (event_json -> 'details'::text) AS details
-     FROM events_raw;
-  SQL
-  create_view "eod_assignment_count", sql_definition: <<-SQL
-      WITH dates AS (
-           SELECT (t.day)::date AS day
-             FROM generate_series(('2024-06-01 00:00:00'::timestamp without time zone)::timestamp with time zone, CURRENT_TIMESTAMP, 'P1D'::interval) t(day)
-          ), application_with_cw AS (
-           SELECT all_events.id,
-              all_events.event_id,
-              all_events.event_type,
-              all_events.event_at AS from_at,
-              all_events.event_on AS from_on,
-              lag((all_events.event_at)::timestamp with time zone, 1, CURRENT_TIMESTAMP) OVER (PARTITION BY all_events.id ORDER BY all_events.event_at DESC) AS to_at,
-              lag((all_events.event_on)::timestamp without time zone, 1, (CURRENT_DATE + 'P1D'::interval)) OVER (PARTITION BY all_events.id ORDER BY all_events.event_at DESC) AS to_on
-             FROM all_events
-            WHERE ((all_events.application_type = 'crm4'::text) AND (all_events.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text, 'sent_back'::text, 'decision'::text])))
-          ), assignments AS (
-           SELECT all_events.id,
-              all_events.event_id,
-              all_events.event_type,
-              all_events.event_at AS assigned_at,
-              lag(all_events.event_at) OVER (PARTITION BY all_events.id ORDER BY all_events.event_at DESC) AS unassigned_at
-             FROM all_events
-            WHERE ((all_events.application_type = 'crm4'::text) AND (all_events.event_type = ANY (ARRAY['assignment'::text, 'unassignment'::text])))
-          )
-   SELECT dates.day,
-      count(DISTINCT application_with_cw.event_id) AS assignable,
-      count(DISTINCT assignments.event_id) AS assigned
-     FROM ((dates
-       LEFT JOIN application_with_cw ON (((dates.day >= application_with_cw.from_on) AND (dates.day < application_with_cw.to_on) AND (application_with_cw.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text])))))
-       LEFT JOIN assignments ON (((assignments.assigned_at >= application_with_cw.from_at) AND ((assignments.assigned_at)::date <= dates.day) AND ((assignments.assigned_at)::date <= application_with_cw.to_at) AND ((assignments.unassigned_at IS NULL) OR (((assignments.unassigned_at)::date > dates.day) AND ((assignments.unassigned_at)::date <= application_with_cw.to_at))) AND (assignments.event_type = 'assignment'::text))))
-    GROUP BY dates.day;
-  SQL
-  create_view "autogrant_events", sql_definition: <<-SQL
-      SELECT e.id,
-      e.submission_version,
-      e.event_on,
-      (a.application ->> 'service_type'::text) AS service_key,
-      COALESCE((a.application ->> 'custom_service_name'::text), (COALESCE(t.translation, ((a.application ->> 'service_type'::text))::character varying))::text) AS service
-     FROM ((all_events e
-       JOIN application_version a ON (((a.application_id = e.id) AND (a.version = e.submission_version))))
-       LEFT JOIN translations t ON ((((t.key)::text = (a.application ->> 'service_type'::text)) AND ((t.translation_type)::text = 'service'::text))))
-    WHERE ((e.application_type = 'crm4'::text) AND (e.event_type = 'auto_decision'::text));
-  SQL
   create_view "active_providers", sql_definition: <<-SQL
       WITH submissions AS (
            SELECT application.application_type,
@@ -162,20 +99,40 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_11_102459) do
       GREATEST(EXTRACT(epoch FROM (to_time - from_time)), (0)::numeric) AS processing_seconds
      FROM base;
   SQL
+  create_view "submission_by_services", sql_definition: <<-SQL
+      SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
+      date_trunc('DAY'::text, app.created_at) AS date_submitted,
+      count(*) AS submissions
+     FROM (application app
+       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1))))
+    WHERE (app.application_type = 'crm4'::text)
+    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
+  SQL
+  create_view "autogrant_events", sql_definition: <<-SQL
+      SELECT a.id,
+      av.version AS submission_version,
+      (av.created_at)::date AS event_on,
+      (av.application ->> 'service_type'::text) AS service_key,
+      COALESCE((av.application ->> 'custom_service_name'::text), (COALESCE(t.translation, ((av.application ->> 'service_type'::text))::character varying))::text) AS service
+     FROM ((application_version av
+       JOIN application a ON (((a.id = av.application_id) AND (a.current_version = av.version))))
+       LEFT JOIN translations t ON ((((t.key)::text = (av.application ->> 'service_type'::text)) AND ((t.translation_type)::text = 'service'::text))))
+    WHERE (a.state = 'auto_grant'::text);
+  SQL
   create_view "submissions_by_date", sql_definition: <<-SQL
       SELECT event_on,
       application_type,
       submission,
       resubmission,
       (submission + resubmission) AS total
-     FROM ( SELECT all_events.event_on,
-              all_events.application_type,
-              count(*) FILTER (WHERE ((all_events.event_type = 'new_version'::text) AND (all_events.submission_version = 1))) AS submission,
-              count(*) FILTER (WHERE (((all_events.event_type = 'new_version'::text) AND (all_events.submission_version > 1) AND (all_events.application_type = 'crm7'::text)) OR ((all_events.event_type = 'provider_updated'::text) AND (all_events.application_type = 'crm4'::text)))) AS resubmission
-             FROM all_events
-            WHERE (all_events.event_type = ANY (ARRAY['new_version'::text, 'provider_updated'::text]))
-            GROUP BY all_events.application_type, all_events.event_on
-            ORDER BY all_events.application_type, all_events.event_on) counted_values;
+     FROM ( SELECT (av.created_at)::date AS event_on,
+              a.application_type,
+              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'submitted'::text)) AS submission,
+              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'provider_updated'::text)) AS resubmission
+             FROM (application_version av
+               LEFT JOIN application a ON ((a.id = av.application_id)))
+            GROUP BY a.application_type, ((av.created_at)::date)
+            ORDER BY a.application_type, ((av.created_at)::date)) counted_values;
   SQL
   create_view "searches", sql_definition: <<-SQL
       WITH defendants AS (
@@ -204,7 +161,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_11_102459) do
           END AS risk_level,
       def.client_name,
       app_ver.search_fields,
-      app.has_been_assigned_to,
+      app.unassigned_user_ids,
       app.assigned_user_id,
       app.created_at AS date_submitted,
       app.last_updated_at AS last_updated,
@@ -218,14 +175,5 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_11_102459) do
      FROM ((application app
        JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))))
        JOIN defendants def ON ((def.id = app.id)));
-  SQL
-  create_view "submission_by_services", sql_definition: <<-SQL
-      SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
-      date_trunc('DAY'::text, app.created_at) AS date_submitted,
-      count(*) AS submissions
-     FROM (application app
-       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1))))
-    WHERE (app.application_type = 'crm4'::text)
-    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
   SQL
 end
