@@ -31,4 +31,10 @@ RSpec.describe "CRM457_2154:adds_high_value", type: :task do
 
     expect { Rake::Task["CRM457_2154:adds_high_value"].invoke }.to output(include(*output_text)).to_stdout
   end
+
+  it "does not update valid submissions" do
+    output_text = "Updated version 1 of submission: #{valid_submission_id}"
+
+    expect { Rake::Task["CRM457_2154:adds_high_value"].invoke }.not_to output(include(output_text)).to_stdout
+  end
 end
