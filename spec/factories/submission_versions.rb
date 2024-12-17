@@ -94,6 +94,7 @@ FactoryBot.define do
       application do
         build(:application,
               :nsm,
+              :with_cost_summary_high_value,
               defendant_name:,
               additional_defendant_names:,
               account_number:,
@@ -101,10 +102,8 @@ FactoryBot.define do
               solicitor:,
               status:,
               ufn: ufn || "010124/001",
-              laa_reference: laa_reference || "LAA-123456",
-              cost_summary: {
-                profit_costs: { gross_cost: 5000 },
-              })
+              laa_reference: laa_reference || "LAA-123456"
+            )
       end
     end
 
@@ -112,6 +111,7 @@ FactoryBot.define do
       application do
         build(:application,
               :nsm,
+              :with_cost_summary_low_value,
               defendant_name:,
               additional_defendant_names:,
               account_number:,
@@ -120,9 +120,7 @@ FactoryBot.define do
               status:,
               ufn: ufn || "010124/001",
               laa_reference: laa_reference || "LAA-123456",
-              cost_summary: {
-                profit_costs: { gross_cost: 4999 },
-              })
+            )
       end
     end
   end

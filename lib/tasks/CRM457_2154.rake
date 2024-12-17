@@ -9,18 +9,17 @@ namespace :CRM457_2154 do
     submissions = Submission.where(application_type: 'crm7')
                             .joins(:ordered_submission_versions)
                             .where("application_version.application -> 'cost_summary' ->> 'high_value' IS NULL")
-    total_affected_versions = 0
-    successful_updates = 0
     failed_updates = 0
     failed_ids = []
 
     submissions.each do |submission|
       submission.ordered_submission_versions.each do |version|
-        total_affected_versions += 1
         high_value = high_value_version?(submission, version)
-        version.application.merge({ 'cost_summary': { 'high_value': high_value }})
+        application_to_update = version.application
+        application_to_update.merge({ 'cost_summary': { 'high_value': high_value }})
+        version.application = application_to_update
         if version.save(touch: false)
-          successful_updates += 1
+          puts "Updated version #{version.version} of submission: #{submission.id} (high_value: #{high_value})"
         else
           failed_updates += 1
           failed_ids << version.id
@@ -28,8 +27,6 @@ namespace :CRM457_2154 do
       end
     end
 
-    puts "Total affected submission versions: #{total_affected_versions}"
-    puts "Successful submission versions updated: #{successful_updates}"
     if failed_updates > 0
       puts "Failed submission version updates: #{failed_updates}"
       puts "Versions failed to update:"
@@ -42,7 +39,7 @@ namespace :CRM457_2154 do
   # otherwise, use application risk
   def high_value_version?(submission, version)
     if version.application['cost_summary'].present?
-      version.application['cost_summary']['profit_costs']['gross_cost'].to_f >= 5000
+      version.application.dig('cost_summary', 'profit_costs', 'gross_cost').to_f >= 5000
     else
       submission.application_risk == 'high'
     end

@@ -61,5 +61,25 @@ FactoryBot.define do
         list
       end
     end
+
+    trait :with_cost_summary_high_value do
+      cost_summary do
+        {
+          "profit_costs" => {
+            "gross_cost" => 5000
+          }
+        }
+      end
+    end
+
+    trait :with_cost_summary_low_value do
+      cost_summary do
+        {
+          "profit_costs" => {
+            "gross_cost" => 4999
+          }
+        }
+      end
+    end
   end
 end

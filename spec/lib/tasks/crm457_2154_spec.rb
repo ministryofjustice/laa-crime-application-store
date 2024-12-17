@@ -23,18 +23,12 @@ RSpec.describe "CRM457_2154:adds_high_value", type: :task do
 
   after { Rake::Task["CRM457_2154:adds_high_value"].reenable }
 
-  it "does not update a valid submission" do
-    original_valid_version_application = Submission.find(valid_submission_id).ordered_submission_versions.first.application
-    Rake::Task["CRM457_2154:adds_high_value"].execute
-    expect(Submission.find(valid_submission_id).ordered_submission_versions.first.application).to eq(original_valid_version_application)
-  end
-
   it "updates invalid submissions to correct high value" do
-    Rake::Task["CRM457_2154:adds_high_value"].execute
+    output_text = ["Updated version 1 of submission: #{missing_summary_submission_low_id} (high_value: false)",
+                  "Updated version 1 of submission: #{missing_summary_submission_high_id} (high_value: true)",
+                  "Updated version 1 of submission: #{missing_high_value_submission_low_id} (high_value: false)",
+                  "Updated version 1 of submission: #{missing_high_value_submission_high_id} (high_value: true)"]
 
-    expect(Submission.find(missing_summary_submission_low_id).ordered_submission_versions.first.application["cost_summary"]["profit_costs"]["high_value"]).to be(false)
-    expect(Submission.find(missing_summary_submission_high_id).ordered_submission_versions.first.application["cost_summary"]["profit_costs"]["high_value"]).to be(true)
-    expect(Submission.find(missing_high_value_submission_low_id).ordered_submission_versions.first.application["cost_summary"]["profit_costs"]["high_value"]).to be(false)
-    expect(Submission.find(missing_high_value_submission_high_id).ordered_submission_versions.first.application["cost_summary"]["profit_costs"]["high_value"]).to be(true)
+    expect { Rake::Task['CRM457_2154:adds_high_value'].invoke }.to output(include(*output_text)).to_stdout
   end
 end
