@@ -66,8 +66,8 @@ FactoryBot.define do
       cost_summary do
         {
           "profit_costs" => {
-            "gross_cost" => 5000
-          }
+            "gross_cost" => 5000,
+          },
         }
       end
     end
@@ -76,8 +76,8 @@ FactoryBot.define do
       cost_summary do
         {
           "profit_costs" => {
-            "gross_cost" => 4999
-          }
+            "gross_cost" => 4999,
+          },
         }
       end
     end

@@ -25,10 +25,10 @@ RSpec.describe "CRM457_2154:adds_high_value", type: :task do
 
   it "updates invalid submissions to correct high value" do
     output_text = ["Updated version 1 of submission: #{missing_summary_submission_low_id} (high_value: false)",
-                  "Updated version 1 of submission: #{missing_summary_submission_high_id} (high_value: true)",
-                  "Updated version 1 of submission: #{missing_high_value_submission_low_id} (high_value: false)",
-                  "Updated version 1 of submission: #{missing_high_value_submission_high_id} (high_value: true)"]
+                   "Updated version 1 of submission: #{missing_summary_submission_high_id} (high_value: true)",
+                   "Updated version 1 of submission: #{missing_high_value_submission_low_id} (high_value: false)",
+                   "Updated version 1 of submission: #{missing_high_value_submission_high_id} (high_value: true)"]
 
-    expect { Rake::Task['CRM457_2154:adds_high_value'].invoke }.to output(include(*output_text)).to_stdout
+    expect { Rake::Task["CRM457_2154:adds_high_value"].invoke }.to output(include(*output_text)).to_stdout
   end
 end
