@@ -110,11 +110,6 @@ spec:
                 secretKeyRef:
                   name: azure-secret
                   key: tenant_id
-            - name: ENTRA_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: azure-secret
-                  key: client_secret
             {{- if not (eq .Values.environment "prod") }}
             - name: AUTHENTICATION_REQUIRED
               value: {{ .Values.envVars.authenticationRequired | quote}}
@@ -161,8 +156,6 @@ spec:
                   name: crm-elasticache
                   key: auth_token
           {{ end }}
-            - name: SUBSCRIBER_FAILED_ATTEMPT_DELETION_THRESHOLD
-              value: '{{ .Values.envVars.subscriberFailedAttemptDeletionThreshold }}'
             - name: ENABLE_PROMETHEUS_EXPORTER
               value: 'true'
       {{- with .Values.nodeSelector }}

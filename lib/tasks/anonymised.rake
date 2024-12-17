@@ -40,7 +40,7 @@ namespace :anonymised do
 
   desc "Delete a submission based on its LAA reference"
   task :delete, [:laa_reference] => :environment do |_, args|
-    raise "Cannot delete in a production environment" if Rails.env.production?
+    raise "Cannot delete in a production environment" if ENV["ENV"] == "production"
 
     submission = Submission.joins(:ordered_submission_versions)
                            .find_by("application_version.application->>'laa_reference' = ?",

@@ -28,7 +28,8 @@ RSpec.describe "Update submission metadata" do
 
     it "validates" do
       submission = create(:submission, application_risk: "low")
-      patch "/v1/submissions/#{submission.id}/metadata", params: { application_risk: nil }
+      allow(Submissions::MetadataUpdateService).to receive(:call).and_raise(ActiveRecord::RecordInvalid)
+      patch "/v1/submissions/#{submission.id}/metadata", params: { application_risk: "high" }
       expect(response).to have_http_status(:unprocessable_entity)
       expect(submission.application_risk).to eq("low")
     end
