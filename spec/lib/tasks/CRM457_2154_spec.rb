@@ -21,20 +21,20 @@ RSpec.describe "CRM457_2154:adds_high_value", type: :task do
     missing_high_value_submission_high
   end
 
-  # after { Rake::Task["CRM457_2154:adds_high_value"].reenable }
+  after { Rake::Task["CRM457_2154:adds_high_value"].reenable }
 
-  # it "does not update a valid submission" do
-  #   original_valid_version_application = Submission.find(valid_submission_id).ordered_submission_versions.first.application
-  #   Rake::Task["CRM457_2154:adds_high_value"].execute
-  #   expect(Submission.find(valid_submission_id).ordered_submission_versions.first.application).to eq(original_valid_version_application)
-  # end
+  it "does not update a valid submission" do
+    original_valid_version_application = Submission.find(valid_submission_id).ordered_submission_versions.first.application
+    Rake::Task["CRM457_2154:adds_high_value"].execute
+    expect(Submission.find(valid_submission_id).ordered_submission_versions.first.application).to eq(original_valid_version_application)
+  end
 
   it "updates invalid submissions to correct high value" do
     Rake::Task["CRM457_2154:adds_high_value"].execute
 
-    # expect(Submission.find(missing_summary_submission_low_id).ordered_submission_versions.first.application["cost_summary"]["profit_costs"]["high_value"]).to be(false)
-    # expect(Submission.find(missing_summary_submission_high_id).ordered_submission_versions.first.application["cost_summary"]["profit_costs"]["high_value"]).to be(true)
-    # expect(Submission.find(missing_high_value_submission_low_id).ordered_submission_versions.first.application["cost_summary"]["profit_costs"]["high_value"]).to be(false)
-    # expect(Submission.find(missing_high_value_submission_high_id).ordered_submission_versions.first.application["cost_summary"]["profit_costs"]["high_value"]).to be(true)
+    expect(Submission.find(missing_summary_submission_low_id).ordered_submission_versions.first.application["cost_summary"]["profit_costs"]["high_value"]).to be(false)
+    expect(Submission.find(missing_summary_submission_high_id).ordered_submission_versions.first.application["cost_summary"]["profit_costs"]["high_value"]).to be(true)
+    expect(Submission.find(missing_high_value_submission_low_id).ordered_submission_versions.first.application["cost_summary"]["profit_costs"]["high_value"]).to be(false)
+    expect(Submission.find(missing_high_value_submission_high_id).ordered_submission_versions.first.application["cost_summary"]["profit_costs"]["high_value"]).to be(true)
   end
 end

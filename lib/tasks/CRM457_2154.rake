@@ -9,9 +9,6 @@ namespace :CRM457_2154 do
     submissions = Submission.where(application_type: 'crm7')
                             .joins(:ordered_submission_versions)
                             .where("application_version.application -> 'cost_summary' ->> 'high_value' IS NULL")
-
-    debugger
-
     total_affected_versions = 0
     successful_updates = 0
     failed_updates = 0
@@ -30,7 +27,8 @@ namespace :CRM457_2154 do
         end
       end
     end
-    puts "Total affected submission: #{total_affected_versions}"
+
+    puts "Total affected submission versions: #{total_affected_versions}"
     puts "Successful submission versions updated: #{successful_updates}"
     if failed_updates > 0
       puts "Failed submission version updates: #{failed_updates}"
