@@ -26,6 +26,7 @@ module V1
           :updated_to,
           :caseworker_id,
           :account_number,
+          :high_value,
           :current_caseworker_id,
           :status_with_assignment,
           :id_to_exclude,

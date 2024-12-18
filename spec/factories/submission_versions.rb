@@ -12,6 +12,7 @@ FactoryBot.define do
       ufn { nil }
       laa_reference { nil }
       status { "submitted" }
+      high_value { false }
     end
 
     application do
@@ -21,6 +22,7 @@ FactoryBot.define do
             account_number:,
             solicitor:,
             status:,
+            high_value:,
             ufn: ufn || "010124/001",
             laa_reference: laa_reference || "LAA-123456")
     end
@@ -59,6 +61,85 @@ FactoryBot.define do
       application do
         build(:application,
               :nsm,
+              defendant_name:,
+              additional_defendant_names:,
+              account_number:,
+              firm_name:,
+              solicitor:,
+              status:,
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
+      end
+    end
+
+    trait :with_nsm_application_no_cost_summary do
+      application do
+        build(:application,
+              :nsm,
+              defendant_name:,
+              additional_defendant_names:,
+              account_number:,
+              firm_name:,
+              solicitor:,
+              status:,
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
+      end
+    end
+
+    trait :with_nsm_application_high_gross_cost do
+      application do
+        build(:application,
+              :nsm,
+              :with_cost_summary_high_value,
+              defendant_name:,
+              additional_defendant_names:,
+              account_number:,
+              firm_name:,
+              solicitor:,
+              status:,
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
+      end
+    end
+
+    trait :with_nsm_application_low_gross_cost do
+      application do
+        build(:application,
+              :nsm,
+              :with_cost_summary_low_value,
+              defendant_name:,
+              additional_defendant_names:,
+              account_number:,
+              firm_name:,
+              solicitor:,
+              status:,
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
+      end
+    end
+
+    trait :with_nsm_application_high_value do
+      application do
+        build(:application,
+              :nsm,
+              :with_high_value,
+              defendant_name:,
+              additional_defendant_names:,
+              account_number:,
+              firm_name:,
+              solicitor:,
+              status:,
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
+      end
+    end
+
+    trait :with_nsm_application_low_value do
+      application do
+        build(:application,
+              :nsm,
+              :with_low_value,
               defendant_name:,
               additional_defendant_names:,
               account_number:,

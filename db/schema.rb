@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_13_150530) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_18_092030) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -18,7 +18,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_13_150530) do
   create_table "application", id: :uuid, default: nil, force: :cascade do |t|
     t.integer "current_version", null: false
     t.text "state", null: false
-    t.text "application_risk"
+    t.string "application_risk"
     t.text "application_type", null: false
     t.datetime "updated_at", precision: nil
     t.jsonb "caseworker_history_events"
@@ -64,16 +64,16 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_13_150530) do
             WHERE (application_version.version = 1)
             GROUP BY application.application_type, (application_version.application -> 'office_code'::text), (date_trunc('week'::text, application_version.created_at))
           )
-   SELECT application_type,
-      submitted_start,
-      count(DISTINCT office_code) AS office_codes_submitting_during_the_period,
+   SELECT submissions.application_type,
+      submissions.submitted_start,
+      count(DISTINCT submissions.office_code) AS office_codes_submitting_during_the_period,
       ( SELECT count(DISTINCT subs.office_code) AS count
              FROM submissions subs
             WHERE ((submissions.submitted_start >= subs.submitted_start) AND (submissions.application_type = subs.application_type))) AS total_office_codes_submitters,
-      jsonb_agg(DISTINCT office_code) AS office_codes_during_the_period
+      jsonb_agg(DISTINCT submissions.office_code) AS office_codes_during_the_period
      FROM submissions
-    GROUP BY application_type, submitted_start
-    ORDER BY application_type, submitted_start;
+    GROUP BY submissions.application_type, submissions.submitted_start
+    ORDER BY submissions.application_type, submissions.submitted_start;
   SQL
   create_view "processing_times", sql_definition: <<-SQL
       WITH base AS (
@@ -87,16 +87,16 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_13_150530) do
              FROM (application_version
                JOIN application ON ((application_version.application_id = application.id)))
           )
-   SELECT id,
-      application_type,
-      version,
-      from_status,
-      from_time,
-      to_status,
-      to_time,
-      (from_time)::date AS from_date,
-      (to_time)::date AS to_date,
-      GREATEST(EXTRACT(epoch FROM (to_time - from_time)), (0)::numeric) AS processing_seconds
+   SELECT base.id,
+      base.application_type,
+      base.version,
+      base.from_status,
+      base.from_time,
+      base.to_status,
+      base.to_time,
+      (base.from_time)::date AS from_date,
+      (base.to_time)::date AS to_date,
+      GREATEST(EXTRACT(epoch FROM (base.to_time - base.from_time)), (0)::numeric) AS processing_seconds
      FROM base;
   SQL
   create_view "submission_by_services", sql_definition: <<-SQL
@@ -120,11 +120,11 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_13_150530) do
     WHERE (a.state = 'auto_grant'::text);
   SQL
   create_view "submissions_by_date", sql_definition: <<-SQL
-      SELECT event_on,
-      application_type,
-      submission,
-      resubmission,
-      (submission + resubmission) AS total
+      SELECT counted_values.event_on,
+      counted_values.application_type,
+      counted_values.submission,
+      counted_values.resubmission,
+      (counted_values.submission + counted_values.resubmission) AS total
      FROM ( SELECT (av.created_at)::date AS event_on,
               a.application_type,
               count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'submitted'::text)) AS submission,
@@ -153,6 +153,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_13_150530) do
       ((app_ver.application -> 'firm_office'::text) ->> 'name'::text) AS firm_name,
       ((app_ver.application -> 'firm_office'::text) ->> 'account_number'::text) AS account_number,
       (app_ver.application ->> 'service_name'::text) AS service_name,
+      (((app_ver.application -> 'cost_summary'::text) ->> 'high_value'::text))::boolean AS high_value,
       app_ver.created_at AS last_state_change,
           CASE app.application_risk
               WHEN 'high'::text THEN 3
