@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "CRM457_2154:adds_high_value", type: :task do
-  let(:valid_submission) { create(:submission, :with_nsm_version, id: valid_submission_id, application_type: "crm7") }
+  let(:valid_submission) { create(:submission, build_scope: [:with_nsm_application_high_value], id: valid_submission_id, application_type: "crm7") }
   let(:valid_submission_id) { SecureRandom.uuid }
   let(:missing_summary_submission_low) { create(:submission, build_scope: [:with_nsm_application_no_cost_summary], id: missing_summary_submission_low_id, application_type: "crm7", application_risk: "low") }
   let(:missing_summary_submission_low_id) { SecureRandom.uuid }
