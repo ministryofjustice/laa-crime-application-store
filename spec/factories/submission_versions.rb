@@ -118,5 +118,37 @@ FactoryBot.define do
               laa_reference: laa_reference || "LAA-123456")
       end
     end
+
+    trait :with_nsm_application_high_value do
+      application do
+        build(:application,
+              :nsm,
+              :with_high_value,
+              defendant_name:,
+              additional_defendant_names:,
+              account_number:,
+              firm_name:,
+              solicitor:,
+              status:,
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
+      end
+    end
+
+    trait :with_nsm_application_low_value do
+      application do
+        build(:application,
+              :nsm,
+              :with_low_value,
+              defendant_name:,
+              additional_defendant_names:,
+              account_number:,
+              firm_name:,
+              solicitor:,
+              status:,
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
+      end
+    end
   end
 end

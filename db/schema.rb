@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_13_150530) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_18_092030) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -153,6 +153,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_13_150530) do
       ((app_ver.application -> 'firm_office'::text) ->> 'name'::text) AS firm_name,
       ((app_ver.application -> 'firm_office'::text) ->> 'account_number'::text) AS account_number,
       (app_ver.application ->> 'service_name'::text) AS service_name,
+      (((app_ver.application -> 'cost_summary'::text) ->> 'high_value'::text))::boolean AS high_value,
       app_ver.created_at AS last_state_change,
           CASE app.application_risk
               WHEN 'high'::text THEN 3

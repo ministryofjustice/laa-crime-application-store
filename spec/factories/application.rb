@@ -81,5 +81,21 @@ FactoryBot.define do
         }
       end
     end
+
+    trait :with_high_value do
+      cost_summary do
+        {
+          "high_value" => true,
+        }
+      end
+    end
+
+    trait :with_low_value do
+      cost_summary do
+        {
+          "high_value" => false,
+        }
+      end
+    end
   end
 end

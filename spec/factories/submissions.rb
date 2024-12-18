@@ -18,7 +18,6 @@ FactoryBot.define do
       laa_reference { nil }
       build_scope { [] }
       status { state }
-      high_value { false }
       auto_create_version { true }
     end
 

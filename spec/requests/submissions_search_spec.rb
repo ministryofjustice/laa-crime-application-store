@@ -488,17 +488,14 @@ RSpec.describe "Submission search" do
 
     context "with high_value query for NSM" do
       before do
-        create(:submission, :with_nsm_version,
-               high_value: true,
-               laa_reference: "LAA-AAAAA1")
+        create(:submission, build_scope: [:with_nsm_application_high_value],
+                            application_type: "crm7", laa_reference: "LAA-AAAAA1")
 
-        create(:submission, :with_nsm_version,
-               high_value: true,
-               laa_reference: "LAA-AAAAA2")
+        create(:submission, build_scope: [:with_nsm_application_high_value],
+                            application_type: "crm7", laa_reference: "LAA-AAAAA2")
 
-        create(:submission, :with_nsm_version,
-               high_value: false,
-               laa_reference: "LAA-AAAAA3")
+        create(:submission, build_scope: [:with_nsm_application_low_value],
+                            application_type: "crm7", laa_reference: "LAA-AAAAA3")
       end
 
       it "returns those with has high_value" do
