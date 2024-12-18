@@ -8,7 +8,7 @@ namespace :CRM457_2154 do
     # use cost_summary's gross_cost if present, otherwise use submission's application risk
     versions = SubmissionVersion.includes(:submission)
                             .joins(:submission)
-                            .where("application_version.application -> 'cost_summary' ->> 'high_value' IS NULL")
+                            .where("application_version.application -> 'cost_summary' ->> 'high_value' IS NULL AND application.application_type = 'crm7'")
     failed_updates = 0
     failed_ids = []
 
