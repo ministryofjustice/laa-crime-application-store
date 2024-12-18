@@ -22,7 +22,6 @@ SELECT
   app_ver.application -> 'firm_office' ->> 'name' as firm_name,
   app_ver.application -> 'firm_office' ->> 'account_number' as account_number,
   app_ver.application ->> 'service_name' as service_name,
-  (app_ver.application -> 'cost_summary' ->> 'high_value')::boolean as high_value,
   app_ver.created_at as last_state_change,
   CASE app.application_risk
   WHEN 'high' THEN 3
