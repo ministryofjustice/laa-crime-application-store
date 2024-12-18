@@ -8,15 +8,13 @@ namespace :CRM457_2154 do
     # use cost_summary's gross_cost if present, otherwise use submission's application risk
     versions = SubmissionVersion.includes(:submission)
                             .joins(:submission)
-                            .where("application_version.application -> 'cost_summary' ->> 'high_value' IS NULL AND application.application_type = 'crm7'")
+                            .where("application_version.application -> 'cost_summary' IS NOT NULL AND application_version.application -> 'cost_summary' ->> 'high_value' IS NULL AND application.application_type = 'crm7'")
     failed_updates = 0
     failed_ids = []
 
     versions.each do |version|
       high_value = high_value_version?(version)
-      application_to_update = version.application
-      application_to_update.merge({ 'cost_summary': { 'high_value': high_value }})
-      version.application = application_to_update
+      version.application = version.application.merge({ 'cost_summary': { 'high_value': high_value }})
       if version.save(touch: false)
         puts "Updated version #{version.version} of submission: #{version.submission.id} (high_value: #{high_value})"
       else
