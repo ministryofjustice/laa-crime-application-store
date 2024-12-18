@@ -6,24 +6,22 @@ namespace :CRM457_2154 do
     # Query to select all submissions that don't have a high_value flag
     # and go through each submission version to add the high_value flag:
     # use cost_summary's gross_cost if present, otherwise use submission's application risk
-    submissions = Submission.where(application_type: 'crm7')
-                            .joins(:ordered_submission_versions)
+    versions = SubmissionVersion.includes(:submission)
+                            .joins(:submission)
                             .where("application_version.application -> 'cost_summary' ->> 'high_value' IS NULL")
     failed_updates = 0
     failed_ids = []
 
-    submissions.each do |submission|
-      submission.ordered_submission_versions.each do |version|
-        high_value = high_value_version?(submission, version)
-        application_to_update = version.application
-        application_to_update.merge({ 'cost_summary': { 'high_value': high_value }})
-        version.application = application_to_update
-        if version.save(touch: false)
-          puts "Updated version #{version.version} of submission: #{submission.id} (high_value: #{high_value})"
-        else
-          failed_updates += 1
-          failed_ids << version.id
-        end
+    versions.each do |version|
+      high_value = high_value_version?(version)
+      application_to_update = version.application
+      application_to_update.merge({ 'cost_summary': { 'high_value': high_value }})
+      version.application = application_to_update
+      if version.save(touch: false)
+        puts "Updated version #{version.version} of submission: #{version.submission.id} (high_value: #{high_value})"
+      else
+        failed_updates += 1
+        failed_ids << version.id
       end
     end
 
@@ -37,11 +35,11 @@ namespace :CRM457_2154 do
   # High value assessment:
   # If cost_summary is present in version payload use gross_cost...
   # otherwise, use application risk
-  def high_value_version?(submission, version)
+  def high_value_version?(version)
     if version.application['cost_summary'].present?
       version.application.dig('cost_summary', 'profit_costs', 'gross_cost').to_f >= 5000
     else
-      submission.application_risk == 'high'
+      version.submission.application_risk == 'high'
     end
   end
 end
