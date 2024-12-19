@@ -14,9 +14,7 @@ namespace :CRM457_2154 do
 
     versions.each do |version|
       high_value = high_value_version?(version)
-      application_to_update = version.application
-      application_to_update.merge({ 'cost_summary': { 'high_value': high_value }})
-      version.application = application_to_update
+      version.application = version.application.merge({ 'cost_summary': { 'high_value': high_value }})
       if version.save(touch: false)
         puts "Updated version #{version.version} of submission: #{version.submission.id} (high_value: #{high_value})"
       else
