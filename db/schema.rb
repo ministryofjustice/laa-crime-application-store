@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_20_151833) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_20_153056) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -95,21 +95,6 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_20_151833) do
        LEFT JOIN translations t ON ((((t.key)::text = (av.application ->> 'service_type'::text)) AND ((t.translation_type)::text = 'service'::text))))
     WHERE (a.state = 'auto_grant'::text);
   SQL
-  create_view "submissions_by_date", sql_definition: <<-SQL
-      SELECT counted_values.event_on,
-      counted_values.application_type,
-      counted_values.submission,
-      counted_values.resubmission,
-      (counted_values.submission + counted_values.resubmission) AS total
-     FROM ( SELECT (av.created_at)::date AS event_on,
-              a.application_type,
-              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'submitted'::text)) AS submission,
-              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'provider_updated'::text)) AS resubmission
-             FROM (application_version av
-               LEFT JOIN application a ON ((a.id = av.application_id)))
-            GROUP BY a.application_type, ((av.created_at)::date)
-            ORDER BY a.application_type, ((av.created_at)::date)) counted_values;
-  SQL
   create_view "searches", sql_definition: <<-SQL
       WITH defendants AS (
            SELECT app_1.id,
@@ -176,5 +161,20 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_20_151833) do
       (base.to_time)::date AS to_date,
       GREATEST(EXTRACT(epoch FROM (base.to_time - base.from_time)), (0)::numeric) AS processing_seconds
      FROM base;
+  SQL
+  create_view "submissions_by_date", sql_definition: <<-SQL
+      SELECT counted_values.event_on,
+      counted_values.application_type,
+      counted_values.submission,
+      counted_values.resubmission,
+      (counted_values.submission + counted_values.resubmission) AS total
+     FROM ( SELECT (av.created_at)::date AS event_on,
+              a.application_type,
+              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'submitted'::text)) AS submission,
+              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'provider_updated'::text)) AS resubmission
+             FROM (application_version av
+               LEFT JOIN application a ON (((a.id = av.application_id) AND (av.pending IS FALSE))))
+            GROUP BY a.application_type, ((av.created_at)::date)
+            ORDER BY a.application_type, ((av.created_at)::date)) counted_values;
   SQL
 end
