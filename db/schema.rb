@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_18_092030) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_20_153455) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -75,39 +75,6 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_18_092030) do
     GROUP BY submissions.application_type, submissions.submitted_start
     ORDER BY submissions.application_type, submissions.submitted_start;
   SQL
-  create_view "processing_times", sql_definition: <<-SQL
-      WITH base AS (
-           SELECT application.id,
-              application.application_type,
-              application_version.version,
-              COALESCE(lag((application_version.application ->> 'status'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), 'draft'::text) AS from_status,
-              (COALESCE(lag((application_version.application ->> 'updated_at'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), (application_version.application ->> 'created_at'::text)))::timestamp without time zone AS from_time,
-              (application_version.application ->> 'status'::text) AS to_status,
-              ((application_version.application ->> 'updated_at'::text))::timestamp without time zone AS to_time
-             FROM (application_version
-               JOIN application ON ((application_version.application_id = application.id)))
-          )
-   SELECT base.id,
-      base.application_type,
-      base.version,
-      base.from_status,
-      base.from_time,
-      base.to_status,
-      base.to_time,
-      (base.from_time)::date AS from_date,
-      (base.to_time)::date AS to_date,
-      GREATEST(EXTRACT(epoch FROM (base.to_time - base.from_time)), (0)::numeric) AS processing_seconds
-     FROM base;
-  SQL
-  create_view "submission_by_services", sql_definition: <<-SQL
-      SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
-      date_trunc('DAY'::text, app.created_at) AS date_submitted,
-      count(*) AS submissions
-     FROM (application app
-       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1))))
-    WHERE (app.application_type = 'crm4'::text)
-    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
-  SQL
   create_view "autogrant_events", sql_definition: <<-SQL
       SELECT a.id,
       av.version AS submission_version,
@@ -118,21 +85,6 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_18_092030) do
        JOIN application a ON (((a.id = av.application_id) AND (a.current_version = av.version))))
        LEFT JOIN translations t ON ((((t.key)::text = (av.application ->> 'service_type'::text)) AND ((t.translation_type)::text = 'service'::text))))
     WHERE (a.state = 'auto_grant'::text);
-  SQL
-  create_view "submissions_by_date", sql_definition: <<-SQL
-      SELECT counted_values.event_on,
-      counted_values.application_type,
-      counted_values.submission,
-      counted_values.resubmission,
-      (counted_values.submission + counted_values.resubmission) AS total
-     FROM ( SELECT (av.created_at)::date AS event_on,
-              a.application_type,
-              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'submitted'::text)) AS submission,
-              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'provider_updated'::text)) AS resubmission
-             FROM (application_version av
-               LEFT JOIN application a ON ((a.id = av.application_id)))
-            GROUP BY a.application_type, ((av.created_at)::date)
-            ORDER BY a.application_type, ((av.created_at)::date)) counted_values;
   SQL
   create_view "searches", sql_definition: <<-SQL
       WITH defendants AS (
@@ -176,5 +128,53 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_18_092030) do
      FROM ((application app
        JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))))
        JOIN defendants def ON ((def.id = app.id)));
+  SQL
+  create_view "processing_times", sql_definition: <<-SQL
+      WITH base AS (
+           SELECT application.id,
+              application.application_type,
+              application_version.version,
+              COALESCE(lag((application_version.application ->> 'status'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), 'draft'::text) AS from_status,
+              (COALESCE(lag((application_version.application ->> 'updated_at'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), (application_version.application ->> 'created_at'::text)))::timestamp without time zone AS from_time,
+              (application_version.application ->> 'status'::text) AS to_status,
+              ((application_version.application ->> 'updated_at'::text))::timestamp without time zone AS to_time
+             FROM (application_version
+               JOIN application ON (((application_version.application_id = application.id) AND (application_version.pending IS FALSE))))
+          )
+   SELECT base.id,
+      base.application_type,
+      base.version,
+      base.from_status,
+      base.from_time,
+      base.to_status,
+      base.to_time,
+      (base.from_time)::date AS from_date,
+      (base.to_time)::date AS to_date,
+      GREATEST(EXTRACT(epoch FROM (base.to_time - base.from_time)), (0)::numeric) AS processing_seconds
+     FROM base;
+  SQL
+  create_view "submissions_by_date", sql_definition: <<-SQL
+      SELECT counted_values.event_on,
+      counted_values.application_type,
+      counted_values.submission,
+      counted_values.resubmission,
+      (counted_values.submission + counted_values.resubmission) AS total
+     FROM ( SELECT (av.created_at)::date AS event_on,
+              a.application_type,
+              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'submitted'::text)) AS submission,
+              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'provider_updated'::text)) AS resubmission
+             FROM (application_version av
+               LEFT JOIN application a ON (((a.id = av.application_id) AND (av.pending IS FALSE))))
+            GROUP BY a.application_type, ((av.created_at)::date)
+            ORDER BY a.application_type, ((av.created_at)::date)) counted_values;
+  SQL
+  create_view "submission_by_services", sql_definition: <<-SQL
+      SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
+      date_trunc('DAY'::text, app.created_at) AS date_submitted,
+      count(*) AS submissions
+     FROM (application app
+       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1) AND (app_ver.pending IS FALSE))))
+    WHERE (app.application_type = 'crm4'::text)
+    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
   SQL
 end
