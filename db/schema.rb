@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_20_153056) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_20_153455) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -74,15 +74,6 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_20_153056) do
      FROM submissions
     GROUP BY submissions.application_type, submissions.submitted_start
     ORDER BY submissions.application_type, submissions.submitted_start;
-  SQL
-  create_view "submission_by_services", sql_definition: <<-SQL
-      SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
-      date_trunc('DAY'::text, app.created_at) AS date_submitted,
-      count(*) AS submissions
-     FROM (application app
-       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1))))
-    WHERE (app.application_type = 'crm4'::text)
-    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
   SQL
   create_view "autogrant_events", sql_definition: <<-SQL
       SELECT a.id,
@@ -176,5 +167,14 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_20_153056) do
                LEFT JOIN application a ON (((a.id = av.application_id) AND (av.pending IS FALSE))))
             GROUP BY a.application_type, ((av.created_at)::date)
             ORDER BY a.application_type, ((av.created_at)::date)) counted_values;
+  SQL
+  create_view "submission_by_services", sql_definition: <<-SQL
+      SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
+      date_trunc('DAY'::text, app.created_at) AS date_submitted,
+      count(*) AS submissions
+     FROM (application app
+       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1) AND (app_ver.pending IS FALSE))))
+    WHERE (app.application_type = 'crm4'::text)
+    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
   SQL
 end
