@@ -28,7 +28,7 @@ Sidekiq.configure_server do |config|
   Rails.logger.info("[SidekiqServer] configuring sidekiq server...")
   config.redis = { url: redis_url } if redis_url
 
-  return unless ENV.fetch("ENABLE_PROMETHEUS_EXPORTER", "false") == "true"
+  break unless ENV.fetch("ENABLE_PROMETHEUS_EXPORTER", "false") == "true"
 
   require "prometheus_exporter/client"
   require "prometheus_exporter/instrumentation"
