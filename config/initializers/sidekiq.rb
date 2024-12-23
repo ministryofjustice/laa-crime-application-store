@@ -16,22 +16,22 @@ end
 Rails.logger.info("[Sidekiq] Application config initialising...")
 
 Sidekiq.configure_client do |config|
-  redis_url = 'redis://localhost:6379/3' if Rails.env.local?
+  redis_url = "redis://localhost:6379/3" if Rails.env.local?
 
   Rails.logger.info("[SidekiqClient] configuring sidekiq client...")
   config.redis = { url: redis_url } if redis_url
 end
 
 Sidekiq.configure_server do |config|
-  redis_url = 'redis://localhost:6379/3' if Rails.env.local?
+  redis_url = "redis://localhost:6379/3" if Rails.env.local?
 
   Rails.logger.info("[SidekiqServer] configuring sidekiq server...")
   config.redis = { url: redis_url } if redis_url
 
   return unless ENV.fetch("ENABLE_PROMETHEUS_EXPORTER", "false") == "true"
 
-  require 'prometheus_exporter/client'
-  require 'prometheus_exporter/instrumentation'
+  require "prometheus_exporter/client"
+  require "prometheus_exporter/instrumentation"
 
   # Taken from https://github.com/discourse/prometheus_exporter?tab=readme-ov-file#sidekiq-metrics
   #
@@ -43,7 +43,7 @@ Sidekiq.configure_server do |config|
   config.on :startup do
     Rails.logger.info "[SidekiqPrometheusExporter] Startup instrumention details..."
 
-    PrometheusExporter::Instrumentation::Process.start type: 'sidekiq'
+    PrometheusExporter::Instrumentation::Process.start type: "sidekiq"
     PrometheusExporter::Instrumentation::SidekiqProcess.start
     PrometheusExporter::Instrumentation::SidekiqQueue.start(all_queues: true)
     PrometheusExporter::Instrumentation::SidekiqStats.start

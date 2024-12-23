@@ -1,6 +1,6 @@
 Rails.application.configure do
   config.lograge.enabled = Rails.env.production?
-  config.lograge.base_controller_class = 'ActionController::API'
+  config.lograge.base_controller_class = "ActionController::API"
   config.lograge.logger = ActiveSupport::Logger.new($stdout)
   config.lograge.formatter = Lograge::Formatters::Logstash.new
 
@@ -13,7 +13,7 @@ Rails.application.configure do
   # `ApplicationController` but instead a `BareApplicationController`
   config.lograge.custom_payload do |controller|
     {
-      client_role: controller.current_client_role
+      client_role: controller.current_client_role,
     }
   end
 end
