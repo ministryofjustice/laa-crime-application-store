@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/ministryofjustice/laa-crime-forms-common.git
-  revision: 038b8f3d628ab13b709c9b0585d735404589c8e0
+  revision: 056b116cfd85018616d6d251ab27779aa8412bea
   specs:
-    laa_crime_forms_common (0.7.2)
+    laa_crime_forms_common (0.8.0)
       httparty (>= 0.22.0, < 1)
       i18n (>= 1.8.11, < 2)
       json-schema (>= 5.0.0, < 6)
@@ -86,7 +86,7 @@ GEM
     ast (2.4.2)
     base64 (0.2.0)
     benchmark (0.4.0)
-    bigdecimal (3.1.8)
+    bigdecimal (3.1.9)
     binding_of_caller (1.0.1)
       debug_inspector (>= 1.2.0)
     bootsnap (1.18.4)
@@ -102,9 +102,9 @@ GEM
     cronex (0.15.0)
       tzinfo
       unicode (>= 0.4.4.5)
-    csv (3.3.1)
+    csv (3.3.2)
     date (3.4.1)
-    debug (1.9.2)
+    debug (1.10.0)
       irb (~> 1.10)
       reline (>= 0.3.8)
     debug_inspector (1.2.0)
@@ -146,7 +146,7 @@ GEM
       concurrent-ruby (~> 1.0)
     interception (0.5)
     io-console (0.8.0)
-    irb (1.14.2)
+    irb (1.14.3)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     json (2.9.0)
@@ -270,7 +270,7 @@ GEM
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
     rake (13.2.1)
-    rdoc (6.9.1)
+    rdoc (6.10.0)
       psych (>= 4.0.0)
     redis-client (0.23.0)
       connection_pool
@@ -405,7 +405,7 @@ DEPENDENCIES
   govuk_notify_rails (~> 3.0.0)
   httparty
   jwt (~> 2.9.3)
-  laa_crime_forms_common (~> 0.7.2)!
+  laa_crime_forms_common (~> 0.8.0)!
   lograge
   logstash-event
   oauth2
