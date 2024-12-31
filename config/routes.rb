@@ -11,8 +11,8 @@ Rails.application.routes.draw do
     # - See https://web.archive.org/web/20180709235757/https://thisdata.com/blog/timing-attacks-against-string-comparison/
     # - Use & (do not use &&) so that it doesn't short circuit.
     # - Use digests to stop length information leaking (see also ActiveSupport::SecurityUtils.variable_size_secure_compare)
-    ActiveSupport::SecurityUtils.secure_compare(::Digest::SHA256.hexdigest(username), ::Digest::SHA256.hexdigest(ENV["SIDEKIQ_WEB_UI_USERNAME"])) &
-      ActiveSupport::SecurityUtils.secure_compare(::Digest::SHA256.hexdigest(password), ::Digest::SHA256.hexdigest(ENV["SIDEKIQ_WEB_UI_PASSWORD"]))
+    ActiveSupport::SecurityUtils.secure_compare(Digest::SHA256.hexdigest(username), Digest::SHA256.hexdigest(ENV.fetch("SIDEKIQ_WEB_UI_USERNAME", nil))) &
+      ActiveSupport::SecurityUtils.secure_compare(Digest::SHA256.hexdigest(password), Digest::SHA256.hexdigest(ENV.fetch("SIDEKIQ_WEB_UI_PASSWORD", nil)))
   end
   mount Sidekiq::Web => "/sidekiq"
 
@@ -26,7 +26,7 @@ Rails.application.routes.draw do
     end
 
     namespace :submissions do
-      resource :searches, only: %[create]
+      resource :searches, only: %(create)
     end
 
     # Legacy endpoint aliases

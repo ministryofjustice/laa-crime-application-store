@@ -16,7 +16,7 @@ def start_prometheus_server
   server = PrometheusExporter::Server::WebServer.new(
     bind: ENV.fetch("PROMETHEUS_EXPORTER_HOST", DEFAULT_BIND_ADDRESS),
     port: ENV.fetch("PROMETHEUS_EXPORTER_PORT", DEFAULT_PORT).to_i,
-    verbose: ENV.fetch("PROMETHEUS_EXPORTER_VERBOSE", "false") == "true"
+    verbose: ENV.fetch("PROMETHEUS_EXPORTER_VERBOSE", "false") == "true",
   )
 
   server.start
