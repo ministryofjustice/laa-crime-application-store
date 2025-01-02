@@ -4,8 +4,13 @@ version: v1.25.0
 ignore:
   SNYK-JAVA-COMFASTERXMLJACKSONCORE-7569538:
     - "*":
-        reason: Awaiting fix of metabase or sub-dependency
-        expires: 2025-01-01T00:00:00.000Z
+        reason: Awaiting fix from metabase or sub-dependency
+        expires: 2026-01-01T00:00:00.000Z
+        created: 2024-07-30T07:56:33.858Z
+  SNYK-JAVA-ORGAPACHEHIVE-8549227:
+    - "*":
+        reason: Awaiting fix from metabase or sub-dependency
+        expires: 2026-01-01T00:00:00.000Z
         created: 2024-07-30T07:56:33.858Z
   # License issues
   "snyk:lic:maven:com.github.albfernandez:juniversalchardet:(GPL-3.0_OR_LGPL-3.0_OR_MPL-1.1)":
