@@ -5,3 +5,9 @@ expiry_job:
   cron: "16 21 * * *"
   class: "ExpireSendbacks"
   queue: pooling
+
+# gdpr_nsm_delete_reviewd_docs_job:
+#   # run job at 0630
+#   cron: "30 6 * * *"
+#   class: "Nsm::ScheduleDeleteReviewedDocs"
+#   queue: pooling
