@@ -1,9 +1,13 @@
 require "rails_helper"
 
-RSpec.describe ScheduleDeleteReviewedDocs do
-  describe "#filterd_claims" do
-    let(:claim) { create(:submission, application_type:, state:, last_updated_at:) }
+RSpec.describe Nsm::ScheduleDeleteReviewedDocs do
+  let(:claim) { create(:submission, application_type:, state:, last_updated_at:) }
 
+  before do
+    claim
+  end
+
+  describe "#filterd_claims" do
     context "when PA" do
       let(:application_type) { "crm4" }
 
@@ -13,7 +17,7 @@ RSpec.describe ScheduleDeleteReviewedDocs do
           let(:last_updated_at) { 6.months.ago }
 
           it "is not included" do
-            expect(described_class.filterd_claims).not_to include(claim)
+            expect(described_class.new.filtered_claims).not_to include(claim)
           end
         end
       end
@@ -28,7 +32,7 @@ RSpec.describe ScheduleDeleteReviewedDocs do
           let(:last_updated_at) { 6.months.ago }
 
           it "is included" do
-            expect(described_class.filterd_claims).to include(claim)
+            expect(described_class.new.filtered_claims).to include(claim)
           end
         end
 
@@ -37,7 +41,7 @@ RSpec.describe ScheduleDeleteReviewedDocs do
           let(:last_updated_at) { 1.day.ago }
 
           it "is excluded" do
-            expect(described_class.filterd_claims).not_to include(claim)
+            expect(described_class.new.filtered_claims).not_to include(claim)
           end
         end
       end
