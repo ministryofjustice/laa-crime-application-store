@@ -1,3 +1,4 @@
+# :nocov:
 if Rails.env.production?
   Aws.config.update({
     region: ENV.fetch('AWS_REGION', 'eu-west-2'),
@@ -10,3 +11,4 @@ if Rails.env.test?
   Aws.config.update(stub_responses: true)
   S3_BUCKET = Aws::S3::Resource.new.bucket('test')
 end
+# :nocov:
