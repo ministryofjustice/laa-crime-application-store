@@ -6,7 +6,8 @@ expiry_job:
   class: "ExpireSendbacks"
   queue: pooling
 
-# gdpr_nsm_delete_reviewd_docs_job:
+# TODO: decide run time and activate
+# gdpr_nsm_purge_docs_job:
 #   # run job at 0630
 #   cron: "30 6 * * *"
 #   class: "Nsm::ScheduleDeleteReviewedDocs"
