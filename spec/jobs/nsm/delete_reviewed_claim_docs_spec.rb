@@ -22,25 +22,25 @@ RSpec.describe Nsm::DeleteReviewedClaimDocs do
         expect(file_uploader).to receive(:destroy).with("123-a.pdf").once
         expect(file_uploader).to receive(:destroy).with("456-b.pdf").once
         expect(file_uploader).to receive(:destroy).with("789-c.pdf").once
-        described_class.new.perform(claim)
+        described_class.new.perform(claim.id)
       end
 
       it "creates a new version" do
-        expect{ described_class.new.perform(claim) }.to change { claim.ordered_submission_versions.count }.by(1)
+        expect{ described_class.new.perform(claim.id) }.to change { claim.ordered_submission_versions.count }.by(1)
       end
 
       it "raise an error if file deletion fails" do
         allow(file_uploader).to receive(:destroy).with("123-a.pdf").and_return(false)
-        expect { described_class.new.perform(claim) }.to raise_error(Nsm::DeleteReviewedClaimDocs::GDPRDeletionError)
+        expect { described_class.new.perform(claim.id) }.to raise_error(Nsm::DeleteReviewedClaimDocs::GDPRDeletionError)
       end
 
       it "adds an event to the claim" do
-        described_class.new.perform(claim)
+        described_class.new.perform(claim.id)
         expect(claim.reload.caseworker_history_events.last["event_type"]).to eq("gdpr_supporting_evidence")
       end
 
       it "adds a uploads_purged flag to the latest_version" do
-        described_class.new.perform(claim)
+        described_class.new.perform(claim.id)
         expect(claim.reload.latest_version.application["uploads_purged"]).to be(true)
       end
     end

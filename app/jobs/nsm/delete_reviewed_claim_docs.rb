@@ -2,7 +2,8 @@ module Nsm
   class DeleteReviewedClaimDocs < ApplicationJob
     class GDPRDeletionError < StandardError; end
 
-    def perform(submission)
+    def perform(submission_id)
+      submission = Submission.find(submission_id)
       now = Time.zone.now
       supporting_evidences = submission.latest_version.application["supporting_evidences"]
 
