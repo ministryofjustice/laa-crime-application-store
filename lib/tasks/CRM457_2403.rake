@@ -19,6 +19,8 @@ namespace :CRM457_2403 do
         .max {|a,b| a['submission_version'] <=> b['submission_version'] }['created_at']
       end
 
+      last_provider_updated = Date.parse(last_provider_updated)
+
       # update last_updated_at to provider_updated event if it is the most recent relevant event
       if submission.last_updated_at < last_provider_updated
         submission.last_updated_at < last_provider_updated
