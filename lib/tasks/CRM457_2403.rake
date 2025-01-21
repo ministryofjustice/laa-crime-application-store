@@ -24,8 +24,9 @@ namespace :CRM457_2403 do
       # update last_updated_at to provider_updated event if it is the most recent relevant event
       if submission.last_updated_at < last_provider_updated
         submission.last_updated_at < last_provider_updated
-        submission.save(touch: false)
-        puts "Updated Submission ID: #{submission.id}'s last_updated_at to #{submission.last_updated_at}"
+        if submission.save(touch: false)
+          puts "Updated Submission ID: #{submission.id}'s last_updated_at to #{submission.last_updated_at}"
+        end
       end
     end
   end
