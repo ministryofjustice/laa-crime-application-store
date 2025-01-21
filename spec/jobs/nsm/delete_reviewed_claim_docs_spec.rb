@@ -41,7 +41,7 @@ RSpec.describe Nsm::DeleteReviewedClaimDocs do
 
       it "adds a uploads_purged flag to the latest_version" do
         described_class.new.perform(claim.id)
-        expect(claim.reload.latest_version.application["uploads_purged"]).to be(true)
+        expect(claim.reload.latest_version.application["gdpr_documents_deleted"]).to be(true)
       end
     end
   end

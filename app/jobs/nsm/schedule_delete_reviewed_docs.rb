@@ -18,7 +18,7 @@ module Nsm
         FROM application_version all_versions
         WHERE all_versions.application_id = application.id)")
         .where(state:, application_type: "crm7", updated_at: ..6.months.ago)
-        .where("(latest_version.application->>'uploads_purged')::boolean IS false OR (latest_version.application->>'uploads_purged')::jsonb IS NULL")
+        .where("(latest_version.application->>'gdpr_documents_deleted')::boolean IS false OR (latest_version.application->>'gdpr_documents_deleted')::jsonb IS NULL")
     end
   end
 end
