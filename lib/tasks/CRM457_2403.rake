@@ -3,14 +3,10 @@
 namespace :CRM457_2403 do
   desc "Backfill last_updated_at for Provider Updated submissions"
   task backfill_last_updated_at: :environment do
-    # get all provider updated submissions updated after provider app was synchronous
-    # filter out expired submissions because the expiry would have updated last_updated_at
-    # filter out anything new or only send back once without an update
-    # filter out anything sent back after the last provider updated as the send back event would have updated last_updated_at
-    # only retrieve records after SSOT commit:
+    # get all provider updated submissions updated after provider app was synchronous, SSOT commit:
     # https://github.com/ministryofjustice/laa-submit-crime-forms/commit/f508f4b09e7b33ff44e1a0b50e293c8458d578c3
     date_from = Date.new(2024, 11, 18)
-    submissions = Submission.where("current_version >= 3 & current_version%2 = 1 AND state != ? AND updated_at >= ?", 'expired', date_from)
+    submissions = Submission.where("state = ? AND updated_at >= ?", 'expired', date_from)
 
     submissions.each do |submission|
       # find when last change to provider_updated was
