@@ -82,7 +82,7 @@ RSpec.describe Nsm::ScheduleDeleteReviewedDocs, type: :job do
           end
         end
 
-        describe 'latest_version.application["documents_purged"] absent' do
+        describe 'latest_version.application["gdpr_documents_deleted"] absent' do
           let(:state) { "granted" }
           let(:updated_at) { 6.months.ago }
 
@@ -91,22 +91,22 @@ RSpec.describe Nsm::ScheduleDeleteReviewedDocs, type: :job do
           end
         end
 
-        describe 'latest_version.application["documents_purged"] false' do
+        describe 'latest_version.application["gdpr_documents_deleted"] false' do
           let(:state) { "granted" }
           let(:updated_at) { 6.months.ago }
 
           it "is excluded" do
-            claim.latest_version.update!(application: { uploads_purged: false })
+            claim.latest_version.update!(application: { gdpr_documents_deleted: false })
             expect(described_class.new.filtered_claims).to include(claim)
           end
         end
 
-        describe 'latest_version.application["documents_purged"] true' do
+        describe 'latest_version.application["gdpr_documents_deleted"] true' do
           let(:state) { "granted" }
           let(:updated_at) { 6.months.ago }
 
           it "is excluded" do
-            claim.latest_version.update!(application: { uploads_purged: true })
+            claim.latest_version.update!(application: { gdpr_documents_deleted: true })
 
             expect(described_class.new.filtered_claims).not_to include(claim)
           end

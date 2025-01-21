@@ -26,7 +26,7 @@ module Nsm
         submission.ordered_submission_versions.create!(
           json_schema_version: latest_version.json_schema_version,
           application: latest_version.application.merge("updated_at" => now,
-                                                        "uploads_purged" => true),
+                                                        "gdpr_documents_deleted" => true),
           version: submission.current_version,
         )
       end
