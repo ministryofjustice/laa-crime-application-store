@@ -14,7 +14,7 @@ RSpec.describe Nsm::ScheduleDeleteReviewedDocs, type: :job do
       let(:updated_at) { 6.months.ago }
 
       it "adds a job to the queue" do
-        expect{ described_class.new.perform }.to change(ActiveJob::Base.queue_adapter.enqueued_jobs, :size).by(1)
+        expect { described_class.new.perform }.to change(ActiveJob::Base.queue_adapter.enqueued_jobs, :size).by(1)
       end
     end
 
@@ -29,7 +29,7 @@ RSpec.describe Nsm::ScheduleDeleteReviewedDocs, type: :job do
       end
 
       it "adds a job to the queue" do
-      expect{ described_class.new.perform }.to change(ActiveJob::Base.queue_adapter.enqueued_jobs, :size).by(1)
+        expect { described_class.new.perform }.to change(ActiveJob::Base.queue_adapter.enqueued_jobs, :size).by(1)
       end
     end
 
@@ -39,7 +39,7 @@ RSpec.describe Nsm::ScheduleDeleteReviewedDocs, type: :job do
       let(:updated_at) { 6.months.ago }
 
       it "does not add a job to the queue" do
-       expect{ described_class.new.perform }.not_to change(ActiveJob::Base.queue_adapter.enqueued_jobs, :size)
+        expect { described_class.new.perform }.not_to change(ActiveJob::Base.queue_adapter.enqueued_jobs, :size)
       end
     end
   end
