@@ -3,16 +3,34 @@ module Nsm
     class GDPRDeletionError < StandardError; end
 
     def perform(submission_id)
-      submission = Submission.find(submission_id)
       now = Time.zone.now
-      supporting_evidences = submission.latest_version.application["supporting_evidences"]
+      submission = Submission.find(submission_id)
+      latest_version_data = submission.latest_version.application
+      docs_to_destroy = []
+      supporting_evidences = latest_version_data["supporting_evidences"]
+      further_informations = latest_version_data["further_information"]
 
-      supporting_evidences.each do |document|
-        if file_uploader.destroy(document["file_path"])
-          Rails.logger.info "Deleted #{document['id']} for submission #{submission.id}"
-        else
-          Rails.logger.error "Delete failed for document: #{document['id']} submission: #{submission.id}"
-          raise GDPRDeletionError, "Failed delete document: #{document['id']} submission: #{submission.id}"
+      docs_to_destroy << supporting_evidences.pluck("file_path") if supporting_evidences.any?
+
+      if further_informations.any?
+        further_informations.each do |fi|
+          docs = fi["documents"]
+          next unless docs.any?
+
+          docs.each do |doc|
+            docs_to_destroy << doc["file_path"]
+          end
+        end
+      end
+
+      if docs_to_destroy.flatten.any?
+        docs_to_destroy.flatten.each do |file_path|
+          if file_uploader.destroy(file_path)
+            Rails.logger.info "Deleted #{file_path} for submission #{submission.id}"
+          else
+            Rails.logger.error "Delete failed for document: #{file_path} submission: #{submission.id}"
+            raise GDPRDeletionError, "Failed delete document: #{file_path} submission: #{submission.id}"
+          end
         end
       end
 
