@@ -6,31 +6,50 @@ RSpec.describe Nsm::DeleteReviewedClaimDocs do
     let(:file_uploader) { instance_double(FileUpload::FileUploader, destroy: true) }
     let(:supporting_evidences) do
       [
-        { id: 123, file_path: "123-a.pdf" },
-        { id: 456, file_path: "456-b.pdf" },
-        { id: 789, file_path: "789-c.pdf" },
+        { id: 123, file_path: "a.pdf" },
+        { id: 456, file_path: "b.pdf" },
+        { id: 789, file_path: "c.pdf" },
+      ]
+    end
+
+    let(:further_information) do
+      [
+        { documents:
+          [
+            { file_path: "x.pdf" },
+            { file_path: "y.pdf" },
+          ],
+          information_supplied: "test" },
+        { documents:
+          [
+            { file_path: "z.pdf" },
+          ],
+          information_supplied: "test" },
       ]
     end
 
     before do
       allow(FileUpload::FileUploader).to receive(:new).and_return(file_uploader)
-      claim.latest_version.update!(application: { supporting_evidences: })
+      claim.latest_version.update!(application: { supporting_evidences:, further_information: })
     end
 
     describe "#perform" do
-      it "calls destroy with filepath from supporting evidence" do
-        expect(file_uploader).to receive(:destroy).with("123-a.pdf").once
-        expect(file_uploader).to receive(:destroy).with("456-b.pdf").once
-        expect(file_uploader).to receive(:destroy).with("789-c.pdf").once
+      it "calls destroy with filepath from supporting evidence and further informations" do
+        expect(file_uploader).to receive(:destroy).with("a.pdf").once
+        expect(file_uploader).to receive(:destroy).with("b.pdf").once
+        expect(file_uploader).to receive(:destroy).with("c.pdf").once
+        expect(file_uploader).to receive(:destroy).with("x.pdf").once
+        expect(file_uploader).to receive(:destroy).with("y.pdf").once
+        expect(file_uploader).to receive(:destroy).with("z.pdf").once
         described_class.new.perform(claim.id)
       end
 
       it "creates a new version" do
-        expect{ described_class.new.perform(claim.id) }.to change { claim.ordered_submission_versions.count }.by(1)
+        expect { described_class.new.perform(claim.id) }.to change { claim.ordered_submission_versions.count }.by(1)
       end
 
       it "raise an error if file deletion fails" do
-        allow(file_uploader).to receive(:destroy).with("123-a.pdf").and_return(false)
+        allow(file_uploader).to receive(:destroy).with("a.pdf").and_return(false)
         expect { described_class.new.perform(claim.id) }.to raise_error(Nsm::DeleteReviewedClaimDocs::GDPRDeletionError)
       end
 
