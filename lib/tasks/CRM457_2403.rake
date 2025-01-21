@@ -25,6 +25,7 @@ namespace :CRM457_2403 do
       if submission.last_updated_at < last_provider_updated
         submission.last_updated_at < last_provider_updated
         submission.save(touch: false)
+        puts "Updated Submission ID: #{submission.id}'s last_updated_at to #{submission.last_updated_at}"
       end
     end
   end
