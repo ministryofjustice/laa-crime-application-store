@@ -59,7 +59,7 @@ module Nsm
         created_at: now,
         details: { comment: "Automated GDPR deletion of supporting evidence" },
         updated_at: now,
-        event_type: "gdpr_supporting_evidence",
+        event_type: "gdpr_documents_deleted",
         public: true,
         does_not_constitute_update: true,
       }

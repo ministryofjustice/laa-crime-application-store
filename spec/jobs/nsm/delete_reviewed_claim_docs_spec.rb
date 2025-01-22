@@ -60,7 +60,7 @@ RSpec.describe Nsm::DeleteReviewedClaimDocs do
 
         it "adds an event to the claim" do
           described_class.new.perform(claim.id)
-          expect(claim.reload.caseworker_history_events.last["event_type"]).to eq("gdpr_supporting_evidence")
+          expect(claim.reload.caseworker_history_events.last["event_type"]).to eq("gdpr_documents_deleted")
         end
 
         it "adds a uploads_purged flag to the latest_version" do
