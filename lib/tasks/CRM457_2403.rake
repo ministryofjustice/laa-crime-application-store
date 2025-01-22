@@ -1,4 +1,3 @@
-require 'pry'
 # https://dsdmoj.atlassian.net/browse/CRM457-2403
 
 namespace :CRM457_2403 do
