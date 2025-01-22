@@ -10,9 +10,9 @@ module Nsm
       supporting_evidences = latest_version_data["supporting_evidences"]
       further_informations = latest_version_data["further_information"]
 
-      docs_to_destroy << supporting_evidences.pluck("file_path") if supporting_evidences.any?
+      docs_to_destroy << supporting_evidences.pluck("file_path")
 
-      if further_informations.any?
+      if further_informations
         further_informations.each do |fi|
           docs = fi["documents"]
           next unless docs.any?
@@ -23,14 +23,14 @@ module Nsm
         end
       end
 
-      if docs_to_destroy.flatten.any?
-        docs_to_destroy.flatten.each do |file_path|
-          if file_uploader.destroy(file_path)
-            Rails.logger.info "Deleted #{file_path} for submission #{submission.id}"
-          else
-            Rails.logger.error "Delete failed for document: #{file_path} submission: #{submission.id}"
-            raise GDPRDeletionError, "Failed delete document: #{file_path} submission: #{submission.id}"
-          end
+      return unless docs_to_destroy.flatten.any?
+
+      docs_to_destroy.flatten.each do |file_path|
+        if file_uploader.destroy(file_path)
+          Rails.logger.info "Deleted #{file_path} for submission #{submission.id}"
+        else
+          Rails.logger.error "Delete failed for document: #{file_path} submission: #{submission.id}"
+          raise GDPRDeletionError, "Failed delete document: #{file_path} submission: #{submission.id}"
         end
       end
 
