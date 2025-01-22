@@ -1,3 +1,4 @@
+require 'pry'
 # https://dsdmoj.atlassian.net/browse/CRM457-2403
 
 namespace :CRM457_2403 do
@@ -6,7 +7,7 @@ namespace :CRM457_2403 do
     # get all provider updated submissions updated after provider app was synchronous, SSOT commit:
     # https://github.com/ministryofjustice/laa-submit-crime-forms/commit/f508f4b09e7b33ff44e1a0b50e293c8458d578c3
     date_from = Date.new(2024, 11, 18)
-    submissions = Submission.where("state = ? AND updated_at >= ?", 'expired', date_from)
+    submissions = Submission.where("state = ? AND updated_at >= ?", 'provider_updated', date_from)
 
     submissions.each do |submission|
       # find when last change to provider_updated was
@@ -23,7 +24,7 @@ namespace :CRM457_2403 do
 
       # update last_updated_at to provider_updated event if it is the most recent relevant event
       if submission.last_updated_at < last_provider_updated
-        submission.last_updated_at < last_provider_updated
+        submission.last_updated_at = last_provider_updated
         if submission.save(touch: false)
           puts "Updated Submission ID: #{submission.id}'s last_updated_at to #{submission.last_updated_at}"
         end

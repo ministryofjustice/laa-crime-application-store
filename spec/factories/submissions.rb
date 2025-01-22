@@ -7,6 +7,7 @@ FactoryBot.define do
     current_version { 1 }
     last_updated_at { Time.current }
     caseworker_history_events { [] }
+    events { [] }
 
     transient do
       defendant_name { nil }
