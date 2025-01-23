@@ -65,7 +65,7 @@ spec:
             - name: S3_BUCKET
               valueFrom:
                 secretKeyRef:
-                  name: s3-bucket-output
+                  name: s3-bucket-arns
                   key: bucket_name
           {{ if .Values.postgresql.enabled }}
             - name: POSTGRES_USERNAME
