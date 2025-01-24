@@ -56,5 +56,8 @@ spec:
             value: '1440'
           # Maximum number of concurrent db connections on data sources
           - name: MB_JDBC_DATA_WAREHOUSE_MAX_CONNECTION_POOL_SIZE
-            value: '25'
+            value: {{ .Values.metabase.warehouseDbPoolSize }}
+          # Maximum number of concurrent db connections on application db
+          - name: MB_APPLICATION_DB_MAX_CONNECTION_POOL_SIZE
+            value: {{ .Values.metabase.applicationeDbPoolSize }}
 {{- end }}
