@@ -69,3 +69,5 @@ metabase:
     namespace: laa-crime-application-store-production
     tls:
       secretName: laa-crime-application-store-cert
+  warehouseDbPoolSize: 25
+  applicationDbPoolSize: 15
