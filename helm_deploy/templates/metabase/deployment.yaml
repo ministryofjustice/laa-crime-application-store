@@ -54,4 +54,7 @@ spec:
           # This is how frequently users must re-authenticate (measured from last authentication, not last activity)
           - name: MAX_SESSION_AGE
             value: '1440'
+          # Maximum number of concurrent db connections on data sources
+          - name: MB_JDBC_DATA_WAREHOUSE_MAX_CONNECTION_POOL_SIZE
+            value: '25'
 {{- end }}
