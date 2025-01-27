@@ -222,7 +222,7 @@ RSpec.describe "CRM457_2403:backfill_last_updated_at", type: :task do
       "Updated Submission ID: #{crm7_post_ssot_provider_updated_submission_id}'s last_updated_at from 2024-11-17 00:00:00 UTC to 2024-11-20 00:00:00 UTC",
       "Updated Submission ID: #{crm4_post_ssot_provider_updated_submission_id}'s last_updated_at from 2024-11-17 00:00:00 UTC to 2024-11-20 00:00:00 UTC",
       "Submissions to update: 2",
-      "Submissions updated: 2"
+      "Submissions updated: 2",
     ]
 
     expect { Rake::Task["CRM457_2403:backfill_last_updated_at"].invoke }.to output(include(*output_text)).to_stdout
