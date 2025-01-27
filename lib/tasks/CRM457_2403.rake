@@ -31,6 +31,8 @@ namespace :CRM457_2403 do
         if submission.save(touch: false)
           submissions_updated_count += 1
           puts "Updated Submission ID: #{submission.id}'s last_updated_at from #{previous_updated_at} to #{submission.last_updated_at}"
+        else
+          puts "Failed to update Submission with ID: #{submission.id}"
         end
       end
     end
