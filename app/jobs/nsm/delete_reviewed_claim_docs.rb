@@ -36,15 +36,13 @@ module Nsm
 
       submission.with_lock do
         submission.current_version += 1
-        submission.last_updated_at = now
         submission.caseworker_history_events << build_delete_supporting_evidence_event(now, submission.current_version)
         submission.save!
 
         latest_version = submission.latest_version
         submission.ordered_submission_versions.create!(
           json_schema_version: latest_version.json_schema_version,
-          application: latest_version.application.merge("updated_at" => now,
-                                                        "gdpr_documents_deleted" => true),
+          application: latest_version.application.merge("gdpr_documents_deleted" => true),
           version: submission.current_version,
         )
       end
