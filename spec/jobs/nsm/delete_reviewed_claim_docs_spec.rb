@@ -68,6 +68,15 @@ RSpec.describe Nsm::DeleteReviewedClaimDocs do
           described_class.new.perform(claim.id)
           expect(claim.reload.latest_version.application["gdpr_documents_deleted"]).to be(true)
         end
+
+        it "removes the filenames from the history" do
+          versions = SubmissionVersion.where(application_id: claim.id)
+          expect(versions.pluck(Arel.sql("jsonb_array_elements(application->'supporting_evidences')->>'file_path'"))).to eq(["a.pdf", "b.pdf", "c.pdf"])
+
+          described_class.new.perform(claim.id)
+
+          expect(versions.pluck(Arel.sql("jsonb_array_elements(application->'supporting_evidences')->>'file_path'"))).to eq(["<Redacted for GDPR compliance>"] * 6)
+        end
       end
     end
 
