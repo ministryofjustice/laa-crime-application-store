@@ -37,7 +37,7 @@ module Nsm
       submission.with_lock do
         submission.current_version += 1
         submission.caseworker_history_events << build_delete_supporting_evidence_event(now, submission.current_version)
-        submission.save!
+        submission.save!(touch: false)
 
         latest_version = submission.latest_version
         submission.ordered_submission_versions.create!(
