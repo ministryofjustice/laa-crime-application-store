@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe Nsm::DeleteReviewedClaimDocs do
   describe "#perform" do
     let(:claim) { create(:submission) }
-    let(:file_uploader) { instance_double(FileUpload::FileUploader, destroy: true) }
+    let(:file_uploader) { instance_double(FileUpload::FileUploader, destroy: true, exists?: true) }
     let(:supporting_evidences) do
       [
         { id: 123, file_path: "a.pdf" },
@@ -54,8 +54,9 @@ RSpec.describe Nsm::DeleteReviewedClaimDocs do
         end
 
         it "raise an error if file deletion fails" do
-          allow(file_uploader).to receive(:destroy).with("a.pdf").and_return(false)
-          expect { described_class.new.perform(claim.id) }.to raise_error(Nsm::DeleteReviewedClaimDocs::GDPRDeletionError)
+          allow(file_uploader).to receive(:exists?).with("a.pdf").and_return(false)
+          expect(Rails.logger).to receive(:error).with("Delete failed for document: a.pdf submission: #{claim.id}")
+          described_class.new.perform(claim.id)
         end
 
         it "adds an event to the claim" do

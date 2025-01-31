@@ -26,11 +26,10 @@ module Nsm
       return unless docs_to_destroy.flatten.any?
 
       docs_to_destroy.flatten.each do |file_path|
-        if file_uploader.destroy(file_path)
+        if destroy_file(file_path)
           Rails.logger.info "Deleted #{file_path} for submission #{submission.id}"
         else
           Rails.logger.error "Delete failed for document: #{file_path} submission: #{submission.id}"
-          raise GDPRDeletionError, "Failed delete document: #{file_path} submission: #{submission.id}"
         end
       end
 
@@ -49,6 +48,10 @@ module Nsm
     end
 
   private
+
+    def destroy_file(file_path)
+      file_uploader.destroy(file_path) if file_uploader.exists?(file_path)
+    end
 
     def build_delete_supporting_evidence_event(now, current_version)
       {
