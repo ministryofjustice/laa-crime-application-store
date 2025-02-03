@@ -28,6 +28,13 @@ module Nsm
       docs_to_destroy.flatten.each do |file_path|
         if destroy_file(file_path)
           Rails.logger.info "Deleted #{file_path} for submission #{submission.id}"
+
+          SubmissionVersion.where(application_id: submission_id).find_each do |submission_version|
+            submission_version.with_lock do
+              submission_version.application = redact_file_names(submission_version.application, file_path)
+              submission_version.save!
+            end
+          end
         else
           Rails.logger.error "Delete failed for document: #{file_path} submission: #{submission.id}"
         end
@@ -45,6 +52,26 @@ module Nsm
           version: submission.current_version,
         )
       end
+    end
+
+    def redact_file_names(application, path)
+      paths = %w[file_path file_name]
+
+      case application
+      when Hash
+        application.each do |key, value|
+          application[key] = if paths.include?(key.to_s) && value == path
+                               "<Redacted for GDPR compliance>"
+                             else
+                               redact_file_names(value, path)
+                             end
+        end
+      when Array
+        application.map! { |item| redact_file_names(item, path) }
+      else
+        application
+      end
+      application
     end
 
   private
