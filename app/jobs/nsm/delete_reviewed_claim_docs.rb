@@ -54,6 +54,26 @@ module Nsm
       end
     end
 
+    def redact_file_names(application, path)
+      paths = %w[file_path file_name]
+
+      case application
+      when Hash
+        application.each do |key, value|
+          application[key] = if paths.include?(key.to_s) && value == path
+                               "<Redacted for GDPR compliance>"
+                             else
+                               redact_file_names(value, path)
+                             end
+        end
+      when Array
+        application.map! { |item| redact_file_names(item, path) }
+      else
+        application
+      end
+      application
+    end
+
   private
 
     def destroy_file(file_path)
@@ -75,26 +95,6 @@ module Nsm
 
     def file_uploader
       @file_uploader ||= FileUpload::FileUploader.new
-    end
-
-    def redact_file_names(application, path)
-      paths = %w[file_path file_name]
-
-      case application
-      when Hash
-        application.each do |key, value|
-          application[key] = if paths.include?(key.to_s) && value == path
-                               "<Redacted for GDPR compliance>"
-                             else
-                               redact_file_names(value, path)
-                             end
-        end
-      when Array
-        application.map! { |item| redact_file_names(item, path) }
-      else
-        application
-      end
-      application
     end
   end
 end

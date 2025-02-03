@@ -32,6 +32,49 @@ RSpec.describe Nsm::DeleteReviewedClaimDocs do
       ]
     end
 
+    describe "when redacting data" do
+      it "only processes expected records" do
+        initial_data = [
+          { file_name: "path.png" },
+          { file_name: "other_path.png" },
+        ]
+        changed_data = [
+          { file_name: "<Redacted for GDPR compliance>" },
+          { file_name: "other_path.png" },
+        ]
+        expect(described_class.new.redact_file_names(initial_data, "path.png")).to eq(changed_data)
+      end
+
+      it "correctly recurses and adjusts only the expected records" do
+        initial_data = [
+          { parent: {
+            another_parent: {
+              more_nesting: [
+                { file_name: "path.png" },
+              ],
+            },
+            file_name: "path.png",
+          } },
+          { file_name: "path.png" },
+          { file_name: "other_path.png" },
+        ]
+        changed_data = [
+          { parent: {
+            another_parent: {
+              more_nesting: [
+                { file_name: "<Redacted for GDPR compliance>" },
+              ],
+            },
+            file_name: "<Redacted for GDPR compliance>",
+          } },
+          { file_name: "<Redacted for GDPR compliance>" },
+          { file_name: "other_path.png" },
+        ]
+
+        expect(described_class.new.redact_file_names(initial_data, "path.png")).to eq(changed_data)
+      end
+    end
+
     context "when supporting evidences and further informations are present" do
       before do
         allow(FileUpload::FileUploader).to receive(:new).and_return(file_uploader)
@@ -69,13 +112,28 @@ RSpec.describe Nsm::DeleteReviewedClaimDocs do
           expect(claim.reload.latest_version.application["gdpr_documents_deleted"]).to be(true)
         end
 
-        it "removes the filenames from the history" do
+        it "removes the filenames from the history for supporting evidence" do
           versions = SubmissionVersion.where(application_id: claim.id)
           expect(versions.pluck(Arel.sql("jsonb_array_elements(application->'supporting_evidences')->>'file_path'"))).to eq(["a.pdf", "b.pdf", "c.pdf"])
 
           described_class.new.perform(claim.id)
 
+          # We expect 6 iterations here as the change creates a new version, 3 filenames across 2 versions = 6 total filenames
           expect(versions.pluck(Arel.sql("jsonb_array_elements(application->'supporting_evidences')->>'file_path'"))).to eq(["<Redacted for GDPR compliance>"] * 6)
+        end
+
+        it "removes the filenames from the history for further information" do
+          versions = SubmissionVersion.where(application_id: claim.id)
+          file_paths = versions.pluck(Arel.sql("jsonb_array_elements(application->'further_information')->>'documents'")).flatten.compact.map { |docs| JSON.parse(docs).map { |doc| doc["file_path"] } }.flatten
+
+          expect(file_paths).to eq(["x.pdf", "y.pdf", "z.pdf"])
+
+          described_class.new.perform(claim.id)
+
+          file_paths = versions.pluck(Arel.sql("jsonb_array_elements(application->'further_information')->>'documents'")).flatten.compact.map { |docs| JSON.parse(docs).map { |doc| doc["file_path"] } }.flatten
+
+          # We expect 6 iterations here as the change creates a new version, 3 filenames across 2 versions = 6 total filenames
+          expect(file_paths).to eq(["<Redacted for GDPR compliance>"] * 6)
         end
       end
     end
