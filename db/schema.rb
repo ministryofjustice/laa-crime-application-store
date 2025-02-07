@@ -181,41 +181,36 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_04_165729) do
       WITH dates AS (
            SELECT (t.day)::date AS day
              FROM generate_series(('2024-12-06 00:00:00'::timestamp without time zone)::timestamp with time zone, CURRENT_TIMESTAMP, 'P1D'::interval) t(day)
-          ), submitted_claims AS (
+          ), claims AS (
            SELECT
                   CASE
-                      WHEN (((application_version.application ->> 'include_youth_court_fee'::text))::boolean IS TRUE) THEN 1
+                      WHEN ((((application_version.application ->> 'include_youth_court_fee'::text))::boolean IS TRUE) AND ((application_version.application ->> 'status'::text) = 'submitted'::text)) THEN 1
                       ELSE 0
                   END AS youth_court_fee_claimed,
                   CASE
-                      WHEN ((((application_version.application ->> 'plea_category'::text) = 'category_1a'::text) OR ((application_version.application ->> 'plea_category'::text) = 'category_2a'::text)) AND ((application_version.application ->> 'youth_court'::text) = 'yes'::text)) THEN 1
+                      WHEN ((((application_version.application ->> 'plea_category'::text) = 'category_1a'::text) OR ((application_version.application ->> 'plea_category'::text) = 'category_2a'::text)) AND ((application_version.application ->> 'youth_court'::text) = 'yes'::text) AND ((application_version.application ->> 'status'::text) = 'submitted'::text)) THEN 1
                       ELSE 0
                   END AS youth_court_fee_eligible,
-              application_version.created_at
-             FROM application_version
-            WHERE ((application_version.application ->> 'status'::text) = 'submitted'::text)
-          ), decided_claims AS (
-           SELECT
                   CASE
-                      WHEN (((application_version.application ->> 'include_youth_court_fee'::text))::boolean IS TRUE) THEN 1
+                      WHEN ((((application_version.application ->> 'include_youth_court_fee'::text))::boolean IS TRUE) AND ((application_version.application ->> 'status'::text) = ANY (ARRAY['granted'::text, 'part_grant'::text, 'rejected'::text]))) THEN 1
                       ELSE 0
                   END AS youth_court_fee_approved,
                   CASE
-                      WHEN ((((application_version.application ->> 'include_youth_court_fee'::text))::boolean IS FALSE) AND (((application_version.application ->> 'include_youth_court_fee_original'::text))::boolean IS TRUE)) THEN 1
+                      WHEN ((((application_version.application ->> 'include_youth_court_fee'::text))::boolean IS FALSE) AND (((application_version.application ->> 'include_youth_court_fee_original'::text))::boolean IS TRUE) AND ((application_version.application ->> 'status'::text) = ANY (ARRAY['granted'::text, 'part_grant'::text, 'rejected'::text]))) THEN 1
                       ELSE 0
                   END AS youth_court_fee_rejected,
               application_version.created_at
              FROM application_version
-            WHERE ((application_version.application ->> 'status'::text) = ANY (ARRAY['granted'::text, 'part_grant'::text, 'rejected'::text]))
+            WHERE ((application_version.application ->> 'status'::text) = ANY (ARRAY['submitted'::text, 'granted'::text, 'part_grant'::text, 'rejected'::text]))
           )
    SELECT dates.day AS event_date,
-      COALESCE(sum(submitted_claims.youth_court_fee_claimed), (0)::bigint) AS youth_court_fee_claimed_count,
-      COALESCE(sum(submitted_claims.youth_court_fee_eligible), (0)::bigint) AS youth_court_fee_eligible_count,
-      COALESCE(sum(decided_claims.youth_court_fee_approved), (0)::bigint) AS youth_court_fee_approved_count,
-      COALESCE(sum(decided_claims.youth_court_fee_rejected), (0)::bigint) AS youth_court_fee_rejected_count
-     FROM ((dates
-       LEFT JOIN submitted_claims ON ((dates.day = date(submitted_claims.created_at))))
-       LEFT JOIN decided_claims ON ((dates.day = date(decided_claims.created_at))))
-    GROUP BY dates.day;
+      COALESCE(sum(claims.youth_court_fee_claimed), (0)::bigint) AS youth_court_fee_claimed_count,
+      COALESCE(sum(claims.youth_court_fee_eligible), (0)::bigint) AS youth_court_fee_eligible_count,
+      COALESCE(sum(claims.youth_court_fee_approved), (0)::bigint) AS youth_court_fee_approved_count,
+      COALESCE(sum(claims.youth_court_fee_rejected), (0)::bigint) AS youth_court_fee_rejected_count
+     FROM (dates
+       LEFT JOIN claims ON ((dates.day = date(claims.created_at))))
+    GROUP BY dates.day
+    ORDER BY dates.day;
   SQL
 end
