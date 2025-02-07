@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_20_153455) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_04_165729) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -176,5 +176,41 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_20_153455) do
        JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1) AND (app_ver.pending IS FALSE))))
     WHERE (app.application_type = 'crm4'::text)
     GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
+  SQL
+  create_view "additional_fee_uptakes", sql_definition: <<-SQL
+      WITH dates AS (
+           SELECT (t.day)::date AS day
+             FROM generate_series(('2024-12-06 00:00:00'::timestamp without time zone)::timestamp with time zone, CURRENT_TIMESTAMP, 'P1D'::interval) t(day)
+          ), claims AS (
+           SELECT
+                  CASE
+                      WHEN ((((application_version.application ->> 'include_youth_court_fee'::text))::boolean IS TRUE) AND ((application_version.application ->> 'status'::text) = 'submitted'::text)) THEN 1
+                      ELSE 0
+                  END AS youth_court_fee_claimed,
+                  CASE
+                      WHEN ((((application_version.application ->> 'plea_category'::text) = 'category_1a'::text) OR ((application_version.application ->> 'plea_category'::text) = 'category_2a'::text)) AND ((application_version.application ->> 'youth_court'::text) = 'yes'::text) AND ((application_version.application ->> 'status'::text) = 'submitted'::text)) THEN 1
+                      ELSE 0
+                  END AS youth_court_fee_eligible,
+                  CASE
+                      WHEN ((((application_version.application ->> 'include_youth_court_fee'::text))::boolean IS TRUE) AND ((application_version.application ->> 'status'::text) = ANY (ARRAY['granted'::text, 'part_grant'::text, 'rejected'::text]))) THEN 1
+                      ELSE 0
+                  END AS youth_court_fee_approved,
+                  CASE
+                      WHEN ((((application_version.application ->> 'include_youth_court_fee'::text))::boolean IS FALSE) AND (((application_version.application ->> 'include_youth_court_fee_original'::text))::boolean IS TRUE) AND ((application_version.application ->> 'status'::text) = ANY (ARRAY['granted'::text, 'part_grant'::text, 'rejected'::text]))) THEN 1
+                      ELSE 0
+                  END AS youth_court_fee_rejected,
+              application_version.created_at
+             FROM application_version
+            WHERE ((application_version.application ->> 'status'::text) = ANY (ARRAY['submitted'::text, 'granted'::text, 'part_grant'::text, 'rejected'::text]))
+          )
+   SELECT dates.day AS event_date,
+      COALESCE(sum(claims.youth_court_fee_claimed), (0)::bigint) AS youth_court_fee_claimed_count,
+      COALESCE(sum(claims.youth_court_fee_eligible), (0)::bigint) AS youth_court_fee_eligible_count,
+      COALESCE(sum(claims.youth_court_fee_approved), (0)::bigint) AS youth_court_fee_approved_count,
+      COALESCE(sum(claims.youth_court_fee_rejected), (0)::bigint) AS youth_court_fee_rejected_count
+     FROM (dates
+       LEFT JOIN claims ON ((dates.day = date(claims.created_at))))
+    GROUP BY dates.day
+    ORDER BY dates.day;
   SQL
 end
