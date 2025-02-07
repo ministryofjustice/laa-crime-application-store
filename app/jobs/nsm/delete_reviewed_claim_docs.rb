@@ -10,7 +10,8 @@ module Nsm
       supporting_evidences = latest_version_data["supporting_evidences"]
       further_informations = latest_version_data["further_information"]
 
-      docs_to_destroy << supporting_evidences.pluck("file_path")
+      docs_to_destroy << supporting_evidences.pluck("file_path", "file_name")
+        .map { |file_path, file_name| { file_path:, file_name: } }
 
       if further_informations
         further_informations.each do |fi|
@@ -18,25 +19,25 @@ module Nsm
           next unless docs.any?
 
           docs.each do |doc|
-            docs_to_destroy << doc["file_path"]
+            docs_to_destroy << [file_path: doc["file_path"], file_name: doc["file_name"]]
           end
         end
       end
 
       return unless docs_to_destroy.flatten.any?
 
-      docs_to_destroy.flatten.each do |file_path|
-        if destroy_file(file_path)
-          Rails.logger.info "Deleted #{file_path} for submission #{submission.id}"
+      docs_to_destroy.flatten.each do |file|
+        if destroy_file(file[:file_path])
+          Rails.logger.info "Deleted #{file[:file_path]} for submission #{submission.id}"
 
           SubmissionVersion.where(application_id: submission_id).find_each do |submission_version|
             submission_version.with_lock do
-              submission_version.application = redact_file_names(submission_version.application, file_path)
+              submission_version.application = redact_file_names(submission_version.application, file[:file_name])
               submission_version.save!
             end
           end
         else
-          Rails.logger.error "Delete failed for document: #{file_path} submission: #{submission.id}"
+          Rails.logger.error "Delete failed for document: #{file[:file_path]} submission: #{submission.id}"
         end
       end
 
