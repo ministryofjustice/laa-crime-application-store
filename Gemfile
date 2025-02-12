@@ -10,7 +10,7 @@ gem "rails", "~> 8.0.1"
 gem "pg", "~> 1.5"
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", "~> 6.5"
+gem "puma", "~> 6.6"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
@@ -18,7 +18,7 @@ gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
-gem 'aws-sdk-s3', '~> 1.177'
+gem 'aws-sdk-s3', '~> 1.180'
 gem "govuk_notify_rails", "~> 3.0.0"
 gem "httparty"
 gem "jwt", "~> 2.10.1"
