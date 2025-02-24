@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/ministryofjustice/laa-crime-forms-common.git
-  revision: 77cc4526f9161012dd279c4789ecc6b673ba29b6
+  revision: 7cf4d6b73115edb78164925de29f566481d4e002
   specs:
-    laa_crime_forms_common (0.9.1)
+    laa_crime_forms_common (0.9.2)
       httparty (>= 0.22.0, < 1)
       i18n (>= 1.8.11, < 2)
       json-schema (>= 5.0.0, < 6)
@@ -431,7 +431,7 @@ DEPENDENCIES
   govuk_notify_rails (~> 3.0.0)
   httparty
   jwt (~> 2.10.1)
-  laa_crime_forms_common (~> 0.9.1)!
+  laa_crime_forms_common (~> 0.9.2)!
   lograge
   logstash-event
   oauth2
