@@ -9,6 +9,7 @@ RUN apk update && apk upgrade --no-cache libcrypto3 libssl3 openssl
 RUN apk add --update \
   build-base \
   postgresql-dev \
+  yaml-dev \
   gcompat \
   tzdata \
   yarn
