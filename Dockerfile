@@ -1,4 +1,4 @@
-FROM ruby:3.3.6-alpine3.20 AS base
+FROM ruby:3.4.2-alpine3.20 AS base
 LABEL maintainer="Non-standard magistrates' court payment team"
 
 # TODO: is this still needed?
@@ -9,6 +9,7 @@ RUN apk update && apk upgrade --no-cache libcrypto3 libssl3 openssl
 RUN apk add --update \
   build-base \
   postgresql-dev \
+  yaml-dev \
   gcompat \
   tzdata \
   yarn
