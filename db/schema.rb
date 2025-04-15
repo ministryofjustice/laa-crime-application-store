@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_04_165729) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_07_152247) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -212,5 +212,27 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_04_165729) do
        LEFT JOIN claims ON ((dates.day = date(claims.created_at))))
     GROUP BY dates.day
     ORDER BY dates.day;
+  SQL
+  create_view "submission_creation_times", sql_definition: <<-SQL
+      WITH base AS (
+           SELECT app_ver.application_id,
+              application.application_type,
+              ((app_ver.application ->> 'created_at'::text))::timestamp without time zone AS draft_created_date,
+              app_ver.created_at AS submission_date,
+                  CASE
+                      WHEN (((app_ver.application ->> 'import_date'::text))::timestamp without time zone IS NOT NULL) THEN true
+                      ELSE false
+                  END AS claim_imported
+             FROM (application_version app_ver
+               JOIN application ON ((app_ver.application_id = application.id)))
+            WHERE ((app_ver.application ->> 'status'::text) = 'submitted'::text)
+          )
+   SELECT base.application_id,
+      base.application_type,
+      base.draft_created_date,
+      base.submission_date,
+      base.claim_imported,
+      (EXTRACT(epoch FROM (base.submission_date - base.draft_created_date)) / (60)::numeric) AS minutes_to_submit
+     FROM base;
   SQL
 end
