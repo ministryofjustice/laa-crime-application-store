@@ -19,7 +19,7 @@ executors:
   test-executor:
     working_directory: ~/repo
     docker:
-      - image: cimg/ruby:3.4.2-browsers
+      - image: cimg/ruby:3.4.3-browsers
         environment:
           RACK_ENV: test
           RAILS_ENV: test
