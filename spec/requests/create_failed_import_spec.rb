@@ -4,7 +4,6 @@ RSpec.describe "Create failed import" do
   context "when authenticated with bearer token" do
     let(:id) { SecureRandom.uuid }
     let(:provider_id) { SecureRandom.uuid }
-    let(:details) { "some error happened" }
 
     before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider) }
 
@@ -17,6 +16,26 @@ RSpec.describe "Create failed import" do
 
       expect(FailedImport.first.id).to eq(id)
       expect(FailedImport.first.provider_id).to eq(provider_id)
+    end
+
+    it "does not overwrite existing records" do
+      create(:failed_import, id:, provider_id:)
+
+      post "/v1/failed_import", params: {
+        id: id,
+        provider_id: provider_id,
+      }
+
+      expect(response).to have_http_status :conflict
+    end
+
+    it "fails when params are incorrect type" do
+      post "/v1/failed_import", params: {
+        id: "garbage",
+        provider_id: "garbage",
+      }
+
+      expect(response).to have_http_status :unprocessable_entity
     end
   end
 end
