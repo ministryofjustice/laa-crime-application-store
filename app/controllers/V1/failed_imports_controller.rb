@@ -9,7 +9,7 @@ module V1
       end
 
       render json: failed_import, status: :created
-    rescue ::FailedImports::CreationService::AlreadyExistsError
+    rescue AlreadyExistsError
       head :conflict
     rescue ActiveRecord::RecordInvalid
       head :unprocessable_entity
