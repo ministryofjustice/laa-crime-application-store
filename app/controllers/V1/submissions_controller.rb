@@ -12,7 +12,7 @@ module V1
     def create
       submission = ::Submissions::CreationService.call(params)
       render json: submission, status: :created
-    rescue ::Submissions::CreationService::AlreadyExistsError
+    rescue AlreadyExistsError
       head :conflict
     rescue ActiveRecord::RecordInvalid
       head :unprocessable_entity
