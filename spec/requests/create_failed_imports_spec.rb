@@ -7,7 +7,7 @@ RSpec.describe "Create failed import" do
     before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider) }
 
     it "saves what I send to failed_imports" do
-      post "/v1/failed_import", params: {
+      post "/v1/failed_imports", params: {
         provider_id: provider_id,
       }
       expect(response).to have_http_status :created
@@ -15,7 +15,7 @@ RSpec.describe "Create failed import" do
     end
 
     it "fails when params are incorrect type" do
-      post "/v1/failed_import", params: {
+      post "/v1/failed_imports", params: {
         provider_id: "garbage",
       }
 
