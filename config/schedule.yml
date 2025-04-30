@@ -11,3 +11,8 @@ gdpr_nsm_purge_docs_job:
   cron: "30 6 * * *"
   class: "Nsm::ScheduleDeleteReviewedDocs"
   queue: pooling
+gdpr_nsm_delete_import_details_job:
+  # run job daily at 0715
+  cron: "15 7 * * *"
+  class: "Nsm::ClearImportErrorDetails"
+  queue: pooling
