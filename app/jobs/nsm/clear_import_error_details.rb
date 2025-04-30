@@ -1,4 +1,3 @@
-
 module Nsm
   class ClearImportErrorDetails < ApplicationJob
     sidekiq_options retry: 1
@@ -8,7 +7,7 @@ module Nsm
 
       filtered_records.each do |record|
         record.details = nil
-        record.save
+        record.save!
       end
     end
 
