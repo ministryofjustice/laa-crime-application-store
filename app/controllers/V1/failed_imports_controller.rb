@@ -14,7 +14,7 @@ module V1
   private
 
     def current_import_error
-      @current_import_error ||= Failed_Import.find(params[:id])
+      @current_import_error ||= FailedImport.find(params[:id])
     end
   end
 end

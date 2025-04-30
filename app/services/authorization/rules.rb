@@ -13,6 +13,7 @@ module Authorization
         },
         failed_imports: {
           create: true,
+          show: true
         },
       },
       caseworker: {
