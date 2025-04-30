@@ -20,13 +20,13 @@ RSpec.describe "Show failed import" do
           "provider_id" => failed_import.provider_id,
           "details" => failed_import.details,
           "created_at" => an_instance_of(String),
-          "updated_at" => an_instance_of(String)
-        }
+          "updated_at" => an_instance_of(String),
+        },
       )
     end
 
     it "fails when id does not match" do
-      expect{get "/v1/failed_imports/garbage"}.to raise_error(ActiveRecord::RecordNotFound)
+      expect { get "/v1/failed_imports/garbage" }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 end
