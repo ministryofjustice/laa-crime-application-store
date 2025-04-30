@@ -45,6 +45,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_24_154837) do
 
   create_table "failed_imports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "provider_id", null: false
+    t.string "details"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
