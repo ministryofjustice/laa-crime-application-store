@@ -25,7 +25,7 @@ Rails.application.routes.draw do
       collection { post :auto_assignments }
     end
 
-    resource :failed_import, only: %i[create]
+    resource :failed_import, only: %i[show create]
 
     namespace :submissions do
       resource :searches, only: %(create)
