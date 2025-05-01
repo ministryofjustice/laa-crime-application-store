@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Nsm::ClearImportErrorDetails do
-  job { described_class.new }
+  let(:job) { described_class.new }
 
   before do
     failed_import&.save
