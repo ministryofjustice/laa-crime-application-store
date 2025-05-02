@@ -1,0 +1,2 @@
+class AlreadyExistsError < StandardError
+end

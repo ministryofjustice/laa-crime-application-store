@@ -11,6 +11,10 @@ module Authorization
         searches: {
           create: true,
         },
+        failed_imports: {
+          create: true,
+          show: true,
+        },
       },
       caseworker: {
         submissions: {

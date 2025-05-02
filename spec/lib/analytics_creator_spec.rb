@@ -26,6 +26,7 @@ RSpec.describe AnalyticsCreator do
           "CREATE ROLE analytics_user WITH LOGIN PASSWORD 'analytics_user_password'",
           "GRANT CONNECT ON DATABASE laa_crime_application_store_test TO analytics_user",
           "GRANT USAGE ON SCHEMA public TO analytics_user",
+          "GRANT SELECT ON failed_imports TO analytics_user",
         ])
       end
     end
@@ -36,7 +37,12 @@ RSpec.describe AnalyticsCreator do
       it "creates the user account in the public schema" do
         described_class.run
 
-        expect(commands).to eq(["select * from pg_catalog.pg_roles where rolname='analytics_user'"])
+        expect(commands).to eq(
+          [
+            "select * from pg_catalog.pg_roles where rolname='analytics_user'",
+            "GRANT SELECT ON failed_imports TO analytics_user",
+          ],
+        )
       end
     end
 
@@ -51,6 +57,7 @@ RSpec.describe AnalyticsCreator do
           "CREATE ROLE analytics_user WITH LOGIN PASSWORD 'analytics_user_password'",
           "GRANT CONNECT ON DATABASE laa_crime_application_store_test TO analytics_user",
           "GRANT USAGE ON SCHEMA public TO analytics_user",
+          "GRANT SELECT ON failed_imports TO analytics_user",
           "GRANT SELECT ON all_events TO analytics_user",
           "GRANT SELECT ON versioned_events TO analytics_user",
         ])
@@ -66,6 +73,7 @@ RSpec.describe AnalyticsCreator do
 
         expect(commands).to eq([
           "select * from pg_catalog.pg_roles where rolname='analytics_user'",
+          "GRANT SELECT ON failed_imports TO analytics_user",
           "GRANT SELECT ON all_events TO analytics_user",
           "GRANT SELECT ON versioned_events TO analytics_user",
         ])

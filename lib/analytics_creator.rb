@@ -1,5 +1,6 @@
 class AnalyticsCreator
   SCHEMA = "public".freeze
+  NON_VIEW_TABLES = %w[failed_imports].freeze
   attr_reader :username, :password, :database_name
 
   class << self
@@ -57,6 +58,10 @@ private
   end
 
   def apply_permissions
+    NON_VIEW_TABLES.each do |table_name|
+      execute("GRANT SELECT ON #{table_name} TO #{username}")
+    end
+
     Scenic.database.views.each do |view|
       execute("GRANT SELECT ON #{view.name} TO #{username}")
     end

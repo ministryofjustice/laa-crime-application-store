@@ -1,6 +1,5 @@
 module Submissions
   class CreationService
-    AlreadyExistsError = Class.new(StandardError)
     class << self
       def call(params)
         raise AlreadyExistsError if Submission.find_by(id: params[:application_id])
