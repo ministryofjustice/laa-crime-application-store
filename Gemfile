@@ -18,7 +18,7 @@ gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
-gem 'aws-sdk-s3', '~> 1.184'
+gem 'aws-sdk-s3', '~> 1.185'
 gem "govuk_notify_rails", "~> 3.0.0"
 gem "httparty"
 gem "jwt", "~> 2.10.1"
