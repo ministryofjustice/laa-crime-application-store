@@ -107,6 +107,17 @@ We have a default [k8s security context ](https://kubernetes.io/docs/reference/g
 - seccompProfile.type - The Secure Computing Mode (Linux kernel feature that limits syscalls that processes can run) options to use by this container. Currenly defaults to RuntimeDefault which is the [widely accepted default profile](https://docs.docker.com/engine/security/seccomp/#significant-syscalls-blocked-by-the-default-profile)
 - capabilities - The POSIX capabilities to add/drop when running containers. Currently defaults to drop["ALL"] which means all of these capabilities will be dropped - since this doesn't cause any issues, it's best to keep as is for security reasons until there's a need for change
 
+### Debugging
+
+By default, debugging isn't enabled. This can be changed by setting
+`WEB_ENABLE_DEBUGGING=true` in your `.env.development.local` file and
+restarting the application.
+
+After doing so, you will be able to connect to the running application
+in your editor of choice. If the default selected port is otherwise
+occupied by some other service, then also set `WEB_DEBUG_PORT` to some
+other value.
+
 ## Debugging production data
 We are often asked to investigate the state of records in our production environment. To
 make it safer to explore, we have a script that pulls an anonymised version (all PII removed) of a record
