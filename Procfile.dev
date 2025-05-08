@@ -1,2 +1,2 @@
-web: RUN_SIDEKIQ_IN_TEST_MODE=false bin/rails server -p 8000
+web: RUBY_DEBUG_OPEN=${WEB_ENABLE_DEBUGGING:-false} RUBY_DEBUG_PORT=${WEB_DEBUG_PORT:-12346}  RUN_SIDEKIQ_IN_TEST_MODE=false bin/rails server -p 8000
 sidekiq: DISABLE_SIDEKIQ_ALIVE=true bundle exec sidekiq
