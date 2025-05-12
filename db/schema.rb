@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_24_154837) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_12_140556) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -225,6 +225,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_24_154837) do
            SELECT app_ver.application_id,
               application.application_type,
               ((app_ver.application ->> 'created_at'::text))::timestamp without time zone AS draft_created_date,
+              (app_ver.application ->> 'office_code'::text) AS office_code,
               app_ver.created_at AS submission_date,
                   CASE
                       WHEN (((app_ver.application ->> 'import_date'::text))::timestamp without time zone IS NOT NULL) THEN true
@@ -237,6 +238,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_24_154837) do
    SELECT base.application_id,
       base.application_type,
       base.draft_created_date,
+      base.office_code,
       base.submission_date,
       base.claim_imported,
       (EXTRACT(epoch FROM (base.submission_date - base.draft_created_date)) / (60)::numeric) AS minutes_to_submit
