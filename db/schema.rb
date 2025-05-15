@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_12_140556) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_14_155430) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -222,16 +222,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_12_140556) do
   SQL
   create_view "submission_creation_times", sql_definition: <<-SQL
       WITH base AS (
-           SELECT app_ver.application_id,
+           SELECT DISTINCT app_ver.application_id,
               application.application_type,
               ((app_ver.application ->> 'created_at'::text))::timestamp without time zone AS draft_created_date,
               (app_ver.application ->> 'office_code'::text) AS office_code,
-              app_ver.created_at AS submission_date,
+              application_submissions.submission_date,
                   CASE
                       WHEN (((app_ver.application ->> 'import_date'::text))::timestamp without time zone IS NOT NULL) THEN true
                       ELSE false
                   END AS claim_imported
-             FROM (application_version app_ver
+             FROM ((application_version app_ver
+               JOIN ( SELECT application_version.application_id,
+                      min(application_version.created_at) AS submission_date
+                     FROM application_version
+                    WHERE ((application_version.application ->> 'status'::text) = 'submitted'::text)
+                    GROUP BY application_version.application_id) application_submissions ON ((app_ver.application_id = application_submissions.application_id)))
                JOIN application ON ((app_ver.application_id = application.id)))
             WHERE ((app_ver.application ->> 'status'::text) = 'submitted'::text)
           )
