@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_14_155430) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_20_133235) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -263,7 +263,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_14_155430) do
                       min(application_version.created_at) AS decision_created_at
                      FROM application_version
                     GROUP BY application_version.application_id, application_version.application) first_decision ON ((application.id = first_decision.application_id)))
-            WHERE ((first_decision.application ->> 'status'::text) = ANY (ARRAY['rejected'::text, 'part_grant'::text, 'granted'::text]))
+            WHERE (((first_decision.application ->> 'status'::text) = ANY (ARRAY['rejected'::text, 'part_grant'::text, 'granted'::text])) AND (first_decision.decision_created_at IS NOT NULL))
           ), assignment_events AS (
            SELECT application.id,
               ((events.value ->> 'created_at'::text))::timestamp without time zone AS assigned_at
