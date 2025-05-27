@@ -8,6 +8,7 @@ metadata:
   annotations:
     external-dns.alpha.kubernetes.io/set-identifier: "{{ $fullName }}-metabase-{{ .Values.metabase.ingress.namespace}}-green"
     external-dns.alpha.kubernetes.io/aws-weight: "100"
+    nginx.ingress.kubernetes.io/permanent-redirect: https://laa-holding-page-production.apps.live.cloud-platform.service.justice.gov.uk
     nginx.ingress.kubernetes.io/enable-modsecurity: "true"
     nginx.ingress.kubernetes.io/modsecurity-snippet: |
       SecRuleEngine On
