@@ -19,6 +19,7 @@ RSpec.describe "Show failed import" do
           "id" => id,
           "provider_id" => failed_import.provider_id,
           "details" => failed_import.details,
+          "error_type" => 'UNKNOWN',
           "created_at" => an_instance_of(String),
           "updated_at" => an_instance_of(String),
         },
