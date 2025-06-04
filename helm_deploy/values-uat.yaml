@@ -62,7 +62,7 @@ redis:
 metabase:
   enabled: true
   url: "uat.crime-forms-metabase.service.justice.gov.uk"
-  image: metabase/metabase:v0.51.1.5
+  image: metabase/metabase:v0.55.x
   service:
     port: 80
     internalPort: 3000
