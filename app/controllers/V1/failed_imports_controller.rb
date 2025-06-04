@@ -5,7 +5,9 @@ module V1
     end
 
     def create
-      @current_import_error = FailedImport.create!(provider_id: params[:provider_id], details: params[:details])
+      @current_import_error = FailedImport.create!(provider_id: params[:provider_id],
+                                                   details: params[:details],
+                                                   error_type: params[:error_type])
       render json: current_import_error, status: :created
     rescue ActiveRecord::RecordInvalid
       head :unprocessable_entity
