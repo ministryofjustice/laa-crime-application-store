@@ -30,6 +30,7 @@ module CrimeApplicationStore
 
     config.autoload_paths << Rails.root.join("app/errors")
 
+    config.x.rfi.working_day_window = 10
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
