@@ -1,19 +1,19 @@
 require "rails_helper"
 
 RSpec.describe "CRM457_2627:send_back_expired", type: :task do
-  let(:task_run_at) { DateTime.new(2025, 6, 10) }
+  let(:task_run_at) { Time.zone.local(2025, 6, 10) }
   let(:updated_at) { Date.new(2025, 5, 20) }
   let(:submission_id) { SecureRandom.uuid }
-  let(:application_type) { 'crm4' }
-  let(:state) { 'expired' }
+  let(:application_type) { "crm4" }
+  let(:state) { "expired" }
 
   let(:bank_holiday_list) do
     {
-      'england-and-wales': {
+      "england-and-wales": {
         events: [
-          { date: '2024-01-01' }
-        ]
-      }
+          { date: "2024-01-01" },
+        ],
+      },
     }
   end
 
@@ -51,51 +51,49 @@ RSpec.describe "CRM457_2627:send_back_expired", type: :task do
 
   before do
     Rails.application.load_tasks if Rake::Task.tasks.empty?
-    stub_request(:get, 'https://www.gov.uk/bank-holidays.json').to_return(
+    stub_request(:get, "https://www.gov.uk/bank-holidays.json").to_return(
       status: 200,
       body: bank_holiday_list.to_json,
-      headers: { 'Content-type' => 'application/json' }
+      headers: { "Content-type" => "application/json" },
     )
-  end
-
-  before :each do
     submission
     travel_to task_run_at do
       Rake::Task["CRM457_2627:send_back_expired"].invoke
     end
   end
 
-  after :each do
+  after do
     Rake::Task["CRM457_2627:send_back_expired"].reenable
   end
 
-  describe 'in scope expired submissions' do
-    it 'state changed' do
-      expect(submission.reload.state).to eq('send_back')
+  describe "in scope expired submissions" do
+    it "state changed" do
+      expect(submission.reload.state).to eq("send_back")
     end
   end
 
-  describe 'out of scope expired submissions' do
-    let(:updated_at) {Date.new(2025, 5, 10) }
-    it 'state is not changed' do
-      expect(submission.reload.state).to eq('expired')
+  describe "out of scope expired submissions" do
+    let(:updated_at) { Date.new(2025, 5, 10) }
+
+    it "state is not changed" do
+      expect(submission.reload.state).to eq("expired")
     end
   end
 
-  it 'creates a new version of expired record when sent back' do
+  it "creates a new version of expired record when sent back" do
     expect(submission.reload.current_version).to eq(2)
   end
 
-  it 'sets resubmission deadline to 10 working days from day task is run' do
-    expect(submission.reload.latest_version.application['resubmission_deadline']).to eq("2025-06-24T00:00:00.000Z")
+  it "sets resubmission deadline to 10 working days from day task is run" do
+    expect(submission.reload.latest_version.application["resubmission_deadline"]).to eq("2025-06-24T00:00:00.000Z")
   end
 
-  it 'sets application data and row data to expected' do
-    expect(submission.reload.latest_version.application['updated_at']).to eq("2025-06-10T00:00:00.000Z")
-    expect(submission.reload.latest_version.application['status']).to eq('send_back')
+  it "sets application data and row data to expected" do
+    expect(submission.reload.latest_version.application["updated_at"]).to eq("2025-06-10T00:00:00.000Z")
+    expect(submission.reload.latest_version.application["status"]).to eq("send_back")
   end
 
-  it 'has the expected associated event' do
+  it "has the expected associated event" do
     expected = {
       "created_at" => "2025-06-10T00:00:00.000Z",
       "details" => {},
@@ -103,12 +101,12 @@ RSpec.describe "CRM457_2627:send_back_expired", type: :task do
       "event_type" => "send_back",
       "public" => false,
       "submission_version" => 2,
-      "updated_at" => "2025-06-10T00:00:00.000Z"
+      "updated_at" => "2025-06-10T00:00:00.000Z",
     }
     expect(submission.reload.events.last.except("id")).to eq(expected)
   end
 
-  it 'previous event was expired event' do
-    expect(submission.reload.events[-2]["event_type"]).to eq('expired')
+  it "previous event was expired event" do
+    expect(submission.reload.events[-2]["event_type"]).to eq("expired")
   end
 end
