@@ -22,7 +22,7 @@ gem 'aws-sdk-s3', '~> 1.189'
 gem "govuk_notify_rails", "~> 3.0.0"
 gem "httparty"
 gem "jwt", "~> 2.10.1"
-gem "laa_crime_forms_common", "~> 0.10.1", github: "ministryofjustice/laa-crime-forms-common"
+gem "laa_crime_forms_common", "~> 0.10.2", github: "ministryofjustice/laa-crime-forms-common"
 gem "lograge"
 gem "logstash-event"
 gem "oauth2"
