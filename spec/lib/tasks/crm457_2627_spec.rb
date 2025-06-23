@@ -3,6 +3,8 @@ require "rails_helper"
 RSpec.describe "CRM457_2627:send_back_expired", type: :task do
   let(:task_run_at) { Time.zone.local(2025, 6, 10) }
   let(:updated_at) { Date.new(2025, 5, 20) }
+  let(:start_date) { "2025-5-16" }
+  let(:batch_size) { 10 }
   let(:submission_id) { SecureRandom.uuid }
   let(:application_type) { "crm4" }
   let(:state) { "expired" }
@@ -58,7 +60,7 @@ RSpec.describe "CRM457_2627:send_back_expired", type: :task do
     )
     submission
     travel_to task_run_at do
-      Rake::Task["CRM457_2627:send_back_expired"].invoke
+      Rake::Task["CRM457_2627:send_back_expired"].invoke(start_date, batch_size)
     end
   end
 
@@ -77,6 +79,15 @@ RSpec.describe "CRM457_2627:send_back_expired", type: :task do
 
     it "state is not changed" do
       expect(submission.reload.state).to eq("expired")
+    end
+  end
+
+  describe "scoped expired submissions" do
+    let(:start_date) { "2025-5-10" }
+    let(:updated_at) { Date.new(2025, 5, 10) }
+
+    it "state is changed according to start_date" do
+      expect(submission.reload.state).to eq("send_back")
     end
   end
 
