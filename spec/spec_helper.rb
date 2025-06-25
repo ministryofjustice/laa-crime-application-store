@@ -1,5 +1,12 @@
 require "simplecov"
+require "simplecov-console"
+
 unless ENV["NOCOVERAGE"]
+  SimpleCov.formatter = SimpleCov::Formatter::Console if ENV["TEST_ENV_NUMBER"]
+
+  SimpleCov.use_merging true
+  SimpleCov.merge_timeout 3600
+
   SimpleCov.start do
     add_filter "config/initializers/prometheus.rb"
     add_filter "config/initializers/sentry.rb"
@@ -8,10 +15,17 @@ unless ENV["NOCOVERAGE"]
     add_filter "config/routes.rb"
     add_filter "lib/tasks/"
     add_filter "spec/"
+    add_group "Ignored Code" do |src_file|
+      File.readlines(src_file.filename).grep(/:nocov:/).any?
+    end
 
     enable_coverage :branch
     primary_coverage :branch
     minimum_coverage branch: 100, line: 100
+
+    SimpleCov.at_exit do
+      SimpleCov.result.format!
+    end
   end
 end
 
@@ -31,6 +45,9 @@ end
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
+  # Reduce noise when running tests in parallel
+  config.silence_filter_announcements = true if ENV["TEST_ENV_NUMBER"]
+
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.
