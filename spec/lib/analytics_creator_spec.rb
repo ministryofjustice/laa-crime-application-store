@@ -24,7 +24,7 @@ RSpec.describe AnalyticsCreator do
         expect(commands).to eq([
           "select * from pg_catalog.pg_roles where rolname='analytics_user'",
           "CREATE ROLE analytics_user WITH LOGIN PASSWORD 'analytics_user_password'",
-          "GRANT CONNECT ON DATABASE laa_crime_application_store_test TO analytics_user",
+          "GRANT CONNECT ON DATABASE #{ActiveRecord::Base.connection.current_database} TO analytics_user",
           "GRANT USAGE ON SCHEMA public TO analytics_user",
           "GRANT SELECT ON failed_imports TO analytics_user",
         ])
@@ -55,7 +55,7 @@ RSpec.describe AnalyticsCreator do
         expect(commands).to eq([
           "select * from pg_catalog.pg_roles where rolname='analytics_user'",
           "CREATE ROLE analytics_user WITH LOGIN PASSWORD 'analytics_user_password'",
-          "GRANT CONNECT ON DATABASE laa_crime_application_store_test TO analytics_user",
+          "GRANT CONNECT ON DATABASE #{ActiveRecord::Base.connection.current_database} TO analytics_user",
           "GRANT USAGE ON SCHEMA public TO analytics_user",
           "GRANT SELECT ON failed_imports TO analytics_user",
           "GRANT SELECT ON all_events TO analytics_user",
@@ -114,7 +114,7 @@ RSpec.describe AnalyticsCreator do
           "REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM analytics_user;",
           "REVOKE USAGE ON SCHEMA public FROM analytics_user",
           "ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON TABLES FROM analytics_user",
-          "REVOKE CONNECT ON DATABASE laa_crime_application_store_test FROM analytics_user",
+          "REVOKE CONNECT ON DATABASE #{ActiveRecord::Base.connection.current_database} FROM analytics_user",
           "DROP ROLE analytics_user",
         ])
       end

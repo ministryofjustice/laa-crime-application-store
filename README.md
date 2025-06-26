@@ -62,11 +62,13 @@ TENANT_ID=app-store-application-entra-tenant
 ### Running tests
 
 #### Unit tests
-
-We use rspec for unit/integration testing. This can be run as below:
+The test suite is setup with `flatware` to allow tests to run in parallel. This can be used below:
 
 ```shell
-bundle exec rspec
+# Only needs to be run once
+RAILS_ENV=test bundle exec flatware fan rake db:test:prepare
+
+bundle exec flatware rspec
 ```
 
 #### Integration tests

@@ -12,7 +12,7 @@ development:
 test:
   primary:
     <<: *default
-    database: laa_crime_application_store_test
+    database: laa_crime_application_store_test<%= ENV['TEST_ENV_NUMBER'] %>
 
 production:
   primary:
