@@ -87,3 +87,12 @@ If branch name contains "redis" then the redis-release-name appends "-master", o
   {{- $redis_fullName := (include "common.names.fullname" .Subcharts.redis) -}}
   {{- printf "%s-master.%s.svc.cluster.local" $redis_fullName .Release.Namespace -}}
 {{- end -}}
+
+{{/*
+Function to return a list of whitelisted IPs allowed to access the metabase service.
+*/}}
+{{- define "laa-crime-application-store-metabase.whitelist" -}}
+{{- if .Values.metabase.whitelist.enabled }}
+    {{- if .Values.metabase.whitelist.addresses }}{{- join "," .Values.metabase.whitelist.addresses }},{{- end }}{{- .Values.sharedIPs }}
+{{- end -}}
+{{- end -}}
