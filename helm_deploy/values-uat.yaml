@@ -72,3 +72,5 @@ metabase:
       secretName: laa-crime-application-store-cert
   warehouseDbPoolSize: "30"
   applicationDbPoolSize: "30"
+  whitelist:
+    enabled: true

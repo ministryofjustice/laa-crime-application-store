@@ -3,7 +3,7 @@
 ENVIRONMENT=$1
 # Convert the branch name into a string that can be turned into a valid URL
 BRANCH_RELEASE_NAME=$(echo $CIRCLE_BRANCH | tr '[:upper:]' '[:lower:]' | sed 's:^\w*\/::' | tr -s ' _/[]().' '-' | cut -c1-18 | sed 's/-$//')
-
+SHARED_IPS=$(curl -s https://raw.githubusercontent.com/ministryofjustice/laa-ip-allowlist/main/cidrs.txt | tr -d ' ' | tr '\n' ',' | sed 's/,/\\,/g' | sed 's/\\,$//')
 
 deploy_branch() {
   # Set the deployment host, this will add the prefix of the branch name e.g crm457-1062-tempor
@@ -22,6 +22,7 @@ deploy_branch() {
                 --set ingress.hosts[0].host="$RELEASE_HOST" \
                 --set ingress.tls[0].host="$RELEASE_HOST" \
                 --set nameOverride="$BRANCH_RELEASE_NAME"\
+                --set-string sharedIPs="$SHARED_IPS" \
                 --set fullnameOverride="$BRANCH_RELEASE_NAME"
 }
 
@@ -31,6 +32,7 @@ deploy_main() {
                           --namespace=${K8S_NAMESPACE} \
                           --values ./helm_deploy/values-$ENVIRONMENT.yaml \
                           --set image.repository="${AWS_ECR_REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/${ECR_REPOSITORY}" \
+                          --set-string sharedIPs="$SHARED_IPS" \
                           --set image.tag="main-$CIRCLE_SHA1"
 }
 
