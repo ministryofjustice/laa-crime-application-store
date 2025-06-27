@@ -6,7 +6,7 @@ metadata:
   name: {{ $fullName }}-metabase
   namespace: {{ .Values.metabase.ingress.namespace}}
   annotations:
-    nginx.ingress.kubernetes.io/whitelist-source-range: "{{ include "{{ $fullName }}-metabase.whitelist" $ }}"
+    nginx.ingress.kubernetes.io/whitelist-source-range: "{{ include "{{ $fullName }}.metabase.whitelist" $ }}"
     external-dns.alpha.kubernetes.io/set-identifier: "{{ $fullName }}-metabase-{{ .Values.metabase.ingress.namespace}}-green"
     external-dns.alpha.kubernetes.io/aws-weight: "100"
     nginx.ingress.kubernetes.io/enable-modsecurity: "true"
