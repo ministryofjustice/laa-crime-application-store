@@ -2,13 +2,14 @@ class ApplicationController < ActionController::API
   before_action :authenticate!
   before_action :authorize!
 
-  attr_reader :current_client_role
+  attr_reader :current_client_role, :current_client_email
 
   def authenticate!
     client_credentials = Tokens::VerificationService.call(request.headers)
     return head(:unauthorized) unless client_credentials[:valid]
 
     @current_client_role = client_credentials[:role]
+    @current_client_email = client_credentials[:email]
   end
 
   def authorize!

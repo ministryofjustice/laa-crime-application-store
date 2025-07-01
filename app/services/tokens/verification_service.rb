@@ -3,20 +3,23 @@ module Tokens
     class << self
       def call(headers)
         if ENV.fetch("AUTHENTICATION_REQUIRED", "true") == "false"
-          return { valid: true, role: headers.fetch("X-Client-Type", "unknown").to_sym }
+          return { valid: true, role: headers.fetch("X-Client-Type", "unknown").to_sym, email: "provider@example.com" }
         end
 
         jwt = headers["Authorization"].gsub(/^Bearer /, "")
-        data = parse(jwt)
-        { valid: valid?(data), role: role_from(data) }
+        parse(jwt)
       rescue StandardError
-        { valid: false, role: nil }
+        { valid: false, role: nil, email: nil }
       end
 
     private
 
       def parse(jwt)
-        JWT.decode(jwt, nil, true, algorithms: "RS256", jwks:)
+        composite_data = JWT.decode(jwt, provider_secret, true, algorithm: "HS256")
+
+        entra_token = composite_data[0]["entra_token"]
+        parsed_token = JWT.decode(entra_token, nil, true, algorithms: %w[RS256], jwks:)
+        { valid: valid?(parsed_token), role: role_from(parsed_token), email: composite_data[0]["email"] }
       end
 
       def valid?(data)
@@ -44,6 +47,10 @@ module Tokens
 
       def client_id
         ENV.fetch("APP_CLIENT_ID", "UNDEFINED_APP_CLIENT_ID")
+      end
+
+      def provider_secret
+        ENV.fetch("PROVIDER_CLIENT_SECRET", nil)
       end
 
       def role_from(data)
