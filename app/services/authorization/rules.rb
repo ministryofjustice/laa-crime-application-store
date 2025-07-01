@@ -7,6 +7,8 @@ module Authorization
           show: true,
           create: ->(_, params) { params[:application_state].in?(PERMITTED_INITIAL_SUBMISSION_STATES) },
           update: ->(object, params) { state_pair_allowed?(object, params, PERMITTED_SUBMISSION_STATE_CHANGES[:provider]) },
+          subscribe: true,
+          unsubscribe: true,
         },
         searches: {
           create: true,

@@ -21,7 +21,11 @@ Rails.application.routes.draw do
       resources :events, only: %i[create]
       resources :adjustments, only: %i[create]
       resource :assignment, only: %i[create destroy]
-      member { patch :metadata }
+      member do
+        patch :metadata
+        post :subscribe
+        delete :unsubscribe
+      end
       collection { post :auto_assignments }
     end
 

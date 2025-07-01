@@ -17,7 +17,7 @@ class Submission < ApplicationRecord
 
   def as_json(args = {})
     version = latest_version(include_pending: args[:client_role] == :caseworker)
-    super(only: %i[application_risk application_type updated_at created_at last_updated_at assigned_user_id]).merge(
+    super(only: %i[application_risk application_type updated_at created_at last_updated_at assigned_user_id subscribers]).merge(
       application_state: state,
       version: current_version,
       json_schema_version: version.json_schema_version,

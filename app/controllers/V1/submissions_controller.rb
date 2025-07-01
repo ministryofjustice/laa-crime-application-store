@@ -41,6 +41,20 @@ module V1
       end
     end
 
+    def subscribe
+      ::Submissions::SubscriptionService.subscribe(current_submission, current_client_email)
+      head :ok
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { errors: e.message }, status: :unprocessable_entity
+    end
+
+    def unsubscribe
+      ::Submissions::SubscriptionService.unsubscribe(current_submission, current_client_email)
+      head :ok
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { errors: e.message }, status: :unprocessable_entity
+    end
+
   private
 
     def current_submission

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_28_101107) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_30_105631) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -27,6 +27,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_28_101107) do
     t.boolean "notify_subscriber_completed"
     t.string "assigned_user_id"
     t.string "unassigned_user_ids", default: [], array: true
+    t.string "subscribers", array: true
     t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null"
     t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null"
   end
@@ -38,7 +39,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_28_101107) do
     t.jsonb "application", null: false
     t.datetime "created_at", precision: nil
     t.datetime "updated_at", precision: nil
-    t.virtual "search_fields", type: :tsvector, as: "((((((setweight(to_tsvector('simple'::regconfig, replace(COALESCE(((application -> 'defendant'::text) ->> 'first_name'::text), ''::text), '/'::text, '-'::text)), 'B'::\"char\") || setweight(to_tsvector('simple'::regconfig, replace(COALESCE(((application -> 'defendant'::text) ->> 'last_name'::text), ''::text), '/'::text, '-'::text)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, (replace((jsonb_path_query_array(application, '$.\"defendants\"[*].\"first_name\"'::jsonpath))::text, '/'::text, '-'::text))::jsonb), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, (replace((jsonb_path_query_array(application, '$.\"defendants\"[*].\"last_name\"'::jsonpath))::text, '/'::text, '-'::text))::jsonb), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, replace(COALESCE(((application -> 'firm_office'::text) ->> 'name'::text), ''::text), '/'::text, '-'::text)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, COALESCE((application ->> 'ufn'::text), ''::text)), 'A'::\"char\")) || setweight(to_tsvector('simple'::regconfig, replace(lower(COALESCE((application ->> 'laa_reference'::text), ''::text)), '-'::text, ''::text)), 'A'::\"char\"))", stored: true
+    t.virtual "search_fields", type: :tsvector, as: "((((((setweight(to_tsvector('simple'::regconfig, COALESCE(((application -> 'defendant'::text) ->> 'first_name'::text), ''::text)), 'B'::\"char\") || setweight(to_tsvector('simple'::regconfig, COALESCE(((application -> 'defendant'::text) ->> 'last_name'::text), ''::text)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, jsonb_path_query_array(application, '$.\"defendants\"[*].\"first_name\"'::jsonpath)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, jsonb_path_query_array(application, '$.\"defendants\"[*].\"last_name\"'::jsonpath)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, COALESCE(((application -> 'firm_office'::text) ->> 'name'::text), ''::text)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, COALESCE((application ->> 'ufn'::text), ''::text)), 'A'::\"char\")) || setweight(to_tsvector('simple'::regconfig, replace(lower(COALESCE((application ->> 'laa_reference'::text), ''::text)), '-'::text, ''::text)), 'A'::\"char\"))", stored: true
     t.boolean "pending", default: false
     t.index ["search_fields"], name: "index_application_version_on_search_fields", using: :gin
   end
@@ -72,16 +73,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_28_101107) do
             WHERE (application_version.version = 1)
             GROUP BY application.application_type, (application_version.application -> 'office_code'::text), (date_trunc('week'::text, application_version.created_at))
           )
-   SELECT submissions.application_type,
-      submissions.submitted_start,
-      count(DISTINCT submissions.office_code) AS office_codes_submitting_during_the_period,
+   SELECT application_type,
+      submitted_start,
+      count(DISTINCT office_code) AS office_codes_submitting_during_the_period,
       ( SELECT count(DISTINCT subs.office_code) AS count
              FROM submissions subs
             WHERE ((submissions.submitted_start >= subs.submitted_start) AND (submissions.application_type = subs.application_type))) AS total_office_codes_submitters,
-      jsonb_agg(DISTINCT submissions.office_code) AS office_codes_during_the_period
+      jsonb_agg(DISTINCT office_code) AS office_codes_during_the_period
      FROM submissions
-    GROUP BY submissions.application_type, submissions.submitted_start
-    ORDER BY submissions.application_type, submissions.submitted_start;
+    GROUP BY application_type, submitted_start
+    ORDER BY application_type, submitted_start;
   SQL
   create_view "autogrant_events", sql_definition: <<-SQL
       SELECT a.id,
@@ -113,7 +114,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_28_101107) do
       ((app_ver.application -> 'firm_office'::text) ->> 'name'::text) AS firm_name,
       ((app_ver.application -> 'firm_office'::text) ->> 'account_number'::text) AS account_number,
       (app_ver.application ->> 'service_name'::text) AS service_name,
-      (((app_ver.application -> 'cost_summary'::text) ->> 'high_value'::text))::boolean AS high_value,
+      ((app_ver.application -> 'cost_summary'::text) -> 'high_value'::text) AS high_value,
       app_ver.created_at AS last_state_change,
           CASE app.application_risk
               WHEN 'high'::text THEN 3
@@ -149,24 +150,24 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_28_101107) do
              FROM (application_version
                JOIN application ON (((application_version.application_id = application.id) AND (application_version.pending IS FALSE))))
           )
-   SELECT base.id,
-      base.application_type,
-      base.version,
-      base.from_status,
-      base.from_time,
-      base.to_status,
-      base.to_time,
-      (base.from_time)::date AS from_date,
-      (base.to_time)::date AS to_date,
-      GREATEST(EXTRACT(epoch FROM (base.to_time - base.from_time)), (0)::numeric) AS processing_seconds
+   SELECT id,
+      application_type,
+      version,
+      from_status,
+      from_time,
+      to_status,
+      to_time,
+      (from_time)::date AS from_date,
+      (to_time)::date AS to_date,
+      GREATEST(EXTRACT(epoch FROM (to_time - from_time)), (0)::numeric) AS processing_seconds
      FROM base;
   SQL
   create_view "submissions_by_date", sql_definition: <<-SQL
-      SELECT counted_values.event_on,
-      counted_values.application_type,
-      counted_values.submission,
-      counted_values.resubmission,
-      (counted_values.submission + counted_values.resubmission) AS total
+      SELECT event_on,
+      application_type,
+      submission,
+      resubmission,
+      (submission + resubmission) AS total
      FROM ( SELECT (av.created_at)::date AS event_on,
               a.application_type,
               count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'submitted'::text)) AS submission,
@@ -241,13 +242,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_28_101107) do
                JOIN application ON ((app_ver.application_id = application.id)))
             WHERE ((app_ver.application ->> 'status'::text) = 'submitted'::text)
           )
-   SELECT base.application_id,
-      base.application_type,
-      base.draft_created_date,
-      base.office_code,
-      base.submission_date,
-      base.claim_imported,
-      (EXTRACT(epoch FROM (base.submission_date - base.draft_created_date)) / (60)::numeric) AS minutes_to_submit
+   SELECT application_id,
+      application_type,
+      draft_created_date,
+      office_code,
+      submission_date,
+      claim_imported,
+      (EXTRACT(epoch FROM (submission_date - draft_created_date)) / (60)::numeric) AS minutes_to_submit
      FROM base;
   SQL
   create_view "submission_assess_times", sql_definition: <<-SQL
