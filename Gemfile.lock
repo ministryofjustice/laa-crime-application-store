@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ministryofjustice/laa-crime-forms-common.git
-  revision: 56a6baa4d27d6ff117242a943444395bec8d3d22
+  revision: 0bc5225c6501a253d003afeda51512aae23be8b5
   specs:
     laa_crime_forms_common (0.10.2)
       activesupport
@@ -87,18 +87,18 @@ GEM
     ansi (1.5.0)
     ast (2.4.3)
     aws-eventstream (1.4.0)
-    aws-partitions (1.1120.0)
-    aws-sdk-core (3.226.1)
+    aws-partitions (1.1124.0)
+    aws-sdk-core (3.226.2)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
       base64
       jmespath (~> 1, >= 1.6.1)
       logger
-    aws-sdk-kms (1.105.0)
+    aws-sdk-kms (1.106.0)
       aws-sdk-core (~> 3, >= 3.225.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.190.0)
+    aws-sdk-s3 (1.191.0)
       aws-sdk-core (~> 3, >= 3.225.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -184,7 +184,7 @@ GEM
     json-schema (5.1.1)
       addressable (~> 2.8)
       bigdecimal (~> 3.1)
-    jwt (2.10.1)
+    jwt (2.10.2)
       base64
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
@@ -313,7 +313,7 @@ GEM
     rdoc (6.14.1)
       erb
       psych (>= 4.0.0)
-    redis-client (0.24.0)
+    redis-client (0.25.0)
       connection_pool
     regexp_parser (2.10.0)
     reline (0.6.1)
@@ -344,7 +344,7 @@ GEM
     rspec-support (3.13.4)
     rspec_junit_formatter (0.6.0)
       rspec-core (>= 2, < 4, != 2.12.0)
-    rubocop (1.76.2)
+    rubocop (1.77.0)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -361,8 +361,8 @@ GEM
     rubocop-capybara (2.22.1)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
-    rubocop-govuk (5.1.15)
-      rubocop (= 1.76.2)
+    rubocop-govuk (5.1.16)
+      rubocop (= 1.77.0)
       rubocop-ast (= 1.45.1)
       rubocop-capybara (= 2.22.1)
       rubocop-rails (= 2.32.0)
@@ -385,17 +385,17 @@ GEM
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
     ruby-progressbar (1.13.0)
-    scenic (1.8.0)
+    scenic (1.9.0)
       activerecord (>= 4.0.0)
       railties (>= 4.0.0)
     securerandom (0.4.1)
-    sentry-rails (5.25.0)
+    sentry-rails (5.26.0)
       railties (>= 5.0)
-      sentry-ruby (~> 5.25.0)
-    sentry-ruby (5.25.0)
+      sentry-ruby (~> 5.26.0)
+    sentry-ruby (5.26.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
-    sidekiq (8.0.4)
+    sidekiq (8.0.5)
       connection_pool (>= 2.5.0)
       json (>= 2.9.0)
       logger (>= 1.6.2)
@@ -457,7 +457,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
-  aws-sdk-s3 (~> 1.190)
+  aws-sdk-s3 (~> 1.191)
   bootsnap
   debug
   dotenv-rails
@@ -465,7 +465,7 @@ DEPENDENCIES
   flatware-rspec
   govuk_notify_rails (~> 3.0.0)
   httparty
-  jwt (~> 2.10.1)
+  jwt (~> 2.10.2)
   laa_crime_forms_common (~> 0.10.2)!
   lograge
   logstash-event
