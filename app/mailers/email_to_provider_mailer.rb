@@ -5,7 +5,7 @@ class EmailToProviderMailer < GovukNotifyRails::Mailer
       message = message_class.new(submission.latest_version.application)
       set_template(message.template)
       set_personalisation(**message.contents)
-      mail(to: message.recipient)
+      mail(to: submission.subscribers)
     end
   end
   # :nocov:
