@@ -114,6 +114,11 @@ spec:
                   name: analytics-user-config
                   key: analytics_password
           {{ end }}
+            - name: PROVIDER_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: provider-client-secret
+                  key: provider-client-secret
             - name: APP_CLIENT_ID
               valueFrom:
                 secretKeyRef:
