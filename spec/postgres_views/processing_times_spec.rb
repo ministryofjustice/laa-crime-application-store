@@ -21,7 +21,8 @@ RSpec.describe "processing times" do
         "to_date" => Date.new(2024, 6, 26),
         "to_status" => "submitted",
         "to_time" => Time.zone.local(2024, 6, 26, 12),
-        "version" => 1 },
+        "version" => 1,
+        "claim_imported" => false },
     ])
   end
 
@@ -41,7 +42,8 @@ RSpec.describe "processing times" do
         "to_date" => Date.new(2024, 6, 26),
         "to_status" => "approved",
         "to_time" => Time.zone.local(2024, 6, 26, 12, 20),
-        "version" => 2 },
+        "version" => 2,
+        "claim_imported" => false },
     )
   end
 end

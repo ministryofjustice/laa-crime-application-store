@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_28_101107) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_03_123213) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -83,6 +83,42 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_28_101107) do
     GROUP BY submissions.application_type, submissions.submitted_start
     ORDER BY submissions.application_type, submissions.submitted_start;
   SQL
+  create_view "additional_fee_uptakes", sql_definition: <<-SQL
+      WITH dates AS (
+           SELECT (t.day)::date AS day
+             FROM generate_series(('2024-12-06 00:00:00'::timestamp without time zone)::timestamp with time zone, CURRENT_TIMESTAMP, 'P1D'::interval) t(day)
+          ), claims AS (
+           SELECT
+                  CASE
+                      WHEN ((((application_version.application ->> 'include_youth_court_fee'::text))::boolean IS TRUE) AND ((application_version.application ->> 'status'::text) = 'submitted'::text)) THEN 1
+                      ELSE 0
+                  END AS youth_court_fee_claimed,
+                  CASE
+                      WHEN ((((application_version.application ->> 'plea_category'::text) = 'category_1a'::text) OR ((application_version.application ->> 'plea_category'::text) = 'category_2a'::text)) AND ((application_version.application ->> 'youth_court'::text) = 'yes'::text) AND ((application_version.application ->> 'status'::text) = 'submitted'::text)) THEN 1
+                      ELSE 0
+                  END AS youth_court_fee_eligible,
+                  CASE
+                      WHEN ((((application_version.application ->> 'include_youth_court_fee'::text))::boolean IS TRUE) AND ((application_version.application ->> 'status'::text) = ANY (ARRAY['granted'::text, 'part_grant'::text, 'rejected'::text]))) THEN 1
+                      ELSE 0
+                  END AS youth_court_fee_approved,
+                  CASE
+                      WHEN ((((application_version.application ->> 'include_youth_court_fee'::text))::boolean IS FALSE) AND (((application_version.application ->> 'include_youth_court_fee_original'::text))::boolean IS TRUE) AND ((application_version.application ->> 'status'::text) = ANY (ARRAY['granted'::text, 'part_grant'::text, 'rejected'::text]))) THEN 1
+                      ELSE 0
+                  END AS youth_court_fee_rejected,
+              application_version.created_at
+             FROM application_version
+            WHERE ((application_version.application ->> 'status'::text) = ANY (ARRAY['submitted'::text, 'granted'::text, 'part_grant'::text, 'rejected'::text]))
+          )
+   SELECT dates.day AS event_date,
+      COALESCE(sum(claims.youth_court_fee_claimed), (0)::bigint) AS youth_court_fee_claimed_count,
+      COALESCE(sum(claims.youth_court_fee_eligible), (0)::bigint) AS youth_court_fee_eligible_count,
+      COALESCE(sum(claims.youth_court_fee_approved), (0)::bigint) AS youth_court_fee_approved_count,
+      COALESCE(sum(claims.youth_court_fee_rejected), (0)::bigint) AS youth_court_fee_rejected_count
+     FROM (dates
+       LEFT JOIN claims ON ((dates.day = date(claims.created_at))))
+    GROUP BY dates.day
+    ORDER BY dates.day;
+  SQL
   create_view "autogrant_events", sql_definition: <<-SQL
       SELECT a.id,
       av.version AS submission_version,
@@ -93,6 +129,45 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_28_101107) do
        JOIN application a ON (((a.id = av.application_id) AND (a.current_version = av.version))))
        LEFT JOIN translations t ON ((((t.key)::text = (av.application ->> 'service_type'::text)) AND ((t.translation_type)::text = 'service'::text))))
     WHERE (a.state = 'auto_grant'::text);
+  SQL
+  create_view "import_counts", sql_definition: <<-SQL
+      SELECT (app_ver.created_at)::date AS submitted_date,
+          CASE
+              WHEN (((app_ver.application ->> 'import_date'::text))::timestamp without time zone IS NOT NULL) THEN true
+              ELSE false
+          END AS claim_imported
+     FROM (application_version app_ver
+       LEFT JOIN application app ON (((app.id = app_ver.application_id) AND (app_ver.pending IS FALSE) AND (app_ver.version = 1))))
+    ORDER BY ((app_ver.created_at)::date);
+  SQL
+  create_view "processing_times", sql_definition: <<-SQL
+      WITH base AS (
+           SELECT application.id,
+              application.application_type,
+              application_version.version,
+              COALESCE(lag((application_version.application ->> 'status'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), 'draft'::text) AS from_status,
+              (COALESCE(lag((application_version.application ->> 'updated_at'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), (application_version.application ->> 'created_at'::text)))::timestamp without time zone AS from_time,
+              (application_version.application ->> 'status'::text) AS to_status,
+              ((application_version.application ->> 'updated_at'::text))::timestamp without time zone AS to_time,
+                  CASE
+                      WHEN (((application_version.application ->> 'import_date'::text))::timestamp without time zone IS NOT NULL) THEN true
+                      ELSE false
+                  END AS claim_imported
+             FROM (application_version
+               JOIN application ON (((application_version.application_id = application.id) AND (application_version.pending IS FALSE))))
+          )
+   SELECT base.id,
+      base.application_type,
+      base.version,
+      base.from_status,
+      base.from_time,
+      base.to_status,
+      base.to_time,
+      base.claim_imported,
+      (base.from_time)::date AS from_date,
+      (base.to_time)::date AS to_date,
+      GREATEST(EXTRACT(epoch FROM (base.to_time - base.from_time)), (0)::numeric) AS processing_seconds
+     FROM base;
   SQL
   create_view "searches", sql_definition: <<-SQL
       WITH defendants AS (
@@ -137,119 +212,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_28_101107) do
        JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))))
        JOIN defendants def ON ((def.id = app.id)));
   SQL
-  create_view "processing_times", sql_definition: <<-SQL
-      WITH base AS (
-           SELECT application.id,
-              application.application_type,
-              application_version.version,
-              COALESCE(lag((application_version.application ->> 'status'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), 'draft'::text) AS from_status,
-              (COALESCE(lag((application_version.application ->> 'updated_at'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), (application_version.application ->> 'created_at'::text)))::timestamp without time zone AS from_time,
-              (application_version.application ->> 'status'::text) AS to_status,
-              ((application_version.application ->> 'updated_at'::text))::timestamp without time zone AS to_time
-             FROM (application_version
-               JOIN application ON (((application_version.application_id = application.id) AND (application_version.pending IS FALSE))))
-          )
-   SELECT base.id,
-      base.application_type,
-      base.version,
-      base.from_status,
-      base.from_time,
-      base.to_status,
-      base.to_time,
-      (base.from_time)::date AS from_date,
-      (base.to_time)::date AS to_date,
-      GREATEST(EXTRACT(epoch FROM (base.to_time - base.from_time)), (0)::numeric) AS processing_seconds
-     FROM base;
-  SQL
-  create_view "submissions_by_date", sql_definition: <<-SQL
-      SELECT counted_values.event_on,
-      counted_values.application_type,
-      counted_values.submission,
-      counted_values.resubmission,
-      (counted_values.submission + counted_values.resubmission) AS total
-     FROM ( SELECT (av.created_at)::date AS event_on,
-              a.application_type,
-              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'submitted'::text)) AS submission,
-              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'provider_updated'::text)) AS resubmission
-             FROM (application_version av
-               LEFT JOIN application a ON (((a.id = av.application_id) AND (av.pending IS FALSE))))
-            GROUP BY a.application_type, ((av.created_at)::date)
-            ORDER BY a.application_type, ((av.created_at)::date)) counted_values;
-  SQL
-  create_view "submission_by_services", sql_definition: <<-SQL
-      SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
-      date_trunc('DAY'::text, app.created_at) AS date_submitted,
-      count(*) AS submissions
-     FROM (application app
-       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1) AND (app_ver.pending IS FALSE))))
-    WHERE (app.application_type = 'crm4'::text)
-    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
-  SQL
-  create_view "additional_fee_uptakes", sql_definition: <<-SQL
-      WITH dates AS (
-           SELECT (t.day)::date AS day
-             FROM generate_series(('2024-12-06 00:00:00'::timestamp without time zone)::timestamp with time zone, CURRENT_TIMESTAMP, 'P1D'::interval) t(day)
-          ), claims AS (
-           SELECT
-                  CASE
-                      WHEN ((((application_version.application ->> 'include_youth_court_fee'::text))::boolean IS TRUE) AND ((application_version.application ->> 'status'::text) = 'submitted'::text)) THEN 1
-                      ELSE 0
-                  END AS youth_court_fee_claimed,
-                  CASE
-                      WHEN ((((application_version.application ->> 'plea_category'::text) = 'category_1a'::text) OR ((application_version.application ->> 'plea_category'::text) = 'category_2a'::text)) AND ((application_version.application ->> 'youth_court'::text) = 'yes'::text) AND ((application_version.application ->> 'status'::text) = 'submitted'::text)) THEN 1
-                      ELSE 0
-                  END AS youth_court_fee_eligible,
-                  CASE
-                      WHEN ((((application_version.application ->> 'include_youth_court_fee'::text))::boolean IS TRUE) AND ((application_version.application ->> 'status'::text) = ANY (ARRAY['granted'::text, 'part_grant'::text, 'rejected'::text]))) THEN 1
-                      ELSE 0
-                  END AS youth_court_fee_approved,
-                  CASE
-                      WHEN ((((application_version.application ->> 'include_youth_court_fee'::text))::boolean IS FALSE) AND (((application_version.application ->> 'include_youth_court_fee_original'::text))::boolean IS TRUE) AND ((application_version.application ->> 'status'::text) = ANY (ARRAY['granted'::text, 'part_grant'::text, 'rejected'::text]))) THEN 1
-                      ELSE 0
-                  END AS youth_court_fee_rejected,
-              application_version.created_at
-             FROM application_version
-            WHERE ((application_version.application ->> 'status'::text) = ANY (ARRAY['submitted'::text, 'granted'::text, 'part_grant'::text, 'rejected'::text]))
-          )
-   SELECT dates.day AS event_date,
-      COALESCE(sum(claims.youth_court_fee_claimed), (0)::bigint) AS youth_court_fee_claimed_count,
-      COALESCE(sum(claims.youth_court_fee_eligible), (0)::bigint) AS youth_court_fee_eligible_count,
-      COALESCE(sum(claims.youth_court_fee_approved), (0)::bigint) AS youth_court_fee_approved_count,
-      COALESCE(sum(claims.youth_court_fee_rejected), (0)::bigint) AS youth_court_fee_rejected_count
-     FROM (dates
-       LEFT JOIN claims ON ((dates.day = date(claims.created_at))))
-    GROUP BY dates.day
-    ORDER BY dates.day;
-  SQL
-  create_view "submission_creation_times", sql_definition: <<-SQL
-      WITH base AS (
-           SELECT DISTINCT app_ver.application_id,
-              application.application_type,
-              ((app_ver.application ->> 'created_at'::text))::timestamp without time zone AS draft_created_date,
-              (app_ver.application ->> 'office_code'::text) AS office_code,
-              application_submissions.submission_date,
-                  CASE
-                      WHEN (((app_ver.application ->> 'import_date'::text))::timestamp without time zone IS NOT NULL) THEN true
-                      ELSE false
-                  END AS claim_imported
-             FROM ((application_version app_ver
-               JOIN ( SELECT application_version.application_id,
-                      min(application_version.created_at) AS submission_date
-                     FROM application_version
-                    WHERE ((application_version.application ->> 'status'::text) = 'submitted'::text)
-                    GROUP BY application_version.application_id) application_submissions ON ((app_ver.application_id = application_submissions.application_id)))
-               JOIN application ON ((app_ver.application_id = application.id)))
-            WHERE ((app_ver.application ->> 'status'::text) = 'submitted'::text)
-          )
-   SELECT base.application_id,
-      base.application_type,
-      base.draft_created_date,
-      base.office_code,
-      base.submission_date,
-      base.claim_imported,
-      (EXTRACT(epoch FROM (base.submission_date - base.draft_created_date)) / (60)::numeric) AS minutes_to_submit
-     FROM base;
-  SQL
   create_view "submission_assess_times", sql_definition: <<-SQL
       WITH base AS (
            SELECT application.id,
@@ -286,5 +248,58 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_28_101107) do
               min(assignment_events.assigned_at) AS first_assigned_date
              FROM assignment_events
             GROUP BY assignment_events.id) first_assignment ON ((base.id = first_assignment.id)));
+  SQL
+  create_view "submission_by_services", sql_definition: <<-SQL
+      SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
+      date_trunc('DAY'::text, app.created_at) AS date_submitted,
+      count(*) AS submissions
+     FROM (application app
+       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1) AND (app_ver.pending IS FALSE))))
+    WHERE (app.application_type = 'crm4'::text)
+    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
+  SQL
+  create_view "submission_creation_times", sql_definition: <<-SQL
+      WITH base AS (
+           SELECT DISTINCT app_ver.application_id,
+              application.application_type,
+              ((app_ver.application ->> 'created_at'::text))::timestamp without time zone AS draft_created_date,
+              (app_ver.application ->> 'office_code'::text) AS office_code,
+              application_submissions.submission_date,
+                  CASE
+                      WHEN (((app_ver.application ->> 'import_date'::text))::timestamp without time zone IS NOT NULL) THEN true
+                      ELSE false
+                  END AS claim_imported
+             FROM ((application_version app_ver
+               JOIN ( SELECT application_version.application_id,
+                      min(application_version.created_at) AS submission_date
+                     FROM application_version
+                    WHERE ((application_version.application ->> 'status'::text) = 'submitted'::text)
+                    GROUP BY application_version.application_id) application_submissions ON ((app_ver.application_id = application_submissions.application_id)))
+               JOIN application ON ((app_ver.application_id = application.id)))
+            WHERE ((app_ver.application ->> 'status'::text) = 'submitted'::text)
+          )
+   SELECT base.application_id,
+      base.application_type,
+      base.draft_created_date,
+      base.office_code,
+      base.submission_date,
+      base.claim_imported,
+      (EXTRACT(epoch FROM (base.submission_date - base.draft_created_date)) / (60)::numeric) AS minutes_to_submit
+     FROM base;
+  SQL
+  create_view "submissions_by_date", sql_definition: <<-SQL
+      SELECT counted_values.event_on,
+      counted_values.application_type,
+      counted_values.submission,
+      counted_values.resubmission,
+      (counted_values.submission + counted_values.resubmission) AS total
+     FROM ( SELECT (av.created_at)::date AS event_on,
+              a.application_type,
+              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'submitted'::text)) AS submission,
+              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'provider_updated'::text)) AS resubmission
+             FROM (application_version av
+               LEFT JOIN application a ON (((a.id = av.application_id) AND (av.pending IS FALSE))))
+            GROUP BY a.application_type, ((av.created_at)::date)
+            ORDER BY a.application_type, ((av.created_at)::date)) counted_values;
   SQL
 end
