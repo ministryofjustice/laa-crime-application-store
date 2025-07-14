@@ -1,0 +1,3 @@
+class PaymentRequest < ApplicationRecord
+
+end
