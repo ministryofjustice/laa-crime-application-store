@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_14_115510) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_15_135123) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -43,12 +43,41 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_14_115510) do
     t.index ["search_fields"], name: "index_application_version_on_search_fields", using: :gin
   end
 
+  create_table "assigned_counsel_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "laa_reference"
+    t.string "solicitor_office_code"
+    t.string "counsel_office_code"
+    t.string "ufn"
+    t.string "client_surname"
+    t.datetime "date_received"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "nsm_claim_id"
+    t.index ["nsm_claim_id"], name: "index_assigned_counsel_claims_on_nsm_claim_id"
+  end
+
   create_table "failed_imports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "provider_id", null: false
     t.string "details"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "error_type"
+  end
+
+  create_table "nsm_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "laa_reference"
+    t.string "ufn"
+    t.datetime "date_received"
+    t.string "firm_name"
+    t.string "office_code"
+    t.string "stage_code"
+    t.string "client_surname"
+    t.datetime "case_concluded_date"
+    t.string "court_name"
+    t.integer "court_attendances"
+    t.integer "no_of_defendants"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "payment_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -59,6 +88,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_14_115510) do
     t.decimal "waiting_cost", precision: 10, scale: 2
     t.decimal "disbursement_cost", precision: 10, scale: 2
     t.decimal "disbursement_vat", precision: 10, scale: 2
+    t.decimal "assigned_counsel_cost", precision: 10, scale: 2
+    t.decimal "assigned_counsel_vat", precision: 10, scale: 2
     t.decimal "allowed_profit_cost", precision: 10, scale: 2
     t.decimal "allowed_travel_cost", precision: 10, scale: 2
     t.decimal "allowed_waiting_cost", precision: 10, scale: 2
@@ -67,6 +98,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_14_115510) do
     t.datetime "submitted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "nsm_claim_id"
+    t.uuid "assigned_counsel_claim_id"
+    t.index ["assigned_counsel_claim_id"], name: "index_payment_requests_on_assigned_counsel_claim_id", unique: true
+    t.index ["nsm_claim_id"], name: "index_payment_requests_on_nsm_claim_id"
   end
 
   create_table "translations", force: :cascade do |t|
@@ -79,6 +114,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_14_115510) do
   end
 
   add_foreign_key "application_version", "application", name: "application_version_application_id_fkey"
+  add_foreign_key "payment_requests", "assigned_counsel_claims"
 
   create_view "active_providers", sql_definition: <<-SQL
       WITH submissions AS (
