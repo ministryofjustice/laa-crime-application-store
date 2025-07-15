@@ -45,11 +45,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_15_135123) do
 
   create_table "assigned_counsel_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "laa_reference"
-    t.string "solicitor_office_code"
     t.string "counsel_office_code"
-    t.string "ufn"
-    t.string "client_surname"
-    t.datetime "date_received"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "nsm_claim_id"
