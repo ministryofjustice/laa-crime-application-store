@@ -46,7 +46,6 @@ group :development, :test do
   gem "pry-rescue"
   gem "pry-stack_explorer"
   gem "rspec-rails"
-  gem "rails-erd"
 
   gem "rubocop-govuk", require: false
   gem "rubocop-performance"
