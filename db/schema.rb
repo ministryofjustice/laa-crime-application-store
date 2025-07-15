@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_14_132307) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_14_115510) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -52,18 +52,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_14_132307) do
   end
 
   create_table "payment_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "submitter_id", null: false
-    t.string "laa_reference"
-    t.string "ufn"
+    t.uuid "submitter_id"
     t.string "type"
-    t.string "firm_name"
-    t.string "office_code"
-    t.string "stage_code"
-    t.string "client_surname"
-    t.datetime "case_concluded_date"
-    t.string "court_name"
-    t.integer "court_attendances"
-    t.integer "no_of_defendants"
     t.decimal "profit_cost", precision: 10, scale: 2
     t.decimal "travel_cost", precision: 10, scale: 2
     t.decimal "waiting_cost", precision: 10, scale: 2
@@ -77,7 +67,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_14_132307) do
     t.datetime "submitted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "related_payments", default: [], array: true
   end
 
   create_table "translations", force: :cascade do |t|
