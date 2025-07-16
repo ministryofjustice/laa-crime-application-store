@@ -4,7 +4,7 @@ class Submission < ApplicationRecord
            dependent: :destroy,
            foreign_key: "application_id",
            class_name: "SubmissionVersion"
-  belongs_to :nsm_claim
+  belongs_to :nsm_claim, optional: true
 
   attribute :caseworker_history_events, :jsonb, default: -> { [] }
   alias_attribute :events, :caseworker_history_events
