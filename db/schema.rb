@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_15_160244) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_15_135123) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -48,8 +48,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_15_160244) do
     t.string "counsel_office_code"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "nsm_claim_id"
-    t.index ["nsm_claim_id"], name: "index_assigned_counsel_claims_on_nsm_claim_id"
+    t.uuid "nsm_claim_id"
+    t.index ["nsm_claim_id"], name: "index_assigned_counsel_claims_on_nsm_claim_id", unique: true
   end
 
   create_table "failed_imports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -94,12 +94,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_15_160244) do
     t.datetime "submitted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "nsm_claim_id"
-    t.uuid "assigned_counsel_claim_id"
     t.string "payable_id"
     t.string "payable_type"
-    t.index ["assigned_counsel_claim_id"], name: "index_payment_requests_on_assigned_counsel_claim_id", unique: true
-    t.index ["nsm_claim_id"], name: "index_payment_requests_on_nsm_claim_id"
+    t.index ["payable_type", "payable_id"], name: "index_payment_requests_on_payable_type_and_payable_id"
   end
 
   create_table "translations", force: :cascade do |t|
@@ -112,7 +109,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_15_160244) do
   end
 
   add_foreign_key "application_version", "application", name: "application_version_application_id_fkey"
-  add_foreign_key "payment_requests", "assigned_counsel_claims"
+  add_foreign_key "assigned_counsel_claims", "nsm_claims"
 
   create_view "active_providers", sql_definition: <<-SQL
       WITH submissions AS (
