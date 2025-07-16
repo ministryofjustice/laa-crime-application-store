@@ -14,5 +14,7 @@ class AddNsmClaimTable < ActiveRecord::Migration[8.0]
       t.integer "no_of_defendants"
       t.timestamps
     end
+
+    add_column :application, :nsm_claim_id, :uuid
   end
 end

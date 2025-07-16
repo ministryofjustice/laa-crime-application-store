@@ -27,6 +27,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_15_135123) do
     t.boolean "notify_subscriber_completed"
     t.string "assigned_user_id"
     t.string "unassigned_user_ids", default: [], array: true
+    t.uuid "nsm_claim_id"
     t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null"
     t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null"
   end
