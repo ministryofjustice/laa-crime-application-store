@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_15_135123) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_17_134112) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -97,6 +97,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_15_135123) do
     t.datetime "updated_at", null: false
     t.string "payable_id"
     t.string "payable_type"
+    t.decimal "allowed_assigned_counsel_cost", precision: 10, scale: 2
+    t.decimal "allowed_assigned_counsel_vat", precision: 10, scale: 2
     t.index ["payable_type", "payable_id"], name: "index_payment_requests_on_payable_type_and_payable_id"
   end
 
