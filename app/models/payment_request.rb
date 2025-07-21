@@ -20,15 +20,13 @@ class PaymentRequest < ApplicationRecord
   attribute :travel_cost, :gbp
   attribute :waiting_cost, :gbp
   attribute :disbursement_cost, :gbp
-  attribute :disbursement_vat, :gbp
-  attribute :assigned_counsel_cost, :gbp
+  attribute :net_assigned_counsel_cost, :gbp
   attribute :assigned_counsel_vat, :gbp
   attribute :allowed_profit_cost, :gbp
   attribute :allowed_travel_cost, :gbp
   attribute :allowed_waiting_cost, :gbp
   attribute :allowed_disbursement_cost, :gbp
-  attribute :allowed_disbursement_vat, :gbp
-  attribute :allowed_assigned_counsel_cost, :gbp
+  attribute :allowed_net_assigned_counsel_cost, :gbp
   attribute :allowed_assigned_counsel_vat, :gbp
 
   validates :submitter_id, is_a_uuid: true

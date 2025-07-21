@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_21_115133) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_21_154059) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -84,20 +84,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_115133) do
     t.decimal "travel_cost", precision: 10, scale: 2
     t.decimal "waiting_cost", precision: 10, scale: 2
     t.decimal "disbursement_cost", precision: 10, scale: 2
-    t.decimal "disbursement_vat", precision: 10, scale: 2
-    t.decimal "assigned_counsel_cost", precision: 10, scale: 2
+    t.decimal "net_assigned_counsel_cost", precision: 10, scale: 2
     t.decimal "assigned_counsel_vat", precision: 10, scale: 2
     t.decimal "allowed_profit_cost", precision: 10, scale: 2
     t.decimal "allowed_travel_cost", precision: 10, scale: 2
     t.decimal "allowed_waiting_cost", precision: 10, scale: 2
     t.decimal "allowed_disbursement_cost", precision: 10, scale: 2
-    t.decimal "allowed_disbursement_vat", precision: 10, scale: 2
     t.datetime "submitted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "payable_id"
     t.string "payable_type"
-    t.decimal "allowed_assigned_counsel_cost", precision: 10, scale: 2
+    t.decimal "allowed_net_assigned_counsel_cost", precision: 10, scale: 2
     t.decimal "allowed_assigned_counsel_vat", precision: 10, scale: 2
     t.index ["payable_type", "payable_id"], name: "index_payment_requests_on_payable_type_and_payable_id"
   end
