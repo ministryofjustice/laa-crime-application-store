@@ -29,7 +29,11 @@ module PaymentRequests
           end
           attributes_to_assign[:submitted_at] = Time.zone.local(params[:submitted_at])
           payment_request.assign_attributes(attributes_to_assign)
-          payment_request.save!
+          if payment_request.save!
+            true
+          else
+            raise StandardError payment_request.errors
+          end
         end
       end
     end
