@@ -1,0 +1,2 @@
+class InvalidRecord < StandardError
+end

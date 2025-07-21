@@ -32,7 +32,7 @@ module PaymentRequests
           if payment_request.save!
             true
           else
-            raise StandardError payment_request.errors
+            raise InvalidRecord payment_request.errors
           end
         end
       end
