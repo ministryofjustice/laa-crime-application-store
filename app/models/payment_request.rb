@@ -1,13 +1,13 @@
 class PaymentRequest < ApplicationRecord
-  REQUEST_TYPES = [
-    "non_standard_mag",
-    "non_standard_mag_appeal",
-    "non_standard_mag_amendment",
-    "non_standard_mag_supplemental",
-    "assigned_counsel",
-    "assigned_counsel_appeal",
-    "assigned_counsel_amendment"
-  ]
+  REQUEST_TYPES = %w[
+    non_standard_mag
+    non_standard_mag_appeal
+    non_standard_mag_amendment
+    non_standard_mag_supplemental
+    assigned_counsel
+    assigned_counsel_appeal
+    assigned_counsel_amendment
+  ].freeze
 
   belongs_to :payable, polymorphic: true
 

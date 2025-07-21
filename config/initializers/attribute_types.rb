@@ -1,6 +1,6 @@
 # for ActiveRecord models
 ActiveRecord::Type.register(:gbp, LaaCrimeFormsCommon::Type::Gbp)
-# for ActiveModel models (models that don't persist data to DB directly)
+#  for ActiveModel models (models that don't persist data to DB directly)
 ActiveModel::Type.register(:gbp, LaaCrimeFormsCommon::Type::Gbp)
 ActiveModel::Type.register(:translated, LaaCrimeFormsCommon::Type::TranslatedObject)
 ActiveModel::Type.register(:translated_array, LaaCrimeFormsCommon::Type::TranslatedObjectArray)
