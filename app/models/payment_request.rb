@@ -33,4 +33,12 @@ class PaymentRequest < ApplicationRecord
 
   validates :submitter_id, is_a_uuid: true
   validates :request_type, presence: true, inclusion: { in: REQUEST_TYPES }
+  validate :correct_request_type
+
+  def correct_request_type
+    return true if payable_type == "NsmClaim" && NSM_REQUEST_TYPES.include?(payable_type)
+    return true if payable_type == "AssignedCounselClaim" && ASSIGNED_COUNSEL_REQUEST_TYPES.include?(payable_type)
+
+    errors.add(:request_type, "invalid payment request type for a #{payable_type}")
+  end
 end
