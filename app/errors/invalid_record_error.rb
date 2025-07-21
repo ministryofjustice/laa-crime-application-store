@@ -1,2 +1,0 @@
-class InvalidRecord < StandardError
-end

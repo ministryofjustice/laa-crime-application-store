@@ -4,7 +4,7 @@ FactoryBot.define do
     submitter_id { SecureRandom.uuid }
     request_type { "non_standard_mag" }
     payable_type { "NsmClaim" }
-    submitted_at { DateTime.now }
+    submitted_at { Time.zone.now }
 
     trait :non_standard_mag do
       request_type { "non_standard_mag" }
@@ -16,7 +16,7 @@ FactoryBot.define do
       allowed_profit_cost { 250.40 }
       allowed_travel_cost { 0 }
       allowed_waiting_cost { 6.40 }
-      allowed_disbursment_cost { 50 }
+      allowed_disbursement_cost { 50 }
     end
 
     trait :non_standard_mag_appeal do
@@ -25,7 +25,7 @@ FactoryBot.define do
       allowed_profit_cost { 250.40 }
       allowed_travel_cost { 0 }
       allowed_waiting_cost { 6.40 }
-      allowed_disbursment_cost { 50 }
+      allowed_disbursement_cost { 50 }
     end
 
     trait :non_standard_mag_supplemental do
@@ -43,7 +43,7 @@ FactoryBot.define do
       allowed_profit_cost { 250.40 }
       allowed_travel_cost { 0 }
       allowed_waiting_cost { 6.40 }
-      allowed_disbursment_cost { 50 }
+      allowed_disebursment_cost { 50 }
     end
 
     trait :assigned_counsel do

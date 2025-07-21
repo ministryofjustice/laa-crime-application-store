@@ -29,6 +29,17 @@ class PaymentRequest < ApplicationRecord
   attribute :allowed_net_assigned_counsel_cost, :gbp
   attribute :allowed_assigned_counsel_vat, :gbp
 
+  validates :profit_cost, is_a_number: true
+  validates :travel_cost, is_a_number: true
+  validates :waiting_cost, is_a_number: true
+  validates :net_assigned_counsel_cost, is_a_number: true
+  validates :assigned_counsel_vat, is_a_number: true
+  validates :allowed_profit_cost, is_a_number: true
+  validates :allowed_travel_cost, is_a_number: true
+  validates :allowed_waiting_cost, is_a_number: true
+  validates :allowed_disbursement_cost, is_a_number: true
+  validates :allowed_net_assigned_counsel_cost, is_a_number: true
+  validates :allowed_assigned_counsel_vat, is_a_number: true
   validates :submitter_id, is_a_uuid: true
   validates :request_type, presence: true, inclusion: { in: REQUEST_TYPES }
   validate :correct_request_type

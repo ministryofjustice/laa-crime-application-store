@@ -25,12 +25,12 @@ module PaymentRequests
               allowed_assigned_counsel_vat: params[:allowed_assigned_counsel_cost],
             )
           end
-          attributes_to_assign[:submitted_at] = Time.zone.local(params[:submitted_at])
+          attributes_to_assign[:submitted_at] = Time.zone.parse(params[:submitted_at]) if params[:submitted_at]
           payment_request.assign_attributes(attributes_to_assign)
           if payment_request.save!
             true
           else
-            raise InvalidRecord payment_request.errors
+            raise RecordInvalidError payment_request.errors
           end
         end
       end
