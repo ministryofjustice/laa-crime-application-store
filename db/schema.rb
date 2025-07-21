@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_17_134112) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_21_115133) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -79,7 +79,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_17_134112) do
 
   create_table "payment_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "submitter_id"
-    t.string "type"
+    t.string "request_type"
     t.decimal "profit_cost", precision: 10, scale: 2
     t.decimal "travel_cost", precision: 10, scale: 2
     t.decimal "waiting_cost", precision: 10, scale: 2

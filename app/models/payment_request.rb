@@ -1,3 +1,31 @@
 class PaymentRequest < ApplicationRecord
+  REQUEST_TYPES = [
+    "non_standard_mag",
+    "non_standard_mag_appeal",
+    "non_standard_mag_amendment",
+    "non_standard_mag_supplemental",
+    "assigned_counsel",
+    "assigned_counsel_appeal",
+    "assigned_counsel_amendment"
+  ]
+
   belongs_to :payable, polymorphic: true
+
+  attribute :profit_cost, :gbp
+  attribute :travel_cost, :gbp
+  attribute :waiting_cost, :gbp
+  attribute :disbursement_cost, :gbp
+  attribute :disbursement_vat, :gbp
+  attribute :assigned_counsel_cost, :gbp
+  attribute :assigned_counsel_vat, :gbp
+  attribute :allowed_profit_cost, :gbp
+  attribute :allowed_travel_cost, :gbp
+  attribute :allowed_waiting_cost, :gbp
+  attribute :allowed_disbursement_cost, :gbp
+  attribute :allowed_disbursement_vat, :gbp
+  attribute :allowed_assigned_counsel_cost, :gbp
+  attribute :allowed_assigned_counsel_vat, :gbp
+
+  validates :submitter_id, is_a_uuid: true
+  validates :request_type, presence: true, inclusion: { in: REQUEST_TYPES }
 end
