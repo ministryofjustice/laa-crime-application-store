@@ -25,6 +25,7 @@ module Authorization
           auto_assignments: true,
         },
         payment_requests: {
+          create: true,
           update: true,
         },
         events: {

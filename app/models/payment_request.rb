@@ -14,7 +14,7 @@ class PaymentRequest < ApplicationRecord
 
   REQUEST_TYPES = NSM_REQUEST_TYPES + ASSIGNED_COUNSEL_REQUEST_TYPES
 
-  belongs_to :payable, polymorphic: true
+  belongs_to :payable, polymorphic: true, optional: true
 
   attribute :profit_cost, :gbp
   attribute :travel_cost, :gbp
@@ -43,13 +43,22 @@ class PaymentRequest < ApplicationRecord
   validates :submitter_id, is_a_uuid: true
   validates :request_type, presence: true, inclusion: { in: REQUEST_TYPES }
   validate :correct_request_type
+  validate :is_linked_to_claim_when_submitted
 
   def correct_request_type
     # needed so that we can draft payment types that haven't been linked yet
-    return true if payable_type.nil? && REQUEST_TYPES.include(request_type)
+    return true if payable_type.nil? && REQUEST_TYPES.include?(request_type)
     return true if payable_type == "NsmClaim" && NSM_REQUEST_TYPES.include?(request_type)
     return true if payable_type == "AssignedCounselClaim" && ASSIGNED_COUNSEL_REQUEST_TYPES.include?(request_type)
 
     errors.add(:request_type, "invalid payment request type for a #{payable_type}")
+  end
+
+  def is_linked_to_claim_when_submitted
+    if payable_id.nil? && submitted_at.present?
+      errors.add(:submitted_at, "a payment request must be linked to a claim to be submitted")
+    else
+      true
+    end
   end
 end

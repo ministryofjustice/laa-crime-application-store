@@ -6,7 +6,7 @@ module V1
         submitter_id: params[:submitter_id],
       )
       render json: payment_request, status: :created
-    rescue ActiveRecore::RecordInvalid => e
+    rescue ActiveRecord::RecordInvalid => e
       render json: { errors: e.message }, status: :unprocessable_entity
     end
 
