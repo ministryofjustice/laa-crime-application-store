@@ -44,6 +44,12 @@ RSpec.describe "Update payment request" do
       )
     end
 
+    it "returns not found when trying to update non existing record" do
+      patch "/v1/payment_requests/#{SecureRandom.uuid}"
+
+      expect(response).to have_http_status(:not_found)
+    end
+
     it "fails to update when fields are invalid" do
       patch "/v1/payment_requests/#{payment_id}", params: {
         profit_cost: "ABC",
