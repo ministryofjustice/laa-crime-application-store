@@ -60,7 +60,7 @@ RSpec.describe "Update payment request" do
       expect(response).to have_http_status(:unprocessable_entity)
     end
 
-    it "Ignores updating assigned counsel related costs" do
+    it "ignores updating assigned counsel related costs" do
       patch "/v1/payment_requests/#{payment_id}", params: {
         profit_cost: 101,
         net_assigned_counsel_cost: 200,
@@ -106,7 +106,7 @@ RSpec.describe "Update payment request" do
       )
     end
 
-    it "Ignores updating non-standard mag related costs" do
+    it "ignores updating non-standard mag related costs" do
       patch "/v1/payment_requests/#{payment_id}", params: {
         profit_cost: 101,
         net_assigned_counsel_cost: 200,
