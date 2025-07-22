@@ -6,7 +6,7 @@ RSpec.describe "Update payment request" do
 
   before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker) }
 
-  context "When payment request is for an NsmClaim" do
+  context "with payment request for NsmClaim" do
     before do
       claim = create(:nsm_claim)
       create(
