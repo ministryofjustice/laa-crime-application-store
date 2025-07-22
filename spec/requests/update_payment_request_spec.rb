@@ -17,7 +17,7 @@ RSpec.describe "Update payment request" do
       )
     end
 
-    it "successfullies update when fields are valid" do
+    it "successfully update when fields are valid" do
       patch "/v1/payment_requests/#{payment_id}", params: {
         profit_cost: 101,
         travel_cost: 44.55,
@@ -52,6 +52,14 @@ RSpec.describe "Update payment request" do
       expect(response).to have_http_status(:unprocessable_entity)
     end
 
+    it "fails to update when costs are negative" do
+      patch "/v1/payment_requests/#{payment_id}", params: {
+        profit_cost: -50,
+      }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
     it "Ignores updating assigned counsel related costs" do
       patch "/v1/payment_requests/#{payment_id}", params: {
         profit_cost: 101,
@@ -68,6 +76,52 @@ RSpec.describe "Update payment request" do
         assigned_counsel_vat: nil,
         allowed_net_assigned_counsel_cost: nil,
         allowed_assigned_counsel_vat: nil,
+      )
+    end
+  end
+
+  context "with payment request for AssignedCounselClaim" do
+    before do
+      claim = create(:assigned_counsel_claim)
+      create(
+        :payment_request,
+        :assigned_counsel,
+        id: payment_id,
+        payable: claim,
+      )
+    end
+
+    it "successfully update when fields are valid" do
+      patch "/v1/payment_requests/#{payment_id}", params: {
+        net_assigned_counsel_cost: 200,
+        assigned_counsel_vat: 40,
+        submitted_at: submitted_date,
+      }
+
+      expect(response).to have_http_status(:created)
+      expect(PaymentRequest.find(payment_id)).to have_attributes(
+        net_assigned_counsel_cost: 200.00,
+        assigned_counsel_vat: 40.00,
+        submitted_at: submitted_date,
+      )
+    end
+
+    it "Ignores updating non-standard mag related costs" do
+      patch "/v1/payment_requests/#{payment_id}", params: {
+        profit_cost: 101,
+        net_assigned_counsel_cost: 200,
+        assigned_counsel_vat: 40,
+        allowed_net_assigned_counsel_cost: 100,
+        allowed_assigned_counsel_vat: 20,
+      }
+
+      expect(response).to have_http_status(:created)
+      expect(PaymentRequest.find(payment_id)).to have_attributes(
+        profit_cost: nil,
+        net_assigned_counsel_cost: 200.00,
+        assigned_counsel_vat: 40.00,
+        allowed_net_assigned_counsel_cost: 100.00,
+        allowed_assigned_counsel_vat: 20.00,
       )
     end
   end

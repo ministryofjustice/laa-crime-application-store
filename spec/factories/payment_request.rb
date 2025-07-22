@@ -50,7 +50,7 @@ FactoryBot.define do
       request_type { "assigned_counsel" }
       payable_type { "AssignedCounselClaim" }
       net_assigned_counsel_cost { 100 }
-      assigned_counsel_cost_vat { 20 }
+      assigned_counsel_vat { 20 }
       allowed_net_assigned_counsel_cost { 50 }
       allowed_assigned_counsel_vat { 10 }
     end
@@ -59,7 +59,7 @@ FactoryBot.define do
       request_type { "assigned_counsel_appeal" }
       payable_type { "AssignedCounselClaim" }
       net_assigned_counsel_cost { 100 }
-      assigned_counsel_cost_vat { 20 }
+      assigned_counsel_vat { 20 }
       allowed_net_assigned_counsel_cost { 50 }
       allowed_assigned_counsel_vat { 10 }
     end

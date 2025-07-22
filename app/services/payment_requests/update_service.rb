@@ -22,7 +22,7 @@ module PaymentRequests
               net_assigned_counsel_cost: params[:net_assigned_counsel_cost],
               assigned_counsel_vat: params[:assigned_counsel_vat],
               allowed_net_assigned_counsel_cost: params[:allowed_net_assigned_counsel_cost],
-              allowed_assigned_counsel_vat: params[:allowed_assigned_counsel_cost],
+              allowed_assigned_counsel_vat: params[:allowed_assigned_counsel_vat],
             )
           end
           attributes_to_assign[:submitted_at] = Time.zone.parse(params[:submitted_at]) if params[:submitted_at]
