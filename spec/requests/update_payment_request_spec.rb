@@ -88,7 +88,7 @@ RSpec.describe "Update payment request" do
 
   context "with payment request for AssignedCounselClaim" do
     before do
-      claim = create(:assigned_counsel_claim, nsm_claim: create(:nsm_claim))
+      claim = create(:assigned_counsel_claim)
       create(
         :payment_request,
         :assigned_counsel,
