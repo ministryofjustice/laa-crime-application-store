@@ -1,5 +1,15 @@
 module V1
   class PaymentRequestsController < ApplicationController
+    def create
+      payment_request = PaymentRequest.create!(
+        request_type: params[:request_type],
+        submitter_id: params[:submitter_id],
+      )
+      render json: payment_request, status: :created
+    rescue ActiveRecore::RecordInvalid => e
+      render json: { errors: e.message }, status: :unprocessable_entity
+    end
+
     def update
       ::PaymentRequests::UpdateService.call(current_payment_request, params)
       render json: current_payment_request, status: :created
