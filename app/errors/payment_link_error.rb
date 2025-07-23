@@ -1,0 +1,2 @@
+class PaymentLinkError < StandardError
+end
