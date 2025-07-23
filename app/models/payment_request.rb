@@ -14,7 +14,7 @@ class PaymentRequest < ApplicationRecord
 
   REQUEST_TYPES = NSM_REQUEST_TYPES + ASSIGNED_COUNSEL_REQUEST_TYPES
 
-  belongs_to :payable, polymorphic: true
+  belongs_to :payable, polymorphic: true, optional: true
 
   attribute :profit_cost, :gbp
   attribute :travel_cost, :gbp
@@ -45,9 +45,10 @@ class PaymentRequest < ApplicationRecord
   validate :correct_request_type
 
   def correct_request_type
+    return true if payable.nil?
     return true if payable_type == "NsmClaim" && NSM_REQUEST_TYPES.include?(request_type)
     return true if payable_type == "AssignedCounselClaim" && ASSIGNED_COUNSEL_REQUEST_TYPES.include?(request_type)
 
-    errors.add(:request_type, "invalid payment request type for a #{payable_type}")
+    errors.add(:request_type, "invalid for a #{payable_type}")
   end
 end

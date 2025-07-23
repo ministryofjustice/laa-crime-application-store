@@ -1,12 +1,12 @@
 FactoryBot.define do
   factory :payment_request do
     id { SecureRandom.uuid }
-    submitter_id { SecureRandom.uuid }
     request_type { "non_standard_mag" }
-    payable_type { "NsmClaim" }
+    submitter_id { SecureRandom.uuid }
     submitted_at { Time.zone.now }
 
     trait :non_standard_mag do
+      association :payable, factory: :nsm_claim
       request_type { "non_standard_mag" }
       payable_type { "NsmClaim" }
       profit_cost { 300.40 }
@@ -20,6 +20,7 @@ FactoryBot.define do
     end
 
     trait :non_standard_mag_appeal do
+      association :payable, factory: :nsm_claim
       request_type { "non_standard_mag_appeal" }
       payable_type { "NsmClaim" }
       allowed_profit_cost { 250.40 }
@@ -29,6 +30,7 @@ FactoryBot.define do
     end
 
     trait :non_standard_mag_supplemental do
+      association :payable, factory: :nsm_claim
       request_type { "non_standard_mag_supplemental" }
       payable_type { "NsmClaim" }
       profit_cost { 300.40 }
@@ -38,6 +40,7 @@ FactoryBot.define do
     end
 
     trait :non_standard_mag_amendment do
+      association :payable, factory: :nsm_claim
       request_type { "non_standard_mag_amendment" }
       payable_type { "NsmClaim" }
       allowed_profit_cost { 250.40 }
@@ -47,6 +50,7 @@ FactoryBot.define do
     end
 
     trait :assigned_counsel do
+      association :payable, factory: :assigned_counsel
       request_type { "assigned_counsel" }
       payable_type { "AssignedCounselClaim" }
       net_assigned_counsel_cost { 100 }
@@ -56,6 +60,7 @@ FactoryBot.define do
     end
 
     trait :assigned_counsel_appeal do
+      association :payable, factory: :assigned_counsel
       request_type { "assigned_counsel_appeal" }
       payable_type { "AssignedCounselClaim" }
       net_assigned_counsel_cost { 100 }
@@ -65,6 +70,7 @@ FactoryBot.define do
     end
 
     trait :assigned_counsel_amendment do
+      association :payable, factory: :assigned_counsel
       request_type { "assigned_counsel_amendment" }
       payable_type { "AssignedCounselClaim" }
       allowed_net_assigned_counsel_cost { 50 }

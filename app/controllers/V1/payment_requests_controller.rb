@@ -14,7 +14,7 @@ module V1
     def link
       ::PaymentRequests::LinkService.call(current_payment_request, params)
       render json: current_payment_request, status: :created
-    rescue ActiveRecord::RecordInvalid, ActiveRecord::PaymentLinkError => e
+    rescue ActiveRecord::RecordInvalid, PaymentLinkError => e
       handle_error(e)
       render json: { errors: e.message }, status: :unprocessable_entity
     rescue ActiveRecord::RecordNotFound
@@ -26,6 +26,10 @@ module V1
 
     def current_payment_request
       @current_payment_request ||= PaymentRequest.find(params[:id])
+    end
+
+    def authorization_object
+      current_payment_request if action_name == "link"
     end
   end
 end
