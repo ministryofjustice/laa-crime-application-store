@@ -25,7 +25,7 @@ Rails.application.routes.draw do
       collection { post :auto_assignments }
     end
 
-    resources :payment_requests, only: %i[update]
+    resources :payment_requests, only: %i[create update]
     resources :failed_imports, only: %i[show create]
 
     namespace :submissions do
