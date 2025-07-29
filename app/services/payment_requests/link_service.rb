@@ -1,7 +1,7 @@
 module PaymentRequests
   class LinkService
     class << self
-      include LaaReference
+      include LaaReferenceHelper
 
       def call(payment_request, params)
         claim = nil

@@ -1,4 +1,4 @@
-module LaaReference
+module LaaReferenceHelper
   CLAIM_CLASSES = [NsmClaim, AssignedCounselClaim].freeze
   def generate_laa_reference
     ActiveRecord::Base.transaction do
