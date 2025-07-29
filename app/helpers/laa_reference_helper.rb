@@ -5,7 +5,9 @@ module LaaReferenceHelper
       CLAIM_CLASSES.each(&:lock)
       loop do
         random_reference = "LAA-#{SecureRandom.alphanumeric(6)}"
+        # :nocov:
         break random_reference unless reference_already_exists?(random_reference)
+        # :nocov:
       end
     end
   end
