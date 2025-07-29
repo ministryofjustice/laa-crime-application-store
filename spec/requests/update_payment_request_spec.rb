@@ -4,7 +4,10 @@ RSpec.describe "Update payment request" do
   let(:payment_id) { SecureRandom.uuid }
   let(:submitted_date) { Time.zone.local(2025, 1, 1) }
 
-  before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker) }
+  before do
+    allow(Sentry).to receive(:capture_exception)
+    allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker)
+  end
 
   context "with payment request for NsmClaim" do
     before do
@@ -56,6 +59,7 @@ RSpec.describe "Update payment request" do
       }
 
       expect(response).to have_http_status(:unprocessable_entity)
+      expect(Sentry).to have_received(:capture_exception)
     end
 
     it "fails to update when costs are negative" do
