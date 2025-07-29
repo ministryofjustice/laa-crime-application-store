@@ -11,8 +11,9 @@ RSpec.describe "Link payment request" do
   end
 
   it "fails when the claim is associated with a legacy supplemental claim Submission" do
-    create(:payment_request, id: payment_id, submitted_at: nil)
+    create(:payment_request, id: payment_id, request_type: "non_standard_mag", submitted_at: nil)
     create(:nsm_claim, laa_reference: "LAA-abc123", submission: create(:submission, :with_supplemental_version, laa_reference: "LAA-abc123"))
+
     patch "/v1/payment_requests/#{payment_id}/link", params: {
       laa_reference: "LAA-abc123",
     }
@@ -23,7 +24,10 @@ RSpec.describe "Link payment request" do
   context "when payment request is of type non_standard_mag" do
     let(:request_type) { "non_standard_mag" }
 
-    before { create(:payment_request, id: payment_id, request_type: request_type, submitted_at: nil) }
+    before do
+      create(:nsm_claim, laa_reference: "LAA-abc123")
+      create(:payment_request, id: payment_id, request_type: request_type, submitted_at: nil)
+    end
 
     it "returns 422 when the request includes an laa_reference" do
       patch "/v1/payment_requests/#{payment_id}/link", params: {
