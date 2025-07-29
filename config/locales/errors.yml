@@ -2,3 +2,6 @@ en:
   errors:
     payment_requests:
       non_paper_nsm_link: Origin payments can only be made for paper non-standard claims
+      no_supplemental_ref: Supplemental payments need to link to an existing claim
+      already_exists: A claim with this laa reference already exists
+      does_not_exist: No claim exists with this laa reference
