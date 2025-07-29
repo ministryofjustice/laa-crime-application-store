@@ -42,23 +42,9 @@ RSpec.describe "Link payment request" do
     end
   end
 
-  context "when payment request is of type non_standard_mag_supplemental" do
-    let(:request_type) { "non_standard_mag_supplemental" }
-
-    it_behaves_like "a subsequent nsm payment", "non_standard_mag_supplemental"
-  end
-
-  context "when payment request is of type non_standard_mag_amendment" do
-    let(:request_type) { "non_standard_mag_amendment" }
-
-    it_behaves_like "a subsequent nsm payment", "non_standard_mag_supplemental"
-  end
-
-  context "when payment request is of type non_standard_mag_appeal" do
-    let(:request_type) { "non_standard_mag_appeal" }
-
-    it_behaves_like "a subsequent nsm payment", "non_standard_mag_appeal"
-  end
+  it_behaves_like "a subsequent nsm payment", "non_standard_mag_supplemental"
+  it_behaves_like "a subsequent nsm payment", "non_standard_mag_appeal"
+  it_behaves_like "a subsequent nsm payment", "non_standard_mag_amendment"
 
   context "when payment request is of type assigned_counsel" do
     let(:request_type) { "assigned_counsel" }
@@ -94,15 +80,6 @@ RSpec.describe "Link payment request" do
     end
   end
 
-  context "when payment request is of type assigned counsel appeal" do
-    let(:request_type) { "assigned_counsel_appeal" }
-
-    it_behaves_like "a subsequent assigned counsel payment", request_type
-  end
-
-  context "when payment request is of type assigned counsel amendment" do
-    let(:request_type) { "assigned_counsel_amendment" }
-
-    it_behaves_like "a subsequent assigned counsel payment", request_type
-  end
+  it_behaves_like "a subsequent assigned counsel payment", "assigned_counsel_appeal"
+  it_behaves_like "a subsequent assigned counsel payment", "assigned_counsel_amendment"
 end

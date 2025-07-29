@@ -1,4 +1,4 @@
-RSpec.shared_examples "a subsequent nsm payment" do |request_type|
+RSpec.shared_examples "a subsequent assigned counsel payment" do |request_type|
   let(:payment_id) { SecureRandom.uuid }
 
   it "fails when no laa reference is supplied" do
