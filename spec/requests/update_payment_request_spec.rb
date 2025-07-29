@@ -5,6 +5,7 @@ RSpec.describe "Update payment request" do
   let(:submitted_date) { Time.zone.local(2025, 1, 1) }
 
   before do
+    allow(ENV).to receive(:fetch).with("SENTRY_DSN", nil).and_return("test")
     allow(Sentry).to receive(:capture_exception)
     allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker)
   end
