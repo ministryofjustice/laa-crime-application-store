@@ -18,6 +18,8 @@ module PaymentRequests
           raise PaymentLinkError, I18n.t("errors.payment_request.no_supplemental_ref") if params[:laa_reference].blank?
 
           claim = find_referred_claim(params[:laa_reference])
+
+          raise PaymentLinkError, I18n.t("errors.payment_request.legacy_supplemental") if is_supplemental_claim?(claim)
           raise PaymentLinkError, I18n.t("errors.payment_request.does_not_exist") if claim.nil?
 
           payment_request.payable = claim
@@ -25,6 +27,12 @@ module PaymentRequests
 
         payment_request.save!
       end
+
+      # rubocop:disable Style/SafeNavigationChainLength
+      def is_supplemental_claim?(claim)
+        claim.submission&.latest_version&.application.dig("supplemental_claim") == "yes"
+      end
+      # rubocop:enable Style/SafeNavigationChainLength
     end
   end
 end

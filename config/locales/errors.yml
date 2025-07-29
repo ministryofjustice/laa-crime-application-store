@@ -5,3 +5,4 @@ en:
       no_supplemental_ref: Supplemental payments need to link to an existing claim
       already_exists: A claim with this laa reference already exists
       does_not_exist: No claim exists with this laa reference
+      legacy_supplemental: Cannot link payments to legacy supplemental claims

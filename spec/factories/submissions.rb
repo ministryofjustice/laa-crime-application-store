@@ -53,5 +53,10 @@ FactoryBot.define do
       application_type { "crm7" }
       build_scope { [:with_nsm_application] }
     end
+
+    trait :with_supplemental_version do
+      application_type { "crm7" }
+      build_scope { [:with_nsm_supplemental] }
+    end
   end
 end

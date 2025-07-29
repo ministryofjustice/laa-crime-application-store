@@ -62,5 +62,15 @@ RSpec.describe "Link payment request" do
       expect(response).to have_http_status(:created)
       expect(PaymentRequest.find(payment_id).payable.laa_reference).to eq("LAA-abc123")
     end
+
+    it "fails when the NsmClaim is associated with a legacy supplemental claim Submission" do
+      create(:payment_request, id: payment_id, request_type: request_type, submitted_at: nil)
+      create(:nsm_claim, laa_reference: "LAA-abc123", submission: create(:submission, :with_supplemental_version, laa_reference: "LAA-abc123"))
+      patch "/v1/payment_requests/#{payment_id}/link", params: {
+        laa_reference: "LAA-abc123",
+      }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
   end
 end
