@@ -25,7 +25,7 @@ Rails.application.routes.draw do
       collection { post :auto_assignments }
     end
 
-    resources :payment_requests, only: %i[update] do
+    resources :payment_requests, only: %i[create update] do
       member { patch :link }
     end
 

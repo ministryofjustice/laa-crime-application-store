@@ -46,4 +46,28 @@ RSpec.describe PaymentRequest do
       end
     end
   end
+
+  describe "#is_linked_to_claim_when_submitted" do
+    let(:submitted_at) { Time.zone.now }
+
+    it "invalidates record if payment request is not linked to claim and submitted" do
+      expect { create(:payment_request, :non_standard_mag, payable: nil, submitted_at: submitted_at) }
+        .to raise_error ActiveRecord::RecordInvalid, "Validation failed: Submitted at a payment request must be linked to a claim to be submitted"
+    end
+
+    it "returns true when payment request is not linked to a claim or submitted" do
+      payment_request = create(:payment_request, :non_standard_mag, payable: nil, submitted_at: nil)
+      expect(payment_request.is_linked_to_claim_when_submitted).to be(true)
+    end
+
+    it "returns true when payment request is linked to a claim and submitted" do
+      payment_request = create(
+        :payment_request,
+        :non_standard_mag,
+        payable: create(:nsm_claim),
+        submitted_at: submitted_at,
+      )
+      expect(payment_request.is_linked_to_claim_when_submitted).to be(true)
+    end
+  end
 end
