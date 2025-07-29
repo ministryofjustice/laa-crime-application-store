@@ -17,9 +17,6 @@ module V1
     rescue ActiveRecord::RecordInvalid, PaymentLinkError => e
       handle_error(e)
       render json: { errors: e.message }, status: :unprocessable_entity
-    rescue ActiveRecord::RecordNotFound => e
-      handle_error(e)
-      head :not_found
     end
 
   private

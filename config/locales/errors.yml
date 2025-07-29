@@ -2,7 +2,8 @@ en:
   errors:
     payment_requests:
       non_paper_nsm_link: Origin payments can only be made for paper non-standard claims
-      no_supplemental_ref: Supplemental payments need to link to an existing claim
+      no_ref: Supplemental, appeal or amendment payments need to link to an existing claim
       already_exists: A claim with this laa reference already exists
       does_not_exist: No claim exists with this laa reference
       legacy_supplemental: Cannot link payments to legacy supplemental claims
+      assigned_counsel_wrong_origin: An assigned counsel origin record can only be linked to a non standard magistrate claim

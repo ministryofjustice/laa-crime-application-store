@@ -5,6 +5,21 @@ RSpec.describe "Link payment request" do
 
   before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker) }
 
+  it "returns not found when trying to link non existing record" do
+    expect { patch "/v1/payment_requests/#{SecureRandom.uuid}/link" }
+      .to raise_error(ActiveRecord::RecordNotFound)
+  end
+
+  it "fails when the claim is associated with a legacy supplemental claim Submission" do
+    create(:payment_request, id: payment_id, submitted_at: nil)
+    create(:nsm_claim, laa_reference: "LAA-abc123", submission: create(:submission, :with_supplemental_version, laa_reference: "LAA-abc123"))
+    patch "/v1/payment_requests/#{payment_id}/link", params: {
+      laa_reference: "LAA-abc123",
+    }
+
+    expect(response).to have_http_status(:unprocessable_entity)
+  end
+
   context "when payment request is of type non_standard_mag" do
     let(:request_type) { "non_standard_mag" }
 
@@ -30,47 +45,52 @@ RSpec.describe "Link payment request" do
   context "when payment request is of type non_standard_mag_supplemental" do
     let(:request_type) { "non_standard_mag_supplemental" }
 
-    it "returns not found when trying to link non existing record" do
-      patch "/v1/payment_requests/#{SecureRandom.uuid}/link"
+    it_behaves_like "a subsequent nsm payment", "non_standard_mag_supplemental"
+  end
 
-      expect(response).to have_http_status(:not_found)
+  context "when payment request is of type non_standard_mag_amendment" do
+    let(:request_type) { "non_standard_mag_amendment" }
+
+    it_behaves_like "a subsequent nsm payment", "non_standard_mag_supplemental"
+  end
+
+  context "when payment request is of type non_standard_mag_appeal" do
+    let(:request_type) { "non_standard_mag_appeal" }
+
+    it_behaves_like "a subsequent nsm payment", "non_standard_mag_appeal"
+  end
+
+  context "when payment request is of type assigned_counsel" do
+    let(:request_type) { "assigned_counsel" }
+
+    it "returns 422 when trying to link to a non NsmClaim record" do
+      create(:assigned_counsel_claim, laa_reference: "LAA-abc123")
+      create(:payment_request, id: payment_id, request_type: request_type, submitted_at: nil)
+
+      patch "/v1/payment_requests/#{payment_id}/link", params: {
+        laa_reference: "LAA-abc123",
+      }
+      expect(response).to have_http_status(:unprocessable_entity)
     end
 
-    it "fails when no laa reference is supplied" do
+    it "creates a payment and unlinked assigned counsel record when no laa ref supplied" do
       create(:payment_request, id: payment_id, request_type: request_type, submitted_at: nil)
       patch "/v1/payment_requests/#{payment_id}/link"
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:created)
+      expect(PaymentRequest.find(payment_id).payable.is_a?(AssignedCounselClaim)).to be true
     end
 
-    it "fails when laa reference is supplied but doesn't link to an NsmClaim" do
-      create(:payment_request, id: payment_id, request_type: request_type, submitted_at: nil)
-      patch "/v1/payment_requests/#{payment_id}/link", params: {
-        laa_reference: "LAA-abc123",
-      }
-
-      expect(response).to have_http_status(:unprocessable_entity)
-    end
-
-    it "is successful and links NsmClaim when a record with the laa reference exists" do
+    it "creates a payment and linked assigned counsel record when an NsmClaim laa ref supplied" do
       create(:payment_request, id: payment_id, request_type: request_type, submitted_at: nil)
       create(:nsm_claim, laa_reference: "LAA-abc123")
+
       patch "/v1/payment_requests/#{payment_id}/link", params: {
         laa_reference: "LAA-abc123",
       }
-
       expect(response).to have_http_status(:created)
-      expect(PaymentRequest.find(payment_id).payable.laa_reference).to eq("LAA-abc123")
-    end
-
-    it "fails when the NsmClaim is associated with a legacy supplemental claim Submission" do
-      create(:payment_request, id: payment_id, request_type: request_type, submitted_at: nil)
-      create(:nsm_claim, laa_reference: "LAA-abc123", submission: create(:submission, :with_supplemental_version, laa_reference: "LAA-abc123"))
-      patch "/v1/payment_requests/#{payment_id}/link", params: {
-        laa_reference: "LAA-abc123",
-      }
-
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(PaymentRequest.find(payment_id).payable.is_a?(AssignedCounselClaim)).to be true
+      expect(PaymentRequest.find(payment_id).payable.nsm_claim.laa_reference).to eq("LAA-abc123")
     end
   end
 end
