@@ -30,13 +30,18 @@ module PaymentRequests
               laa_reference: generate_laa_reference,
             )
           else
-            raise PaymentLinkError, I18n.t("errors.payment_request.assigned_counsel_wrong_origin") unless claim.is_a?(NsmClaim)
+            raise PaymentLinkError, I18n.t("errors.payment_request.assigned_counsel_origin_wrong_ref") unless claim.is_a?(NsmClaim)
 
             payment_request.payable = AssignedCounselClaim.create!(
               laa_reference: generate_laa_reference,
               nsm_claim: claim,
             )
           end
+        when "assigned_counsel_amendment", "assigned_counsel_appeal"
+          raise PaymentLinkError, I18n.t("errors.payment_request.no_ref") if params[:laa_reference].blank?
+          raise PaymentLinkError, I18n.t("errors.payment_request.assigned_counsel_wrong_ref") unless claim.is_a?(AssignedCounselClaim)
+
+          payment_request.payable = claim
         end
 
         payment_request.save!

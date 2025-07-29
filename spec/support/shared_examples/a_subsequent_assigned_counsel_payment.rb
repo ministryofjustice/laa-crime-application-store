@@ -17,10 +17,9 @@ RSpec.shared_examples "a subsequent nsm payment" do |request_type|
     expect(response).to have_http_status(:unprocessable_entity)
   end
 
-  it "fails when laa reference is supplied but doesn't link to an NsmClaim" do
+  it "fails when laa reference is supplied but doesn't link to an AssignedCounselClaim" do
     create(:payment_request, id: payment_id, request_type: request_type, submitted_at: nil)
-    create(:assigned_counsel_claim, laa_reference: "LAA-abc123")
-
+    create(:nsm_claim, laa_reference: "LAA-abc123")
     patch "/v1/payment_requests/#{payment_id}/link", params: {
       laa_reference: "LAA-abc123",
     }
@@ -28,9 +27,9 @@ RSpec.shared_examples "a subsequent nsm payment" do |request_type|
     expect(response).to have_http_status(:unprocessable_entity)
   end
 
-  it "is successful and links NsmClaim when a record with the laa reference exists" do
+  it "is successful and links AssignedCounselClaim when a record with the laa reference exists" do
     create(:payment_request, id: payment_id, request_type: request_type, submitted_at: nil)
-    create(:nsm_claim, laa_reference: "LAA-abc123")
+    create(:assigned_counsel_claim, laa_reference: "LAA-abc123")
     patch "/v1/payment_requests/#{payment_id}/link", params: {
       laa_reference: "LAA-abc123",
     }

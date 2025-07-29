@@ -93,4 +93,16 @@ RSpec.describe "Link payment request" do
       expect(PaymentRequest.find(payment_id).payable.nsm_claim.laa_reference).to eq("LAA-abc123")
     end
   end
+
+  context "when payment request is of type assigned counsel appeal" do
+    let(:request_type) { "assigned_counsel_appeal" }
+
+    it_behaves_like "a subsequent assigned counsel payment", request_type
+  end
+
+  context "when payment request is of type assigned counsel amendment" do
+    let(:request_type) { "assigned_counsel_amendment" }
+
+    it_behaves_like "a subsequent assigned counsel payment", request_type
+  end
 end
