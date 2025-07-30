@@ -84,7 +84,7 @@ RSpec.describe "Authorization" do
       id = SecureRandom.uuid
       create(:payment_request, :non_standard_mag, id: id, submitted_at: Time.zone.now)
 
-      patch "/v1/payment_requests/#{id}/link"
+      patch "/v1/payment_requests/#{id}/link_payable"
       expect(response).to have_http_status :forbidden
     end
 
