@@ -36,7 +36,7 @@ module V1
     end
 
     def authorization_object
-      current_payment_request if action_name == "link"
+      current_payment_request if action_name == "link_payable"
     end
   end
 end
