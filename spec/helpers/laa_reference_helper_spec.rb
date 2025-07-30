@@ -1,6 +1,20 @@
 require "rails_helper"
 
 RSpec.describe LaaReferenceHelper, type: :helper do
+  describe "#generate_laa_reference" do
+    let(:ref_suffix) { "abc123" }
+
+    before do
+      allow(SecureRandom).to receive(:alphanumeric).and_return(ref_suffix)
+      create(:nsm_claim, laa_reference: "LAA-#{ref_suffix}")
+    end
+
+    it "timeouts if trying to generate an laa reference that exists" do
+      expect { Timeout.timeout(2) { helper.generate_laa_reference } }
+        .to raise_error(Timeout::Error)
+    end
+  end
+
   describe "#reference_already_exists?" do
     before do
       create(:nsm_claim, laa_reference: "LAA-abc123")

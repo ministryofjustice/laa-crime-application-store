@@ -26,7 +26,7 @@ Rails.application.routes.draw do
     end
 
     resources :payment_requests, only: %i[create update] do
-      member { patch :link }
+      member { patch :link_payable }
     end
 
     resources :failed_imports, only: %i[show create]

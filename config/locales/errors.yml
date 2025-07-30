@@ -8,3 +8,4 @@ en:
       legacy_supplemental: Cannot link payments to legacy supplemental claims
       assigned_counsel_origin_wrong_ref: An assigned counsel origin payment can only be linked to a non standard magistrate claim
       assigned_counsel_origin_wrong_ref: An assigned counsel amendment or appeal payment can only be linked to an assigned counsel claim
+      invalid_type: This payment request type is invalid

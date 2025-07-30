@@ -1,5 +1,5 @@
 module PaymentRequests
-  class LinkService
+  class LinkPayableService
     class << self
       include LaaReferenceHelper
 
@@ -42,11 +42,9 @@ module PaymentRequests
           raise PaymentLinkError, I18n.t("errors.payment_request.assigned_counsel_wrong_ref") unless claim.is_a?(AssignedCounselClaim)
 
           payment_request.payable = claim
-        # :nocov:
         else
-          false
+          raise PaymentLinkError, I18n.t("errors.payment_request.invalid_type")
         end
-        # :nocov:
 
         payment_request.save!
       end
