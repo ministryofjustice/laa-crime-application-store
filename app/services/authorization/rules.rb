@@ -29,6 +29,9 @@ module Authorization
           update: true,
           link_payable: ->(object, _params) { object.submitted_at.nil? },
         },
+        assigned_counsel_claims: {
+          update: true,
+        },
         events: {
           create: ->(object, _params) { object.state.in?(EDITABLE_BY_CASEWORKER_STATES) },
         },

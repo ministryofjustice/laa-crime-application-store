@@ -28,7 +28,7 @@ Rails.application.routes.draw do
     resources :payment_requests, only: %i[create update] do
       member { patch :link_payable }
     end
-
+    resources :assigned_counsel_claims, only: %i[update]
     resources :failed_imports, only: %i[show create]
 
     namespace :submissions do
