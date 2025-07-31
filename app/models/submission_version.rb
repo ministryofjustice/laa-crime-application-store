@@ -5,4 +5,8 @@ class SubmissionVersion < ApplicationRecord
   validates :json_schema_version, presence: true
   validates :application, presence: true
   validates :version, presence: true
+
+  def main_defendant
+    application["defendants"].find { _1["main"] }
+  end
 end

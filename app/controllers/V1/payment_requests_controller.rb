@@ -5,6 +5,10 @@ module V1
         request_type: params[:request_type],
         submitter_id: params[:submitter_id],
       )
+      if params[:laa_reference].present?
+        raise_error unless params[:request_type] == "non_standard_mag"
+        ::PaymentRequests::LinkPayableService.call(payment_request, params)
+      end
       render json: payment_request, status: :created
     rescue ActiveRecord::RecordInvalid => e
       render json: { errors: e.message }, status: :unprocessable_entity

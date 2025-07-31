@@ -14,7 +14,24 @@ module PaymentRequests
         case payment_request.request_type
         when "non_standard_mag"
           if params[:laa_reference].present?
-            raise PaymentLinkError, I18n.t("errors.payment_requests.non_paper_nsm_link")
+            submission = find_referred_submission(params[:laa_reference])
+            raise PaymentLinkError, I18n.t("errors.payment_request.no_ref_digital") if submission.nil?
+            raise PaymentLinkError, I18n.t("errors.payment_request.invalid_link") unless submission.application_type == "crm7"
+
+            application_data = submission.latest_version.application
+            payment_request.payable = NsmClaim.create!(
+              laa_reference: params[:laa_reference],
+              submission: submission,
+              ufn: application_data["ufn"],
+              firm_name: application_data.dig("firm_office", "name"),
+              office_name: application_data["office_code"],
+              stage_code: application_data["stage_reached"],
+              client_surname: application_data.main_defendant["last_name"],
+              case_concluded_date: application_data["work_completed_date"],
+              court_name: application_data["court"],
+              court_attendances: application_data["number_of_hearing"],
+              no_of_defendants: application_data["defendants"].count,
+            )
           else
             payment_request.payable = NsmClaim.create!(
               laa_reference: generate_laa_reference,
