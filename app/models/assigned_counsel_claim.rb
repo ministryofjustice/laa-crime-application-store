@@ -4,5 +4,6 @@ class AssignedCounselClaim < ApplicationRecord
 
   validates :laa_reference, presence: true
   validates :counsel_office_code, format: { with: /\A\d[a-zA-Z0-9]*[a-zA-Z]\z/,
-                                            message: I18n.t("errors.assigned_counsel_claim.counsel_office_code") }
+                                            message: I18n.t("errors.assigned_counsel_claim.counsel_office_code"),
+                                            on: :update }
 end
