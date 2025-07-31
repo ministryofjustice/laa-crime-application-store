@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::API
+  include ApplicationHelper
+
   before_action :authenticate!
   before_action :authorize!
 

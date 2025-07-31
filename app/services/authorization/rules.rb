@@ -27,6 +27,7 @@ module Authorization
         payment_requests: {
           create: true,
           update: true,
+          link_payable: ->(object, _params) { object.submitted_at.nil? },
         },
         events: {
           create: ->(object, _params) { object.state.in?(EDITABLE_BY_CASEWORKER_STATES) },

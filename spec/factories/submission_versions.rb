@@ -150,5 +150,20 @@ FactoryBot.define do
               laa_reference: laa_reference || "LAA-123456")
       end
     end
+
+    trait :with_nsm_supplemental do
+      application do
+        build(:application,
+              :nsm,
+              defendant_name:,
+              account_number:,
+              firm_name:,
+              solicitor:,
+              status:,
+              supplemental_claim: "yes",
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
+      end
+    end
   end
 end

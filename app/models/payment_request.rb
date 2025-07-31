@@ -48,10 +48,11 @@ class PaymentRequest < ApplicationRecord
   def correct_request_type
     # needed so that we can draft payment types that haven't been linked yet
     return true if payable_type.nil? && REQUEST_TYPES.include?(request_type)
+
     return true if payable_type == "NsmClaim" && NSM_REQUEST_TYPES.include?(request_type)
     return true if payable_type == "AssignedCounselClaim" && ASSIGNED_COUNSEL_REQUEST_TYPES.include?(request_type)
 
-    errors.add(:request_type, "invalid payment request type for a #{payable_type}")
+    errors.add(:request_type, "invalid for a #{payable_type}")
   end
 
   def is_linked_to_claim_when_submitted
