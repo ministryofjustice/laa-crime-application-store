@@ -3,9 +3,7 @@ module V1
     def update
       assigned_counsel_claim.update!(allowed_params)
       render json: assigned_counsel_claim, status: :created
-    rescue ActiveRecord::RecordInvalid => e
-      render json: { errors: e.message }, status: :unprocessable_entity
-    rescue ActionController::ParameterMissing => e
+    rescue ActiveRecord::RecordInvalid, ActionController::ParameterMissing => e
       render json: { errors: e.message }, status: :unprocessable_entity
     rescue ActiveRecord::RecordNotFound
       head :not_found
@@ -14,7 +12,7 @@ module V1
   private
 
     def allowed_params
-      params.expect(assigned_counsel_claim: [ :counsel_office_code ])
+      params.expect(assigned_counsel_claim: [:counsel_office_code])
     end
 
     def assigned_counsel_claim
