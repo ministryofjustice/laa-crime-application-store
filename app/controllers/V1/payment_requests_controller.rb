@@ -1,16 +1,20 @@
 module V1
   class PaymentRequestsController < ApplicationController
     def create
-      payment_request = PaymentRequest.create!(
-        request_type: params[:request_type],
-        submitter_id: params[:submitter_id],
-      )
-      if params[:laa_reference].present?
-        raise_error unless params[:request_type] == "non_standard_mag"
-        ::PaymentRequests::LinkPayableService.call(payment_request, params)
+      ActiveRecord::Base.transaction do
+        payment_request = PaymentRequest.create!(
+          request_type: params[:request_type],
+          submitter_id: params[:submitter_id],
+        )
+
+        if params[:laa_reference].present?
+          raise PaymentLinkError, I18n.t("errors.payment_requests.invalid_link") unless params[:request_type] == "non_standard_mag"
+
+          ::PaymentRequests::LinkPayableService.call(payment_request, params)
+        end
+        render json: payment_request, status: :created
       end
-      render json: payment_request, status: :created
-    rescue ActiveRecord::RecordInvalid => e
+    rescue ActiveRecord::RecordInvalid, PaymentLinkError => e
       render json: { errors: e.message }, status: :unprocessable_entity
     end
 

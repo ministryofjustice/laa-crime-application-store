@@ -6,6 +6,10 @@ FactoryBot.define do
     court_type { "other" }
     ufn { "010124/001" }
     office_code { account_number }
+    court { "Leeds Court" }
+    stage_reached { "prom" }
+    work_completed_date { Time.zone.local(2025, 1, 1) }
+    number_of_hearing { 2 }
     firm_office do
       {
         "account_number" => account_number,
