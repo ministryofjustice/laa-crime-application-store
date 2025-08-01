@@ -14,10 +14,6 @@ class SubmissionVersion < ApplicationRecord
     @totals ||= LaaCrimeFormsCommon::Pricing::Nsm.totals(full_data_for_calculation)
   end
 
-  def rates
-    @rates ||= LaaCrimeFormsCommon::Pricing::Nsm.rates(data_for_calculation)
-  end
-
   def full_data_for_calculation
     data_for_calculation.merge(
       work_items: application["work_items"],
