@@ -33,14 +33,14 @@ module PaymentRequests
             )
 
             payment_request.update!(
-              profit_cost: submission.latest_version.totals.cost_summary.profit_costs.claimed_total_inc_vat,
-              travel_cost: submission.latest_version.totals.cost_summary.travel.claimed_total_inc_vat,
-              waiting_cost: submission.latest_version.totals.cost_summary.waiting.claimed_total_inc_vat,
-              disbursement_cost: submission.latest_version.totals.cost_summary.disbursements.claimed_total_inc_vat,
-              allowed_profit_cost: submission.latest_version.totals.cost_summary.profit_costs.allowed_claimed_total_inc_vat,
-              allowed_travel_cost: submission.latest_version.totals.cost_summary.travel.allowed_claimed_total_inc_vat,
-              allowed_waiting_cost: submission.latest_version.totals.cost_summary.waiting.allowed_claimed_total_inc_vat,
-              allowed_disbursement_cost: submission.latest_version.totals.cost_summary.disbursements.allowed_claimed_total_inc_vat,
+              profit_cost: submission.latest_version.totals[:cost_summary][:profit_costs][:claimed_total_inc_vat],
+              travel_cost: submission.latest_version.totals[:cost_summary][:travel][:claimed_total_inc_vat],
+              waiting_cost: submission.latest_version.totals[:cost_summary][:waiting][:claimed_total_inc_vat],
+              disbursement_cost: submission.latest_version.totals[:cost_summary][:disbursements][:claimed_total_inc_vat],
+              allowed_profit_cost: submission.latest_version.totals[:cost_summary][:profit_costs][:assessed_total_inc_vat],
+              allowed_travel_cost: submission.latest_version.totals[:cost_summary][:travel][:assessed_total_inc_vat],
+              allowed_waiting_cost: submission.latest_version.totals[:cost_summary][:waiting][:assessed_total_inc_vat],
+              allowed_disbursement_cost: submission.latest_version.totals[:cost_summary][:disbursements][:assessed_total_inc_vat],
             )
           else
             payment_request.payable = NsmClaim.create!(

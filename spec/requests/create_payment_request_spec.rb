@@ -110,8 +110,55 @@ RSpec.describe "Create payment request" do
 
       context "when a valid nsm submission exists for the laa reference" do
         let(:submission_id) { SecureRandom.uuid }
+        let(:cost_totals) do
+          {
+            cost_summary: {
+              profit_costs: {
+                assessed_total_exc_vat: 637.04,
+                assessed_total_inc_vat: 637.04,
+                assessed_vat: 0.0,
+                assessed_vatable: 0.0,
+                claimed_total_exc_vat: 710.64,
+                claimed_total_inc_vat: 710.64,
+                claimed_vat: 0.0,
+                claimed_vatable: 0.0,
+              },
+              disbursements: {
+                claimed_total_exc_vat: 129.39,
+                claimed_vatable: 123.85,
+                claimed_vat: 24.77,
+                claimed_total_inc_vat: 154.16,
+                assessed_total_exc_vat: 128.34,
+                assessed_vatable: 122.85,
+                assessed_vat: 24.57,
+                assessed_total_inc_vat: 152.91,
+              },
+              travel: {
+                claimed_total_exc_vat: 0.0,
+                assessed_total_exc_vat: 21.28,
+                claimed_vatable: 0.0,
+                claimed_vat: 0.0,
+                claimed_total_inc_vat: 0.0,
+                assessed_vatable: 0.0,
+                assessed_vat: 0.0,
+                assessed_total_inc_vat: 21.28,
+              },
+              waiting: {
+                claimed_total_exc_vat: 67.3,
+                assessed_total_exc_vat: 60.72,
+                claimed_vatable: 0.0,
+                claimed_vat: 0.0,
+                claimed_total_inc_vat: 67.3,
+                assessed_vatable: 0.0,
+                assessed_vat: 0.0,
+                assessed_total_inc_vat: 60.72,
+              },
+            },
+          }
+        end
 
         before do
+          allow(LaaCrimeFormsCommon::Pricing::Nsm).to receive(:totals).and_return(cost_totals)
           create(:submission,
                  :with_nsm_version,
                  id: submission_id,
@@ -129,7 +176,7 @@ RSpec.describe "Create payment request" do
           }
 
           built_submission = Submission.first
-          PaymentRequest.first
+          built_payment = PaymentRequest.first
           built_claim = NsmClaim.first
 
           expect(response).to have_http_status(:created)
@@ -147,6 +194,17 @@ RSpec.describe "Create payment request" do
             court_name: built_submission.latest_version.application["court"],
             court_attendances: built_submission.latest_version.application["number_of_hearing"],
             no_of_defendants: built_submission.latest_version.application["defendants"].count,
+          })
+
+          expect(built_payment).to have_attributes({
+            profit_cost: 710.64,
+            travel_cost: 0.0,
+            waiting_cost: 67.3,
+            disbursement_cost: 154.16,
+            allowed_profit_cost: 637.04,
+            allowed_travel_cost: 21.28,
+            allowed_waiting_cost: 60.72,
+            allowed_disbursement_cost: 152.91,
           })
         end
       end

@@ -49,6 +49,7 @@ FactoryBot.define do
     end
 
     trait :nsm do
+      work_completed_date { Time.zone.local(2025, 1, 1) }
       defendants do
         list = [{ first_name:, last_name:, main: true }]
 

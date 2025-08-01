@@ -20,9 +20,9 @@ class SubmissionVersion < ApplicationRecord
 
   def full_data_for_calculation
     data_for_calculation.merge(
-      work_items: work_items_for_calculation,
-      disbursements: disbursements_for_calculation,
-      letters_and_calls: letters_and_calls_for_calculation,
+      work_items: application["work_items"],
+      disbursements: application["letters_and_calls"],
+      letters_and_calls: application["disbursements"],
     )
   end
 
@@ -40,13 +40,5 @@ class SubmissionVersion < ApplicationRecord
       letters_and_calls: [],
       disbursements: [],
     }
-  end
-
-  def work_items_for_calculation
-    application["work_items"].map(&:data_for_calculation)
-  end
-
-  def disbursements_for_calculation
-    application["disbursements"].map(&:data_for_calculation)
   end
 end
