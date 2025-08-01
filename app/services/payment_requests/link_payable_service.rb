@@ -7,12 +7,13 @@ module PaymentRequests
         claim = nil
         if params[:laa_reference].present?
           claim = find_referred_claim(params[:laa_reference])
+          submission = find_referred_submission(params[:laa_reference])
+          raise PaymentLinkError, I18n.t("errors.payment_request.legacy_supplemental") if submission && is_supplemental_claim?(claim)
         end
 
         case payment_request.request_type
         when "non_standard_mag"
           if params[:laa_reference].present?
-            submission = find_referred_submission(params[:laa_reference])
             raise PaymentLinkError, I18n.t("errors.payment_request.no_ref_digital") if submission.nil?
             raise PaymentLinkError, I18n.t("errors.payment_request.invalid_link") unless submission.application_type == "crm7"
 
@@ -73,8 +74,6 @@ module PaymentRequests
         else
           raise PaymentLinkError, I18n.t("errors.payment_request.invalid_type")
         end
-
-        raise PaymentLinkError, I18n.t("errors.payment_request.legacy_supplemental") if is_supplemental_claim?(claim)
 
         payment_request.save!
       end
