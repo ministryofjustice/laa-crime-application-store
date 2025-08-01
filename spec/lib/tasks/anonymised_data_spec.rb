@@ -17,7 +17,6 @@ RSpec.describe "anonymised:" do
         ufn: "010124/001",
         status: "submitted",
         solicitor: nil,
-        court_type: "other",
         created_at: "2024-10-31T23:50:00.000Z",
         defendants: [
           {
@@ -38,7 +37,6 @@ RSpec.describe "anonymised:" do
           vat_registered: "yes",
         },
         office_code: "1A123B",
-        service_type: "other",
         laa_reference: "LAA-123456",
       },
       events: [],
