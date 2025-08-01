@@ -3,7 +3,10 @@ require "rails_helper"
 RSpec.describe "Link payment request to associated record" do
   let(:payment_id) { SecureRandom.uuid }
 
-  before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker) }
+  before do
+    allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker)
+    allow(LaaCrimeFormsCommon::Pricing::Nsm).to receive(:totals).and_return({})
+  end
 
   it "returns not found when trying to link non existing record" do
     expect { patch "/v1/payment_requests/#{SecureRandom.uuid}/link_payable" }
