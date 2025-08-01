@@ -6,6 +6,7 @@ en:
       already_exists: A claim with this laa reference already exists
       does_not_exist: No claim exists with this laa reference
       legacy_supplemental: Cannot link payments to legacy supplemental claims
-      assigned_counsel_origin_wrong_ref: An assigned counsel origin payment can only be linked to a non standard magistrate claim
       assigned_counsel_origin_wrong_ref: An assigned counsel amendment or appeal payment can only be linked to an assigned counsel claim
       invalid_type: This payment request type is invalid
+    assigned_counsel_claim:
+      counsel_office_code: A counsel office code must be an alphanumeric string starting with a number and ending in a letter
