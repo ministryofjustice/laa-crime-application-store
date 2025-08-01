@@ -2,8 +2,57 @@ require "rails_helper"
 
 RSpec.describe "Link payment request to associated record" do
   let(:payment_id) { SecureRandom.uuid }
+  let(:cost_totals) do
+    {
+      cost_summary: {
+        profit_costs: {
+          assessed_total_exc_vat: 637.04,
+          assessed_total_inc_vat: 637.04,
+          assessed_vat: 0.0,
+          assessed_vatable: 0.0,
+          claimed_total_exc_vat: 710.64,
+          claimed_total_inc_vat: 710.64,
+          claimed_vat: 0.0,
+          claimed_vatable: 0.0,
+        },
+        disbursements: {
+          claimed_total_exc_vat: 129.39,
+          claimed_vatable: 123.85,
+          claimed_vat: 24.77,
+          claimed_total_inc_vat: 154.16,
+          assessed_total_exc_vat: 128.34,
+          assessed_vatable: 122.85,
+          assessed_vat: 24.57,
+          assessed_total_inc_vat: 152.91,
+        },
+        travel: {
+          claimed_total_exc_vat: 0.0,
+          assessed_total_exc_vat: 21.28,
+          claimed_vatable: 0.0,
+          claimed_vat: 0.0,
+          claimed_total_inc_vat: 0.0,
+          assessed_vatable: 0.0,
+          assessed_vat: 0.0,
+          assessed_total_inc_vat: 21.28,
+        },
+        waiting: {
+          claimed_total_exc_vat: 67.3,
+          assessed_total_exc_vat: 60.72,
+          claimed_vatable: 0.0,
+          claimed_vat: 0.0,
+          claimed_total_inc_vat: 67.3,
+          assessed_vatable: 0.0,
+          assessed_vat: 0.0,
+          assessed_total_inc_vat: 60.72,
+        },
+      },
+    }
+  end
 
-  before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker) }
+  before do
+    allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker)
+    allow(LaaCrimeFormsCommon::Pricing::Nsm).to receive(:totals).and_return(cost_totals)
+  end
 
   it "returns not found when trying to link non existing record" do
     expect { patch "/v1/payment_requests/#{SecureRandom.uuid}/link_payable" }

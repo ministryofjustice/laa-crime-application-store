@@ -2,8 +2,6 @@ FactoryBot.define do
   factory :application, class: Hash do
     initialize_with { attributes }
     laa_reference { "LAA-123456" }
-    service_type { "other" }
-    court_type { "other" }
     ufn { "010124/001" }
     office_code { account_number }
     firm_office do
@@ -43,12 +41,15 @@ FactoryBot.define do
     end
 
     trait :pa do
+      court_type { "other" }
+      service_type { "other" }
       defendant do
         { first_name:, last_name: }
       end
     end
 
     trait :nsm do
+      work_completed_date { Time.zone.local(2025, 1, 1) }
       defendants do
         list = [{ first_name:, last_name:, main: true }]
 
