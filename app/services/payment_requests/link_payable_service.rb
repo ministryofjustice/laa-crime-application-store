@@ -78,11 +78,9 @@ module PaymentRequests
         payment_request.save!
       end
 
-      # rubocop:disable Style/SafeNavigationChainLength
       def is_supplemental?(submission)
-        submission.latest_version.application.dig("supplemental_claim") == "yes"
+        submission.latest_version.application["supplemental_claim"] == "yes"
       end
-      # rubocop:enable Style/SafeNavigationChainLength
     end
   end
 end
