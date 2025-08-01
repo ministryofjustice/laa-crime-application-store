@@ -5,6 +5,7 @@ module V1
       render json: assigned_counsel_claim, status: :created
     rescue ActiveRecord::RecordInvalid, ActionController::ParameterMissing => e
       render json: { errors: e.message }, status: :unprocessable_entity
+      report_error(e)
     rescue ActiveRecord::RecordNotFound
       head :not_found
     end
