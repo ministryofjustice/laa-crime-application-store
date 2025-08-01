@@ -38,6 +38,7 @@ RSpec.describe "anonymised:" do
         },
         office_code: "1A123B",
         laa_reference: "LAA-123456",
+        work_completed_date: "2025-01-01T00:00:00.000Z",
       },
       events: [],
       application_id: submission_id,
