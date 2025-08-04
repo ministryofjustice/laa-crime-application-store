@@ -41,7 +41,7 @@ RSpec.describe "anonymised:" do
         youth_court: true,
         laa_reference: "LAA-123456",
         hearing_outcome: "CP01",
-        work_completed_date: "2025-01-01T00:00:00.000Z"
+        work_completed_date: "2025-01-01T00:00:00.000Z",
       },
       events: [],
       application_id: submission_id,
