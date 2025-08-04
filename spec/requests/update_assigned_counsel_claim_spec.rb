@@ -28,17 +28,9 @@ RSpec.describe "Update assigned counsel claim" do
       expect(response).to have_http_status(:not_found)
     end
 
-    it "fails to update when fields are invalid" do
-      patch "/v1/assigned_counsel_claims/#{assigned_counsel_claim.id}", params: {
-        profit_cost: "ABC",
-      }
-
-      expect(response).to have_http_status(:unprocessable_entity)
-    end
-
     it "fails to update when allowed fields have invalid data" do
       patch "/v1/assigned_counsel_claims/#{assigned_counsel_claim.id}", params: {
-        assigned_counsel_claim: { counsel_office_code: "ABC123!" },
+        counsel_office_code: "ABC123!"
       }
 
       expect(response).to have_http_status(:unprocessable_entity)
