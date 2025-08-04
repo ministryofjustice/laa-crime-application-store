@@ -31,7 +31,7 @@ module PaymentRequests
               work_completed_date: application_data["work_completed_date"],
               youth_court: application_data["youth_court"],
               matter_type: application_data["matter_type"],
-              outcome_code: application_data["outcome_code"],
+              outcome_code: application_data["hearing_outcome"],
               court_name: application_data["court"],
               court_attendances: application_data["number_of_hearing"],
               no_of_defendants: application_data["defendants"].count,

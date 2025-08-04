@@ -50,6 +50,10 @@ FactoryBot.define do
 
     trait :nsm do
       work_completed_date { Time.zone.local(2025, 1, 1) }
+      hearing_outcome { "CP01" }
+      matter_type { "1" }
+      youth_court { true }
+
       defendants do
         list = [{ first_name:, last_name:, main: true }]
 

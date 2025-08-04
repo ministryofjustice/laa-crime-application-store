@@ -79,6 +79,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_04_091824) do
     t.integer "no_of_defendants"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "client_first_name"
     t.string "outcome_code"
     t.string "matter_type"
     t.boolean "youth_court"
