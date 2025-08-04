@@ -1,22 +1,25 @@
 require "rails_helper"
 
 RSpec.describe "Update assigned counsel claim" do
-  let(:counsel_office_code) { "12ZXXaX" }
-  let(:nsm_claim) { create(:nsm_claim) }
-  let(:assigned_counsel_claim) { create(:assigned_counsel_claim, nsm_claim:) }
+  let(:params) do
+    {
+      counsel_office_code: "12ABC",
+      ufn: "12122024/001",
+      solicitor_office_code: "89XYZ",
+      client_last_name: "Smith",
+      date_received: Time.zone.local(2025, 1, 1),
+    }
+  end
+  let(:assigned_counsel_claim) { create(:assigned_counsel_claim) }
 
   before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker) }
 
   context "with AssignedCounselClaim" do
     it "successfully update when fields are valid" do
-      patch "/v1/assigned_counsel_claims/#{assigned_counsel_claim.id}", params: {
-        assigned_counsel_claim: { counsel_office_code: counsel_office_code },
-      }
+      patch "/v1/assigned_counsel_claims/#{assigned_counsel_claim.id}", params: params
 
       expect(response).to have_http_status(:created)
-      expect(AssignedCounselClaim.find(assigned_counsel_claim.id)).to have_attributes(
-        counsel_office_code:,
-      )
+      expect(AssignedCounselClaim.find(assigned_counsel_claim.id)).to have_attributes(params)
     end
 
     it "returns not found when trying to update non existing record" do

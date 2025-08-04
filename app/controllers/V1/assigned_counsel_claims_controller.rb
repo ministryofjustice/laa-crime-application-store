@@ -1,7 +1,7 @@
 module V1
   class AssignedCounselClaimsController < ApplicationController
     def update
-      assigned_counsel_claim.update!(allowed_params)
+      assigned_counsel_claim.update!(permitted_params)
       render json: assigned_counsel_claim, status: :created
     rescue ActiveRecord::RecordInvalid, ActionController::ParameterMissing => e
       render json: { errors: e.message }, status: :unprocessable_entity
@@ -12,8 +12,14 @@ module V1
 
   private
 
-    def allowed_params
-      params.expect(assigned_counsel_claim: [:counsel_office_code])
+    def permitted_params
+      params.permit(
+        :counsel_office_code,
+        :client_last_name,
+        :ufn,
+        :solicitor_office_code,
+        :date_received,
+      )
     end
 
     def assigned_counsel_claim
