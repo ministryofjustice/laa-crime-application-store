@@ -1,5 +1,13 @@
 module V1
   class PaymentRequestsController < ApplicationController
+    def show
+      payment_request_resource = PaymentRequestResource.new(current_payment_request).serialize
+      render json: payment_request_resource, status: :ok
+    rescue ActiveRecord::RecordNotFound => e
+      report_error(e)
+      head :not_found
+    end
+
     def create
       ActiveRecord::Base.transaction do
         payment_request = PaymentRequest.create!(

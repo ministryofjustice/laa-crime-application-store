@@ -25,6 +25,7 @@ module Authorization
           auto_assignments: true,
         },
         payment_requests: {
+          show: true,
           create: true,
           update: true,
           link_payable: ->(object, _params) { object.submitted_at.nil? },
