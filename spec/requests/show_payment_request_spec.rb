@@ -22,9 +22,56 @@ RSpec.describe "show payment request", type: :request do
 
     it "successfully update when fields are valid" do
       get "/v1/payment_requests/#{payment_id}"
-      debugger
-
       expect(response).to have_http_status(:success)
+    end
+
+    it "returns expected keys" do
+      payment_request_keys = [
+        "allowed_disbursement_cost",
+        "allowed_profit_cost",
+        "allowed_travel_cost",
+        "allowed_waiting_cost",
+        "created_at",
+        "date_claim_received",
+        "disbursement_cost",
+        "payable",
+        "profit_cost",
+        "request_type",
+        "submitted_at",
+        "submitter_id",
+        "travel_cost",
+        "updated_at",
+        "waiting_cost"
+      ]
+
+      get "/v1/payment_requests/#{payment_id}"
+      expect(response.parsed_body.keys.sort).to eq(payment_request_keys.sort)
+    end
+
+    it 'returns expected payable keys' do
+      payable_keys = [
+        "claim_type",
+        "laa_reference",
+        "ufn",
+        "date_received",
+        "firm_name",
+        "office_code",
+        "stage_code",
+        "client_first_name",
+        "client_last_name",
+        "work_completed_date",
+        "outcome_code",
+        "matter_type",
+        "youth_court",
+        "court_name",
+        "court_attendances",
+        "no_of_defendants",
+        "created_at",
+        "updated_at"
+      ]
+
+      get "/v1/payment_requests/#{payment_id}"
+      expect(response.parsed_body["payable"].keys.sort).to eq(payable_keys.sort)
     end
 
     it "returns not found when not found" do
@@ -33,6 +80,7 @@ RSpec.describe "show payment request", type: :request do
       expect(response).to have_http_status(:not_found)
     end
   end
+
   context "with payment request for AssignedCounselClaim" do
     before do
       claim = create(:assigned_counsel_claim)
@@ -46,9 +94,52 @@ RSpec.describe "show payment request", type: :request do
 
     it "successfully update when fields are valid" do
       get "/v1/payment_requests/#{payment_id}"
-      debugger
-
       expect(response).to have_http_status(:success)
+    end
+
+    it "returns expected payment request keys" do
+      payment_request_keys = [
+        "allowed_disbursement_cost",
+        "allowed_profit_cost",
+        "allowed_travel_cost",
+        "allowed_waiting_cost",
+        "created_at",
+        "date_claim_received",
+        "disbursement_cost",
+        "payable",
+        "profit_cost",
+        "request_type",
+        "submitted_at",
+        "submitter_id",
+        "travel_cost",
+        "net_assigned_counsel_cost",
+        "assigned_counsel_vat",
+        "allowed_net_assigned_counsel_cost",
+        "allowed_assigned_counsel_vat",
+        "updated_at",
+        "waiting_cost"
+      ]
+
+      get "/v1/payment_requests/#{payment_id}"
+
+      expect(response.parsed_body.keys.sort).to eq(payment_request_keys.sort)
+    end
+
+    it 'returns expected payable keys' do
+      payable_keys = [
+        "claim_type",
+        "laa_reference",
+        "counsel_office_code",
+        "nsm_claim_id",
+        "date_received",
+        "ufn",
+        "solicitor_office_code",
+        "client_last_name",
+        "created_at",
+        "updated_at"
+      ]
+      get "/v1/payment_requests/#{payment_id}"
+      expect(response.parsed_body["payable"].keys.sort).to eq(payable_keys.sort)
     end
 
     it "returns not found when not found" do
