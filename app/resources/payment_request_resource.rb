@@ -8,8 +8,10 @@ class PaymentRequestResource
   :travel_cost, :allowed_travel_cost,
   :waiting_cost, :allowed_waiting_cost,
   :disbursement_cost, :allowed_disbursement_cost,
-  :submitted_at, :created_at, :updated_at,
-  :net_assigned_counsel_cost, :assigned_counsel_vat, :allowed_assigned_counsel_vat
+  :submitted_at, :date_claim_received,
+  :net_assigned_counsel_cost, :assigned_counsel_vat,
+  :allowed_assigned_counsel_vat,
+  :created_at, :updated_at,
 
   attribute :allowed_assigned_counsel_cost do |resource|
     resource.allowed_net_assigned_counsel_cost
