@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_21_154059) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_04_091824) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -50,6 +50,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_154059) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "nsm_claim_id"
+    t.datetime "date_received"
+    t.string "ufn"
+    t.string "solicitor_office_code"
+    t.string "client_last_name"
     t.index ["nsm_claim_id"], name: "index_assigned_counsel_claims_on_nsm_claim_id", unique: true
   end
 
@@ -68,13 +72,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_154059) do
     t.string "firm_name"
     t.string "office_code"
     t.string "stage_code"
-    t.string "client_surname"
-    t.datetime "case_concluded_date"
+    t.string "client_last_name"
+    t.datetime "work_completed_date"
     t.string "court_name"
     t.integer "court_attendances"
     t.integer "no_of_defendants"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "client_first_name"
+    t.string "outcome_code"
+    t.string "matter_type"
+    t.boolean "youth_court"
   end
 
   create_table "payment_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -97,6 +105,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_154059) do
     t.string "payable_type"
     t.decimal "allowed_net_assigned_counsel_cost", precision: 10, scale: 2
     t.decimal "allowed_assigned_counsel_vat", precision: 10, scale: 2
+    t.datetime "date_claim_received"
     t.index ["payable_type", "payable_id"], name: "index_payment_requests_on_payable_type_and_payable_id"
   end
 

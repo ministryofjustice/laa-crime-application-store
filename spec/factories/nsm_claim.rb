@@ -7,8 +7,12 @@ FactoryBot.define do
     firm_name { "Solicitor Firm" }
     office_code { "1A123B" }
     stage_code { "PROM" }
-    client_surname { "Smith" }
-    case_concluded_date { 1.day.ago }
+    client_first_name { "Tom" }
+    client_last_name { "Smith" }
+    work_completed_date { 1.day.ago }
+    outcome_code { "CP01" }
+    matter_type { "1" }
+    youth_court { true }
     court_name { "Leeds Court" }
     court_attendances { 2 }
     no_of_defendants { 1 }
