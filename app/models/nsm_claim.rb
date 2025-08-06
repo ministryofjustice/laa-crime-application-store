@@ -12,6 +12,4 @@ class NsmClaim < ApplicationRecord
                                             on: :update }
   validates :stage_code, format: { with: /\A\bPROG\b|\bPROM\b\z/, on: :update }
   validates :court_attendances, :no_of_defendants, numericality: { only_integer: true }, on: :update
-
-  # validates :work_completed_date, :date_received, is_a_date: true, on: update
 end
