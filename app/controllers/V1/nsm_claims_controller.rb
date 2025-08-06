@@ -15,9 +15,9 @@ module V1
 
     def allowed_params
       params.permit(:ufn, :date_received, :firm_name,
-        :office_code, :stage_code, :client_last_name,
-        :work_completed_date, :court_name, :court_attendances,
-        :no_of_defendants)
+                    :office_code, :stage_code, :client_last_name,
+                    :work_completed_date, :court_name, :court_attendances,
+                    :no_of_defendants)
     end
 
     def current_nsm_claim

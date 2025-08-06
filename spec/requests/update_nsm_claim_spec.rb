@@ -12,7 +12,7 @@ RSpec.describe "Update nsm_claim" do
 
   context "with NsmClaim" do
     before do
-      create(:nsm_claim, id: nsm_claim_id )
+      create(:nsm_claim, id: nsm_claim_id)
     end
 
     it "successfully update when fields are valid" do
