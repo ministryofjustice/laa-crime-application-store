@@ -98,25 +98,17 @@ RSpec.describe "show payment request", type: :request do
 
     it "returns expected payment request keys" do
       payment_request_keys = %w[
-        allowed_disbursement_cost
-        allowed_profit_cost
-        allowed_travel_cost
-        allowed_waiting_cost
         created_at
         date_claim_received
-        disbursement_cost
         payable
-        profit_cost
         request_type
         submitted_at
         submitter_id
-        travel_cost
         net_assigned_counsel_cost
         assigned_counsel_vat
         allowed_net_assigned_counsel_cost
         allowed_assigned_counsel_vat
         updated_at
-        waiting_cost
       ]
 
       get "/v1/payment_requests/#{payment_id}"
