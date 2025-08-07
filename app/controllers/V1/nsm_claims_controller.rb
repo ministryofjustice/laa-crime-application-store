@@ -1,7 +1,7 @@
 module V1
   class NsmClaimsController < ApplicationController
     def update
-      current_nsm_claim.update!(allowed_params)
+      current_nsm_claim.update!(permitted_params)
       render json: current_nsm_claim, status: :created
     rescue ActiveRecord::RecordInvalid => e
       report_error(e)
@@ -13,11 +13,13 @@ module V1
 
   private
 
-    def allowed_params
+    def permitted_params
       params.permit(:ufn, :date_received, :firm_name,
                     :office_code, :stage_code, :client_last_name,
-                    :work_completed_date, :court_name, :court_attendances,
-                    :no_of_defendants)
+                    :client_first_name, :work_completed_date,
+                    :court_name, :court_attendances,
+                    :no_of_defendants, :outcome_code,
+                    :matter_type, :youth_court)
     end
 
     def current_nsm_claim
