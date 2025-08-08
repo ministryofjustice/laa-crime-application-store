@@ -29,7 +29,10 @@ RSpec.describe "Create submission" do
 
       expect(created_record.latest_version).to have_attributes(
         json_schema_version: 1,
-        application: { "foo" => "bar" },
+        application: {
+          "foo" => "bar",
+          "laa_reference" => an_instance_of(String),
+        },
       )
     end
 
@@ -67,6 +70,7 @@ RSpec.describe "Create submission" do
               "foo" => "bar",
               "created_at" => (updated_at_time - 15.minutes).iso8601,
               "updated_at" => updated_at_time.iso8601,
+              "laa_reference" => an_instance_of(String),
             },
           )
       end
