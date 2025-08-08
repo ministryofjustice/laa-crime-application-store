@@ -25,6 +25,7 @@ Rails.application.routes.draw do
       collection { post :auto_assignments }
     end
 
+    resources :nsm_claims, only: %i[update]
     resources :payment_requests, only: %i[show create update] do
       member { patch :link_payable }
     end

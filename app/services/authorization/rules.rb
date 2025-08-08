@@ -33,6 +33,9 @@ module Authorization
         assigned_counsel_claims: {
           update: true,
         },
+        nsm_claims: {
+          update: true,
+        },
         events: {
           create: ->(object, _params) { object.state.in?(EDITABLE_BY_CASEWORKER_STATES) },
         },

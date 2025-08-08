@@ -9,5 +9,4 @@ en:
       assigned_counsel_origin_wrong_ref: An assigned counsel amendment or appeal payment can only be linked to an assigned counsel claim
       invalid_type: This payment request type is invalid
       invalid_link: You cannot associate this claim with this payment type
-    assigned_counsel_claim:
-      counsel_office_code: A counsel office code must be an alphanumeric string starting with a number and ending in a letter
+    office_code: Must be an alphanumeric string starting with a number and ending in a letter
