@@ -469,7 +469,7 @@ PLATFORMS
 
 DEPENDENCIES
   alba
-  aws-sdk-s3 (~> 1.194)
+  aws-sdk-s3 (~> 1.196)
   bootsnap
   debug
   dotenv-rails
