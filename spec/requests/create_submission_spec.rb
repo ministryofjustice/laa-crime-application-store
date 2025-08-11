@@ -2,7 +2,11 @@ require "rails_helper"
 
 RSpec.describe "Create submission" do
   context "when authenticated with bearer token" do
-    before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider) }
+    before do
+      allow(Nsm::SubmissionMailer).to receive(:notify).and_return(true)
+      allow(PriorAuthority::SubmissionMailer).to receive(:notify).and_return(true)
+      allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider)
+    end
 
     let(:created_record) { Submission.last }
 
