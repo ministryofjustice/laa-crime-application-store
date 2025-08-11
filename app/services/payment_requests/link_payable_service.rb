@@ -18,6 +18,7 @@ module PaymentRequests
             raise PaymentLinkError, I18n.t("errors.payment_request.invalid_link") unless submission.application_type == "crm7"
 
             application_data = submission.latest_version.application
+            claim = V1::Nsm::Claim.new(submission)
 
             payment_request.payable = NsmClaim.create!(
               laa_reference: params[:laa_reference],
@@ -26,8 +27,8 @@ module PaymentRequests
               firm_name: application_data.dig("firm_office", "name"),
               office_code: application_data["office_code"],
               stage_code: application_data["stage_reached"],
-              client_first_name: submission.latest_version.main_defendant["first_name"],
-              client_last_name: submission.latest_version.main_defendant["last_name"],
+              client_first_name: claim.main_defendant["first_name"],
+              client_last_name: claim.main_defendant["last_name"],
               work_completed_date: application_data["work_completed_date"],
               youth_court: application_data["youth_court"],
               matter_type: application_data["matter_type"],
@@ -38,14 +39,14 @@ module PaymentRequests
             )
 
             payment_request.update!(
-              profit_cost: submission.latest_version.totals[:cost_summary][:profit_costs][:claimed_total_inc_vat],
-              travel_cost: submission.latest_version.totals[:cost_summary][:travel][:claimed_total_inc_vat],
-              waiting_cost: submission.latest_version.totals[:cost_summary][:waiting][:claimed_total_inc_vat],
-              disbursement_cost: submission.latest_version.totals[:cost_summary][:disbursements][:claimed_total_inc_vat],
-              allowed_profit_cost: submission.latest_version.totals[:cost_summary][:profit_costs][:assessed_total_inc_vat],
-              allowed_travel_cost: submission.latest_version.totals[:cost_summary][:travel][:assessed_total_inc_vat],
-              allowed_waiting_cost: submission.latest_version.totals[:cost_summary][:waiting][:assessed_total_inc_vat],
-              allowed_disbursement_cost: submission.latest_version.totals[:cost_summary][:disbursements][:assessed_total_inc_vat],
+              profit_cost: claim.totals[:cost_summary][:profit_costs][:claimed_total_inc_vat],
+              travel_cost: claim.totals[:cost_summary][:travel][:claimed_total_inc_vat],
+              waiting_cost: claim.totals[:cost_summary][:waiting][:claimed_total_inc_vat],
+              disbursement_cost: claim.totals[:cost_summary][:disbursements][:claimed_total_inc_vat],
+              allowed_profit_cost: claim.totals[:cost_summary][:profit_costs][:assessed_total_inc_vat],
+              allowed_travel_cost: claim.totals[:cost_summary][:travel][:assessed_total_inc_vat],
+              allowed_waiting_cost: claim.totals[:cost_summary][:waiting][:assessed_total_inc_vat],
+              allowed_disbursement_cost: claim.totals[:cost_summary][:disbursements][:assessed_total_inc_vat],
             )
           else
             payment_request.payable = NsmClaim.create!(
