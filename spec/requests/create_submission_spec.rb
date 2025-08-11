@@ -2,13 +2,13 @@ require "rails_helper"
 
 RSpec.describe "Create submission" do
   context "when authenticated with bearer token" do
+    let(:created_record) { Submission.last }
+
     before do
-      allow(Nsm::SubmissionMailer).to receive(:notify).and_return(true)
-      allow(PriorAuthority::SubmissionMailer).to receive(:notify).and_return(true)
+      allow(Nsm::SubmissionMailer).to receive_message_chain(:notify, :deliver_now!).and_return(true)
+      allow(PriorAuthority::SubmissionMailer).to receive_message_chain(:notify, :deliver_now!).and_return(true)
       allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider)
     end
-
-    let(:created_record) { Submission.last }
 
     it "saves what I send" do
       id = SecureRandom.uuid
