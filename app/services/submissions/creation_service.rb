@@ -17,6 +17,8 @@ module Submissions
             submission.update!(last_updated_at:)
           end
 
+          Nsm::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == "crm7"
+          PriorAuthority::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == "crm4"
           submission
         end
       end
