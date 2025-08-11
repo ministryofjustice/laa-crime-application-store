@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class NotifyMailer < GovukNotifyRails::Mailer
-  rescue_from 'Notifications::Client::BadRequestError' do |e|
-    if HostEnv.production? || e.message.exclude?('team-only API')
+  rescue_from "Notifications::Client::BadRequestError" do |e|
+    if HostEnv.production? || e.message.exclude?("team-only API")
       Rails.logger.warn("Reraising exception #{e.class} with message \"#{e.message}\"")
       raise e
     else
