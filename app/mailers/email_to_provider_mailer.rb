@@ -1,4 +1,4 @@
-class EmailToProviderMailer < GovukNotifyRails::Mailer
+class EmailToProviderMailer < NotifyMailer
   # :nocov:
   def notify(message_class, submission)
     submission.with_lock do

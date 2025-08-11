@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module PriorAuthority
-  class SubmissionMailer < NotifyMailer
+  class SubmissionMailer < EmailToProviderMailer
     def notify(submission)
       @data = submission.latest_version.application
       @application = V1::PriorAuthority::Application.new(_1)
-      set_template("d07d03fd-65d0-45e4-8d49-d4ee41efad35")
+      set_template('d07d03fd-65d0-45e4-8d49-d4ee41efad35')
       set_personalisation(
         laa_case_reference: case_reference,
         ufn: unique_file_number,
@@ -16,22 +16,22 @@ module PriorAuthority
       mail(to: email_recipient)
     end
 
-  private
+    private
 
     def defendant_name
       @application.defendant_full_name
     end
 
     def email_recipient
-      @data["solicitor"]["contact_email"]
+      @data['solicitor']['contact_email']
     end
 
     def case_reference
-      @data["laa_reference"]
+      @data['laa_reference']
     end
 
     def unique_file_number
-      @data["ufn"]
+      @data['ufn']
     end
 
     def application_total
@@ -39,7 +39,7 @@ module PriorAuthority
     end
 
     def submission_date
-      Time.zone.now.to_fs(:stamp)
+      DateTime.now.to_fs(:stamp)
     end
   end
 end
