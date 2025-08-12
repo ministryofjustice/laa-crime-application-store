@@ -7,7 +7,17 @@ FactoryBot.define do
       defendant_name { nil }
       additional_defendant_names { nil }
       firm_name { nil }
-      solicitor { nil }
+      solicitor do
+        {
+          "last_name" => "Doe",
+          "first_name" => "John",
+          "previous_id" => nil,
+          "contact_email" => "john@doe.com",
+          "reference_number" => "1234567",
+          "contact_last_name" => "Doe",
+          "contact_first_name" => "John",
+        }
+      end
       account_number { "1A123B" }
       ufn { nil }
       laa_reference { nil }
@@ -67,6 +77,23 @@ FactoryBot.define do
               firm_name:,
               solicitor:,
               status:,
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
+      end
+    end
+
+    trait :with_nsm_breach_application do
+      application do
+        build(:application,
+              :nsm,
+              :nsm_breach_type,
+              defendant_name:,
+              additional_defendant_names:,
+              account_number:,
+              firm_name:,
+              solicitor:,
+              status:,
+              maat: nil,
               ufn: ufn || "010124/001",
               laa_reference: laa_reference || "LAA-123456")
       end

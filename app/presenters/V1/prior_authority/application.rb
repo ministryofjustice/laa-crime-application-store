@@ -2,15 +2,15 @@ module V1
   module PriorAuthority
     class Application < V1::Base
       def primary_quote
-        @primary_quote ||= quotes.detect(&:primary)
+        @primary_quote ||= quotes_costs.detect(&:primary)
       end
 
-      def quotes
-        @quotes = @application["quotes"].map { ::Quote.new(_1) }
+      def quote_costs
+        @quotes = @application["quotes"].map { ::QuoteCosts.new(_1, @application) }
       end
 
       def application_total
-        @primary_quote.total_cost
+        primary_quote.total_cost
       end
 
       def defendant_full_name

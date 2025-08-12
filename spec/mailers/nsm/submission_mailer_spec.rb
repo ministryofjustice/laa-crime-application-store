@@ -14,15 +14,7 @@ RSpec.describe Nsm::SubmissionMailer, type: :mailer do
     end
 
     it "sets the recipient from claim provider" do
-      expect(mail.to).to eq([claim.submitter.email])
-    end
-
-    context "when there are alternative contact emails" do
-      before { claim.solicitor.update(contact_email: "alternative@example.com") }
-
-      it "uses the alternative email" do
-        expect(mail.to).to eq(["alternative@example.com"])
-      end
+      expect(mail.to).to eq(claim.latest_version.application.dig("solicitor", "contact_email"))
     end
 
     it "sets the template" do
@@ -36,35 +28,31 @@ RSpec.describe Nsm::SubmissionMailer, type: :mailer do
         expect(
           mail.govuk_notify_personalisation,
         ).to include(
-          LAA_case_reference: "LAA-n4AohV",
-          UFN: "120423/001",
-          main_defendant_name: an_instance_of(String),
+          LAA_case_reference: "LAA-123456",
+          UFN: "010124/001",
+          main_defendant_name: "Joe Bloggs",
           defendant_reference: "MAAT ID number: 1234567",
-          claim_total: "£20.45",
+          claim_total: "£4,268.75",
           date: Time.zone.now.to_fs(:stamp),
         )
       end
     end
 
     context "when defendant has cntp id" do
-      let(:claim) { create(:claim, :firm_details, :case_type_breach, :breach_defendant, :letters_calls) }
+      let(:claim) { create(:submission, build_scope: [:with_nsm_breach_application]) }
 
       it "sets personalisation from args" do
         expect(
           mail.govuk_notify_personalisation,
         ).to include(
-          LAA_case_reference: "LAA-n4AohV",
-          UFN: "120423/002",
-          main_defendant_name: an_instance_of(String),
-          defendant_reference: /\AClient's CNTP number: CNTP\d+\z/,
-          claim_total: "£20.45",
+          LAA_case_reference: "LAA-123456",
+          UFN: "010124/001",
+          main_defendant_name: "Joe Bloggs",
+          defendant_reference: "Client's CNTP number: CNTP100",
+          claim_total: "£4,268.75",
           date: Time.zone.now.to_fs(:stamp),
         )
       end
     end
-  end
-
-  it_behaves_like "notification client error handler" do
-    let(:submission) { claim }
   end
 end

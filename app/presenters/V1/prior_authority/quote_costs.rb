@@ -1,6 +1,6 @@
 module V1
   module PriorAuthority
-    class Quote
+    class QuoteCosts
       def initialize(quote, application)
         @quote = quote
         @application = application

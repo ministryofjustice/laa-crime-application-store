@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module PriorAuthority
-  class SubmissionMailer < EmailToProviderMailer
+  class SubmissionMailer < NotifyMailer
     def notify(submission)
       @data = submission.latest_version.application
       @application = V1::PriorAuthority::Application.new(submission)
@@ -23,7 +23,7 @@ module PriorAuthority
     end
 
     def email_recipient
-      @data["solicitor"]["contact_email"]
+      @data.dig("solicitor", "contact_email").presence
     end
 
     def case_reference

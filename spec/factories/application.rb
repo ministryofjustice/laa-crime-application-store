@@ -36,6 +36,7 @@ FactoryBot.define do
       additional_defendant_names { nil }
       firm_name { nil }
       account_number { "1A123B" }
+      maat { "1234567" }
       first_name { defendant_name.present? ? defendant_name.split.first : "Joe" }
       last_name { defendant_name.present? ? defendant_name.split(" ", 2).last : "Bloggs" }
     end
@@ -48,19 +49,61 @@ FactoryBot.define do
       end
     end
 
+    trait :nsm_breach_type do
+      claim_type { "breach_of_injunction" }
+      cntp_order { "CNTP100" }
+      cntp_date { Time.zone.local(2025, 2, 2) }
+    end
+
     trait :nsm do
+      claim_type { "non_standard_magistrate" }
+      rep_order_date { Time.zone.local(2025, 1, 1) }
       work_completed_date { Time.zone.local(2025, 1, 1) }
       hearing_outcome { "CP01" }
       matter_type { "1" }
       youth_court { true }
+      letters { 500 }
+      calls { 220 }
+      letters_uplift { 10 }
+      calls_uplift { 20 }
+      work_items do
+        [
+          {
+            "id" => SecureRandom.uuid,
+            "uplift" => 0,
+            "position" => 1,
+            "work_type" => "preparation",
+            "fee_earner" => "AB",
+            "time_spent" => 200,
+            "completed_on" => "2024-01-01",
+          },
+        ]
+      end
+
+      disbursements do
+        [
+          {
+            "id" => SecureRandom.uuid,
+            "disbursement_date" => Time.zone.local(2025, 1, 1),
+            "disbursement_type" => "motorcycle",
+            "miles" => 120.45,
+            "position" => 1,
+            "details" => "Drive to court",
+            "other_type" => nil,
+            "vat_rate" => 0.2,
+            "total_cost_without_vat" => 350.33,
+            "apply_vat" => "true",
+          },
+        ]
+      end
 
       defendants do
-        list = [{ first_name:, last_name:, main: true }]
+        list = [{ first_name:, last_name:, maat:, main: true }]
 
         additional_defendant_names&.each do |defendant_name|
           first_name = defendant_name.present? ? defendant_name.split.first : "Joe"
           last_name = defendant_name.present? ? defendant_name.split(" ", 2).last : "Bloggs"
-          list << { first_name:, last_name: }
+          list << { first_name:, last_name:, maat: }
         end
 
         list

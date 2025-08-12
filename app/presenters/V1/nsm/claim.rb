@@ -9,11 +9,24 @@ module V1
         @totals ||= LaaCrimeFormsCommon::Pricing::Nsm.totals(full_data_for_calculation)
       end
 
+      def work_items_for_calculation
+        @application["work_items"] { WorkItemCosts.new(_1, @application).data_for_calculation }
+      end
+
+      def disbursements_for_calculation
+        @application["disbursements"] { DisbursementCosts.new(_1).data_for_calculation }
+      end
+
+      def letters_and_calls_for_calculation
+        LettersAndCallsCosts.new(@application).letters_and_calls_for_calculation
+      end
+
+      # TODO: The classes used for this method only account for claimed costs - need to add assessed costs in also
       def full_data_for_calculation
         data_for_calculation.merge(
-          work_items: @application["work_items"],
-          disbursements: @application["letters_and_calls"],
-          letters_and_calls: @application["disbursements"],
+          work_items: work_items_for_calculation,
+          disbursements: disbursements_for_calculation,
+          letters_and_calls: letters_and_calls_for_calculation,
         )
       end
 

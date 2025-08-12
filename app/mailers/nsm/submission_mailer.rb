@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Nsm
-  class SubmissionMailer < EmailToProviderMailer
+  class SubmissionMailer < GovukNotifyRails::Mailer
     def notify(submission)
-      @data = @submission.latest_version.application
+      @data = submission.latest_version.application
       @claim = V1::Nsm::Claim.new(submission)
       set_template("0403454c-47a5-4540-804c-cb614e77dc22")
       set_personalisation(
@@ -20,7 +20,7 @@ module Nsm
   private
 
     def email_recipient
-      @data["solicitor"]["contact_email"].presence
+      @data.dig("solicitor", "contact_email").presence
     end
 
     def case_reference
@@ -56,7 +56,7 @@ module Nsm
     end
 
     def claim_total
-      NumberTo.pounds(claim.totals[:claimed_total_inc_vat])
+      NumberTo.pounds(@claim.totals[:totals][:claimed_total_inc_vat])
     end
 
     def submission_date
