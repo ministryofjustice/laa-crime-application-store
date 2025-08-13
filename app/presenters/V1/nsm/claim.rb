@@ -10,11 +10,11 @@ module V1
       end
 
       def work_items_for_calculation
-        @application["work_items"] { WorkItemCosts.new(_1, @application).data_for_calculation }
+        @application["work_items"].map { WorkItemCosts.new(_1, @application).data_for_calculation }
       end
 
       def disbursements_for_calculation
-        @application["disbursements"] { DisbursementCosts.new(_1).data_for_calculation }
+        @application["disbursements"].map { DisbursementCosts.new(_1).data_for_calculation }
       end
 
       def letters_and_calls_for_calculation

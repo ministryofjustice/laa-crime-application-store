@@ -13,7 +13,6 @@ FactoryBot.define do
       defendant_name { nil }
       additional_defendant_names { nil }
       firm_name { nil }
-      solicitor { nil }
       account_number { "1A123B" }
       ufn { nil }
       laa_reference { nil }
@@ -30,7 +29,6 @@ FactoryBot.define do
           defendant_name: a.defendant_name,
           additional_defendant_names: a.additional_defendant_names,
           firm_name: a.firm_name,
-          solicitor: a.solicitor,
           ufn: a.ufn,
           laa_reference: a.laa_reference,
           account_number: a.account_number,

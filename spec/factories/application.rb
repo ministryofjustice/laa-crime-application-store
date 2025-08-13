@@ -16,17 +16,6 @@ FactoryBot.define do
         "vat_registered" => "yes",
       }
     end
-    solicitor do
-      {
-        "last_name" => "Doe",
-        "first_name" => "John",
-        "previous_id" => nil,
-        "contact_email" => "john@doe.com",
-        "reference_number" => "1234567",
-        "contact_last_name" => "Doe",
-        "contact_first_name" => "John",
-      }
-    end
     status { "submitted" }
     updated_at { Time.current }
     created_at { status == "submitted" ? 10.minutes.ago : updated_at }
@@ -47,6 +36,44 @@ FactoryBot.define do
       defendant do
         { first_name:, last_name: }
       end
+      solicitor do
+        {
+          "previous_id" => nil,
+          "contact_email" => "john@doe.com",
+          "reference_number" => "1234567",
+          "contact_last_name" => "Doe",
+          "contact_first_name" => "John",
+        }
+      end
+      quotes do
+        [
+          {
+            "primary" => true,
+            "contact_first_name" => "Joe",
+            "contact_last_name" => "Bloggs",
+            "organisation" => "LAA",
+            "postcode" => "CRO 1RE",
+            "cost_per_hour" => 10,
+            "period" => 180,
+            "travel_cost_reason" => "a reason",
+            "travel_cost_per_hour" => 50.0,
+            "travel_time" => 150,
+            "user_chosen_cost_type" => "per_hour",
+            "related_to_post_mortem" => true,
+          },
+        ]
+      end
+      additional_costs do
+        [
+          {
+            "name" => "stuff",
+            "description" => "some extra stuff",
+            "items" => 2,
+            "cost_per_item" => 10.0,
+            "unit_type" => "per_item",
+          },
+        ]
+      end
     end
 
     trait :nsm_breach_type do
@@ -66,10 +93,20 @@ FactoryBot.define do
       calls { 220 }
       letters_uplift { 10 }
       calls_uplift { 20 }
+      solicitor do
+        {
+          "last_name" => "Doe",
+          "first_name" => "John",
+          "previous_id" => nil,
+          "contact_email" => "john@doe.com",
+          "reference_number" => "1234567",
+          "contact_last_name" => "Doe",
+          "contact_first_name" => "John",
+        }
+      end
       work_items do
         [
           {
-            "id" => SecureRandom.uuid,
             "uplift" => 0,
             "position" => 1,
             "work_type" => "preparation",
@@ -83,7 +120,6 @@ FactoryBot.define do
       disbursements do
         [
           {
-            "id" => SecureRandom.uuid,
             "disbursement_date" => Time.zone.local(2025, 1, 1),
             "disbursement_type" => "motorcycle",
             "miles" => 120.45,
@@ -92,7 +128,7 @@ FactoryBot.define do
             "other_type" => nil,
             "vat_rate" => 0.2,
             "total_cost_without_vat" => 350.33,
-            "apply_vat" => "true",
+            "apply_vat" => true,
           },
         ]
       end

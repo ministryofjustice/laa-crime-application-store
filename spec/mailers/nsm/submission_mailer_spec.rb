@@ -14,7 +14,7 @@ RSpec.describe Nsm::SubmissionMailer, type: :mailer do
     end
 
     it "sets the recipient from claim provider" do
-      expect(mail.to).to eq(claim.latest_version.application.dig("solicitor", "contact_email"))
+      expect(mail.to).to eq(["john@doe.com"])
     end
 
     it "sets the template" do

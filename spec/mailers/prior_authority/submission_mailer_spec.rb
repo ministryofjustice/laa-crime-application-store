@@ -19,7 +19,7 @@ RSpec.describe PriorAuthority::SubmissionMailer, type: :mailer do
     end
 
     it "sets the recipient to solicitors contact email" do
-      expect(mail.to).to eq(["james@email.com"])
+      expect(mail.to).to eq(["john@doe.com"])
     end
 
     it "sets the template" do
@@ -32,10 +32,10 @@ RSpec.describe PriorAuthority::SubmissionMailer, type: :mailer do
       expect(
         mail.govuk_notify_personalisation,
       ).to include(
-        laa_case_reference: "LAA-n4AohV",
-        ufn: "120423/001",
-        defendant_name: an_instance_of(String),
-        application_total: "£155.00",
+        laa_case_reference: "LAA-123456",
+        ufn: "010124/001",
+        defendant_name: "Joe Bloggs",
+        application_total: "£175.00",
         date: Time.zone.now.to_fs(:stamp),
       )
     end

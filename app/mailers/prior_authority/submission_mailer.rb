@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module PriorAuthority
-  class SubmissionMailer < NotifyMailer
+  class SubmissionMailer < GovukNotifyRails::Mailer
     def notify(submission)
       @data = submission.latest_version.application
       @application = V1::PriorAuthority::Application.new(submission)
@@ -35,7 +35,7 @@ module PriorAuthority
     end
 
     def application_total
-      NumberTo.pounds(@application.primary_quote.total_cost)
+      LaaCrimeFormsCommon::NumberTo.pounds(@application.primary_quote.total_cost)
     end
 
     def submission_date

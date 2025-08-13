@@ -56,7 +56,7 @@ module Nsm
     end
 
     def claim_total
-      NumberTo.pounds(@claim.totals[:totals][:claimed_total_inc_vat])
+      LaaCrimeFormsCommon::NumberTo.pounds(@claim.totals[:totals][:claimed_total_inc_vat])
     end
 
     def submission_date
