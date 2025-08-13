@@ -53,6 +53,36 @@ FactoryBot.define do
       end
     end
 
+    trait :with_per_item_quote_pa_application do
+      application do
+        build(:application,
+              :pa,
+              :per_item_quote,
+              defendant_name:,
+              account_number:,
+              firm_name:,
+              status:,
+              ufn: ufn || "010124/001",
+              service_type: "custom",
+              custom_service_name: "Test")
+      end
+    end
+
+    trait :with_per_hour_additional_cost_pa_application do
+      application do
+        build(:application,
+              :pa,
+              :per_hour_additional_cost,
+              defendant_name:,
+              account_number:,
+              firm_name:,
+              status:,
+              ufn: ufn || "010124/001",
+              service_type: "custom",
+              custom_service_name: "Test")
+      end
+    end
+
     trait :with_nsm_application do
       application do
         build(:application,

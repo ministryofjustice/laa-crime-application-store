@@ -58,7 +58,7 @@ FactoryBot.define do
             "travel_cost_reason" => "a reason",
             "travel_cost_per_hour" => 50.0,
             "travel_time" => 150,
-            "user_chosen_cost_type" => "per_hour",
+            "cost_type" => "per_hour",
             "related_to_post_mortem" => true,
           },
         ]
@@ -71,6 +71,42 @@ FactoryBot.define do
             "items" => 2,
             "cost_per_item" => 10.0,
             "unit_type" => "per_item",
+          },
+        ]
+      end
+    end
+
+    trait :per_item_quote do
+      quotes do
+        [
+          {
+            "primary" => true,
+            "contact_first_name" => "Joe",
+            "contact_last_name" => "Bloggs",
+            "organisation" => "LAA",
+            "postcode" => "CRO 1RE",
+            "cost_per_item" => 20,
+            "items" => 10,
+            "travel_cost_reason" => "a reason",
+            "travel_cost_per_hour" => 50.0,
+            "travel_time" => 150,
+            "cost_type" => "per_item",
+            "cost_multiplier" => 1,
+            "related_to_post_mortem" => true,
+          },
+        ]
+      end
+    end
+
+    trait :per_hour_additional_cost do
+      additional_costs do
+        [
+          {
+            "name" => "stuff",
+            "description" => "some extra stuff",
+            "period" => 180,
+            "cost_per_hour" => 10.0,
+            "unit_type" => "per_hour",
           },
         ]
       end
