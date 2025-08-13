@@ -6,14 +6,6 @@ module V1
         @claim = claim
       end
 
-      def total_cost
-        calculation[:claimed_total_exc_vat]
-      end
-
-      def allowed_total_cost
-        calculation[:assessed_total_exc_vat]
-      end
-
       def data_for_calculation
         {
           claimed_time_spent_in_minutes: @work_item["time_spent"].to_i,

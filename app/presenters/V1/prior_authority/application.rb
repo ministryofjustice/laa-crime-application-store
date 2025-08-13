@@ -9,10 +9,6 @@ module V1
         @quotes = @application["quotes"].map { QuoteCosts.new(_1, @application) }
       end
 
-      def application_total
-        primary_quote.total_cost
-      end
-
       def defendant_full_name
         [
           @application["defendant"]["first_name"],
