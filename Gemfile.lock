@@ -489,7 +489,7 @@ DEPENDENCIES
   pry-rescue
   pry-stack_explorer
   puma (~> 6.6)
-  rails (~> 8.0.2)
+  rails (~> 8.0.2.1)
   rspec-rails
   rspec_junit_formatter
   rubocop-govuk
