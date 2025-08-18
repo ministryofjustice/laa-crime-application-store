@@ -84,7 +84,7 @@ RSpec.describe "Link payment request to associated record" do
 
     before do
       create(:nsm_claim, laa_reference: "LAA-abc123")
-      create(:payment_request, id: payment_id, request_type: request_type, submitted_at: nil)
+      create(:payment_request, payment_request_claim: nil, id: payment_id, request_type: request_type, submitted_at: nil)
     end
 
     it "returns 422 when the request includes an laa_reference" do
@@ -99,8 +99,8 @@ RSpec.describe "Link payment request to associated record" do
       patch "/v1/payment_requests/#{payment_id}/link_payable"
 
       expect(response).to have_http_status(:created)
-      expect(PaymentRequest.find(payment_id).payable_type).to eq("NsmClaim")
-      expect(PaymentRequest.find(payment_id).payable.laa_reference).not_to be_nil
+      expect(PaymentRequest.find(payment_id).payment_request_claim.is_a?(NsmClaim)).to be true
+      expect(PaymentRequest.find(payment_id).nsm_claim.laa_reference).not_to be_nil
     end
   end
 
@@ -113,7 +113,7 @@ RSpec.describe "Link payment request to associated record" do
 
     it "returns 422 when trying to link to a non NsmClaim record" do
       create(:assigned_counsel_claim, laa_reference: "LAA-abc123")
-      create(:payment_request, id: payment_id, request_type: request_type, submitted_at: nil)
+      create(:payment_request, payment_request_claim: nil, id: payment_id, request_type: request_type, submitted_at: nil)
 
       patch "/v1/payment_requests/#{payment_id}/link_payable", params: {
         laa_reference: "LAA-abc123",
@@ -126,7 +126,7 @@ RSpec.describe "Link payment request to associated record" do
       patch "/v1/payment_requests/#{payment_id}/link_payable"
 
       expect(response).to have_http_status(:created)
-      expect(PaymentRequest.find(payment_id).payable.is_a?(AssignedCounselClaim)).to be true
+      expect(PaymentRequest.find(payment_id).payment_request_claim.is_a?(AssignedCounselClaim)).to be true
     end
 
     it "creates a payment and linked assigned counsel record when an NsmClaim laa ref supplied" do
@@ -137,8 +137,8 @@ RSpec.describe "Link payment request to associated record" do
         laa_reference: "LAA-abc123",
       }
       expect(response).to have_http_status(:created)
-      expect(PaymentRequest.find(payment_id).payable.is_a?(AssignedCounselClaim)).to be true
-      expect(PaymentRequest.find(payment_id).payable.nsm_claim.laa_reference).to eq("LAA-abc123")
+      expect(PaymentRequest.find(payment_id).payment_request_claim.is_a?(AssignedCounselClaim)).to be true
+      expect(PaymentRequest.find(payment_id).assigned_counsel_claim.nsm_claim.laa_reference).to eq("LAA-abc123")
     end
   end
 

@@ -19,7 +19,7 @@ module PaymentRequests
 
             application_data = submission.latest_version.application
 
-            payment_request.payable = NsmClaim.create!(
+            payment_request.nsm_claim = NsmClaim.create!(
               laa_reference: params[:laa_reference],
               submission: submission,
               ufn: application_data["ufn"],
@@ -48,7 +48,7 @@ module PaymentRequests
               allowed_disbursement_cost: submission.latest_version.totals[:cost_summary][:disbursements][:assessed_total_inc_vat],
             )
           else
-            payment_request.payable = NsmClaim.create!(
+            payment_request.nsm_claim = NsmClaim.create!(
               laa_reference: generate_laa_reference,
             )
           end
@@ -56,16 +56,16 @@ module PaymentRequests
           raise PaymentLinkError, I18n.t("errors.payment_request.no_ref") if params[:laa_reference].blank?
           raise PaymentLinkError, I18n.t("errors.payment_request.does_not_exist") if claim.nil?
 
-          payment_request.payable = claim
+          payment_request.payment_request_claim = claim
         when "assigned_counsel"
           if params[:laa_reference].blank?
-            payment_request.payable = AssignedCounselClaim.create!(
+            payment_request.assigned_counsel_claim = AssignedCounselClaim.create!(
               laa_reference: generate_laa_reference,
             )
           else
             raise PaymentLinkError, I18n.t("errors.payment_request.assigned_counsel_origin_wrong_ref") unless claim.is_a?(NsmClaim)
 
-            payment_request.payable = AssignedCounselClaim.create!(
+            payment_request.assigned_counsel_claim = AssignedCounselClaim.create!(
               laa_reference: generate_laa_reference,
               nsm_claim: claim,
             )
@@ -74,7 +74,7 @@ module PaymentRequests
           raise PaymentLinkError, I18n.t("errors.payment_request.no_ref") if params[:laa_reference].blank?
           raise PaymentLinkError, I18n.t("errors.payment_request.assigned_counsel_wrong_ref") unless claim.is_a?(AssignedCounselClaim)
 
-          payment_request.payable = claim
+          payment_request.payment_request_claim = claim
         else
           raise PaymentLinkError, I18n.t("errors.payment_request.invalid_type")
         end
