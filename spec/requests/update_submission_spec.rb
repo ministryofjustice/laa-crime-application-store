@@ -19,7 +19,7 @@ RSpec.describe "Update submission" do
   context "with ability to send emails (pa)" do
     before do
       allow(ENV).to receive(:fetch).with("SEND_EMAILS", "false").and_return("true")
-      llow(PriorAuthority::SubmissionMailer).to receive_message_chain(:notify, :deliver_now!).and_return(true)
+      allow(PriorAuthority::SubmissionMailer).to receive_message_chain(:notify, :deliver_now!).and_return(true)
     end
 
     it "sends email notification on update" do
