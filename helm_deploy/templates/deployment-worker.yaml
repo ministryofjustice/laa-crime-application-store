@@ -163,7 +163,7 @@ spec:
           {{ end }}
             - name: ENABLE_PROMETHEUS_EXPORTER
               value: 'true'
-            - name: SEND_EMAILS:
+            - name: SEND_EMAILS
               value: 'true'
       {{- with .Values.nodeSelector }}
       nodeSelector:
