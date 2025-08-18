@@ -1,24 +1,10 @@
 #####
-## Keep using PR trait; override claim attribute
-# create(:payment_request, :non_standard_mag,
-#        claim_attributes: { client_last_name: "Fred" })
-#
-# # Use ACC claim with PR trait
-# create(:payment_request, :assigned_counsel_amendment,
-#        claim_type: :assigned_counsel_claim)
-#
-# # ACC claim + claim trait
-# create(:payment_request, :assigned_counsel_amendment,
-#        claim_type: [:assigned_counsel_claim, :urgent])
-#
-# # NSM claim + separate claim_traits param
-# create(:payment_request, :non_standard_mag,
-#        claim_traits: [:urgent])
-#
-# # No PR trait; choose claim type + attrs
+# Override linked claim attribute
 # create(:payment_request,
-#        claim_type: :assigned_counsel_claim,
-#        claim_attributes: { laa_reference: "LAA-999" })
+#         payment_request_claim: build(:payment_request_claim, :nsm_claim, :stage_code: "PROG") )
+#
+# No linked payment request claim
+# create(:payment_request, payment_request_claim: nil)
 
 FactoryBot.define do
   factory :payment_request do

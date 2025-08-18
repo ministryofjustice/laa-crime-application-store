@@ -54,7 +54,7 @@ RSpec.describe PaymentRequest do
     end
 
     it "returns true when payment request is not linked to a claim or submitted" do
-      payment_request = create(:payment_request, :non_standard_mag, submitted_at: nil)
+      payment_request = create(:payment_request, payment_request_claim: nil, submitted_at: nil)
       expect(payment_request.is_linked_to_claim_when_submitted).to be(true)
     end
 
