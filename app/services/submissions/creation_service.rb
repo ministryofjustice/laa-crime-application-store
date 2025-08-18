@@ -16,9 +16,10 @@ module Submissions
             last_updated_at = params.dig(:application, :updated_at)&.to_time || submission.created_at
             submission.update!(last_updated_at:)
           end
-
-          Nsm::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == "crm7"
-          PriorAuthority::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == "crm4"
+          if ENV.fetch("SEND_EMAILS", "false") == "true"
+            Nsm::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == "crm7"
+            PriorAuthority::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == "crm4"
+          end
           submission
         end
       end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module PriorAuthority
-  class SubmissionMailer < GovukNotifyRails::Mailer
+  class SubmissionMailer < NotifyMailer
     def notify(submission)
       @data = submission.latest_version.application
       @application = V1::PriorAuthority::Application.new(submission)

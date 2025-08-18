@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Nsm
-  class SubmissionMailer < GovukNotifyRails::Mailer
+  class SubmissionMailer < NotifyMailer
     def notify(submission)
       @data = submission.latest_version.application
       @claim = V1::Nsm::Claim.new(submission)
