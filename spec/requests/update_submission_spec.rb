@@ -1,7 +1,36 @@
 require "rails_helper"
 
+# rubocop:disable RSpec/VerifiedDoubles
 RSpec.describe "Update submission" do
+  let(:notify_mailer) { double(:mailer, deliver_now!: true) }
+
   before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker) }
+
+  context "with ability to send emails (nsm)" do
+    before do
+      allow(ENV).to receive(:fetch).with("SEND_EMAILS", "false").and_return("true")
+      allow(Nsm::SubmissionMailer).to receive(:notify).and_return(notify_mailer)
+    end
+
+    it "sends email notification on update" do
+      submission = create(:submission, :with_nsm_version)
+      patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
+      expect(response).to have_http_status(:created)
+    end
+  end
+
+  context "with ability to send emails (pa)" do
+    before do
+      allow(ENV).to receive(:fetch).with("SEND_EMAILS", "false").and_return("true")
+      allow(PriorAuthority::SubmissionMailer).to receive(:notify).and_return(notify_mailer)
+    end
+
+    it "sends email notification on update" do
+      submission = create(:submission, :with_pa_version)
+      patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
+      expect(response).to have_http_status(:created)
+    end
+  end
 
   it "lets me update data by creating a new version" do
     submission = create(:submission)
@@ -139,3 +168,4 @@ RSpec.describe "Update submission" do
     end
   end
 end
+# rubocop:enable RSpec/VerifiedDoubles

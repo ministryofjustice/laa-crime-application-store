@@ -129,6 +129,7 @@ FactoryBot.define do
       calls { 220 }
       letters_uplift { 10 }
       calls_uplift { 20 }
+      reasons_for_claim { [] }
       solicitor do
         {
           "last_name" => "Doe",
