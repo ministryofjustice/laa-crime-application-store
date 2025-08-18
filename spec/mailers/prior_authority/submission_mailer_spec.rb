@@ -40,4 +40,8 @@ RSpec.describe PriorAuthority::SubmissionMailer, type: :mailer do
       )
     end
   end
+
+  it_behaves_like "notification client error handler" do
+    let(:submission) { application }
+  end
 end
