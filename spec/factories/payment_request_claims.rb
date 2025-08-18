@@ -3,7 +3,7 @@ FactoryBot.define do
     id { SecureRandom.uuid }
     laa_reference { "LAA-Xcoqqz" }
     client_last_name  { "Smith" }
-    date_received     { Date.today }
+    date_received     { Time.zone.today }
     office_code { "1A123B" }
     ufn { "120423/001" }
 
