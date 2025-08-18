@@ -10,6 +10,49 @@ RSpec.describe "Create submission" do
       allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider)
     end
 
+    context "with ability to send emails (nsm)" do
+      before do
+        allow(ENV).to receive(:fetch).with("SEND_EMAILS", "false").and_return("true")
+      end
+
+      it "sends email notification on update (nsm)" do
+        post "/v1/submissions", headers: { "Content-Type" => "application/json" }, params: {
+          application_id: SecureRandom.uuid,
+          application_type: "crm7",
+          application_state: "submitted",
+          application_risk: nil,
+          json_schema_version: 1,
+          application: {
+            claim_type: "non_standard_magistrate",
+            rep_order_date: "2024-1-1",
+            reasons_for_claim: %w[other],
+            work_items: [],
+            letters_and_calls: [],
+            disbursements: [],
+          },
+        }.to_json
+        expect(response).to have_http_status :created
+      end
+    end
+
+    context "with ability to send emails (pa)" do
+      before do
+        allow(ENV).to receive(:fetch).with("SEND_EMAILS", "false").and_return("true")
+      end
+
+      it "sends email notification on update (nsm)" do
+        post "/v1/submissions", params: {
+          application_id: SecureRandom.uuid,
+          application_type: "crm4",
+          application_state: "submitted",
+          application_risk: nil,
+          json_schema_version: 1,
+          application: { foo: :bar },
+        }
+        expect(response).to have_http_status :created
+      end
+    end
+
     it "saves what I send" do
       id = SecureRandom.uuid
       post "/v1/submissions", params: {

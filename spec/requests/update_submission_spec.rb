@@ -1,15 +1,12 @@
 require "rails_helper"
 
-# rubocop:disable RSpec/VerifiedDoubles
 RSpec.describe "Update submission" do
-  let(:notify_mailer) { double(:mailer, deliver_now!: true) }
-
   before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker) }
 
   context "with ability to send emails (nsm)" do
     before do
       allow(ENV).to receive(:fetch).with("SEND_EMAILS", "false").and_return("true")
-      allow(Nsm::SubmissionMailer).to receive(:notify).and_return(notify_mailer)
+      allow(Nsm::SubmissionMailer).to receive_message_chain(:notify, :deliver_now!).and_return(true)
     end
 
     it "sends email notification on update" do
@@ -22,7 +19,7 @@ RSpec.describe "Update submission" do
   context "with ability to send emails (pa)" do
     before do
       allow(ENV).to receive(:fetch).with("SEND_EMAILS", "false").and_return("true")
-      allow(PriorAuthority::SubmissionMailer).to receive(:notify).and_return(notify_mailer)
+      llow(PriorAuthority::SubmissionMailer).to receive_message_chain(:notify, :deliver_now!).and_return(true)
     end
 
     it "sends email notification on update" do
@@ -168,4 +165,3 @@ RSpec.describe "Update submission" do
     end
   end
 end
-# rubocop:enable RSpec/VerifiedDoubles
