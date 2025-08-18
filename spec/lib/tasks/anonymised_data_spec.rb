@@ -79,6 +79,7 @@ RSpec.describe "anonymised:" do
         letters_uplift: 10,
         rep_order_date: "2025-01-01T00:00:00.000Z",
         hearing_outcome: "CP01",
+        reasons_for_claim: [],
         work_completed_date: "2025-01-01T00:00:00.000Z",
       },
       events: [],
