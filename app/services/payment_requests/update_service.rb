@@ -5,7 +5,7 @@ module PaymentRequests
         payment_request.with_lock do
           attributes_to_assign = {}
 
-          case payment_request.payable_type
+          case payment_request.payment_request_claim.type
           when "NsmClaim"
             attributes_to_assign = {
               profit_cost: params[:profit_cost],
