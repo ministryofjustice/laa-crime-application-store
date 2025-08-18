@@ -68,6 +68,21 @@ FactoryBot.define do
       end
     end
 
+    trait :with_no_travel_cost_quote_pa_application do
+      application do
+        build(:application,
+              :pa,
+              :no_travel_cost_quote,
+              defendant_name:,
+              account_number:,
+              firm_name:,
+              status:,
+              ufn: ufn || "010124/001",
+              service_type: "custom",
+              custom_service_name: "Test")
+      end
+    end
+
     trait :with_per_hour_additional_cost_pa_application do
       application do
         build(:application,

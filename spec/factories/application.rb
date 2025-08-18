@@ -98,6 +98,26 @@ FactoryBot.define do
       end
     end
 
+    trait :no_travel_cost_quote do
+      quotes do
+        [
+          {
+            "primary" => true,
+            "contact_first_name" => "Joe",
+            "contact_last_name" => "Bloggs",
+            "organisation" => "LAA",
+            "postcode" => "CRO 1RE",
+            "cost_per_item" => 20,
+            "items" => 10,
+            "travel_cost_reason" => nil,
+            "cost_type" => "per_item",
+            "cost_multiplier" => 1,
+            "related_to_post_mortem" => true,
+          },
+        ]
+      end
+    end
+
     trait :per_hour_additional_cost do
       additional_costs do
         [
