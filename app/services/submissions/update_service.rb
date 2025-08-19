@@ -19,6 +19,7 @@ module Submissions
       end
 
       def add_new_version(submission, params)
+        params[:application]["laa_reference"] = submission.ordered_submission_versions.last.application["laa_reference"]
         submission.ordered_submission_versions.create!(
           json_schema_version: params[:json_schema_version],
           application: params[:application],
