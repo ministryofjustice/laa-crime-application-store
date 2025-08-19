@@ -36,6 +36,6 @@ RSpec.shared_examples "a subsequent nsm payment" do |request_type|
     }
 
     expect(response).to have_http_status(:created)
-    expect(PaymentRequest.find(payment_id).payable.laa_reference).to eq("LAA-abc123")
+    expect(PaymentRequest.find(payment_id).payment_request_claim.laa_reference).to eq("LAA-abc123")
   end
 end

@@ -10,12 +10,8 @@ RSpec.describe "show payment request", type: :request do
 
   context "with payment request for NsmClaim" do
     before do
-      claim = create(:nsm_claim)
       create(
-        :payment_request,
-        :non_standard_mag,
-        id: payment_id,
-        payable: claim,
+        :payment_request, :non_standard_mag, id: payment_id
       )
     end
 
@@ -33,7 +29,7 @@ RSpec.describe "show payment request", type: :request do
         created_at
         date_claim_received
         disbursement_cost
-        payable
+        payment_request_claim
         profit_cost
         request_type
         submitted_at
@@ -47,7 +43,7 @@ RSpec.describe "show payment request", type: :request do
       expect(response.parsed_body.keys.sort).to eq(payment_request_keys.sort)
     end
 
-    it "returns expected payable keys" do
+    it "returns expected payment_request_claim keys" do
       payable_keys = %w[
         claim_type
         laa_reference
@@ -70,7 +66,7 @@ RSpec.describe "show payment request", type: :request do
       ]
 
       get "/v1/payment_requests/#{payment_id}"
-      expect(response.parsed_body["payable"].keys.sort).to eq(payable_keys.sort)
+      expect(response.parsed_body["payment_request_claim"].keys.sort).to eq(payable_keys.sort)
     end
 
     it "returns not found when not found" do
@@ -82,12 +78,8 @@ RSpec.describe "show payment request", type: :request do
 
   context "with payment request for AssignedCounselClaim" do
     before do
-      claim = create(:assigned_counsel_claim)
       create(
-        :payment_request,
-        :assigned_counsel,
-        id: payment_id,
-        payable: claim,
+        :payment_request, :assigned_counsel, id: payment_id
       )
     end
 
@@ -100,7 +92,7 @@ RSpec.describe "show payment request", type: :request do
       payment_request_keys = %w[
         created_at
         date_claim_received
-        payable
+        payment_request_claim
         request_type
         submitted_at
         submitter_id
@@ -120,7 +112,7 @@ RSpec.describe "show payment request", type: :request do
       payable_keys = %w[
         claim_type
         laa_reference
-        counsel_office_code
+        office_code
         nsm_claim_id
         date_received
         ufn
@@ -130,7 +122,7 @@ RSpec.describe "show payment request", type: :request do
         updated_at
       ]
       get "/v1/payment_requests/#{payment_id}"
-      expect(response.parsed_body["payable"].keys.sort).to eq(payable_keys.sort)
+      expect(response.parsed_body["payment_request_claim"].keys.sort).to eq(payable_keys.sort)
     end
 
     it "returns not found when not found" do
