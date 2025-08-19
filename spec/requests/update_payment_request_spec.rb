@@ -12,13 +12,7 @@ RSpec.describe "Update payment request" do
 
   context "with payment request for NsmClaim" do
     before do
-      claim = create(:nsm_claim)
-      create(
-        :payment_request,
-        :non_standard_mag,
-        id: payment_id,
-        payable: claim,
-      )
+      create(:payment_request, :non_standard_mag, id: payment_id)
     end
 
     it "successfully update when fields are valid" do
@@ -93,13 +87,7 @@ RSpec.describe "Update payment request" do
 
   context "with payment request for AssignedCounselClaim" do
     before do
-      claim = create(:assigned_counsel_claim)
-      create(
-        :payment_request,
-        :assigned_counsel,
-        id: payment_id,
-        payable: claim,
-      )
+      create(:payment_request, :assigned_counsel, id: payment_id)
     end
 
     it "successfully update when fields are valid" do
