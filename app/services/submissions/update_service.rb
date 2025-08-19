@@ -19,10 +19,13 @@ module Submissions
       end
 
       def add_new_version(submission, params)
-        params[:application]["laa_reference"] = submission.ordered_submission_versions.last.application["laa_reference"]
+        laa_reference = submission.ordered_submission_versions.last.application["laa_reference"]
+        raise NoLaaReferenceError if laa_reference.nil?
+
+        application_data = params[:application] ? params[:application].merge({ "laa_reference" => laa_reference }) : nil
         submission.ordered_submission_versions.create!(
           json_schema_version: params[:json_schema_version],
-          application: params[:application],
+          application: application_data,
           version: submission.current_version,
         )
       end

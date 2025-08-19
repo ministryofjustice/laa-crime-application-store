@@ -25,6 +25,20 @@ FactoryBot.define do
             laa_reference: laa_reference || "LAA-123456")
     end
 
+    trait :with_no_laa_reference do
+      application do
+        build(:application,
+              :pa,
+              defendant_name:,
+              account_number:,
+              firm_name:,
+              status:,
+              ufn: ufn || "010124/001",
+              service_type: "ae_consultant",
+              laa_reference: nil)
+      end
+    end
+
     trait :with_pa_application do
       application do
         build(:application,

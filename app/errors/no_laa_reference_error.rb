@@ -1,0 +1,2 @@
+class NoLaaReferenceError < StandardError
+end
