@@ -5,18 +5,19 @@ module PaymentRequests
       laa_reference
       office_code
       client_last_name
-      payable_type
+      claim_type
       submitted_at
     ].freeze
 
-    attr_reader :search_params
+    attr_reader :search_params, :client_role
 
-    def initialize(search_params)
+    def initialize(search_params, client_role )
       @search_params = search_params
+      @client_role = client_role
     end
 
-    def self.call(search_params)
-      new(search_params).call
+    def self.call(search_params, client_role)
+      new(search_params, client_role).call
     end
 
     def call
@@ -26,32 +27,18 @@ module PaymentRequests
     end
 
   private
-    # NsmClaim → Date Recieved (Date Range)
-    # PaymentRequest → Submitted At (Date Range)
-    # PaymentRequest → Payable Type (the class of the polymorphic associated record)
-    #
-    # QUERY params
-    # AssignedCounselClaim → LAA Reference
-    # NsmClaim → LAA Reference
-    # NsmClaim → UFN
-    # NsmClaim → Office Code (this should provide all payment records related to the nsm claim including it’s associated Assigned Counsel claim and their amendments)
-    # NsmClaim → Defendant Surname
 
     def search_query
-      claims = PaymentRequest.with_claims_eager_load
-      claims = claims.where("payment_requests.payable_type = 'NsmClaim' AND nsm_claims.date_received BETWEEN ? AND ?",
-        date_received_from, date_received_to) if (date_received_from.present? || date_received_to.present?)
-      claims = claims.where(submitted_at: (submitted_from..submitted_to)) if (submitted_from.present? || submitted_to.present?)
-      claims = claims.where(payable_type: payable_type) if payable_type.present?
-      claims = claims.where(
-        "(payment_requests.payable_type = 'AssignedCounselClaim' AND assigned_counsel_claims.laa_reference = ?) OR " \
-        "(payment_requests.payable_type = 'NsmClaim' AND nsm_claims.laa_reference = ?)",
-        query_params[:laa_reference], query_params[:laa_reference]
-      ) if query_params[:laa_reference].present?
-      claims = claims.where("payment_requests.payable_type = 'NsmClaim' AND nsm_claims.ufn = ?", query_params[:nsm_ufn]) if query_params[:nsm_ufn].present?
-      claims = claims.where("payment_requests.payable_type = 'NsmClaim' AND nsm_claims.office_code = ?", query_params[:nsm_office_code]) if query_params[:nsm_office_code].present?
-      debugger
-      claims = claims.where("payment_requests.payable_type = 'NsmClaim' AND nsm_claims.client_last_name = ?", query_params[:nsm_client_last_name]) if query_params[:nsm_client_last_name].present?
+      claims = PaymentRequest
+        .left_outer_joins(:payment_request_claim)
+        .includes(:payment_request_claim)
+      claims = claims.where(payment_request_claim: {date_received: received_from..received_to }) if date_received?
+      claims = claims.where(submitted_at: (submitted_from..submitted_to)) if submitted_date?
+      claims = claims.where(payment_request_claim: { type: claim_type }) if claim_type.present?
+      claims = claims.where(payment_request_claim: { laa_reference: query_params[:laa_reference] }) if query_params[:laa_reference].present?
+      claims = claims.where(payment_request_claim: { ufn: query_params[:ufn] }) if query_params[:ufn].present?
+      claims = claims.where("LOWER(payment_request_claim.office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
+      claims = claims.where("payment_request_claim.client_last_name ILIKE ?", query_params[:client_last_name].downcase) if query_params[:client_last_name].present?
       claims = claims.order(sort_clause)
       claims
     end
@@ -63,21 +50,8 @@ module PaymentRequests
           page:,
           per_page:,
         },
-        data: @data.limit(limit).offset(offset),
-        raw_data: raw_data_for_page,
+        data: serialialized_data,
       }.to_json
-    end
-
-    def raw_data_for_page
-      # Ensures sorting and paginating works for the raw_data query.
-      # Paginate (offset/limit) here just to get an array of ordered ids for
-      # the page then query the "raw data" for just those ids, sorting by the
-      # order they were in from the "data".
-      ids = @data.limit(limit).offset(offset).pluck(:id)
-
-      NsmClaim.find(ids)
-                .sort_by { ids.index(_1.id) }
-                .map { _1.as_json(client_role:) }
     end
 
     def submitted_from
@@ -88,20 +62,28 @@ module PaymentRequests
       search_params[:submitted_to]&.to_date&.end_of_day
     end
 
-    def date_received_from
-      search_params[:date_received_from]&.to_date&.beginning_of_day
+    def received_from
+      search_params[:received_from]&.to_date&.beginning_of_day
     end
 
-    def date_received_to
-      search_params[:date_received_to]&.to_date&.end_of_day
+    def received_to
+      search_params[:received_to]&.to_date&.end_of_day
     end
 
-    def payable_type
-      search_params[:payable_type]
+    def date_received?
+      (received_from.present? || received_to.present?)
+    end
+
+    def submitted_date?
+      (submitted_from.present? || submitted_to.present?)
+    end
+
+    def claim_type
+      search_params[:claim_type]
     end
 
     def query_params
-      return if query.blank?
+      return {} if query.nil?
 
       words = query.strip.downcase.split(/\s+/)
 
@@ -109,11 +91,11 @@ module PaymentRequests
         if word.start_with?('laa-')
           acc[:laa_reference] = word
         elsif word.match?(/^\d+\/\d+$/)
-          acc[:nsm_ufn] = word
+          acc[:ufn] = word
         elsif word.match?(/^\d.*[a-zA-Z]$/)
-          acc[:nsm_office_code] = word
+          acc[:office_code] = word
         else
-          acc[:nsm_client_last_name] = word
+          acc[:client_last_name] = word
         end
       end
     end
@@ -125,7 +107,7 @@ module PaymentRequests
       if sort_by.in?(%w[submitted_at])
         "#{sort_by} #{sort_direction}"
       else
-        "LOWER(#{sort_by}) #{sort_direction}"
+        "LOWER(payment_request_claim.#{sort_by}) #{sort_direction}"
       end
     end
 
@@ -161,6 +143,10 @@ module PaymentRequests
     end
 
     private
+
+    def serialialized_data
+      PaymentRequestSearchResultsResource.new(@data.limit(limit).offset(offset))
+    end
 
     def query
       search_params.fetch(:query, nil)

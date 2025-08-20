@@ -6,7 +6,7 @@ RSpec.describe PaymentRequests::SearchService do
     create(:payment_request, :non_standard_mag)
   end
 
-  let(:params) { { payable_type: "NsmClaim" } }
+  let(:params) { { claim_type: "NsmClaim" } }
 
   let(:expected_result_as_hash) do
     {
@@ -15,13 +15,12 @@ RSpec.describe PaymentRequests::SearchService do
         "page" => 1,
         "per_page" => 10,
       },
-      "data" => kind_of(Array),
-      "raw_data" => kind_of(Array),
+      "data" => kind_of(Array)
     }
   end
 
   describe "#call" do
-    subject(:call) { described_class.new(params).call }
+    subject(:call) { described_class.new(params, :caseworker).call }
 
     it "returns JSON string" do
       expect(call).to be_a(String)
@@ -33,7 +32,7 @@ RSpec.describe PaymentRequests::SearchService do
   end
 
   describe ".call" do
-    subject(:call) { described_class.call(paramsr) }
+    subject(:call) { described_class.call(params, :caseworker) }
 
     it "returns JSON of expected structure" do
       expect(JSON.parse(call)).to match(expected_result_as_hash)

@@ -11,30 +11,29 @@ RSpec.describe "PaymentRequest search" do
     end
 
     it "returns 201 when successful" do
-      post search_endpoint, params: { payable_type: "nsm_claim" }
+      post search_endpoint, params: { claim_type: "NsmClaim" }
       expect(response).to have_http_status(:created)
     end
 
     it "returns 422 when unsuccessful" do
-      allow(PaymentRequest).to receive(:where).and_raise(StandardError, "Some error output")
-      post search_endpoint, params: { payable_type: "nsm_claim" }
+      allow(PaymentRequest).to receive(:left_outer_joins).and_raise(StandardError, "Some error output")
+      post search_endpoint, params: { claim_type: "NsmClaim" }
 
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(response.parsed_body).to include(message: "Payment Request search query raised Some error output")
+      expect(response.parsed_body).to include(message: "PaymentRequests search query raised Some error output")
     end
 
     context "when paginating" do
       before do
-        create_list(:payment_request, 2, :non_standard_mag, client_last_name: "Rogers")
-        # This travel_to is used to test that "raw data" and [view] data are sync'd by page and order.
-        travel_to(1.day.ago) do
-          create(:payment_request, :non_standard_mag)
-          create(:payment_request, :non_standard_mag)
-        end
+        create_list(:payment_request, 2,
+          payment_request_claim: build(:nsm_claim, client_last_name: "Andrex"))
 
-        create(:payment_request, :non_standard_mag)
-        create(:payment_request, :non_standard_mag, client_last_name: "Fred Bloggs")
-        create(:payment_request, :assigned_counsel_claim)
+        create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "Bazoo"))
+        create(:payment_request, payment_request_claim: build(:nsm_claim, office_code: "1A123C", client_last_name: "Andrex"))
+
+        create(:payment_request, payment_request_claim: build(:nsm_claim, office_code: "1A123C", client_last_name: "Bazoo"))
+        create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "Cushelle"))
+        create(:payment_request, :assigned_counsel)
       end
 
       it "returns an offset of submissions based on pagination" do
@@ -42,89 +41,57 @@ RSpec.describe "PaymentRequest search" do
         sort_direction = "asc"
 
         post search_endpoint, params: {
-          query: "Fred",
+          query: "1A123B",
           per_page: "2",
           page: "1",
-          application_type: "nsm_claim",
+          claim_type: "NsmClaim",
           sort_by:,
           sort_direction:,
         }
 
-        expect(response.parsed_body["data"].pluck("client_last_name")).to match(["Fred Arbor", "Fred Bloggs"])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(["Andrex", "Andrex"])
 
         post search_endpoint, params: {
-          query: "Fred",
+          query: "1A123B",
           per_page: "2",
           page: "2",
-          payable_type: "nsm_claim",
+          claim_type: "NsmClaim",
           sort_by:,
           sort_direction:,
         }
 
-        expect(response.parsed_body["data"].pluck("client_last_name")).to match(["Fred Yankowitz", "Fred Zeigler"])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(["Bazoo", "Cushelle"])
       end
 
       it "returns metadata about the result set" do
         post search_endpoint, params: {
-          query: "Fred",
+          query: "1A123B",
           per_page: "2",
           page: "1",
-          payable_type: "nsm_claim",
+          claim_type: "NsmClaim",
         }
 
         expect(response.parsed_body["metadata"]["total_results"]).to be 4
         expect(response.parsed_body["metadata"]["page"]).to be 1
         expect(response.parsed_body["metadata"]["per_page"]).to be 2
       end
-
-      it "returns raw data result matching the page and order of the data result" do
-        sort_by = "client_last_name"
-        sort_direction = "asc"
-
-        post search_endpoint, params: {
-          query: "Fred",
-          per_page: "2",
-          page: "1",
-          payable_type: "nsm_claim",
-          sort_by:,
-          sort_direction:,
-        }
-
-        client_names = response.parsed_body["raw_data"].each_with_object([]) do |raw, arr|
-          arr << "#{raw.dig('payment_request', 'client_last_name')} #{raw.dig('payment_request', 'client_last_name')}"
-        end
-
-        expect(client_names).to match(["Arbor", "Bloggs"])
-
-        post search_endpoint, params: {
-          query: "Fred",
-          per_page: "2",
-          page: "2",
-          payable_type: "nsm_claim",
-          sort_by:,
-          sort_direction:,
-        }
-
-        client_names = response.parsed_body["raw_data"].each_with_object([]) do |raw, arr|
-          arr << "#{raw.dig('payment_request', 'client_last_name')} #{raw.dig('payment_request', 'client_last_name')}"
-        end
-
-        expect(client_names).to match(["Yankowitz", "Zeigler"])
-      end
     end
 
     context "with submitted_at filter" do
       before do
         travel_to(start_date) do
-          create_list(:payment_request, 3, :non_standard_mag, client_last_name: "RightOn")
+          create_list(:payment_request, 3,
+            payment_request_claim: build(:nsm_claim, client_last_name: "RightOn"))
         end
 
         travel_to(start_date - 1.day) do
-          create(:payment_request, :non_standard_mag, client_last_name: "Jones")
+          create(:payment_request,
+            payment_request_claim: build(:nsm_claim, client_last_name: "TooOld"))
         end
 
         travel_to(end_date + 1.day) do
-          create(:payment_request, :non_standard_mag, client_last_name:  "TooYoung")
+          create(:payment_request,
+            payment_request_claim: build(:nsm_claim, client_last_name: "TooYoung"))
         end
       end
 
@@ -137,14 +104,14 @@ RSpec.describe "PaymentRequest search" do
 
         it "brings back only those submitted between the dates" do
           post search_endpoint, params: {
-            query: "Jones",
-            payable_type: "NsmClaim",
+            query: "1A123B",
+            claim_type: "NsmClaim",
             submitted_from:,
             submitted_to:,
           }
 
-          expect(response.parsed_body["data"].size).to be 1
-          expect(response.parsed_body["data"].pluck("search_fields")).to all(include("righton"))
+          expect(response.parsed_body["data"].size).to be 3
+          expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to all(include("RightOn"))
         end
       end
 
@@ -154,14 +121,14 @@ RSpec.describe "PaymentRequest search" do
 
         it "brings back those updated between the beginning of day and end of day" do
           post search_endpoint, params: {
-            query: "Jim",
-            payable_type: "nsm_claim",
+            query: "1A123B",
+            claim_type: "NsmClaim",
             submitted_from:,
             submitted_to:,
           }
 
           expect(response.parsed_body["data"].size).to be 3
-          expect(response.parsed_body["data"].pluck("search_fields")).to all(include("righton"))
+          expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to all(include("RightOn"))
         end
       end
 
@@ -170,13 +137,13 @@ RSpec.describe "PaymentRequest search" do
 
         it "brings back only those submitted after the from date" do
           post search_endpoint, params: {
-            query: "Jim",
-            payable_type: "nsm_claim",
+            query: "1A123B",
+            claim_type: "NsmClaim",
             submitted_from:,
           }
 
           expect(response.parsed_body["data"].size).to be 4
-          expect(response.parsed_body["data"].pluck("search_fields")).to all(match(/righton|tooyoung/))
+          expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to all(match(/RightOn|TooYoung/))
         end
       end
 
@@ -185,22 +152,22 @@ RSpec.describe "PaymentRequest search" do
 
         it "brings back only those submitted before the to date" do
           post search_endpoint, params: {
-            query: "Jim",
-            payable_type: "nsm_claim",
+            query: "1A123B",
+            claim_type: "NsmClaim",
             submitted_to:,
           }
 
           expect(response.parsed_body["data"].size).to be 4
-          expect(response.parsed_body["data"].pluck("search_fields")).to all(match(/righton|tooold/))
+          expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to all(match(/RightOn|TooOld/))
         end
       end
     end
 
     context "with received_at filter" do
       before do
-        create_list(:payment_request, 3, :non_standard_mag, client_last_name: "RightOn", date_claim_received: start_date)
-        create(:payment_request, :non_standard_mag, client_last_name: "TooOld", date_claim_received: start_date - 1.day)
-        create(:payment_request, :non_standard_mag, client_last_name: "TooYoung", date_claim_received: end_date + 1.day)
+        create_list(:payment_request, 3, payment_request_claim: build(:nsm_claim, client_last_name: "RightOn", date_received: start_date))
+        create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "TooOld", date_received: start_date - 1.day))
+        create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "TooYoung", date_received: end_date + 1.day))
       end
 
       let(:start_date) { 4.weeks.ago }
@@ -212,14 +179,14 @@ RSpec.describe "PaymentRequest search" do
 
         it "brings back only those updated between the dates" do
           post search_endpoint, params: {
-            query: "Jim",
-            payable_type: "nsm_claim",
+            query: "1A123B",
+            claim_type: "NsmClaim",
             received_from:,
             received_to:,
           }
 
           expect(response.parsed_body["data"].size).to be 3
-          expect(response.parsed_body["data"].pluck("search_fields")).to all(include("righton"))
+          expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to all(include("RightOn"))
         end
       end
 
@@ -229,29 +196,29 @@ RSpec.describe "PaymentRequest search" do
 
         it "brings back those updated between the beginning of day and end of day" do
           post search_endpoint, params: {
-            query: "Jim",
-            payable_type: "nsm_claim",
+            query: "1A123B",
+            claim_type: "NsmClaim",
             received_from:,
             received_to:,
           }
 
           expect(response.parsed_body["data"].size).to be 3
-          expect(response.parsed_body["data"].pluck("search_fields")).to all(include("righton"))
+          expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to all(include("RightOn"))
         end
       end
 
       context "with an endless date range" do
         let(:received_from) { start_date.to_date.iso8601 }
 
-        it "brings back only those last updated after the from date" do
+        it "brings back only those last update, after the from date" do
           post search_endpoint, params: {
-            query: "Jim",
-            payable_type: "nsm_claim",
+            query: "1A123B",
+            claim_type: "NsmClaim",
             received_from:,
           }
 
           expect(response.parsed_body["data"].size).to be 4
-          expect(response.parsed_body["data"].pluck("search_fields")).to all(match(/righton|tooyoung/))
+          expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to all(match(/RightOn|TooYoung/))
         end
       end
 
@@ -260,50 +227,51 @@ RSpec.describe "PaymentRequest search" do
 
         it "brings back only those last updated before the to date" do
           post search_endpoint, params: {
-            query: "Jim",
-            payable_type: "nsm_claim",
+            query: "1A123B",
+            claim_type: "NsmClaim",
             received_to:,
           }
 
           expect(response.parsed_body["data"].size).to be 4
-          expect(response.parsed_body["data"].pluck("search_fields")).to all(match(/righton|tooold/))
+          expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to all(match(/RightOn|TooOld/))
         end
       end
     end
 
-    context "with client_last_name query for PA" do
+    context "with client_last_name query for nsm_claim" do
       before do
-        create(:payment_request, :non_standard_mag, client_last_name: "Billy Bob")
-        create(:payment_request, :non_standard_mag, client_last_name: "Bob Billy")
-        create(:payment_request, :non_standard_mag, client_last_name: "fred Bloggs")
+        create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "Vloggs"))
+        create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "Bloggs"))
+        create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "Bloggs"))
       end
 
-      it "returns those with matching first or last name from single defendant object" do
+      it "returns those with matching last name from single defendant object" do
         post search_endpoint, params: {
-          application_type: "nsm_claim",
-          query: "Billy",
+          claim_type: "NsmClaim",
+          query: "Bloggs",
         }
 
         expect(response.parsed_body["data"].size).to be 2
-        expect(response.parsed_body["data"].pluck("client_last_name")).to contain_exactly("Billy Bob", "Bob Billy")
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to contain_exactly("Bloggs", "Bloggs")
       end
     end
 
     context "with client_last_name query for assigned_counsel_claim" do
       before do
-        create(:payment_request, :assigned_counsel_claim, client_last_name: "Billy Bob")
-        create(:payment_request, :assigned_counsel_claim, client_last_name: "Bob Billy")
-        create(:payment_request, :assigned_counsel_claim, client_last_name: "fred Bloggs")
+        create(:payment_request, :assigned_counsel, payment_request_claim: build(:assigned_counsel_claim, client_last_name: "Vloggs"))
+        create(:payment_request, :assigned_counsel, payment_request_claim: build(:assigned_counsel_claim, client_last_name: "Bloggs"))
+        create(:payment_request, :assigned_counsel, payment_request_claim: build(:assigned_counsel_claim, client_last_name: "Bloggs"))
       end
+
 
       it "returns those with matching first or last name from single defendant object" do
         post search_endpoint, params: {
-          application_type: "assigned_counsel_claim]",
-          query: "Billy",
+          claim_type: "AssignedCounselClaim",
+          query: "Bloggs",
         }
 
         expect(response.parsed_body["data"].size).to be 2
-        expect(response.parsed_body["data"].pluck("client_last_name")).to contain_exactly("Billy Bob", "Bob Billy")
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to contain_exactly("Bloggs", "Bloggs")
       end
     end
 
@@ -311,158 +279,134 @@ RSpec.describe "PaymentRequest search" do
       before do
         # create in order that will not return succcess without sorting
         travel_to(2.days.ago) do
-          create(:payment_request, :non_standard_mag,
+          create(:payment_request, submitted_at: DateTime.now, payment_request_claim: build(:nsm_claim,
             laa_reference: "LAA-BBBBBB",
-            submitted_at: Date.now,
             office_code: "1ab",
-            client_last_name: "Billy Bob")
+            client_last_name: "Bob"))
         end
 
         travel_to(1.day.ago) do
-          create(:payment_request, :non_standard_mag,
+          create(:payment_request, submitted_at: DateTime.now, payment_request_claim: build(:nsm_claim,
             laa_reference: "LAA-CCCCCC",
-            submitted_at: Date.now,
             office_code: "2ab",
-            client_last_name: "Dilly Dodger")
+            client_last_name: "Dodger"))
         end
 
         travel_to(3.days.ago) do
-          create(:payment_request, :non_standard_mag,
+          create(:payment_request, submitted_at: DateTime.now, payment_request_claim: build(:nsm_claim,
             laa_reference: "LAA-AAAAAA",
             office_code: "3ab",
-            submitted_at: Date.now,
-            client_last_name: "Zach Zeigler")
+            client_last_name: "Zeigler"))
         end
       end
 
       it "defaults to sorting by last_updated, most recent first" do
         post search_endpoint, params: {
-          payable_type: "nsm_claim",
+          claim_type: "NsmClaim",
         }
 
-        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "laa_reference") }).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
       end
 
       it "raises an error when unsortable column supplied" do
         post search_endpoint, params: { sort_by: "foobar" }
 
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(response.parsed_body).to include(message: "AppStore search query raised Unsortable column \"foobar\" supplied as sort_by argument")
+        expect(response.parsed_body).to include(message: "PaymentRequests search query raised Unsortable column \"foobar\" supplied as sort_by argument")
       end
 
       it "can be sorted by laa_reference ascending" do
         post search_endpoint, params: {
           sort_by: "laa_reference",
           sort_direction: "ascending",
-          payable_type: "nsm_claim",
+          claim_type: "NsmClaim",
         }
 
-        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-AAAAAA LAA-BBBBBB LAA-CCCCCC])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "laa_reference") }).to match(%w[LAA-AAAAAA LAA-BBBBBB LAA-CCCCCC])
       end
 
       it "can be sorted by laa_reference descending" do
         post search_endpoint, params: {
           sort_by: "laa_reference",
           sort_direction: "descending",
-          payable_type: "nsm_claim"
+          claim_type: "NsmClaim",
         }
 
-        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "laa_reference") }).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
       end
 
       it "can be sorted by laa_reference case-insensitively" do
-          create(:payment_request, :non_standard_mag,
-            laa_reference: "LAA-bbbbbb")
+        create(:payment_request,
+                payment_request_claim: build(:nsm_claim, laa_reference: "LAA-bbbbbb"))
 
         post search_endpoint, params: {
           sort_by: "laa_reference",
           sort_direction: "ascending",
-          payable_type: "nsm_claim"
+          claim_type: "NsmClaim",
         }
 
-        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-AAAAAA LAA-BBBBBB LAA-bbbbbb LAA-CCCCCC]).or match(%w[LAA-AAAAAA LAA-bbbbbb LAA-BBBBBB LAA-CCCCCC])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "laa_reference") }).to match(%w[LAA-AAAAAA LAA-BBBBBB LAA-bbbbbb LAA-CCCCCC]).or match(%w[LAA-AAAAAA LAA-bbbbbb LAA-BBBBBB LAA-CCCCCC])
       end
 
       it "can be sorted by client_last_name ascending" do
         post search_endpoint, params: {
           sort_by: "client_last_name",
           sort_direction: "asc",
-          application_type: "nsm_claim",
+          claim_type: "NsmClaim",
         }
 
-        expect(response.parsed_body["data"].pluck("client_last_name")).to match(["Aardvark & Co", "Bob & Sons", "Xena & Daughters"])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(["Bob", "Dodger", "Zeigler"])
       end
 
       it "can be sorted by client_last_name case-insensitively" do
-          create(:payment_request, :non_standard_mag,
-            client_last_name: "billy bob")
+        create(:payment_request,
+          payment_request_claim: build(:nsm_claim, client_last_name: "bob"))
 
         post search_endpoint, params: {
           sort_by: "client_last_name",
           sort_direction: "asc",
-          application_type: "nsm_claim",
+          claim_type: "NsmClaim",
         }
 
-        expect(response.parsed_body["data"].pluck("client_last_name")).to match(["Billy Bob", "billy bob", "Dilly Dodger", "Zach Zeigler"]).or match(["billy bob", "Billy Bob", "Dilly Dodger", "Zach Zeigler"])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(["Bob", "bob", "Dodger", "Zeigler"]).or match(["bob", "Bob", "Dodger", "Zeigler"])
       end
 
       it "can be sorted by office_code descending" do
         post search_endpoint, params: {
           sort_by: "office_code",
           sort_direction: "desc",
-          application_type: "nsm_claim",
+          claim_type: "NsmClaim",
         }
 
-        expect(response.parsed_body["data"].pluck("office_code")).to match(%w[1ab 2ab 3ab])
-      end
-
-      it "sorts raw data to match the order of data" do
-        post search_endpoint, params: {
-          sort_by: "submitted_at",
-          sort_direction: "desc"
-        }
-
-        laa_references = response.parsed_body["raw_data"].each_with_object([]) do |raw, arr|
-          arr << raw.dig("payment_request", "laa_reference")
-        end
-
-        expect(laa_references).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "office_code") }).to match(%w[3ab 2ab 1ab])
       end
     end
 
     xcontext "when searching for queries that may be invalid" do
       before do
-        create(:submission,
-               :with_pa_version,
+        create(:payment_request, payment_request_claim: build(:nsm_claim,
                laa_reference: "LAA-AAAAAA",
-               defendant_name: "Fred Arbor",
-               firm_name: "Aardvark & Co")
+               client_last_name: "Fred Arbor"))
 
-        create(:submission,
-               :with_pa_version,
+        create(:payment_request, payment_request_claim: build(:nsm_claim,
                laa_reference: "LAA-BBBBBB",
-               defendant_name: "Fred Bloggs",
-               firm_name: "Smith & (Partners) Ltd.")
+               client_last_name: "Bloggs"))
 
-        create(:submission,
-               :with_pa_version,
+
+        create(:payment_request, payment_request_claim: build(:nsm_claim,
                laa_reference: "LAA-CCC123",
-               defendant_name: "Jimmy Buffer",
-               firm_name: "Über Legal Co.",
-               ufn: "311223/001")
+               client_last_name: "Buffer",
+               ufn: "311223/001"))
 
-        create(:submission,
-               :with_pa_version,
+        create(:payment_request, payment_request_claim: build(:nsm_claim,
                laa_reference: "LAA-MiXeD1",
-               defendant_name: "Test Person",
-               firm_name: "Aardvark Smithson",
-               ufn: "123456")
+               client_last_name: "Person",
+               ufn: "123456"))
 
-        create(:submission,
-               :with_pa_version,
+        create(:payment_request, payment_request_claim: build(:nsm_claim,
                laa_reference: "LAA-PUNC28",
-               defendant_name: "James O'Connor-Smith",
-               firm_name: "Legal & Law (International) Ltd.")
+               client_last_name: "O'Connor-Smith"))
+
       end
 
       it "handles a completely invalid query" do
