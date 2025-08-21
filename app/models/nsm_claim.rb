@@ -11,8 +11,4 @@ class NsmClaim < PaymentRequestClaim
   validates :office_code, office_code: true, on: :update
   validates :stage_code, format: { with: /\A\bPROG\b|\bPROM\b\z/, on: :update }
   validates :court_attendances, :no_of_defendants, numericality: { only_integer: true }, on: :update
-
-  def self.where_terms string
-    PaymentRequestSearch.new(string)
-  end
 end
