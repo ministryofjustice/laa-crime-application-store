@@ -1,5 +1,5 @@
 return if ENV["CI"]
-return if ENV['NOFW']
+return if ENV["NOFW"]
 
 ENV["PGGSSENCMODE"] = "disable"
 

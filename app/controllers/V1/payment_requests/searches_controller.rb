@@ -10,7 +10,7 @@ module V1
         render json: { message: "PaymentRequests search query raised #{e.message}" }, status: :unprocessable_entity
       end
 
-      private
+    private
 
       def search_params
         params.permit(
@@ -23,7 +23,7 @@ module V1
           :received_from,
           :received_to,
           :claim_type,
-          :query
+          :query,
         )
       end
     end

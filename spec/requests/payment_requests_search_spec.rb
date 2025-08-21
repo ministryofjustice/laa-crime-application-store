@@ -26,7 +26,7 @@ RSpec.describe "PaymentRequest search" do
     context "when paginating" do
       before do
         create_list(:payment_request, 2,
-          payment_request_claim: build(:nsm_claim, client_last_name: "Andrex"))
+                    payment_request_claim: build(:nsm_claim, client_last_name: "Andrex"))
 
         create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "Bazoo"))
         create(:payment_request, payment_request_claim: build(:nsm_claim, office_code: "1A123C", client_last_name: "Andrex"))
@@ -49,7 +49,7 @@ RSpec.describe "PaymentRequest search" do
           sort_direction:,
         }
 
-        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(["Andrex", "Andrex"])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(%w[Andrex Andrex])
 
         post search_endpoint, params: {
           query: "1A123B",
@@ -60,7 +60,7 @@ RSpec.describe "PaymentRequest search" do
           sort_direction:,
         }
 
-        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(["Bazoo", "Cushelle"])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(%w[Bazoo Cushelle])
       end
 
       it "returns metadata about the result set" do
@@ -81,17 +81,17 @@ RSpec.describe "PaymentRequest search" do
       before do
         travel_to(start_date) do
           create_list(:payment_request, 3,
-            payment_request_claim: build(:nsm_claim, client_last_name: "RightOn"))
+                      payment_request_claim: build(:nsm_claim, client_last_name: "RightOn"))
         end
 
         travel_to(start_date - 1.day) do
           create(:payment_request,
-            payment_request_claim: build(:nsm_claim, client_last_name: "TooOld"))
+                 payment_request_claim: build(:nsm_claim, client_last_name: "TooOld"))
         end
 
         travel_to(end_date + 1.day) do
           create(:payment_request,
-            payment_request_claim: build(:nsm_claim, client_last_name: "TooYoung"))
+                 payment_request_claim: build(:nsm_claim, client_last_name: "TooYoung"))
         end
       end
 
@@ -263,7 +263,6 @@ RSpec.describe "PaymentRequest search" do
         create(:payment_request, :assigned_counsel, payment_request_claim: build(:assigned_counsel_claim, client_last_name: "Bloggs"))
       end
 
-
       it "returns those with matching first or last name from single defendant object" do
         post search_endpoint, params: {
           claim_type: "AssignedCounselClaim",
@@ -279,24 +278,24 @@ RSpec.describe "PaymentRequest search" do
       before do
         # create in order that will not return succcess without sorting
         travel_to(2.days.ago) do
-          create(:payment_request, submitted_at: DateTime.now, payment_request_claim: build(:nsm_claim,
-            laa_reference: "LAA-BBBBBB",
-            office_code: "1ab",
-            client_last_name: "Bob"))
+          create(:payment_request, submitted_at: Time.zone.now, payment_request_claim: build(:nsm_claim,
+                                                                                             laa_reference: "LAA-BBBBBB",
+                                                                                             office_code: "1ab",
+                                                                                             client_last_name: "Bob"))
         end
 
         travel_to(1.day.ago) do
-          create(:payment_request, submitted_at: DateTime.now, payment_request_claim: build(:nsm_claim,
-            laa_reference: "LAA-CCCCCC",
-            office_code: "2ab",
-            client_last_name: "Dodger"))
+          create(:payment_request, submitted_at: Time.zone.now, payment_request_claim: build(:nsm_claim,
+                                                                                             laa_reference: "LAA-CCCCCC",
+                                                                                             office_code: "2ab",
+                                                                                             client_last_name: "Dodger"))
         end
 
         travel_to(3.days.ago) do
-          create(:payment_request, submitted_at: DateTime.now, payment_request_claim: build(:nsm_claim,
-            laa_reference: "LAA-AAAAAA",
-            office_code: "3ab",
-            client_last_name: "Zeigler"))
+          create(:payment_request, submitted_at: Time.zone.now, payment_request_claim: build(:nsm_claim,
+                                                                                             laa_reference: "LAA-AAAAAA",
+                                                                                             office_code: "3ab",
+                                                                                             client_last_name: "Zeigler"))
         end
       end
 
@@ -337,7 +336,7 @@ RSpec.describe "PaymentRequest search" do
 
       it "can be sorted by laa_reference case-insensitively" do
         create(:payment_request,
-                payment_request_claim: build(:nsm_claim, laa_reference: "LAA-bbbbbb"))
+               payment_request_claim: build(:nsm_claim, laa_reference: "LAA-bbbbbb"))
 
         post search_endpoint, params: {
           sort_by: "laa_reference",
@@ -355,12 +354,12 @@ RSpec.describe "PaymentRequest search" do
           claim_type: "NsmClaim",
         }
 
-        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(["Bob", "Dodger", "Zeigler"])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(%w[Bob Dodger Zeigler])
       end
 
       it "can be sorted by client_last_name case-insensitively" do
         create(:payment_request,
-          payment_request_claim: build(:nsm_claim, client_last_name: "bob"))
+               payment_request_claim: build(:nsm_claim, client_last_name: "bob"))
 
         post search_endpoint, params: {
           sort_by: "client_last_name",
@@ -368,7 +367,7 @@ RSpec.describe "PaymentRequest search" do
           claim_type: "NsmClaim",
         }
 
-        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(["Bob", "bob", "Dodger", "Zeigler"]).or match(["bob", "Bob", "Dodger", "Zeigler"])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(%w[Bob bob Dodger Zeigler]).or match(%w[bob Bob Dodger Zeigler])
       end
 
       it "can be sorted by office_code descending" do
@@ -395,28 +394,26 @@ RSpec.describe "PaymentRequest search" do
     context "when searching for queries that may be invalid" do
       before do
         create(:payment_request, payment_request_claim: build(:nsm_claim,
-               laa_reference: "LAA-AAAAAA",
-               client_last_name: "Fred Arbor"))
+                                                              laa_reference: "LAA-AAAAAA",
+                                                              client_last_name: "Fred Arbor"))
 
         create(:payment_request, payment_request_claim: build(:nsm_claim,
-               laa_reference: "LAA-BBBBBB",
-               client_last_name: "Bloggs"))
-
-
-        create(:payment_request, payment_request_claim: build(:nsm_claim,
-               laa_reference: "LAA-CCC123",
-               client_last_name: "Buffer",
-               ufn: "311223/001"))
+                                                              laa_reference: "LAA-BBBBBB",
+                                                              client_last_name: "Bloggs"))
 
         create(:payment_request, payment_request_claim: build(:nsm_claim,
-               laa_reference: "LAA-MiXeD1",
-               client_last_name: "Pérson",
-               ufn: "123456"))
+                                                              laa_reference: "LAA-CCC123",
+                                                              client_last_name: "Buffer",
+                                                              ufn: "311223/001"))
 
         create(:payment_request, payment_request_claim: build(:nsm_claim,
-               laa_reference: "LAA-PUNC28",
-               client_last_name: "O'Connor-Smith"))
+                                                              laa_reference: "LAA-MiXeD1",
+                                                              client_last_name: "Pérson",
+                                                              ufn: "123456"))
 
+        create(:payment_request, payment_request_claim: build(:nsm_claim,
+                                                              laa_reference: "LAA-PUNC28",
+                                                              client_last_name: "O'Connor-Smith"))
       end
 
       it "handles a completely invalid query" do
@@ -444,7 +441,7 @@ RSpec.describe "PaymentRequest search" do
         post search_endpoint, params: { query: "311223/001" }
 
         expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(["Buffer"])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(%w[Buffer])
       end
 
       it "handles zero-width spaces" do
@@ -458,7 +455,7 @@ RSpec.describe "PaymentRequest search" do
         post search_endpoint, params: { query: "Pérson" }
 
         expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(["Pérson"])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(%w[Pérson])
       end
     end
   end

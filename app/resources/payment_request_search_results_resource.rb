@@ -7,4 +7,3 @@ class PaymentRequestSearchResultsResource
 
   one :payment_request_claim, resource: ClaimPaymentSearchResultsResource
 end
-

@@ -1,4 +1,3 @@
-
 require "rails_helper"
 
 RSpec.describe PaymentRequests::SearchService do
@@ -15,7 +14,7 @@ RSpec.describe PaymentRequests::SearchService do
         "page" => 1,
         "per_page" => 10,
       },
-      "data" => kind_of(Array)
+      "data" => kind_of(Array),
     }
   end
 

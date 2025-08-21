@@ -11,7 +11,7 @@ module PaymentRequests
 
     attr_reader :search_params, :client_role
 
-    def initialize(search_params, client_role )
+    def initialize(search_params, client_role)
       @search_params = search_params
       @client_role = client_role
     end
@@ -32,15 +32,14 @@ module PaymentRequests
       claims = PaymentRequest
         .left_outer_joins(:payment_request_claim)
         .includes(:payment_request_claim)
-      claims = claims.where(payment_request_claims: {date_received: received_from..received_to }) if date_received?
+      claims = claims.where(payment_request_claims: { date_received: received_from..received_to }) if date_received?
       claims = claims.where(submitted_at: (submitted_from..submitted_to)) if submitted_date?
       claims = claims.where(payment_request_claims: { type: claim_type }) if claim_type.present?
       claims = claims.where("LOWER(payment_request_claims.laa_reference) = ?", query_params[:laa_reference].downcase) if query_params[:laa_reference].present?
-      claims = claims.where("payment_request_claims.ufn = ?", query_params[:ufn]) if query_params[:ufn].present?
+      claims = claims.where(payment_request_claims: { ufn: query_params[:ufn] }) if query_params[:ufn].present?
       claims = claims.where("LOWER(payment_request_claims.office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
       claims = claims.where("payment_request_claims.client_last_name ILIKE ?", query_params[:client_last_name].downcase) if query_params[:client_last_name].present?
-      claims = claims.order(sort_clause)
-      claims
+      claims.order(sort_clause)
     end
 
     def search_results
@@ -71,11 +70,11 @@ module PaymentRequests
     end
 
     def date_received?
-      (received_from.present? || received_to.present?)
+      received_from.present? || received_to.present?
     end
 
     def submitted_date?
-      (submitted_from.present? || submitted_to.present?)
+      submitted_from.present? || submitted_to.present?
     end
 
     def claim_type
@@ -87,7 +86,7 @@ module PaymentRequests
 
       words = query.strip.downcase.split(/\s+/)
       results = words.each_with_object({}) do |word, acc|
-        if word.start_with?('laa-')
+        if word.start_with?("laa-")
           acc[:laa_reference] = word
         elsif /^\d{6}|\d{6}\/\d{3}$/.match?(word)
           acc[:ufn] = word
@@ -141,8 +140,6 @@ module PaymentRequests
     def page
       search_params.fetch(:page, 1).to_i
     end
-
-    private
 
     def serialialized_data
       PaymentRequestSearchResultsResource.new(@data.limit(limit).offset(offset))
