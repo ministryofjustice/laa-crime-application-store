@@ -8,7 +8,7 @@ class AssignedCounselClaimResource
   end
 
   attributes :laa_reference,
-             :counsel_office_code, :nsm_claim_id,
+             :office_code, :nsm_claim_id,
              :date_received, :ufn,
              :solicitor_office_code,
              :client_last_name,

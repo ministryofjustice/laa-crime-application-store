@@ -1,11 +1,12 @@
-class NsmClaim < ApplicationRecord
-  has_many :payment_requests, dependent: :destroy, inverse_of: :payable, as: :payable
-  has_one :assigned_counsel_claim, dependent: :destroy
+class NsmClaim < PaymentRequestClaim
+  has_one :assigned_counsel_claim, -> { where(type: "AssignedCounselClaim") },
+          class_name: "AssignedCounselClaim",
+          foreign_key: :nsm_claim_id,
+          inverse_of: :nsm_claim,
+          dependent: :destroy
   has_one :submission, dependent: :destroy
 
-  validates :laa_reference,
-            presence: true
-
+  validates :laa_reference, presence: true
   validates :ufn, ufn: true, on: :update
   validates :office_code, office_code: true, on: :update
   validates :stage_code, format: { with: /\A\bPROG\b|\bPROM\b\z/, on: :update }

@@ -14,7 +14,7 @@ module V1
 
     def permitted_params
       params.permit(
-        :counsel_office_code,
+        :office_code,
         :client_last_name,
         :ufn,
         :solicitor_office_code,

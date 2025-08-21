@@ -14,7 +14,7 @@ class PaymentRequest < ApplicationRecord
 
   REQUEST_TYPES = NSM_REQUEST_TYPES + ASSIGNED_COUNSEL_REQUEST_TYPES
 
-  belongs_to :payable, polymorphic: true, optional: true
+  belongs_to :payment_request_claim, optional: true
 
   attribute :profit_cost, :gbp
   attribute :travel_cost, :gbp
@@ -45,18 +45,36 @@ class PaymentRequest < ApplicationRecord
   validate :correct_request_type
   validate :is_linked_to_claim_when_submitted
 
+  def nsm_claim
+    payment_request_claim.is_a?(NsmClaim) ? payment_request_claim : nil
+  end
+
+  def nsm_claim=(record)
+    self.payment_request_claim = record
+  end
+
+  def assigned_counsel_claim
+    payment_request_claim.is_a?(AssignedCounselClaim) ? payment_request_claim : nil
+  end
+
+  def assigned_counsel_claim=(record)
+    self.payment_request_claim = record
+  end
+
   def correct_request_type
     # needed so that we can draft payment types that haven't been linked yet
-    return true if payable_type.nil? && REQUEST_TYPES.include?(request_type)
+    return true if payment_request_claim.nil? && REQUEST_TYPES.include?(request_type)
 
-    return true if payable_type == "NsmClaim" && NSM_REQUEST_TYPES.include?(request_type)
-    return true if payable_type == "AssignedCounselClaim" && ASSIGNED_COUNSEL_REQUEST_TYPES.include?(request_type)
+    return true if nsm_claim && NSM_REQUEST_TYPES.include?(request_type)
+    return true if assigned_counsel_claim && ASSIGNED_COUNSEL_REQUEST_TYPES.include?(request_type)
 
-    errors.add(:request_type, "invalid for a #{payable_type}")
+    if payment_request_claim
+      errors.add(:request_type, "invalid request type for a #{payment_request_claim.type}")
+    end
   end
 
   def is_linked_to_claim_when_submitted
-    if payable_id.nil? && submitted_at.present?
+    if payment_request_claim.nil? && submitted_at.present?
       errors.add(:submitted_at, "a payment request must be linked to a claim to be submitted")
     else
       true
