@@ -1,5 +1,8 @@
 en:
   errors:
+    submissions:
+      no_laa_ref: The original version for this submission has no LAA reference
+      already_exists: A submission with this id has already been created
     payment_requests:
       no_ref: Supplemental, appeal or amendment payments need to link to an existing claim
       no_ref_digital: If attempting to link a non-standard magistrate payment, the laa reference must be associated on an existing digital submission

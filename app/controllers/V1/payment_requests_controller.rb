@@ -16,7 +16,7 @@ module V1
         )
 
         if params[:laa_reference].present?
-          raise PaymentLinkError, I18n.t("errors.payment_requests.invalid_link") unless params[:request_type] == "non_standard_mag"
+          raise PaymentLinkError unless params[:request_type] == "non_standard_mag"
 
           ::PaymentRequests::LinkPayableService.call(payment_request, params)
         end
