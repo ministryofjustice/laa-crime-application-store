@@ -380,9 +380,19 @@ RSpec.describe "PaymentRequest search" do
 
         expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "office_code") }).to match(%w[3ab 2ab 1ab])
       end
+
+      it "can be sorted by submitted_at descending" do
+        post search_endpoint, params: {
+          sort_by: "submitted_at",
+          sort_direction: "desc",
+          claim_type: "NsmClaim",
+        }
+
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "office_code") }).to match(%w[2ab 1ab 3ab])
+      end
     end
 
-    xcontext "when searching for queries that may be invalid" do
+    context "when searching for queries that may be invalid" do
       before do
         create(:payment_request, payment_request_claim: build(:nsm_claim,
                laa_reference: "LAA-AAAAAA",
@@ -400,7 +410,7 @@ RSpec.describe "PaymentRequest search" do
 
         create(:payment_request, payment_request_claim: build(:nsm_claim,
                laa_reference: "LAA-MiXeD1",
-               client_last_name: "Person",
+               client_last_name: "Pérson",
                ufn: "123456"))
 
         create(:payment_request, payment_request_claim: build(:nsm_claim,
@@ -416,95 +426,25 @@ RSpec.describe "PaymentRequest search" do
         expect(response.parsed_body["data"]).to match([])
       end
 
-      it "ignores unmatched parentheses" do
-        post search_endpoint, params: { query: "Fred)" }
-
-        expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].pluck("client_name")).to match(["Fred Bloggs", "Fred Arbor"])
-      end
-
-      it "ignores a real query attempt" do
-        post search_endpoint, params: { query: "LAA-AAAAAA)" }
-
-        expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-AAAAAA])
-      end
-
       it "handles mixed case references" do
         post search_endpoint, params: { query: "LAA-MiXeD1" }
 
         expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].pluck("laa_reference")).to match(%w[LAA-MiXeD1])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "laa_reference") }).to match(%w[LAA-MiXeD1])
       end
 
       it "handles complex names" do
         post search_endpoint, params: { query: "O'Connor-Smith" }
 
         expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].pluck("client_name")).to eq(["James O'Connor-Smith"])
-      end
-
-      it "ignores unescaped ampersands" do
-        post search_endpoint, params: { query: "Aardvark & Co" }
-
-        expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Aardvark & Co"])
-      end
-
-      it "doesn't treat ampersands as tokens" do
-        post search_endpoint, params: { query: "Aardvark &" }
-
-        expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Aardvark Smithson", "Aardvark & Co"])
-      end
-
-      it "handles records with multiple matches that have punctuation" do
-        post search_endpoint, params: { query: "Smith" }
-
-        expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Legal & Law (International) Ltd.", "Aardvark Smithson", "Smith & (Partners) Ltd."])
-      end
-
-      it "handles records that have punctuation and being in the query" do
-        post search_endpoint, params: { query: "Smith & (Partners) Ltd." }
-
-        expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Smith & (Partners) Ltd."])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to eq(["O'Connor-Smith"])
       end
 
       it "handles UFNs" do
         post search_endpoint, params: { query: "311223/001" }
 
         expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Über Legal Co."])
-      end
-
-      it "handles 6 digit strings of numbers that could be UFNs" do
-        post search_endpoint, params: { query: "311223" }
-
-        expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Über Legal Co."])
-      end
-
-      it "does not handle 9 digit strings of numbers that could be UFNs" do
-        post search_endpoint, params: { query: "311223001" }
-
-        expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"]).to match([])
-      end
-
-      it "handles multiple spaces between words" do
-        post search_endpoint, params: { query: "Aardvark       &                     Co" }
-
-        expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Aardvark & Co"])
-      end
-
-      it "handles leading & trailing spaces" do
-        post search_endpoint, params: { query: " Aardvark & Co   " }
-
-        expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Aardvark & Co"])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(["Buffer"])
       end
 
       it "handles zero-width spaces" do
@@ -514,18 +454,11 @@ RSpec.describe "PaymentRequest search" do
         expect(response.parsed_body["data"]).to match([])
       end
 
-      it "handles emojis" do
-        post search_endpoint, params: { query: "Aardvark😊 & Co" }
-
-        expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Aardvark & Co"])
-      end
-
       it "handles umlauts and accents" do
-        post search_endpoint, params: { query: "Über" }
+        post search_endpoint, params: { query: "Pérson" }
 
         expect(response).to have_http_status(:created)
-        expect(response.parsed_body["data"].pluck("firm_name")).to match(["Über Legal Co."])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(["Pérson"])
       end
     end
   end

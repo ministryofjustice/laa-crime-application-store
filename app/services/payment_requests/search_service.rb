@@ -32,13 +32,13 @@ module PaymentRequests
       claims = PaymentRequest
         .left_outer_joins(:payment_request_claim)
         .includes(:payment_request_claim)
-      claims = claims.where(payment_request_claim: {date_received: received_from..received_to }) if date_received?
+      claims = claims.where(payment_request_claims: {date_received: received_from..received_to }) if date_received?
       claims = claims.where(submitted_at: (submitted_from..submitted_to)) if submitted_date?
-      claims = claims.where(payment_request_claim: { type: claim_type }) if claim_type.present?
-      claims = claims.where(payment_request_claim: { laa_reference: query_params[:laa_reference] }) if query_params[:laa_reference].present?
-      claims = claims.where(payment_request_claim: { ufn: query_params[:ufn] }) if query_params[:ufn].present?
-      claims = claims.where("LOWER(payment_request_claim.office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
-      claims = claims.where("payment_request_claim.client_last_name ILIKE ?", query_params[:client_last_name].downcase) if query_params[:client_last_name].present?
+      claims = claims.where(payment_request_claims: { type: claim_type }) if claim_type.present?
+      claims = claims.where("LOWER(payment_request_claims.laa_reference) = ?", query_params[:laa_reference].downcase) if query_params[:laa_reference].present?
+      claims = claims.where("payment_request_claims.ufn = ?", query_params[:ufn]) if query_params[:ufn].present?
+      claims = claims.where("LOWER(payment_request_claims.office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
+      claims = claims.where("payment_request_claims.client_last_name ILIKE ?", query_params[:client_last_name].downcase) if query_params[:client_last_name].present?
       claims = claims.order(sort_clause)
       claims
     end
@@ -86,18 +86,18 @@ module PaymentRequests
       return {} if query.nil?
 
       words = query.strip.downcase.split(/\s+/)
-
-      @query_params ||= words.each_with_object({}) do |word, acc|
+      results = words.each_with_object({}) do |word, acc|
         if word.start_with?('laa-')
           acc[:laa_reference] = word
-        elsif word.match?(/^\d+\/\d+$/)
+        elsif /^\d{6}|\d{6}\/\d{3}$/.match?(word)
           acc[:ufn] = word
-        elsif word.match?(/^\d.*[a-zA-Z]$/)
+        elsif /^\d.*[a-zA-Z]$/.match?(word)
           acc[:office_code] = word
         else
           acc[:client_last_name] = word
         end
       end
+      @query_params ||= results
     end
 
     def sort_clause
@@ -107,7 +107,7 @@ module PaymentRequests
       if sort_by.in?(%w[submitted_at])
         "#{sort_by} #{sort_direction}"
       else
-        "LOWER(payment_request_claim.#{sort_by}) #{sort_direction}"
+        "LOWER(payment_request_claims.#{sort_by}) #{sort_direction}"
       end
     end
 
