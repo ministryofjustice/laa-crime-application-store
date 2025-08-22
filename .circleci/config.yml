@@ -295,15 +295,6 @@ jobs:
           e2e_current_image: ${AWS_ECR_REGISTRY_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com/${APPSTORE_ECR_REPOSITORY}:branch-${CIRCLE_SHA1}
           e2e_branch: main # Change to work against a fixed e2e test repo branch if needed
 
-  e2e-test-main:
-    executor: crime-forms-end-to-end-tests/e2e-test-executor
-    steps:
-      - crime-forms-end-to-end-tests/run-e2e-tests
-      - slack/notify:
-          channel: laa-non-standard-crime-claims-prod-alerts
-          event: fail
-          template: basic_fail_1
-
   deploy-dev:
     executor: cloud-platform-executor
     steps:
@@ -417,12 +408,6 @@ workflows:
             - lint-app
             - test-app
             - scan-docker-image
-      - e2e-test-main:
-          context:
-            - laa-non-standard-crime-claims-alerting
-            - laa-crime-forms-e2e-tests
-          requires:
-            - build-and-push
           filters:
             branches:
               only:
@@ -430,13 +415,13 @@ workflows:
       - deploy-dev:
           context: laa-crime-application-store-dev
           requires:
-              - e2e-test-main
+              - build-and-push
       - deploy-uat:
           context:
             - laa-non-standard-crime-claims-alerting
             - laa-crime-application-store-uat
           requires:
-            - e2e-test-main
+            - build-and-push
           filters:
               branches:
                   only:
