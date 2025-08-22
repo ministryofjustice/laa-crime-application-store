@@ -408,10 +408,6 @@ workflows:
             - lint-app
             - test-app
             - scan-docker-image
-          filters:
-            branches:
-              only:
-                - main
       - deploy-dev:
           context: laa-crime-application-store-dev
           requires:
