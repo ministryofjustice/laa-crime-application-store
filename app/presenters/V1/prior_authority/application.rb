@@ -1,7 +1,7 @@
 module Presenters
   module V1
     module PriorAuthority
-      class Application < V1::Base
+      class Application < Presenters::V1::Base
         def primary_quote
           @primary_quote ||= quote_costs.detect(&:primary)
         end
