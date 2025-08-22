@@ -125,7 +125,6 @@ module Submissions
                             .gsub("descending", "desc")
     end
 
-
     def has_been_assigned_to(relation)
       relation.where("assigned_user_id = :caseworker_id OR :caseworker_id = ANY(unassigned_user_ids)", caseworker_id:)
     end

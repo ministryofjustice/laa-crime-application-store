@@ -16,16 +16,17 @@ class BaseSearchService
     search_results
   end
 
-  private
-# :nocov:
+private
+
+  # :nocov:
   def search_query
-    raise NoMethodError.new("method not found in BaseSearchService child class")
+    raise NoMethodError, "method not found in BaseSearchService child class"
   end
 
   def search_results
-    raise NoMethodError.new("method not found in BaseSearchService child class")
+    raise NoMethodError, "method not found in BaseSearchService child class"
   end
-# :nocov:
+  # :nocov:
 
   # page 1: (1-1) * 10 = 0 (rows 1 to 10) - offset should be 0
   # page 2: (2-1) * 10 = 10 (rows 11 to 20) - offset should be 10

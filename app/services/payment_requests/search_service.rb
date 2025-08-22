@@ -9,7 +9,6 @@ module PaymentRequests
       submitted_at
     ].freeze
 
-
   private
 
     def search_query
