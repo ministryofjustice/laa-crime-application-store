@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe V1::PriorAuthority::QuoteCosts do
+RSpec.describe Presenters::V1::PriorAuthority::QuoteCosts do
   let(:submission) { create(:submission, :with_pa_version) }
   let(:application) { submission.latest_version.application }
   let(:quote) { submission.latest_version.application["quotes"].first }

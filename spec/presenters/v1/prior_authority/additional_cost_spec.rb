@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe V1::PriorAuthority::AdditionalCost do
+RSpec.describe Presenters::V1::PriorAuthority::AdditionalCost do
   let(:submission) { create(:submission, :with_pa_version) }
   let(:record) { submission.latest_version.application["additional_costs"].first }
 
