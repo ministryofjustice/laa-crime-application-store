@@ -3,12 +3,50 @@ require "rails_helper"
 RSpec.describe "Update submission" do
   before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker) }
 
-  it "lets me update data by creating a new version" do
+  context "with ability to send emails (nsm)" do
+    before do
+      allow(ENV).to receive(:fetch).with("SEND_EMAILS", "false").and_return("true")
+      allow(Nsm::SubmissionMailer).to receive_message_chain(:notify, :deliver_now!).and_return(true)
+    end
+
+    it "sends email notification on update" do
+      submission = create(:submission, :with_nsm_version)
+      patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
+      expect(response).to have_http_status(:created)
+    end
+  end
+
+  context "with ability to send emails (pa)" do
+    before do
+      allow(ENV).to receive(:fetch).with("SEND_EMAILS", "false").and_return("true")
+      allow(PriorAuthority::SubmissionMailer).to receive_message_chain(:notify, :deliver_now!).and_return(true)
+    end
+
+    it "sends email notification on update" do
+      submission = create(:submission, :with_pa_version)
+      patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
+      expect(response).to have_http_status(:created)
+    end
+  end
+
+  it "lets me update data by creating a new version with laa reference same as first version" do
     submission = create(:submission)
     patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
     expect(response).to have_http_status(:created)
     expect(submission.reload.current_version).to eq 2
-    expect(submission.reload.latest_version.application).to eq({ "new" => "data" })
+    expect(submission.reload.latest_version.application).to eq(
+      {
+        "new" => "data",
+        "laa_reference" => "LAA-123456",
+      },
+    )
+    expect(submission.reload.latest_version.application["laa_reference"]).to eq("LAA-123456")
+  end
+
+  it "fails when laa reference is not present in first version" do
+    submission = create(:submission, build_scope: [:with_no_laa_reference])
+    patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
+    expect(response).to have_http_status(:unprocessable_entity)
   end
 
   it "adds the event and updates last_updated_at" do

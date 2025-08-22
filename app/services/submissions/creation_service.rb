@@ -1,6 +1,8 @@
 module Submissions
   class CreationService
     class << self
+      include LaaReferenceHelper
+
       def call(params)
         raise AlreadyExistsError if Submission.find_by(id: params[:application_id])
 
@@ -14,7 +16,10 @@ module Submissions
             last_updated_at = params.dig(:application, :updated_at)&.to_time || submission.created_at
             submission.update!(last_updated_at:)
           end
-
+          if ENV.fetch("SEND_EMAILS", "false") == "true"
+            Nsm::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == "crm7"
+            PriorAuthority::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == "crm4"
+          end
           submission
         end
       end
@@ -27,6 +32,7 @@ module Submissions
       end
 
       def add_version(submission, params)
+        params[:application]["laa_reference"] = generate_laa_reference
         submission.ordered_submission_versions.create!(
           json_schema_version: params[:json_schema_version],
           application: params[:application],

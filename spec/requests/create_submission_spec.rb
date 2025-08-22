@@ -2,9 +2,56 @@ require "rails_helper"
 
 RSpec.describe "Create submission" do
   context "when authenticated with bearer token" do
-    before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider) }
-
     let(:created_record) { Submission.last }
+
+    before do
+      allow(Nsm::SubmissionMailer).to receive_message_chain(:notify, :deliver_now!).and_return(true)
+      allow(PriorAuthority::SubmissionMailer).to receive_message_chain(:notify, :deliver_now!).and_return(true)
+      allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider)
+    end
+
+    context "with ability to send emails (nsm)" do
+      before do
+        allow(ENV).to receive(:fetch).with("SEND_EMAILS", "false").and_return("true")
+      end
+
+      it "sends email notification on update (nsm)" do
+        post "/v1/submissions", headers: { "Content-Type" => "application/json" }, params: {
+          application_id: SecureRandom.uuid,
+          application_type: "crm7",
+          application_state: "submitted",
+          application_risk: nil,
+          json_schema_version: 1,
+          application: {
+            claim_type: "non_standard_magistrate",
+            rep_order_date: "2024-1-1",
+            reasons_for_claim: %w[other],
+            work_items: [],
+            letters_and_calls: [],
+            disbursements: [],
+          },
+        }.to_json
+        expect(response).to have_http_status :created
+      end
+    end
+
+    context "with ability to send emails (pa)" do
+      before do
+        allow(ENV).to receive(:fetch).with("SEND_EMAILS", "false").and_return("true")
+      end
+
+      it "sends email notification on update (nsm)" do
+        post "/v1/submissions", params: {
+          application_id: SecureRandom.uuid,
+          application_type: "crm4",
+          application_state: "submitted",
+          application_risk: nil,
+          json_schema_version: 1,
+          application: { foo: :bar },
+        }
+        expect(response).to have_http_status :created
+      end
+    end
 
     it "saves what I send" do
       id = SecureRandom.uuid
@@ -29,7 +76,10 @@ RSpec.describe "Create submission" do
 
       expect(created_record.latest_version).to have_attributes(
         json_schema_version: 1,
-        application: { "foo" => "bar" },
+        application: {
+          "foo" => "bar",
+          "laa_reference" => an_instance_of(String),
+        },
       )
     end
 
@@ -67,6 +117,7 @@ RSpec.describe "Create submission" do
               "foo" => "bar",
               "created_at" => (updated_at_time - 15.minutes).iso8601,
               "updated_at" => updated_at_time.iso8601,
+              "laa_reference" => an_instance_of(String),
             },
           )
       end

@@ -21,7 +21,7 @@ module V1
     def update
       ::Submissions::UpdateService.call(current_submission, params)
       render json: current_submission, status: :created
-    rescue ActiveRecord::RecordInvalid => e
+    rescue ActiveRecord::RecordInvalid, NoLaaReferenceError => e
       render json: { errors: e.message }, status: :unprocessable_entity
     end
 
