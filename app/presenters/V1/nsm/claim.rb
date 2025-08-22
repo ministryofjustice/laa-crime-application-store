@@ -1,7 +1,7 @@
 module Presenters
   module V1
     module Nsm
-      class Claim < Presenters::V1::Base
+      class Claim < V1::Base
         def main_defendant
           @application["defendants"].find { _1["main"] }
         end
