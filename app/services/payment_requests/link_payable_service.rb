@@ -18,7 +18,7 @@ module PaymentRequests
             raise PaymentLinkError, I18n.t("errors.payment_request.invalid_link") unless submission.application_type == "crm7"
 
             application_data = submission.latest_version.application
-            claim = Presenters::V1::Nsm::Claim.new(submission)
+            claim = V1::Nsm::ClaimPresenter.new(submission)
 
             payment_request.nsm_claim = NsmClaim.create!(
               laa_reference: params[:laa_reference],

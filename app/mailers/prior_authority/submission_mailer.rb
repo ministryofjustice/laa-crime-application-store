@@ -4,7 +4,7 @@ module PriorAuthority
   class SubmissionMailer < NotifyMailer
     def notify(submission)
       @data = submission.latest_version.application
-      @application = Presenters::V1::PriorAuthority::Application.new(submission)
+      @application = V1::PriorAuthority::ApplicationPresenter.new(submission)
       set_template("d07d03fd-65d0-45e4-8d49-d4ee41efad35")
       set_personalisation(
         laa_case_reference: case_reference,

@@ -4,7 +4,7 @@ module Nsm
   class SubmissionMailer < NotifyMailer
     def notify(submission)
       @data = submission.latest_version.application
-      @claim = Presenters::V1::Nsm::Claim.new(submission)
+      @claim = V1::Nsm::ClaimPresenter.new(submission)
       set_template("0403454c-47a5-4540-804c-cb614e77dc22")
       set_personalisation(
         LAA_case_reference: case_reference,
