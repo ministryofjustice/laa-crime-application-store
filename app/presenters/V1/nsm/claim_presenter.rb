@@ -10,15 +10,15 @@ module V1
       end
 
       def work_items_for_calculation
-        @application["work_items"].map { WorkItemCosts.new(_1, @application).data_for_calculation }
+        @application["work_items"].map { WorkItemCostsPresenter.new(_1, @application).data_for_calculation }
       end
 
       def disbursements_for_calculation
-        @application["disbursements"].map { DisbursementCosts.new(_1).data_for_calculation }
+        @application["disbursements"].map { DisbursementCostsPresenter.new(_1).data_for_calculation }
       end
 
       def letters_and_calls_for_calculation
-        LettersAndCallsCosts.new(@application).letters_and_calls_for_calculation
+        LettersAndCallsCostsPresenter.new(@application).letters_and_calls_for_calculation
       end
 
       # TODO: The classes used for this method only account for claimed costs - need to add assessed costs in also

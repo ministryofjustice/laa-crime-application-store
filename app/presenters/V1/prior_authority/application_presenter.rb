@@ -6,7 +6,7 @@ module V1
       end
 
       def quote_costs
-        @quotes = @application["quotes"].map { QuoteCosts.new(_1, @application) }
+        @quotes = @application["quotes"].map { QuoteCostsPresenter.new(_1, @application) }
       end
 
       def defendant_full_name

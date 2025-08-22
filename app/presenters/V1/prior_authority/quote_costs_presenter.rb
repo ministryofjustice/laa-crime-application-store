@@ -30,7 +30,7 @@ module V1
       end
 
       def additional_cost_value
-        @application["additional_costs"].map { AdditionalCost.new(_1) }.sum(&:total_cost) || BigDecimal(0)
+        @application["additional_costs"].map { AdditionalCostPresenter.new(_1) }.sum(&:total_cost) || BigDecimal(0)
       end
 
       def primary
