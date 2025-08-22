@@ -3,7 +3,6 @@ module V1
     class SearchesController < ApplicationController
       def create
         search_results = ::PaymentRequests::SearchService.call(search_params, current_client_role)
-        # payment_requests = PaymentRequestResource.new(search_results).serialize
         render json: search_results, status: :created
       rescue StandardError => e
         Rails.logger.fatal("PaymentRequests search query raised #{e.message}")
