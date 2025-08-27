@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ministryofjustice/laa-crime-forms-common.git
-  revision: 32ac136ee59893e1bcb26128febb6b8d295b6ba8
+  revision: 53f169973be08a25e91f8e9526c2dc5e00ea2157
   specs:
     laa_crime_forms_common (0.11.3)
       activesupport
@@ -89,8 +89,8 @@ GEM
     ansi (1.5.0)
     ast (2.4.3)
     aws-eventstream (1.4.0)
-    aws-partitions (1.1148.0)
-    aws-sdk-core (3.229.0)
+    aws-partitions (1.1151.0)
+    aws-sdk-core (3.231.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -98,11 +98,11 @@ GEM
       bigdecimal
       jmespath (~> 1, >= 1.6.1)
       logger
-    aws-sdk-kms (1.110.0)
-      aws-sdk-core (~> 3, >= 3.228.0)
+    aws-sdk-kms (1.111.0)
+      aws-sdk-core (~> 3, >= 3.231.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.197.0)
-      aws-sdk-core (~> 3, >= 3.228.0)
+    aws-sdk-s3 (1.198.0)
+      aws-sdk-core (~> 3, >= 3.231.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
     aws-sigv4 (1.12.1)
@@ -469,7 +469,7 @@ PLATFORMS
 
 DEPENDENCIES
   alba
-  aws-sdk-s3 (~> 1.197)
+  aws-sdk-s3 (~> 1.198)
   bootsnap
   debug
   dotenv-rails
