@@ -23,7 +23,10 @@ deploy_branch() {
                 --set ingress.tls[0].host="$RELEASE_HOST" \
                 --set nameOverride="$BRANCH_RELEASE_NAME"\
                 --set-string sharedIPs="$SHARED_IPS" \
-                --set fullnameOverride="$BRANCH_RELEASE_NAME"
+                --set fullnameOverride="$BRANCH_RELEASE_NAME" \
+                --set postgresql.image.repository=bitnamilegacy/postgresql \
+                --set redis.image.repository=bitnamilegacy/redis \
+                --set postgresql.global.security.allowInsecureImages=true
 }
 
 deploy_main() {
