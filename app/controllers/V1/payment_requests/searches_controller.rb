@@ -21,7 +21,7 @@ module V1
           :submitted_to,
           :received_from,
           :received_to,
-          :claim_type,
+          :request_type,
           :query,
         )
       end

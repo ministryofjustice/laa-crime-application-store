@@ -17,7 +17,7 @@ module PaymentRequests
         .includes(:payment_request_claim)
       claims = claims.where(payment_request_claims: { date_received: received_from..received_to }) if date_received?
       claims = claims.where(submitted_at: (submitted_from..submitted_to)) if submitted_date?
-      claims = claims.where(payment_request_claims: { type: claim_type }) if claim_type.present?
+      claims = claims.where(request_type: request_type) if request_type.present?
       claims = claims.where("LOWER(payment_request_claims.laa_reference) = ?", query_params[:laa_reference].downcase) if query_params[:laa_reference].present?
       claims = claims.where(payment_request_claims: { ufn: query_params[:ufn] }) if query_params[:ufn].present?
       claims = claims.where("LOWER(payment_request_claims.office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
@@ -60,8 +60,8 @@ module PaymentRequests
       submitted_from.present? || submitted_to.present?
     end
 
-    def claim_type
-      search_params[:claim_type]
+    def request_type
+      search_params[:request_type]
     end
 
     def query_params

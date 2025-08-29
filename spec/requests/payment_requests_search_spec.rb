@@ -44,7 +44,7 @@ RSpec.describe "PaymentRequest search" do
           query: "1A123B",
           per_page: "2",
           page: "1",
-          claim_type: "NsmClaim",
+          request_type: "non_standard_mag",
           sort_by:,
           sort_direction:,
         }
@@ -55,7 +55,7 @@ RSpec.describe "PaymentRequest search" do
           query: "1A123B",
           per_page: "2",
           page: "2",
-          claim_type: "NsmClaim",
+          request_type: "non_standard_mag",
           sort_by:,
           sort_direction:,
         }
@@ -68,7 +68,7 @@ RSpec.describe "PaymentRequest search" do
           query: "1A123B",
           per_page: "2",
           page: "1",
-          claim_type: "NsmClaim",
+          request_type: "non_standard_mag",
         }
 
         expect(response.parsed_body["metadata"]["total_results"]).to be 4
@@ -105,7 +105,7 @@ RSpec.describe "PaymentRequest search" do
         it "brings back only those submitted between the dates" do
           post search_endpoint, params: {
             query: "1A123B",
-            claim_type: "NsmClaim",
+            request_type: "non_standard_mag",
             submitted_from:,
             submitted_to:,
           }
@@ -122,7 +122,7 @@ RSpec.describe "PaymentRequest search" do
         it "brings back those updated between the beginning of day and end of day" do
           post search_endpoint, params: {
             query: "1A123B",
-            claim_type: "NsmClaim",
+            request_type: "non_standard_mag",
             submitted_from:,
             submitted_to:,
           }
@@ -138,7 +138,7 @@ RSpec.describe "PaymentRequest search" do
         it "brings back only those submitted after the from date" do
           post search_endpoint, params: {
             query: "1A123B",
-            claim_type: "NsmClaim",
+            request_type: "non_standard_mag",
             submitted_from:,
           }
 
@@ -153,7 +153,7 @@ RSpec.describe "PaymentRequest search" do
         it "brings back only those submitted before the to date" do
           post search_endpoint, params: {
             query: "1A123B",
-            claim_type: "NsmClaim",
+            request_type: "non_standard_mag",
             submitted_to:,
           }
 
@@ -180,7 +180,7 @@ RSpec.describe "PaymentRequest search" do
         it "brings back only those updated between the dates" do
           post search_endpoint, params: {
             query: "1A123B",
-            claim_type: "NsmClaim",
+            request_type: "non_standard_mag",
             received_from:,
             received_to:,
           }
@@ -197,7 +197,7 @@ RSpec.describe "PaymentRequest search" do
         it "brings back those updated between the beginning of day and end of day" do
           post search_endpoint, params: {
             query: "1A123B",
-            claim_type: "NsmClaim",
+            request_type: "non_standard_mag",
             received_from:,
             received_to:,
           }
@@ -213,7 +213,7 @@ RSpec.describe "PaymentRequest search" do
         it "brings back only those last update, after the from date" do
           post search_endpoint, params: {
             query: "1A123B",
-            claim_type: "NsmClaim",
+            request_type: "non_standard_mag",
             received_from:,
           }
 
@@ -228,7 +228,7 @@ RSpec.describe "PaymentRequest search" do
         it "brings back only those last updated before the to date" do
           post search_endpoint, params: {
             query: "1A123B",
-            claim_type: "NsmClaim",
+            request_type: "non_standard_mag",
             received_to:,
           }
 
@@ -247,7 +247,7 @@ RSpec.describe "PaymentRequest search" do
 
       it "returns those with matching last name from single defendant object" do
         post search_endpoint, params: {
-          claim_type: "NsmClaim",
+          request_type: "non_standard_mag",
           query: "Bloggs",
         }
 
@@ -265,7 +265,7 @@ RSpec.describe "PaymentRequest search" do
 
       it "returns those with matching first or last name from single defendant object" do
         post search_endpoint, params: {
-          claim_type: "AssignedCounselClaim",
+          request_type: "assigned_counsel",
           query: "Bloggs",
         }
 
@@ -301,7 +301,7 @@ RSpec.describe "PaymentRequest search" do
 
       it "defaults to sorting by last_updated, most recent first" do
         post search_endpoint, params: {
-          claim_type: "NsmClaim",
+          request_type: "non_standard_mag",
         }
 
         expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "laa_reference") }).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
@@ -318,7 +318,7 @@ RSpec.describe "PaymentRequest search" do
         post search_endpoint, params: {
           sort_by: "laa_reference",
           sort_direction: "ascending",
-          claim_type: "NsmClaim",
+          request_type: "non_standard_mag",
         }
 
         expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "laa_reference") }).to match(%w[LAA-AAAAAA LAA-BBBBBB LAA-CCCCCC])
@@ -328,7 +328,7 @@ RSpec.describe "PaymentRequest search" do
         post search_endpoint, params: {
           sort_by: "laa_reference",
           sort_direction: "descending",
-          claim_type: "NsmClaim",
+          request_type: "non_standard_mag",
         }
 
         expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "laa_reference") }).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
@@ -341,7 +341,7 @@ RSpec.describe "PaymentRequest search" do
         post search_endpoint, params: {
           sort_by: "laa_reference",
           sort_direction: "ascending",
-          claim_type: "NsmClaim",
+          request_type: "non_standard_mag",
         }
 
         expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "laa_reference") }).to match(%w[LAA-AAAAAA LAA-BBBBBB LAA-bbbbbb LAA-CCCCCC]).or match(%w[LAA-AAAAAA LAA-bbbbbb LAA-BBBBBB LAA-CCCCCC])
@@ -351,7 +351,7 @@ RSpec.describe "PaymentRequest search" do
         post search_endpoint, params: {
           sort_by: "client_last_name",
           sort_direction: "asc",
-          claim_type: "NsmClaim",
+          request_type: "non_standard_mag",
         }
 
         expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(%w[Bob Dodger Zeigler])
@@ -364,7 +364,7 @@ RSpec.describe "PaymentRequest search" do
         post search_endpoint, params: {
           sort_by: "client_last_name",
           sort_direction: "asc",
-          claim_type: "NsmClaim",
+          request_type: "non_standard_mag",
         }
 
         expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to match(%w[Bob bob Dodger Zeigler]).or match(%w[bob Bob Dodger Zeigler])
@@ -374,7 +374,7 @@ RSpec.describe "PaymentRequest search" do
         post search_endpoint, params: {
           sort_by: "office_code",
           sort_direction: "desc",
-          claim_type: "NsmClaim",
+          request_type: "non_standard_mag",
         }
 
         expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "office_code") }).to match(%w[3ab 2ab 1ab])
@@ -384,7 +384,7 @@ RSpec.describe "PaymentRequest search" do
         post search_endpoint, params: {
           sort_by: "submitted_at",
           sort_direction: "desc",
-          claim_type: "NsmClaim",
+          request_type: "non_standard_mag",
         }
 
         expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "office_code") }).to match(%w[2ab 1ab 3ab])
