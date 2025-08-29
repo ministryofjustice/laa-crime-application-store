@@ -1,4 +1,5 @@
 return if ENV["CI"]
+return unless defined?(Flatware)
 
 ENV["PGGSSENCMODE"] = "disable"
 

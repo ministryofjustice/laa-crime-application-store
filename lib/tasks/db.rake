@@ -15,6 +15,14 @@ namespace :db do
     end
   end
 
+  namespace :seeds do
+    desc "seed payment_requests and claims"
+    task payment_requests: :environment do
+      abort("This task is dev-only") unless Rails.env.development?
+      load Rails.root.join("db/seeds/payment_requests.rb")
+    end
+  end
+
   namespace :preparation do
     desc "Run db:prepare, setup/update analytics and translations and retry if 2-pods-running-this-at-once issues encountered"
     task run_with_retry: :environment do
