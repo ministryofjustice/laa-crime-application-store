@@ -5,7 +5,7 @@ module PaymentRequests
       laa_reference
       office_code
       client_last_name
-      claim_type
+      request_type
       submitted_at
     ].freeze
 
@@ -86,7 +86,7 @@ module PaymentRequests
       return "submitted_at desc" unless search_params[:sort_by]
       raise "Unsortable column \"#{sort_by}\" supplied as sort_by argument" unless SORTABLE_COLUMNS.include?(sort_by.downcase)
 
-      if sort_by.in?(%w[submitted_at])
+      if sort_by.in?(%w[submitted_at request_type])
         "#{sort_by} #{sort_direction}"
       else
         "LOWER(payment_request_claims.#{sort_by}) #{sort_direction}"
