@@ -32,6 +32,10 @@ Rails.application.routes.draw do
     resources :assigned_counsel_claims, only: %i[update]
     resources :failed_imports, only: %i[show create]
 
+    namespace :payment_requests do
+      resource :searches, only: %(create)
+    end
+
     namespace :submissions do
       resource :searches, only: %(create)
     end
