@@ -1,5 +1,15 @@
 module V1
   class PaymentRequestsController < ApplicationController
+
+    def index
+      payment_requests = PaymentRequest.all.limit(limit).offset(offset)
+      payment_request_resource = PaymentRequestIndexResource.new(payment_requests).serialize
+      render json: payment_request_resource, status: :ok
+    rescue ActiveRecord::RecordNotFound => e
+      report_error(e)
+      head :not_found
+    end
+
     def show
       payment_request_resource = PaymentRequestResource.new(current_payment_request).serialize
       render json: payment_request_resource, status: :ok
@@ -46,6 +56,22 @@ module V1
     end
 
   private
+
+    def index_params
+      params.permit(:page)
+    end
+
+    def offset
+      (page - 1) * limit
+    end
+
+    def limit
+      10
+    end
+
+    def page
+      index_params.fetch(:page, 1).to_i
+    end
 
     def current_payment_request
       @current_payment_request ||= PaymentRequest.find(params[:id])

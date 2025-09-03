@@ -26,7 +26,7 @@ Rails.application.routes.draw do
     end
 
     resources :nsm_claims, only: %i[update]
-    resources :payment_requests, only: %i[show create update] do
+    resources :payment_requests, only: %i[show create update index] do
       member { patch :link_payable }
     end
     resources :assigned_counsel_claims, only: %i[update]

@@ -27,6 +27,7 @@ module Authorization
         payment_requests: {
           show: true,
           create: true,
+          index: true,
           update: true,
           link_payable: ->(object, _params) { object.submitted_at.nil? },
         },
