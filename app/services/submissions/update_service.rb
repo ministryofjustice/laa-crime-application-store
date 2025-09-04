@@ -11,11 +11,6 @@ module Submissions
           submission.ordered_submission_versions.where(pending: true).destroy_all
           add_new_version(submission, params)
         end
-
-        if ENV.fetch("SEND_EMAILS", "false") == "true"
-          Nsm::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == "crm7"
-          PriorAuthority::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == "crm4"
-        end
       end
 
       def add_new_version(submission, params)
