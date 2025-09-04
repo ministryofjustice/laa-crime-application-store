@@ -6,5 +6,5 @@ class ClaimPaymentSearchResultsResource
   end
 
   attributes :laa_reference, :office_code,
-             :client_last_name
+             :client_last_name, :firm_name
 end
