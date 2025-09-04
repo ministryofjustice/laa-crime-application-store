@@ -3,8 +3,6 @@ require "rails_helper"
 RSpec.describe "Update submission" do
   before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker) }
 
-
-
   it "can update a non-standard magistrate payment submission" do
     submission = create(:submission, :with_nsm_version)
     patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
