@@ -1,13 +1,8 @@
 module V1
   class PaymentRequestsController < ApplicationController
-
     def index
-      payment_requests = PaymentRequest.all.limit(limit).offset(offset)
-      payment_request_resource = PaymentRequestIndexResource.new(payment_requests).serialize
-      render json: payment_request_resource, status: :ok
-    rescue ActiveRecord::RecordNotFound => e
-      report_error(e)
-      head :not_found
+      payment_requests = ::PaymentRequests::SearchService.call(index_params, current_client_role)
+      render json: payment_requests, status: :ok
     end
 
     def show
@@ -59,18 +54,6 @@ module V1
 
     def index_params
       params.permit(:page)
-    end
-
-    def offset
-      (page - 1) * limit
-    end
-
-    def limit
-      10
-    end
-
-    def page
-      index_params.fetch(:page, 1).to_i
     end
 
     def current_payment_request
