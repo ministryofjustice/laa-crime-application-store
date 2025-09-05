@@ -12,7 +12,7 @@ module Submissions
           add_new_version(submission, params)
         end
 
-        if ENV.fetch("SEND_EMAILS", "false") == "true" && submission.state == "sent_back"
+        if ENV.fetch("SEND_EMAILS", "false") == "true" && submission.state == "provider_updated"
           Nsm::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == "crm7"
           PriorAuthority::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == "crm4"
         end
