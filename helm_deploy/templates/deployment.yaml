@@ -113,9 +113,9 @@ spec:
                 secretKeyRef:
                   name: analytics-user-config
                   key: analytics_password
+          {{ end }}
             - name: SEND_EMAILS
               value: 'true'
-          {{ end }}
             - name: APP_CLIENT_ID
               valueFrom:
                 secretKeyRef:
