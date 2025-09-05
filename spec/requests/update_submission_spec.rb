@@ -3,30 +3,40 @@ require "rails_helper"
 RSpec.describe "Update submission" do
   before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker) }
 
-  context "with ability to send emails (nsm)" do
-    before do
-      allow(ENV).to receive(:fetch).with("SEND_EMAILS", "false").and_return("true")
-      allow(Nsm::SubmissionMailer).to receive_message_chain(:notify, :deliver_now!).and_return(true)
-    end
+  context "when API is called by provider" do
+    before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :provider) }
 
-    it "sends email notification on update" do
-      submission = create(:submission, :with_nsm_version)
-      patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
-      expect(response).to have_http_status(:created)
+    context "when emails can be sent" do
+      before do
+        allow(ENV).to receive(:fetch).with("SEND_EMAILS", "false").and_return("true")
+        allow(Nsm::SubmissionMailer).to receive_message_chain(:notify, :deliver_now!).and_return(true)
+        allow(PriorAuthority::SubmissionMailer).to receive_message_chain(:notify, :deliver_now!).and_return(true)
+      end
+
+      it "succeeds and sends email when nsm submission state is updated to provider_updated" do
+        submission = create(:submission, :with_nsm_version, state: "sent_back")
+        patch "/v1/submissions/#{submission.id}", params: { application_state: "provider_updated", application: { new: :data }, json_schema_version: 1 }
+        expect(response).to have_http_status(:created)
+      end
+
+      it "succeeds and sends email when pa submission state is updated to provider_updated" do
+        submission = create(:submission, :with_pa_version, state: "sent_back")
+        patch "/v1/submissions/#{submission.id}", params: { application_state: "provider_updated", application: { new: :data }, json_schema_version: 1 }
+        expect(response).to have_http_status(:created)
+      end
     end
   end
 
-  context "with ability to send emails (pa)" do
-    before do
-      allow(ENV).to receive(:fetch).with("SEND_EMAILS", "false").and_return("true")
-      allow(PriorAuthority::SubmissionMailer).to receive_message_chain(:notify, :deliver_now!).and_return(true)
-    end
+  it "can update a non-standard magistrate payment submission" do
+    submission = create(:submission, :with_nsm_version)
+    patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
+    expect(response).to have_http_status(:created)
+  end
 
-    it "sends email notification on update" do
-      submission = create(:submission, :with_pa_version)
-      patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
-      expect(response).to have_http_status(:created)
-    end
+  it "can update a prior authority submission" do
+    submission = create(:submission, :with_pa_version)
+    patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
+    expect(response).to have_http_status(:created)
   end
 
   it "lets me update data by creating a new version with laa reference same as first version" do
