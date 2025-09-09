@@ -7,6 +7,7 @@ module PaymentRequests
       client_last_name
       request_type
       submitted_at
+      firm_name
     ].freeze
 
   private
