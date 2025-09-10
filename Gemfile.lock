@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/ministryofjustice/laa-crime-forms-common.git
-  revision: b877daf2f93823b2a28c1ca408633368475f5a37
+  revision: 939005083a7ddeb0c1ef51618c76b38bd7bf33a1
   specs:
-    laa_crime_forms_common (0.12.0)
+    laa_crime_forms_common (0.12.2)
       activesupport
       httparty (>= 0.22.0, < 1)
       i18n (>= 1.8.11, < 2)
@@ -89,8 +89,8 @@ GEM
     ansi (1.5.0)
     ast (2.4.3)
     aws-eventstream (1.4.0)
-    aws-partitions (1.1151.0)
-    aws-sdk-core (3.231.0)
+    aws-partitions (1.1157.0)
+    aws-sdk-core (3.232.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -98,10 +98,10 @@ GEM
       bigdecimal
       jmespath (~> 1, >= 1.6.1)
       logger
-    aws-sdk-kms (1.111.0)
+    aws-sdk-kms (1.112.0)
       aws-sdk-core (~> 3, >= 3.231.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.198.0)
+    aws-sdk-s3 (1.199.0)
       aws-sdk-core (~> 3, >= 3.231.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -109,7 +109,7 @@ GEM
       aws-eventstream (~> 1, >= 1.0.2)
     base64 (0.3.0)
     benchmark (0.4.1)
-    bigdecimal (3.2.2)
+    bigdecimal (3.2.3)
     binding_of_caller (1.0.1)
       debug_inspector (>= 1.2.0)
     bootsnap (1.18.6)
@@ -142,9 +142,9 @@ GEM
     erubi (1.13.1)
     et-orbi (1.3.0)
       tzinfo
-    factory_bot (6.5.4)
+    factory_bot (6.5.5)
       activesupport (>= 6.1.0)
-    factory_bot_rails (6.5.0)
+    factory_bot_rails (6.5.1)
       factory_bot (~> 6.5)
       railties (>= 6.1.0)
     faraday (2.13.4)
@@ -237,7 +237,7 @@ GEM
       racc (~> 1.4)
     notifications-ruby-client (6.2.0)
       jwt (>= 1.5, < 3)
-    oauth2 (2.0.14)
+    oauth2 (2.0.15)
       faraday (>= 0.17.3, < 4.0)
       jwt (>= 1.0, < 4.0)
       logger (~> 1.2)
@@ -275,7 +275,7 @@ GEM
       date
       stringio
     public_suffix (6.0.2)
-    puma (6.6.1)
+    puma (7.0.2)
       nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.8.1)
@@ -376,10 +376,10 @@ GEM
       rubocop-rails (= 2.33.3)
       rubocop-rake (= 0.7.1)
       rubocop-rspec (= 3.6.0)
-    rubocop-performance (1.25.0)
+    rubocop-performance (1.26.0)
       lint_roller (~> 1.1)
       rubocop (>= 1.75.0, < 2.0)
-      rubocop-ast (>= 1.38.0, < 2.0)
+      rubocop-ast (>= 1.44.0, < 2.0)
     rubocop-rails (2.33.3)
       activesupport (>= 4.2.0)
       lint_roller (~> 1.1)
@@ -397,10 +397,10 @@ GEM
       activerecord (>= 4.0.0)
       railties (>= 4.0.0)
     securerandom (0.4.1)
-    sentry-rails (5.26.0)
+    sentry-rails (5.27.0)
       railties (>= 5.0)
-      sentry-ruby (~> 5.26.0)
-    sentry-ruby (5.26.0)
+      sentry-ruby (~> 5.27.0)
+    sentry-ruby (5.27.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     sidekiq (8.0.7)
@@ -439,9 +439,9 @@ GEM
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode (0.4.4.5)
-    unicode-display_width (3.1.5)
-      unicode-emoji (~> 4.0, >= 4.0.4)
-    unicode-emoji (4.0.4)
+    unicode-display_width (3.2.0)
+      unicode-emoji (~> 4.1)
+    unicode-emoji (4.1.0)
     uri (1.0.3)
     useragent (0.16.11)
     uuid (2.3.9)
@@ -469,7 +469,7 @@ PLATFORMS
 
 DEPENDENCIES
   alba
-  aws-sdk-s3 (~> 1.198)
+  aws-sdk-s3 (~> 1.199)
   bootsnap
   debug
   dotenv-rails
@@ -478,7 +478,7 @@ DEPENDENCIES
   govuk_notify_rails (~> 3.0.0)
   httparty
   jwt (~> 2.10.2)
-  laa_crime_forms_common (~> 0.12.0)!
+  laa_crime_forms_common (~> 0.12.2)!
   lograge
   logstash-event
   oauth2
@@ -488,7 +488,7 @@ DEPENDENCIES
   pry-nav
   pry-rescue
   pry-stack_explorer
-  puma (~> 6.6)
+  puma (~> 7.0)
   rails (~> 8.0.2.1)
   rspec-rails
   rspec_junit_formatter
