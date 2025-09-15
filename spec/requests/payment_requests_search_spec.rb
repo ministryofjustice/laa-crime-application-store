@@ -245,13 +245,13 @@ RSpec.describe "PaymentRequest search" do
         create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "Bloggs"))
       end
 
-      it "returns those with matching last name from single defendant object" do
+      it "returns those with similar last name from single defendant object" do
         post search_endpoint, params: {
           request_type: "non_standard_mag",
           query: "Bloggs",
         }
 
-        expect(response.parsed_body["data"].size).to be 2
+        expect(response.parsed_body["data"].size).to be 3
         expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to contain_exactly("Bloggs", "Bloggs")
       end
     end
@@ -263,13 +263,13 @@ RSpec.describe "PaymentRequest search" do
         create(:payment_request, :assigned_counsel, payment_request_claim: build(:assigned_counsel_claim, client_last_name: "Bloggs"))
       end
 
-      it "returns those with matching first or last name from single defendant object" do
+      it "returns those with similar first or last name from single defendant object" do
         post search_endpoint, params: {
           request_type: "assigned_counsel",
           query: "Bloggs",
         }
 
-        expect(response.parsed_body["data"].size).to be 2
+        expect(response.parsed_body["data"].size).to be 3
         expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to contain_exactly("Bloggs", "Bloggs")
       end
     end
