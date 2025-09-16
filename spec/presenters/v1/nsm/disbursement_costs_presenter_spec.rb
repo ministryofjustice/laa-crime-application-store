@@ -7,7 +7,7 @@ RSpec.describe V1::Nsm::DisbursementCostsPresenter do
       let(:disbursement) { application[:disbursements].first }
 
       it "default miles to 0 if value for miles is empty string" do
-        expect{described_class.new(disbursement).data_for_calculation}.not_to raise_error
+        expect { described_class.new(disbursement).data_for_calculation }.not_to raise_error
       end
     end
   end
