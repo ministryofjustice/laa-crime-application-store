@@ -9,6 +9,7 @@ module V1
         [letters_for_calculation, calls_for_calculation]
       end
 
+       # TODO: Add real assessed costs if using caseworker assessed data
       def calls_for_calculation
         {
           type: :calls,

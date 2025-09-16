@@ -6,6 +6,7 @@ module V1
         @claim = claim
       end
 
+       # TODO: Add real assessed costs if using caseworker assessed data
       def data_for_calculation
         {
           claimed_time_spent_in_minutes: @work_item["time_spent"].to_i,
