@@ -9,7 +9,7 @@ module V1
         [letters_for_calculation, calls_for_calculation]
       end
 
-      # TODO: Add real assessed costs if using caseworker assessed data
+      # TODO: CRM457-2747 - Make assessed costs not compulsory
       def calls_for_calculation
         {
           type: :calls,

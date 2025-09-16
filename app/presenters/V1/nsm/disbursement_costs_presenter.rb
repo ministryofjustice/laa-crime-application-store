@@ -5,7 +5,7 @@ module V1
         @disbursement = disbursement
       end
 
-      # TODO: Add real assessed costs if using caseworker assessed data
+      # TODO: CRM457-2747 - Make assessed costs not compulsory
       def data_for_calculation
         {
           disbursement_type: @disbursement["disbursement_type"],
