@@ -238,5 +238,23 @@ FactoryBot.define do
         }
       end
     end
+
+    trait :with_other_disbursement do
+      disbursements do
+        [
+          {
+            "disbursement_date" => Time.zone.local(2025, 1, 1),
+            "disbursement_type" => "other",
+            "other_type" => "test",
+            "miles" => "",
+            "position" => 1,
+            "details" => "Some stuff that was bought",
+            "vat_rate" => 0.2,
+            "total_cost_without_vat" => 350.33,
+            "apply_vat" => true,
+          },
+        ]
+      end
+    end
   end
 end
