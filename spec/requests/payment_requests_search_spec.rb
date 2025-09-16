@@ -243,6 +243,7 @@ RSpec.describe "PaymentRequest search" do
         create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "Vloggs"))
         create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "Bloggs"))
         create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "Bloggs"))
+        create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "Vlikks"))
       end
 
       it "returns those with similar last name from single defendant object" do
@@ -252,7 +253,7 @@ RSpec.describe "PaymentRequest search" do
         }
 
         expect(response.parsed_body["data"].size).to be 3
-        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to contain_exactly("Bloggs", "Bloggs")
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to contain_exactly("Bloggs", "Bloggs", "Vloggs")
       end
     end
 
@@ -261,6 +262,7 @@ RSpec.describe "PaymentRequest search" do
         create(:payment_request, :assigned_counsel, payment_request_claim: build(:assigned_counsel_claim, client_last_name: "Vloggs"))
         create(:payment_request, :assigned_counsel, payment_request_claim: build(:assigned_counsel_claim, client_last_name: "Bloggs"))
         create(:payment_request, :assigned_counsel, payment_request_claim: build(:assigned_counsel_claim, client_last_name: "Bloggs"))
+        create(:payment_request, :assigned_counsel, payment_request_claim: build(:assigned_counsel_claim, client_last_name: "Vlikks"))
       end
 
       it "returns those with similar first or last name from single defendant object" do
@@ -270,7 +272,7 @@ RSpec.describe "PaymentRequest search" do
         }
 
         expect(response.parsed_body["data"].size).to be 3
-        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to contain_exactly("Bloggs", "Bloggs")
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "client_last_name") }).to contain_exactly("Bloggs", "Bloggs", "Vloggs")
       end
     end
 
