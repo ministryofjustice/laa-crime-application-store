@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :application, class: Hash do
-    initialize_with { attributes }
+    initialize_with { attributes.stringify_keys }
     laa_reference { "LAA-123456" }
     ufn { "010124/001" }
     office_code { account_number }
@@ -145,10 +145,20 @@ FactoryBot.define do
       hearing_outcome { "CP01" }
       matter_type { "1" }
       youth_court { true }
-      letters { 500 }
-      calls { 220 }
-      letters_uplift { 10 }
-      calls_uplift { 20 }
+      letters_and_calls do
+        [
+          {
+            "type" => "letters",
+            "count" => 500,
+            "uplift" => 10,
+          },
+          {
+            "type" => "calls",
+            "count" => 220,
+            "uplift" => 20,
+          },
+        ]
+      end
       reasons_for_claim { [] }
       solicitor do
         {
@@ -236,6 +246,24 @@ FactoryBot.define do
         {
           "high_value" => false,
         }
+      end
+    end
+
+    trait :with_other_disbursement do
+      disbursements do
+        [
+          {
+            "disbursement_date" => Time.zone.local(2025, 1, 1),
+            "disbursement_type" => "other",
+            "other_type" => "test",
+            "miles" => "",
+            "position" => 1,
+            "details" => "Some stuff that was bought",
+            "vat_rate" => 0.2,
+            "total_cost_without_vat" => 350.33,
+            "apply_vat" => true,
+          },
+        ]
       end
     end
   end

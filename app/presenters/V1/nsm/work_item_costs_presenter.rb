@@ -6,6 +6,7 @@ module V1
         @claim = claim
       end
 
+      # TODO: CRM457-2747 - Make assessed costs not compulsory
       def data_for_calculation
         {
           claimed_time_spent_in_minutes: @work_item["time_spent"].to_i,
