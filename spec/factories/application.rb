@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :application, class: Hash do
-    initialize_with { attributes }
+    initialize_with { attributes.stringify_keys }
     laa_reference { "LAA-123456" }
     ufn { "010124/001" }
     office_code { account_number }
@@ -145,10 +145,20 @@ FactoryBot.define do
       hearing_outcome { "CP01" }
       matter_type { "1" }
       youth_court { true }
-      letters { 500 }
-      calls { 220 }
-      letters_uplift { 10 }
-      calls_uplift { 20 }
+      letters_and_calls do
+        [
+          {
+            "type" => "letters",
+            "count" => 500,
+            "uplift" => 10,
+          },
+          {
+            "type" => "calls",
+            "count" => 220,
+            "uplift" => 20,
+          },
+        ]
+      end
       reasons_for_claim { [] }
       solicitor do
         {
