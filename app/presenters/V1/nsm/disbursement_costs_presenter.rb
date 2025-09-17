@@ -10,7 +10,7 @@ module V1
         {
           disbursement_type: @disbursement["disbursement_type"],
           claimed_cost: BigDecimal(@disbursement["total_cost_without_vat"]),
-          claimed_miles: BigDecimal(@disbursement["miles"].to_i || 0),
+          claimed_miles: BigDecimal(@disbursement["miles"].to_f),
           claimed_apply_vat: apply_vat?,
           assessed_cost: BigDecimal(0),
           assessed_miles: BigDecimal(0),
