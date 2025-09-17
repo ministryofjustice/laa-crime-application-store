@@ -10,7 +10,7 @@ module V1
         {
           disbursement_type: @disbursement["disbursement_type"],
           claimed_cost: BigDecimal(@disbursement["total_cost_without_vat"]),
-          claimed_miles: BigDecimal(disbursement_miles),
+          claimed_miles: BigDecimal(@disbursement["miles"].to_i || 0),
           claimed_apply_vat: apply_vat?,
           assessed_cost: BigDecimal(0),
           assessed_miles: BigDecimal(0),
@@ -20,10 +20,6 @@ module V1
 
       def apply_vat?
         @disbursement["apply_vat"].in?([true, "true"])
-      end
-
-      def disbursement_miles
-        @disbursement["miles"].to_s.presence || 0
       end
     end
   end
