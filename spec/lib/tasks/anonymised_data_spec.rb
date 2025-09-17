@@ -15,9 +15,7 @@ RSpec.describe "anonymised:" do
       json_schema_version: 1,
       application: {
         ufn: "010124/001",
-        calls: 220,
         status: "submitted",
-        letters: 500,
         solicitor: {
           last_name: "ANONYMISED",
           first_name: "ANONYMISED",
@@ -61,7 +59,6 @@ RSpec.describe "anonymised:" do
         matter_type: "1",
         office_code: "1A123B",
         youth_court: true,
-        calls_uplift: 20,
         disbursements: [
           {
             miles: 120.45,
@@ -76,9 +73,12 @@ RSpec.describe "anonymised:" do
           },
         ],
         laa_reference: "LAA-123456",
-        letters_uplift: 10,
         rep_order_date: "2025-01-01T00:00:00.000Z",
         hearing_outcome: "CP01",
+        letters_and_calls: [
+          { type: "letters", count: 500, uplift: 10 },
+          { type: "calls", count: 220, uplift: 20 },
+        ],
         reasons_for_claim: [],
         work_completed_date: "2025-01-01T00:00:00.000Z",
       },
