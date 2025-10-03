@@ -22,7 +22,7 @@ gem 'alba'
 gem "aws-sdk-s3", "~> 1.199"
 gem "govuk_notify_rails", "~> 3.0.0"
 gem "httparty"
-gem "jwt", "~> 2.10.2"
+gem "jwt", "~> 3.1.2"
 gem "laa_crime_forms_common", "~> 0.12.2", github: "ministryofjustice/laa-crime-forms-common"
 gem "lograge"
 gem "logstash-event"
