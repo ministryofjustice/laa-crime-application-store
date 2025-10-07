@@ -3,8 +3,11 @@ class PaymentRequestClaimResource
 
   attributes :id,
              :type,
-             :firm_name,
-             :office_code,
+             :laa_reference,
+             :date_received,
+             :office_code
+
+  attributes :firm_name,
              :stage_code,
              :work_completed_date,
              :court_name,
@@ -15,11 +18,12 @@ class PaymentRequestClaimResource
              :outcome_code,
              :matter_type,
              :youth_court,
-             :laa_reference,
              :ufn,
-             :date_received,
+             if: proc { |payment_request_claim| payment_request_claim.is_a? NsmClaim }
+
+  attributes :solicitor_office_code,
              :nsm_claim_id,
-             :solicitor_office_code
+             if: proc { |payment_request_claim| payment_request_claim.is_a? AssignedCounselClaim }
 
   attributes :created_at, :updated_at
 
