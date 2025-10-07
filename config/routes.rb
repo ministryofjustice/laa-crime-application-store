@@ -25,12 +25,14 @@ Rails.application.routes.draw do
       collection { post :auto_assignments }
     end
 
+    resources :failed_imports, only: %i[show create]
+
     resources :nsm_claims, only: %i[update]
     resources :payment_requests, only: %i[show create update index] do
       member { patch :link_payable }
     end
     resources :assigned_counsel_claims, only: %i[update]
-    resources :failed_imports, only: %i[show create]
+    resources :payment_request_claims, only: %i[show]
 
     namespace :payment_requests do
       resource :searches, only: %(create)

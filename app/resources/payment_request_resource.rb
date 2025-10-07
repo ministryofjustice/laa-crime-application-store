@@ -18,5 +18,5 @@ class PaymentRequestResource
 
   one :payment_request_claim, resource: lambda { |resource|
     "#{resource.class.name}Resource".constantize
-  }
+  }, if: proc { params[:include_claim] }
 end

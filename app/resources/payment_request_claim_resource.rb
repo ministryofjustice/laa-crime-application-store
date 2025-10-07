@@ -21,4 +21,6 @@ class PaymentRequestClaimResource
              :solicitor_office_code
 
   attributes :created_at, :updated_at
+
+  many :payment_requests, resource: PaymentRequestResource
 end
