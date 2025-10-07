@@ -1,7 +1,8 @@
 class PaymentRequestClaimResource
   include Alba::Resource
 
-  attributes :type,
+  attributes :id,
+             :type,
              :firm_name,
              :office_code,
              :stage_code,
