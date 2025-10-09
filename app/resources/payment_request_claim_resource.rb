@@ -25,6 +25,10 @@ class PaymentRequestClaimResource
              :nsm_claim_id,
              if: proc { |payment_request_claim| payment_request_claim.is_a? AssignedCounselClaim }
 
+  attribute :submission_id do |payment_request_claim|
+    payment_request_claim.submission&.id
+  end
+
   attributes :created_at, :updated_at
 
   many :payment_requests, resource: PaymentRequestResource

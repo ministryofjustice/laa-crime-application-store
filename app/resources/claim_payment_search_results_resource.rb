@@ -5,6 +5,6 @@ class ClaimPaymentSearchResultsResource
     resource.class.name.to_s
   end
 
-  attributes :laa_reference, :office_code,
+  attributes :id, :laa_reference, :office_code,
              :client_last_name, :firm_name
 end
