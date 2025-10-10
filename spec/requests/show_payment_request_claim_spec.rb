@@ -76,11 +76,11 @@ RSpec.describe "show payment request claim", type: :request do
 
       expect(response.parsed_body.keys.sort).to eq(keys.sort)
     end
+  end
 
-    it "returns not found when not found" do
-      get "/v1/payment_requests/#{SecureRandom.uuid}"
+  it "returns not found when not found" do
+    get "/v1/payment_requests/#{SecureRandom.uuid}"
 
-      expect(response).to have_http_status(:not_found)
-    end
+    expect(response).to have_http_status(:not_found)
   end
 end
