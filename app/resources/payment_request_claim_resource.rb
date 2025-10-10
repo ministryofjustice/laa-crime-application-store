@@ -22,7 +22,7 @@ class PaymentRequestClaimResource
              if: proc { |payment_request_claim| payment_request_claim.is_a? NsmClaim }
 
   attribute :submission_id do |payment_request_claim|
-    payment_request_claim.submission.id if payment_request_claim.is_a? NsmClaim
+    payment_request_claim.submission&.id if payment_request_claim.is_a? NsmClaim
   end
 
   attributes :solicitor_office_code,
