@@ -1,6 +1,5 @@
-# laa-crime-application-store
-
-LAA Crime Application Store is a service to store and version crime applications from 'Submit a crime form'.
+# laa-crime-application-store [![Ministry of Justice Repository Compliance Badge](https://github-community.service.justice.gov.uk/repository-standards/api/laa-crime-application-store/badge)](https://github-community.service.justice.gov.uk/repository-standards/laa-crime-application-store)
+# A service to store and version crime claims/applications from "Submit a crime form" to be used in "Assess a Crime Form"
 
 * Ruby version
 ruby 3.3.6
