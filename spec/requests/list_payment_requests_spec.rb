@@ -32,6 +32,7 @@ RSpec.describe "list payment request", type: :request do
 
     it "returns expected payment_request_claim keys" do
       payable_keys = %w[
+        id
         laa_reference
         firm_name
         client_last_name
