@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_15_163250) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_10_140121) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -102,6 +102,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_15_163250) do
     t.decimal "allowed_assigned_counsel_vat", precision: 10, scale: 2
     t.datetime "date_claim_received"
     t.uuid "payment_request_claim_id"
+    t.decimal "claimed_total", precision: 10, scale: 2
+    t.decimal "allowed_total", precision: 10, scale: 2
     t.index ["payment_request_claim_id"], name: "index_payment_requests_on_payment_request_claim_id"
   end
 
