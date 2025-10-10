@@ -4,11 +4,14 @@ RSpec.describe "show payment request claim", type: :request do
   let(:nsm_id) { SecureRandom.uuid }
 
   before do
-    create(:nsm_claim, id: nsm_id)
     allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker)
   end
 
   context "with payment request claim for NsmClaim" do
+    before do
+      create(:nsm_claim, id: nsm_id)
+    end
+
     it "successfully makes the request" do
       get "/v1/payment_request_claims/#{nsm_id}"
       expect(response).to have_http_status(:success)
@@ -41,6 +44,20 @@ RSpec.describe "show payment request claim", type: :request do
 
       get "/v1/payment_request_claims/#{nsm_id}"
       expect(response.parsed_body.keys.sort).to eq(keys.sort)
+    end
+  end
+
+  context "with NsmClaim payment request claim attached to a submission" do
+    let(:submission_id) { SecureRandom.uuid }
+
+    before do
+      submission = create(:submission, :with_nsm_version, id: submission_id)
+      create(:nsm_claim, id: nsm_id, submission: submission)
+    end
+
+    it "returns payload with linked submission id" do
+      get "/v1/payment_request_claims/#{nsm_id}"
+      expect(response.parsed_body["submission_id"]).to eq(submission_id)
     end
   end
 
