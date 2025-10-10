@@ -1,7 +1,7 @@
 class PaymentRequestResource
   include Alba::Resource
 
-  attributes :submitter_id, :request_type,
+  attributes :id, :submitter_id, :request_type,
              :submitted_at, :date_claim_received
   attributes :profit_cost, :allowed_profit_cost,
              :travel_cost, :allowed_travel_cost,
@@ -18,5 +18,5 @@ class PaymentRequestResource
 
   one :payment_request_claim, resource: lambda { |resource|
     "#{resource.class.name}Resource".constantize
-  }
+  }, if: proc { params[:include_claim] }
 end

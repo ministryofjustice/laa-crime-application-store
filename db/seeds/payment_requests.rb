@@ -22,7 +22,8 @@ ActiveRecord::Base.transaction do
   PaymentRequest.create!(submitter_id: SecureRandom.uuid, request_type: "non_standard_mag", submitted_at: 25.days.ago, date_claim_received: nsm1.date_received, payment_request_claim: nsm1,
     profit_cost: d("300.40"), travel_cost: d("20.55"), waiting_cost: d("10.33"), disbursement_cost: d("100.00"),
     allowed_profit_cost: d("250.40"), allowed_travel_cost: d("0.00"), allowed_waiting_cost: d("6.40"), allowed_disbursement_cost: d("50.00"))
-
+  PaymentRequest.create!(submitter_id: SecureRandom.uuid, request_type: "non_standard_mag_supplemental", submitted_at: 24.days.ago, date_claim_received: nsm1.date_received, payment_request_claim: nsm1,
+    allowed_profit_cost: d("300.40"), allowed_travel_cost: d("0.00"), allowed_waiting_cost: d("6.40"), allowed_disbursement_cost: d("50.00"))
   nsm2 = NsmClaim.create!(laa_reference: "LAA-0002", ufn: "123457/102", office_code: "1A123B", stage_code: "PROM", client_first_name: "Ben", client_last_name: "Blake",   date_received: 28.days.ago)
   PaymentRequest.create!(submitter_id: SecureRandom.uuid, request_type: "non_standard_mag", submitted_at: 22.days.ago, date_claim_received: nsm2.date_received, payment_request_claim: nsm2,
     profit_cost: d("420.00"), travel_cost: d("35.00"), waiting_cost: d("0.00"), disbursement_cost: d("80.00"),
@@ -122,4 +123,4 @@ ActiveRecord::Base.transaction do
     allowed_net_assigned_counsel_cost: d("540.00"), allowed_assigned_counsel_vat: d("108.00"))
 end
 
-puts "Seeded exactly 20 PaymentRequests (12 NSM, 8 Assigned Counsel)."
+puts "Seeded exactly 21 PaymentRequests (13 NSM, 8 Assigned Counsel)."

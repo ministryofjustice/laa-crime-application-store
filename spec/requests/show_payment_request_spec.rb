@@ -22,6 +22,7 @@ RSpec.describe "show payment request", type: :request do
 
     it "returns expected keys" do
       payment_request_keys = %w[
+        id
         allowed_disbursement_cost
         allowed_profit_cost
         allowed_travel_cost
@@ -90,6 +91,7 @@ RSpec.describe "show payment request", type: :request do
 
     it "returns expected payment request keys" do
       payment_request_keys = %w[
+        id
         created_at
         date_claim_received
         payment_request_claim

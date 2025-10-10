@@ -1,9 +1,13 @@
 class PaymentRequestClaimResource
   include Alba::Resource
 
-  attributes :type,
-             :firm_name,
-             :office_code,
+  attributes :id,
+             :type,
+             :laa_reference,
+             :date_received,
+             :office_code
+
+  attributes :firm_name,
              :stage_code,
              :work_completed_date,
              :court_name,
@@ -14,11 +18,18 @@ class PaymentRequestClaimResource
              :outcome_code,
              :matter_type,
              :youth_court,
-             :laa_reference,
              :ufn,
-             :date_received,
+             if: proc { |payment_request_claim| payment_request_claim.is_a? NsmClaim }
+
+  attribute :submission_id do |payment_request_claim|
+    payment_request_claim.submission&.id if payment_request_claim.is_a? NsmClaim
+  end
+
+  attributes :solicitor_office_code,
              :nsm_claim_id,
-             :solicitor_office_code
+             if: proc { |payment_request_claim| payment_request_claim.is_a? AssignedCounselClaim }
 
   attributes :created_at, :updated_at
+
+  many :payment_requests, resource: PaymentRequestResource
 end

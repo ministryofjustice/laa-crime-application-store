@@ -6,7 +6,7 @@ module V1
     end
 
     def show
-      payment_request_resource = PaymentRequestResource.new(current_payment_request).serialize
+      payment_request_resource = PaymentRequestResource.new(current_payment_request, params: { include_claim: true }).serialize
       render json: payment_request_resource, status: :ok
     rescue ActiveRecord::RecordNotFound => e
       report_error(e)
