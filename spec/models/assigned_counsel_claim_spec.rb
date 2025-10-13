@@ -3,6 +3,17 @@
 require "rails_helper"
 
 RSpec.describe AssignedCounselClaim, type: :model do
+  describe "associations" do
+    it "belongs to nsm_claim with correct class, foreign key, and inverse" do
+      association = described_class.reflect_on_association(:nsm_claim)
+
+      expect(association.macro).to eq(:belongs_to)
+      expect(association.class_name).to eq("NsmClaim")
+      expect(association.foreign_key).to eq("nsm_claim_id")
+      expect(association.options[:inverse_of]).to eq(:assigned_counsel_claim)
+    end
+  end
+
   describe "validations" do
     let(:nsm_claim) { create(:nsm_claim) }
 

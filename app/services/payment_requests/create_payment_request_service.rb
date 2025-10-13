@@ -1,4 +1,3 @@
-# app/services/payment_requests/create_payment_request_service.rb
 module PaymentRequests
   class CreatePaymentRequestService
     class UnprocessableEntityError < StandardError; end
@@ -45,7 +44,7 @@ module PaymentRequests
 
     def find_or_create_claim!
       if params[:laa_reference].present? && supplemental_appeal_or_ammendment?
-        PaymentRequestClaim.find_by(laa_reference: params[:laa_reference]) || return
+        PaymentRequestClaim.find_by(laa_reference: params[:laa_reference]) || raise(UnprocessableEntityError, "Claim not found")
       else
         case claim_type
         when "NsmClaim"

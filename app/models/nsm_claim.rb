@@ -4,6 +4,7 @@ class NsmClaim < PaymentRequestClaim
           foreign_key: :nsm_claim_id,
           inverse_of: :nsm_claim,
           dependent: :destroy
+  has_one :submission, dependent: :destroy
 
   validates :laa_reference, presence: true
   validates :firm_name, presence: true
@@ -17,5 +18,5 @@ class NsmClaim < PaymentRequestClaim
   validates :work_completed_date, :date_received, presence: true
   validates :office_code, office_code: true
   validates :stage_code, format: { with: /\A\bPROG\b|\bPROM\b\z/ }
-  validates :court_attendances, :no_of_defendants, numericality: { only_integer: true }, on: :update
+  validates :court_attendances, :no_of_defendants, numericality: { only_integer: true }
 end
