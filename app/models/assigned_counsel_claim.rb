@@ -7,6 +7,5 @@ class AssignedCounselClaim < PaymentRequestClaim
              optional: true
 
   validates :nsm_claim_id, presence: true
-  validates :date_received, presence: true
-  validates :solicitor_office_code, presence: true
+  validates :solicitor_office_code, office_code: true
 end

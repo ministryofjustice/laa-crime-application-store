@@ -16,7 +16,7 @@ module V1
     def create
       payment_request_claim = ::PaymentRequests::CreatePaymentRequestService.new(params).call
       render json: payment_request_claim, status: :created
-    rescue ActiveRecord::RecordInvalid, PaymentLinkError => e
+    rescue ActiveRecord::RecordInvalid, StandardError => e
       render json: { errors: e.message }, status: :unprocessable_entity
     end
 
@@ -28,10 +28,6 @@ module V1
 
     def current_payment_request
       @current_payment_request ||= PaymentRequest.find(params[:id])
-    end
-
-    def authorization_object
-      current_payment_request if action_name == "link_payable"
     end
   end
 end

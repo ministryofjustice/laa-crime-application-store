@@ -1,6 +1,7 @@
 # app/services/payment_requests/create_payment_request_service.rb
 module PaymentRequests
   class CreatePaymentRequestService
+    class UnprocessableEntityError < StandardError; end
     include LaaReferenceHelper
 
     attr_reader :params
@@ -26,24 +27,33 @@ module PaymentRequests
     def call
       ActiveRecord::Base.transaction do
         claim = find_or_create_claim!
+        raise UnprocessableEntityError, "Unable to determine claim type" unless claim
+
         payment_request = build_payment_request(claim)
         assign_costs(payment_request)
-        payment_request.save!
+        unless payment_request.save
+          raise UnprocessableEntityError, payment_request.errors.full_messages.to_sentence
+        end
+
         claim
       end
+    rescue ActiveRecord::RecordInvalid => e
+      raise UnprocessableEntityError, e.message
     end
 
   private
 
     def find_or_create_claim!
-      if params[:laa_reference] && supplemental_appeal_or_ammendment?
+      if params[:laa_reference].present? && supplemental_appeal_or_ammendment?
         PaymentRequestClaim.find_by(laa_reference: params[:laa_reference]) || return
       else
         case claim_type
         when "NsmClaim"
           NsmClaim.create!(**nsm_claim_details)
         when "AssignedCounselClaim"
-          NsmClaim.create!(**assigned_counsel_claim_details)
+          AssignedCounselClaim.create!(**assigned_counsel_claim_details)
+        else
+          raise UnprocessableEntityError, "Unknown claim type: #{params[:request_type]}"
         end
       end
     end
@@ -72,7 +82,6 @@ module PaymentRequests
       {
         solicitor_office_code: params[:solicitor_office_code],
         nsm_claim_id: params[:nsm_claim_id],
-        date_claim_received: params[:date_claim_received],
       }
     end
 
@@ -81,7 +90,7 @@ module PaymentRequests
         submitter_id: params[:submitter_id],
         request_type: params[:request_type],
         submitted_at: Time.current,
-        date_claim_received: params[:date_received],
+        date_claim_received: params[:date_claim_received],
       )
     end
 
