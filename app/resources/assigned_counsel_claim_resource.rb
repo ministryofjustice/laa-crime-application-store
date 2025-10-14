@@ -9,6 +9,7 @@ class AssignedCounselClaimResource
 
   attributes :id,
              :laa_reference,
+             :firm_name,
              :office_code, :nsm_claim_id,
              :date_received, :ufn,
              :solicitor_office_code,
