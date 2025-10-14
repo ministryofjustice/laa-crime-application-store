@@ -132,7 +132,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
         allow(service).to receive(:assign_costs)
         allow(payment_request).to receive(:save).and_return(true)
 
-        expect(service.call).to eq(claim)
+        expect(service.call).to eq({ claim:, payment_request: })
       end
     end
 

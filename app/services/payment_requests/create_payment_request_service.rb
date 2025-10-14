@@ -34,7 +34,7 @@ module PaymentRequests
           raise UnprocessableEntityError, payment_request.errors.full_messages.to_sentence
         end
 
-        claim
+        { claim:, payment_request: }
       end
     rescue ActiveRecord::RecordInvalid => e
       raise UnprocessableEntityError, e.message
@@ -112,6 +112,8 @@ module PaymentRequests
         allowed_travel_cost: params[:allowed_travel_costs],
         allowed_waiting_cost: params[:allowed_waiting_costs],
         allowed_disbursement_cost: params[:allowed_disbursement_costs],
+        allowed_total: params[:total_allowed_costs],
+        claimed_total: params[:total_claimed_costs],
       }
     end
 
