@@ -32,4 +32,6 @@ class PaymentRequestClaimResource
   attributes :created_at, :updated_at
 
   many :payment_requests, resource: PaymentRequestResource
+  one :nsm_claim, if: proc { |payment_request_claim| payment_request_claim.is_a? AssignedCounselClaim }
+  one :assigned_counsel_claim, if: proc { |payment_request_claim| payment_request_claim.is_a? NsmClaim }
 end
