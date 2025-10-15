@@ -37,6 +37,8 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
   end
 
   before do
+    allow(ENV).to receive(:fetch).with("SENTRY_DSN", nil).and_return("test")
+    allow(Sentry).to receive(:capture_exception)
     allow(Tokens::VerificationService)
       .to receive(:call)
       .and_return(valid: true, role: :caseworker)
@@ -144,6 +146,17 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
         allowed_net_assigned_counsel_cost: 450.0,
         allowed_assigned_counsel_vat: 90.0,
       )
+    end
+
+    describe "SENTRY error reporting" do
+      let(:submitter_id) { "not-a-uuid" }
+
+      it "logs a Sentry exception" do
+        make_request
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(Sentry).to have_received(:capture_exception)
+      end
     end
   end
 end

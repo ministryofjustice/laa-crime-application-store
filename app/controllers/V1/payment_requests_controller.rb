@@ -17,6 +17,7 @@ module V1
       payment_request_claim = ::PaymentRequests::CreatePaymentRequestService.new(params).call
       render json: payment_request_claim, status: :created
     rescue ActiveRecord::RecordInvalid, StandardError => e
+      report_error(e)
       render json: { errors: e.message }, status: :unprocessable_entity
     end
 
