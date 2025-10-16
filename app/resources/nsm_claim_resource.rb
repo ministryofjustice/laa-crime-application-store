@@ -13,4 +13,6 @@ class NsmClaimResource
              :outcome_code, :matter_type, :youth_court,
              :court_name, :court_attendances, :no_of_defendants,
              :created_at, :updated_at
+
+  many :payment_requests, params: { include_claim: false }
 end
