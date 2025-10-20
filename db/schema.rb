@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_15_163250) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_20_124851) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -55,8 +55,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_15_163250) do
 
   create_table "payment_request_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "type"
-    t.string "firm_name"
-    t.string "office_code"
+    t.string "solicitor_firm_name"
+    t.string "solicitor_office_code"
     t.string "stage_code"
     t.datetime "work_completed_date"
     t.string "court_name"
@@ -71,13 +71,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_15_163250) do
     t.datetime "date_received"
     t.string "client_last_name"
     t.uuid "nsm_claim_id"
-    t.string "solicitor_office_code"
+    t.string "counsel_office_code"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "counsel_firm_name"
     t.index ["client_last_name"], name: "index_payment_request_claims_on_client_last_name"
     t.index ["date_received"], name: "index_payment_request_claims_on_date_received"
     t.index ["laa_reference"], name: "index_payment_request_claims_on_laa_reference"
-    t.index ["office_code"], name: "index_payment_request_claims_on_office_code"
+    t.index ["solicitor_office_code"], name: "index_payment_request_claims_on_solicitor_office_code"
     t.index ["type"], name: "index_payment_request_claims_on_type"
     t.index ["ufn"], name: "index_payment_request_claims_on_ufn"
   end
