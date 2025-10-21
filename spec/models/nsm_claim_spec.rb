@@ -34,14 +34,14 @@ RSpec.describe NsmClaim, type: :model do
     end
 
     it "uses OfficeCodeValidator on :office_code" do
-      classes = described_class.validators_on(:office_code).map(&:class)
+      classes = described_class.validators_on(:solicitor_office_code).map(&:class)
       expect(classes).to include(OfficeCodeValidator)
     end
 
     context "with presence validations" do
       %i[
         laa_reference
-        firm_name
+        solicitor_firm_name
         client_first_name
         client_last_name
         outcome_code
