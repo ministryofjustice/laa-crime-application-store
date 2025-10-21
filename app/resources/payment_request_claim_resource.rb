@@ -6,7 +6,8 @@ class PaymentRequestClaimResource
              :laa_reference,
              :date_received,
              :solicitor_office_code,
-             :solicitor_firm_name
+             :solicitor_firm_name,
+             :client_last_name
 
   attributes :stage_code,
              :work_completed_date,
@@ -14,7 +15,6 @@ class PaymentRequestClaimResource
              :court_attendances,
              :no_of_defendants,
              :client_first_name,
-             :client_last_name,
              :outcome_code,
              :matter_type,
              :youth_court,
