@@ -411,7 +411,7 @@ RSpec.describe "PaymentRequest search" do
         create(:payment_request, payment_request_claim: build(:nsm_claim,
                                                               laa_reference: "LAA-MiXeD1",
                                                               client_last_name: "Pérson",
-                                                              ufn: "123456"))
+                                                              ufn: "311223/002"))
 
         create(:payment_request, payment_request_claim: build(:nsm_claim,
                                                               laa_reference: "LAA-PUNC28",

@@ -80,14 +80,6 @@ RSpec.describe "Authorization" do
         .and_return(valid: true, role: :caseworker)
     end
 
-    it "denies linking submitted payments" do
-      id = SecureRandom.uuid
-      create(:payment_request, :non_standard_mag, id: id, submitted_at: Time.zone.now)
-
-      patch "/v1/payment_requests/#{id}/link_payable"
-      expect(response).to have_http_status :forbidden
-    end
-
     context "when searching" do
       it "allow searches" do
         post "/v1/submissions/searches"

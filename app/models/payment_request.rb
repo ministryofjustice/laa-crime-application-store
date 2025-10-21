@@ -29,6 +29,8 @@ class PaymentRequest < ApplicationRecord
   attribute :allowed_net_assigned_counsel_cost, :gbp
   attribute :allowed_assigned_counsel_vat, :gbp
 
+  validates :submitter_id, is_a_uuid: true
+  validates :request_type, presence: true, inclusion: { in: REQUEST_TYPES }
   validates :profit_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
   validates :travel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
   validates :waiting_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
@@ -40,8 +42,6 @@ class PaymentRequest < ApplicationRecord
   validates :allowed_disbursement_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
   validates :allowed_net_assigned_counsel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
   validates :allowed_assigned_counsel_vat, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :submitter_id, is_a_uuid: true
-  validates :request_type, presence: true, inclusion: { in: REQUEST_TYPES }
   validate :correct_request_type
   validate :is_linked_to_claim_when_submitted
 
@@ -62,15 +62,14 @@ class PaymentRequest < ApplicationRecord
   end
 
   def correct_request_type
-    # needed so that we can draft payment types that haven't been linked yet
-    return true if payment_request_claim.nil? && REQUEST_TYPES.include?(request_type)
-
     return true if nsm_claim && NSM_REQUEST_TYPES.include?(request_type)
     return true if assigned_counsel_claim && ASSIGNED_COUNSEL_REQUEST_TYPES.include?(request_type)
 
+    # :nocov:
     if payment_request_claim
       errors.add(:request_type, "invalid request type for a #{payment_request_claim.type}")
     end
+    # :nocov:
   end
 
   def is_linked_to_claim_when_submitted

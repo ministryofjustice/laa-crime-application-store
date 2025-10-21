@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ministryofjustice/laa-crime-forms-common.git
-  revision: 7025d76f3138ea9977a978668bd63fa80b1c8ff0
+  revision: 81f412fa6de74e48185db3a039714e633285a313
   specs:
     laa_crime_forms_common (0.12.3)
       activesupport
@@ -109,7 +109,7 @@ GEM
       aws-eventstream (~> 1, >= 1.0.2)
     base64 (0.3.0)
     benchmark (0.4.1)
-    bigdecimal (3.3.0)
+    bigdecimal (3.3.1)
     binding_of_caller (1.0.1)
       debug_inspector (>= 1.2.0)
     bootsnap (1.18.6)
@@ -211,7 +211,7 @@ GEM
     marcel (1.1.0)
     method_source (1.0.0)
     mini_mime (1.1.5)
-    minitest (5.25.5)
+    minitest (5.26.0)
     msgpack (1.8.0)
     multi_xml (0.7.2)
       bigdecimal (~> 3.1)
@@ -509,7 +509,7 @@ DEPENDENCIES
   with_advisory_lock
 
 RUBY VERSION
-   ruby 3.4.6
+   ruby 3.4.7
 
 BUNDLED WITH
    2.6.3

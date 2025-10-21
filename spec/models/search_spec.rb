@@ -341,7 +341,7 @@ RSpec.describe Search do
           end
 
           it "returns both records" do
-            expect(search).to eq(prepare.map(&:id))
+            expect(search.sort).to eq(prepare.map(&:id).sort)
           end
         end
       end

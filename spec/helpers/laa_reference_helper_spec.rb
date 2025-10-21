@@ -51,4 +51,46 @@ RSpec.describe LaaReferenceHelper, type: :helper do
       expect(helper.find_referred_submission("LAA-yfg343").id).to eq(submission_id)
     end
   end
+
+  describe "#find_referred_claim" do
+    let(:laa_reference) { "LAA-ABC123" }
+
+    context "when the laa_reference matches an NsmClaim" do
+      let!(:nsm_claim) { create(:nsm_claim, laa_reference: laa_reference) }
+
+      it "returns the matching NsmClaim" do
+        result = find_referred_claim(laa_reference)
+        expect(result).to eq(nsm_claim)
+      end
+    end
+
+    context "when the laa_reference matches an AssignedCounselClaim" do
+      let!(:assigned_counsel_claim) { create(:assigned_counsel_claim, laa_reference: laa_reference) }
+
+      it "returns the matching AssignedCounselClaim" do
+        result = find_referred_claim(laa_reference)
+        expect(result).to eq(assigned_counsel_claim)
+      end
+    end
+
+    context "when no claim matches the laa_reference" do
+      it "returns nil" do
+        result = find_referred_claim("LAA-NOTFOUND")
+        expect(result).to be_nil
+      end
+    end
+
+    context "when both claim types exist but only one matches" do
+      before do
+        create(:nsm_claim, laa_reference: "LAA-OTHER")
+      end
+
+      let!(:assigned_counsel_claim) { create(:assigned_counsel_claim, laa_reference: laa_reference) }
+
+      it "returns the matching one only" do
+        result = find_referred_claim(laa_reference)
+        expect(result).to eq(assigned_counsel_claim)
+      end
+    end
+  end
 end

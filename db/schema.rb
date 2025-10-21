@@ -103,6 +103,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_124851) do
     t.decimal "allowed_assigned_counsel_vat", precision: 10, scale: 2
     t.datetime "date_claim_received"
     t.uuid "payment_request_claim_id"
+    t.decimal "claimed_total", precision: 10, scale: 2
+    t.decimal "allowed_total", precision: 10, scale: 2
     t.index ["payment_request_claim_id"], name: "index_payment_requests_on_payment_request_claim_id"
   end
 
