@@ -8,7 +8,7 @@ class NsmClaimResource
   end
 
   attributes :laa_reference, :ufn, :date_received,
-             :firm_name, :office_code, :stage_code,
+             :solicitor_firm_name, :solicitor_office_code, :stage_code,
              :client_first_name, :client_last_name, :work_completed_date,
              :outcome_code, :matter_type, :youth_court,
              :court_name, :court_attendances, :no_of_defendants,

@@ -14,8 +14,8 @@ module V1
   private
 
     def permitted_params
-      params.permit(:ufn, :date_received, :firm_name,
-                    :office_code, :stage_code, :client_last_name,
+      params.permit(:ufn, :date_received, :solicitor_firm_name,
+                    :solicitor_office_code, :stage_code, :client_last_name,
                     :client_first_name, :work_completed_date,
                     :court_name, :court_attendances,
                     :no_of_defendants, :outcome_code,

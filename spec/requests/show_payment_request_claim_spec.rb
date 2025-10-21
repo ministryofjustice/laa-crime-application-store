@@ -23,8 +23,8 @@ RSpec.describe "show payment request claim", type: :request do
         type
         laa_reference
         date_received
-        office_code
-        firm_name
+        solicitor_office_code
+        solicitor_firm_name
         stage_code
         work_completed_date
         court_name
@@ -40,6 +40,7 @@ RSpec.describe "show payment request claim", type: :request do
         created_at
         updated_at
         payment_requests
+        assigned_counsel_claim
       ]
 
       get "/v1/payment_request_claims/#{nsm_id}"
@@ -80,17 +81,18 @@ RSpec.describe "show payment request claim", type: :request do
         type
         laa_reference
         date_received
-        office_code
+        counsel_office_code
+        counsel_firm_name
         solicitor_office_code
-        nsm_claim_id
+        solicitor_firm_name
         submission_id
         created_at
         updated_at
         payment_requests
+        nsm_claim
       ]
 
       get "/v1/payment_request_claims/#{assigned_counsel_id}"
-
       expect(response.parsed_body.keys.sort).to eq(keys.sort)
     end
   end

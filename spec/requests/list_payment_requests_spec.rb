@@ -34,10 +34,10 @@ RSpec.describe "list payment request", type: :request do
       payable_keys = %w[
         id
         laa_reference
-        firm_name
+        solicitor_firm_name
         client_last_name
         claim_type
-        office_code
+        solicitor_office_code
       ]
 
       get "/v1/payment_requests"

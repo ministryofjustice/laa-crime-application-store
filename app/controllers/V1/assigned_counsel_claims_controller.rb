@@ -14,10 +14,12 @@ module V1
 
     def permitted_params
       params.permit(
-        :office_code,
+        :counsel_office_code,
+        :counsel_firm_name,
         :client_last_name,
         :ufn,
         :solicitor_office_code,
+        :solicitor_firm_name,
         :date_received,
       )
     end

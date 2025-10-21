@@ -4,11 +4,11 @@ FactoryBot.define do
     laa_reference { "LAA-Xcoqqz" }
     client_last_name { "Smith" }
     date_received { Time.zone.today }
-    office_code { "1A123B" }
+    solicitor_office_code { "1A123B" }
+    solicitor_firm_name { "Solicitor Firm" }
     ufn { "120423/001" }
 
     factory :nsm_claim, class: "NsmClaim" do
-      firm_name { "Solicitor Firm" }
       stage_code { "PROM" }
       client_first_name { "Tom" }
       work_completed_date { 1.day.ago }
@@ -22,7 +22,8 @@ FactoryBot.define do
 
     factory :assigned_counsel_claim, class: "AssignedCounselClaim" do
       nsm_claim
-      solicitor_office_code { "12ABCD" }
+      counsel_office_code { "12ABCD" }
+      counsel_firm_name { "Counsel Firm" }
     end
   end
 end

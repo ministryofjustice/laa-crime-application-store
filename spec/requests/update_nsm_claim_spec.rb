@@ -19,8 +19,8 @@ RSpec.describe "Update nsm_claim" do
       patch "/v1/nsm_claims/#{nsm_claim_id}", params: {
         ufn: "120423/002",
         date_received: date,
-        firm_name: "Fred Inc",
-        office_code: "123BBB",
+        solicitor_firm_name: "Fred Inc",
+        solicitor_office_code: "123BBB",
         stage_code: "PROG",
         client_last_name: "Jones",
         work_completed_date: date,
@@ -33,8 +33,8 @@ RSpec.describe "Update nsm_claim" do
       expect(NsmClaim.find(nsm_claim_id)).to have_attributes(
         ufn: "120423/002",
         date_received: date,
-        firm_name: "Fred Inc",
-        office_code: "123BBB",
+        solicitor_firm_name: "Fred Inc",
+        solicitor_office_code: "123BBB",
         stage_code: "PROG",
         client_last_name: "Jones",
         work_completed_date: date,
@@ -52,7 +52,7 @@ RSpec.describe "Update nsm_claim" do
 
     it "fails to update when fields are invalid" do
       patch "/v1/nsm_claims/#{nsm_claim_id}", params: {
-        office_code: "X123BBB",
+        solicitor_office_code: "X123BBB",
       }
 
       expect(response).to have_http_status(:unprocessable_entity)

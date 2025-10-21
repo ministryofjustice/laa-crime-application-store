@@ -7,5 +7,6 @@ class AssignedCounselClaim < PaymentRequestClaim
              optional: true
 
   validates :laa_reference, presence: true
-  validates :office_code, office_code: true, on: :update
+  validates :counsel_office_code, office_code: true, on: :update
+  validates :solicitor_office_code, office_code: true
 end

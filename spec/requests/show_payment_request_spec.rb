@@ -50,8 +50,8 @@ RSpec.describe "show payment request", type: :request do
         laa_reference
         ufn
         date_received
-        firm_name
-        office_code
+        solicitor_firm_name
+        solicitor_office_code
         stage_code
         client_first_name
         client_last_name
@@ -62,6 +62,7 @@ RSpec.describe "show payment request", type: :request do
         court_name
         court_attendances
         no_of_defendants
+        payment_requests
         created_at
         updated_at
       ]
@@ -114,11 +115,15 @@ RSpec.describe "show payment request", type: :request do
       payable_keys = %w[
         claim_type
         laa_reference
-        office_code
+        counsel_office_code
+        counsel_firm_name
         nsm_claim_id
+        payment_requests
         date_received
+        id
         ufn
         solicitor_office_code
+        solicitor_firm_name
         client_last_name
         created_at
         updated_at

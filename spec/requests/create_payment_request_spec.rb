@@ -185,7 +185,7 @@ RSpec.describe "Create payment request" do
 
           expect(built_claim.submission.id).to eq(submission_id)
           expect(built_claim).to have_attributes({
-            office_code: built_submission.latest_version.application["office_code"],
+            solicitor_office_code: built_submission.latest_version.application["office_code"],
             laa_reference: built_submission.latest_version.application["laa_reference"],
             ufn: built_submission.latest_version.application["ufn"],
             stage_code: built_submission.latest_version.application["stage_reached"],

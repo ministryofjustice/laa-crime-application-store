@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe "Update assigned counsel claim" do
   let(:params) do
     {
-      office_code: "12ABC",
+      counsel_office_code: "12ABC",
       ufn: "12122024/001",
       solicitor_office_code: "89XYZ",
       client_last_name: "Smith",
@@ -30,7 +30,7 @@ RSpec.describe "Update assigned counsel claim" do
 
     it "fails to update when allowed fields have invalid data" do
       patch "/v1/assigned_counsel_claims/#{assigned_counsel_claim.id}", params: {
-        office_code: "ABC123!",
+        counsel_office_code: "ABC123!",
       }
 
       expect(response).to have_http_status(:unprocessable_entity)
