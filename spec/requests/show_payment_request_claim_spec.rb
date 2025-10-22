@@ -85,6 +85,7 @@ RSpec.describe "show payment request claim", type: :request do
         counsel_firm_name
         solicitor_office_code
         solicitor_firm_name
+        client_last_name
         submission_id
         created_at
         updated_at

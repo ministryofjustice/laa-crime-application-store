@@ -46,6 +46,7 @@ RSpec.describe "show payment request", type: :request do
 
     it "returns expected payment_request_claim keys" do
       payable_keys = %w[
+        id
         claim_type
         laa_reference
         ufn
