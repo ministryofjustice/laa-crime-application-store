@@ -3,11 +3,11 @@ module PaymentRequests
     SORTABLE_COLUMNS = %w[
       ufn
       laa_reference
-      office_code
+      solicitor_office_code
       client_last_name
       request_type
       submitted_at
-      firm_name
+      solicitor_firm_name
     ].freeze
 
   private
@@ -21,7 +21,7 @@ module PaymentRequests
       claims = claims.where(request_type: request_type) if request_type.present?
       claims = claims.where("LOWER(payment_request_claims.laa_reference) = ?", query_params[:laa_reference].downcase) if query_params[:laa_reference].present?
       claims = claims.where(payment_request_claims: { ufn: query_params[:ufn] }) if query_params[:ufn].present?
-      claims = claims.where("LOWER(payment_request_claims.office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
+      claims = claims.where("LOWER(payment_request_claims.solicitor_office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
       claims = claims.where("LOWER(payment_request_claims.client_last_name) % ?::text", "%#{query_params[:client_last_name].downcase}%") if query_params[:client_last_name].present?
       claims.order(sort_clause)
     end

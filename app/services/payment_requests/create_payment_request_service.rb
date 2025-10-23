@@ -59,8 +59,8 @@ module PaymentRequests
 
     def nsm_claim_details
       {
-        firm_name: firm_name,
-        office_code: params[:office_code],
+        solicitor_firm_name: params[:solicitor_firm_name],
+        solicitor_office_code: params[:solicitor_office_code],
         stage_code: params[:stage_reached],
         work_completed_date: params[:date_completed],
         court_attendances: params[:number_of_attendances],
@@ -79,8 +79,12 @@ module PaymentRequests
 
     def assigned_counsel_claim_details
       {
+        counsel_office_code: params[:counsel_office_code],
+        counsel_firm_name: params[:counsel_firm_name],
         solicitor_office_code: params[:solicitor_office_code],
+        solicitor_firm_name: params[:solicitor_firm_name],
         nsm_claim_id: params[:nsm_claim_id],
+        laa_reference: generate_laa_reference,
       }
     end
 
@@ -124,10 +128,6 @@ module PaymentRequests
         allowed_net_assigned_counsel_cost: params[:allowed_net_assigned_counsel_cost],
         allowed_assigned_counsel_vat: params[:allowed_assigned_counsel_vat],
       }
-    end
-
-    def firm_name
-      "TODO"
     end
 
     def supplemental_appeal_or_ammendment?

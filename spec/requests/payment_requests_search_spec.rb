@@ -29,9 +29,9 @@ RSpec.describe "PaymentRequest search" do
                     payment_request_claim: build(:nsm_claim, client_last_name: "Andrex"))
 
         create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "Bazoo"))
-        create(:payment_request, payment_request_claim: build(:nsm_claim, office_code: "1A123C", client_last_name: "Andrex"))
+        create(:payment_request, payment_request_claim: build(:nsm_claim, solicitor_office_code: "1A123C", client_last_name: "Andrex"))
 
-        create(:payment_request, payment_request_claim: build(:nsm_claim, office_code: "1A123C", client_last_name: "Bazoo"))
+        create(:payment_request, payment_request_claim: build(:nsm_claim, solicitor_office_code: "1A123C", client_last_name: "Bazoo"))
         create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "Cushelle"))
         create(:payment_request, :assigned_counsel)
       end
@@ -282,21 +282,21 @@ RSpec.describe "PaymentRequest search" do
         travel_to(2.days.ago) do
           create(:payment_request, submitted_at: Time.zone.now, payment_request_claim: build(:nsm_claim,
                                                                                              laa_reference: "LAA-BBBBBB",
-                                                                                             office_code: "1ab",
+                                                                                             solicitor_office_code: "1ab",
                                                                                              client_last_name: "Bob"))
         end
 
         travel_to(1.day.ago) do
           create(:payment_request, submitted_at: Time.zone.now, payment_request_claim: build(:nsm_claim,
                                                                                              laa_reference: "LAA-CCCCCC",
-                                                                                             office_code: "2ab",
+                                                                                             solicitor_office_code: "2ab",
                                                                                              client_last_name: "Dodger"))
         end
 
         travel_to(3.days.ago) do
           create(:payment_request, submitted_at: Time.zone.now, payment_request_claim: build(:nsm_claim,
                                                                                              laa_reference: "LAA-AAAAAA",
-                                                                                             office_code: "3ab",
+                                                                                             solicitor_office_code: "3ab",
                                                                                              client_last_name: "Zeigler"))
         end
       end
@@ -374,12 +374,12 @@ RSpec.describe "PaymentRequest search" do
 
       it "can be sorted by office_code descending" do
         post search_endpoint, params: {
-          sort_by: "office_code",
+          sort_by: "solicitor_office_code",
           sort_direction: "desc",
           request_type: "non_standard_mag",
         }
 
-        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "office_code") }).to match(%w[3ab 2ab 1ab])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "solicitor_office_code") }).to match(%w[3ab 2ab 1ab])
       end
 
       it "can be sorted by submitted_at descending" do
@@ -389,7 +389,7 @@ RSpec.describe "PaymentRequest search" do
           request_type: "non_standard_mag",
         }
 
-        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "office_code") }).to match(%w[2ab 1ab 3ab])
+        expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "solicitor_office_code") }).to match(%w[2ab 1ab 3ab])
       end
     end
 

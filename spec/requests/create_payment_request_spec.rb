@@ -13,7 +13,8 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
       request_type:,
       laa_reference:,
       date_received: "2025-01-01",
-      office_code: "3B123A",
+      solicitor_office_code: "3B123A",
+      solicitor_firm_name: "The Firm",
       defendant_first_name: "Jim",
       defendant_last_name: "Jones",
       matter_type: "CRIM",
@@ -61,7 +62,8 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
       expect(claim).to have_attributes(
         client_first_name: "Jim",
         client_last_name: "Jones",
-        office_code: "3B123A",
+        solicitor_office_code: "3B123A",
+        solicitor_firm_name: "The Firm",
         matter_type: "CRIM",
         youth_court: false,
         court_name: "Greenock Sheriff",
@@ -118,7 +120,11 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
         submitter_id:,
         request_type:,
         nsm_claim_id: create(:nsm_claim).id,
-        solicitor_office_code: "3XYZ00A",
+        laa_reference:,
+        counsel_office_code: "2C123B",
+        counsel_firm_name: "Counsel Firm",
+        solicitor_office_code: "3B123A",
+        solicitor_firm_name: "Solicitor Firm",
         date_claim_received: "2025-02-02",
         net_assigned_counsel_cost: 500.0,
         assigned_counsel_vat: 100.0,
@@ -138,7 +144,8 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
 
       expect(payment.request_type).to eq("assigned_counsel")
       expect(payment.payment_request_claim).to eq(claim)
-      expect(claim.solicitor_office_code).to eq("3XYZ00A")
+      expect(claim.counsel_office_code).to eq("2C123B")
+      expect(claim.solicitor_office_code).to eq("3B123A")
 
       expect(payment).to have_attributes(
         net_assigned_counsel_cost: 500.0,
