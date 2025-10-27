@@ -165,9 +165,9 @@ RSpec.describe "PaymentRequest search" do
 
     context "with received_at filter" do
       before do
-        create_list(:payment_request, 3, payment_request_claim: build(:nsm_claim, client_last_name: "RightOn", date_received: start_date))
-        create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "TooOld", date_received: start_date - 1.day))
-        create(:payment_request, payment_request_claim: build(:nsm_claim, client_last_name: "TooYoung", date_received: end_date + 1.day))
+        create_list(:payment_request, 3, date_received: start_date, payment_request_claim: build(:nsm_claim, client_last_name: "RightOn"))
+        create(:payment_request, date_received: start_date - 1.day, payment_request_claim: build(:nsm_claim, client_last_name: "TooOld"))
+        create(:payment_request, date_received: end_date + 1.day, payment_request_claim: build(:nsm_claim, client_last_name: "TooYoung"))
       end
 
       let(:start_date) { 4.weeks.ago }

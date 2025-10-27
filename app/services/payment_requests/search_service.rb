@@ -16,7 +16,7 @@ module PaymentRequests
       claims = PaymentRequest
         .left_outer_joins(:payment_request_claim)
         .includes(:payment_request_claim)
-      claims = claims.where(payment_request_claims: { date_received: received_from..received_to }) if date_received?
+      claims = claims.where(date_received: received_from..received_to) if date_received?
       claims = claims.where(submitted_at: (submitted_from..submitted_to)) if submitted_date?
       claims = claims.where(request_type: request_type) if request_type.present?
       claims = claims.where("LOWER(payment_request_claims.laa_reference) = ?", query_params[:laa_reference].downcase) if query_params[:laa_reference].present?

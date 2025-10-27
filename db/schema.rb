@@ -10,73 +10,71 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_20_124851) do
+ActiveRecord::Schema[8.1].define(version: 2025_10_27_113529) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
   enable_extension "postgis"
 
   create_table "application", id: :uuid, default: nil, force: :cascade do |t|
-    t.integer "current_version", null: false
-    t.text "state", null: false
     t.string "application_risk"
     t.text "application_type", null: false
-    t.datetime "updated_at", precision: nil
+    t.string "assigned_user_id"
     t.jsonb "caseworker_history_events"
     t.datetime "created_at", precision: nil
+    t.integer "current_version", null: false
     t.datetime "last_updated_at", precision: nil
     t.boolean "notify_subscriber_completed"
-    t.string "assigned_user_id"
-    t.string "unassigned_user_ids", default: [], array: true
     t.uuid "nsm_claim_id"
+    t.text "state", null: false
+    t.string "unassigned_user_ids", default: [], array: true
+    t.datetime "updated_at", precision: nil
     t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null"
     t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null"
   end
 
   create_table "application_version", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "application_id", null: false
-    t.integer "version", null: false
-    t.integer "json_schema_version", null: false
     t.jsonb "application", null: false
+    t.uuid "application_id", null: false
     t.datetime "created_at", precision: nil
-    t.datetime "updated_at", precision: nil
-    t.virtual "search_fields", type: :tsvector, as: "((((((setweight(to_tsvector('simple'::regconfig, replace(COALESCE(((application -> 'defendant'::text) ->> 'first_name'::text), ''::text), '/'::text, '-'::text)), 'B'::\"char\") || setweight(to_tsvector('simple'::regconfig, replace(COALESCE(((application -> 'defendant'::text) ->> 'last_name'::text), ''::text), '/'::text, '-'::text)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, (replace((jsonb_path_query_array(application, '$.\"defendants\"[*].\"first_name\"'::jsonpath))::text, '/'::text, '-'::text))::jsonb), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, (replace((jsonb_path_query_array(application, '$.\"defendants\"[*].\"last_name\"'::jsonpath))::text, '/'::text, '-'::text))::jsonb), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, replace(COALESCE(((application -> 'firm_office'::text) ->> 'name'::text), ''::text), '/'::text, '-'::text)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, COALESCE((application ->> 'ufn'::text), ''::text)), 'A'::\"char\")) || setweight(to_tsvector('simple'::regconfig, replace(lower(COALESCE((application ->> 'laa_reference'::text), ''::text)), '-'::text, ''::text)), 'A'::\"char\"))", stored: true
+    t.integer "json_schema_version", null: false
     t.boolean "pending", default: false
+    t.virtual "search_fields", type: :tsvector, as: "((((((setweight(to_tsvector('simple'::regconfig, replace(COALESCE(((application -> 'defendant'::text) ->> 'first_name'::text), ''::text), '/'::text, '-'::text)), 'B'::\"char\") || setweight(to_tsvector('simple'::regconfig, replace(COALESCE(((application -> 'defendant'::text) ->> 'last_name'::text), ''::text), '/'::text, '-'::text)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, (replace((jsonb_path_query_array(application, '$.\"defendants\"[*].\"first_name\"'::jsonpath))::text, '/'::text, '-'::text))::jsonb), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, (replace((jsonb_path_query_array(application, '$.\"defendants\"[*].\"last_name\"'::jsonpath))::text, '/'::text, '-'::text))::jsonb), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, replace(COALESCE(((application -> 'firm_office'::text) ->> 'name'::text), ''::text), '/'::text, '-'::text)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, COALESCE((application ->> 'ufn'::text), ''::text)), 'A'::\"char\")) || setweight(to_tsvector('simple'::regconfig, replace(lower(COALESCE((application ->> 'laa_reference'::text), ''::text)), '-'::text, ''::text)), 'A'::\"char\"))", stored: true
+    t.datetime "updated_at", precision: nil
+    t.integer "version", null: false
     t.index ["search_fields"], name: "index_application_version_on_search_fields", using: :gin
   end
 
   create_table "failed_imports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "provider_id", null: false
-    t.string "details"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string "details"
     t.string "error_type"
+    t.uuid "provider_id", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "payment_request_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "type"
+    t.string "client_first_name"
+    t.string "client_last_name"
+    t.string "counsel_firm_name"
+    t.string "counsel_office_code"
+    t.integer "court_attendances"
+    t.string "court_name"
+    t.datetime "created_at", null: false
+    t.string "laa_reference"
+    t.string "matter_type"
+    t.integer "no_of_defendants"
+    t.uuid "nsm_claim_id"
+    t.string "outcome_code"
     t.string "solicitor_firm_name"
     t.string "solicitor_office_code"
     t.string "stage_code"
-    t.datetime "work_completed_date"
-    t.string "court_name"
-    t.integer "court_attendances"
-    t.integer "no_of_defendants"
-    t.string "client_first_name"
-    t.string "outcome_code"
-    t.string "matter_type"
-    t.boolean "youth_court"
-    t.string "laa_reference"
+    t.string "type"
     t.string "ufn"
-    t.datetime "date_received"
-    t.string "client_last_name"
-    t.uuid "nsm_claim_id"
-    t.string "counsel_office_code"
-    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "counsel_firm_name"
+    t.datetime "work_completed_date"
+    t.boolean "youth_court"
     t.index ["client_last_name"], name: "index_payment_request_claims_on_client_last_name"
-    t.index ["date_received"], name: "index_payment_request_claims_on_date_received"
     t.index ["laa_reference"], name: "index_payment_request_claims_on_laa_reference"
     t.index ["solicitor_office_code"], name: "index_payment_request_claims_on_solicitor_office_code"
     t.index ["type"], name: "index_payment_request_claims_on_type"
@@ -84,35 +82,35 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_124851) do
   end
 
   create_table "payment_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "submitter_id"
-    t.string "request_type"
-    t.decimal "profit_cost", precision: 10, scale: 2
-    t.decimal "travel_cost", precision: 10, scale: 2
-    t.decimal "waiting_cost", precision: 10, scale: 2
-    t.decimal "disbursement_cost", precision: 10, scale: 2
-    t.decimal "net_assigned_counsel_cost", precision: 10, scale: 2
-    t.decimal "assigned_counsel_vat", precision: 10, scale: 2
+    t.decimal "allowed_assigned_counsel_vat", precision: 10, scale: 2
+    t.decimal "allowed_disbursement_cost", precision: 10, scale: 2
+    t.decimal "allowed_net_assigned_counsel_cost", precision: 10, scale: 2
     t.decimal "allowed_profit_cost", precision: 10, scale: 2
+    t.decimal "allowed_total", precision: 10, scale: 2
     t.decimal "allowed_travel_cost", precision: 10, scale: 2
     t.decimal "allowed_waiting_cost", precision: 10, scale: 2
-    t.decimal "allowed_disbursement_cost", precision: 10, scale: 2
-    t.datetime "submitted_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.decimal "allowed_net_assigned_counsel_cost", precision: 10, scale: 2
-    t.decimal "allowed_assigned_counsel_vat", precision: 10, scale: 2
-    t.datetime "date_claim_received"
-    t.uuid "payment_request_claim_id"
+    t.decimal "assigned_counsel_vat", precision: 10, scale: 2
     t.decimal "claimed_total", precision: 10, scale: 2
-    t.decimal "allowed_total", precision: 10, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "date_received"
+    t.decimal "disbursement_cost", precision: 10, scale: 2
+    t.decimal "net_assigned_counsel_cost", precision: 10, scale: 2
+    t.uuid "payment_request_claim_id"
+    t.decimal "profit_cost", precision: 10, scale: 2
+    t.string "request_type"
+    t.datetime "submitted_at"
+    t.uuid "submitter_id"
+    t.decimal "travel_cost", precision: 10, scale: 2
+    t.datetime "updated_at", null: false
+    t.decimal "waiting_cost", precision: 10, scale: 2
     t.index ["payment_request_claim_id"], name: "index_payment_requests_on_payment_request_claim_id"
   end
 
   create_table "translations", force: :cascade do |t|
+    t.datetime "created_at", null: false
     t.string "key"
     t.string "translation"
     t.string "translation_type"
-    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["key", "translation_type"], name: "index_translations_on_key_and_translation_type", unique: true
   end

@@ -19,7 +19,7 @@ class NsmClaim < PaymentRequestClaim
   validates :court_name, presence: true
   validates :youth_court, inclusion: { in: [true, false] }
   validates :ufn, presence: true, ufn: true
-  validates :work_completed_date, :date_received, presence: true
+  validates :work_completed_date, presence: true
   validates :stage_code, format: { with: /\A\bPROG\b|\bPROM\b\z/ }
   validates :court_attendances, :no_of_defendants, numericality: { only_integer: true }
 end

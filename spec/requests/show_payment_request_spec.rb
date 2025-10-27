@@ -28,7 +28,7 @@ RSpec.describe "show payment request", type: :request do
         allowed_travel_cost
         allowed_waiting_cost
         created_at
-        date_claim_received
+        date_received
         disbursement_cost
         payment_request_claim
         profit_cost
@@ -50,7 +50,6 @@ RSpec.describe "show payment request", type: :request do
         claim_type
         laa_reference
         ufn
-        date_received
         solicitor_firm_name
         solicitor_office_code
         stage_code
@@ -95,7 +94,7 @@ RSpec.describe "show payment request", type: :request do
       payment_request_keys = %w[
         id
         created_at
-        date_claim_received
+        date_received
         payment_request_claim
         request_type
         submitted_at
@@ -120,7 +119,6 @@ RSpec.describe "show payment request", type: :request do
         counsel_firm_name
         nsm_claim_id
         payment_requests
-        date_received
         id
         ufn
         solicitor_office_code

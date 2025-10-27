@@ -4,7 +4,6 @@ class PaymentRequestClaimResource
   attributes :id,
              :type,
              :laa_reference,
-             :date_received,
              :solicitor_office_code,
              :solicitor_firm_name,
              :client_last_name

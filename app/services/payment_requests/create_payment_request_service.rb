@@ -73,7 +73,6 @@ module PaymentRequests
         youth_court: params[:youth_court],
         laa_reference: generate_laa_reference,
         ufn: params[:ufn],
-        date_received: params[:date_received],
       }
     end
 
@@ -93,7 +92,7 @@ module PaymentRequests
         submitter_id: params[:submitter_id],
         request_type: params[:request_type],
         submitted_at: Time.current,
-        date_claim_received: params[:date_claim_received],
+        date_received: params[:date_received],
       )
     end
 

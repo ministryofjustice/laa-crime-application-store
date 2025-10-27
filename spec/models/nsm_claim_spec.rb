@@ -49,7 +49,6 @@ RSpec.describe NsmClaim, type: :model do
         court_name
         ufn
         work_completed_date
-        date_received
       ].each do |attr|
         it "is invalid without #{attr}" do
           nsm_claim.public_send("#{attr}=", nil)
