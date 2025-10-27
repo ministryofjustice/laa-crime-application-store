@@ -29,15 +29,15 @@ RSpec.describe "show payment request", type: :request do
         allowed_waiting_cost
         created_at
         date_received
-        disbursement_cost
+        claimed_disbursement_cost
         payment_request_claim
-        profit_cost
+        claimed_profit_cost
         request_type
         submitted_at
         submitter_id
-        travel_cost
+        claimed_travel_cost
         updated_at
-        waiting_cost
+        claimed_waiting_cost
       ]
 
       get "/v1/payment_requests/#{payment_id}"

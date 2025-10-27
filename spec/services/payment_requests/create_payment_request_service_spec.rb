@@ -92,7 +92,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       it "assigns NSM cost attributes" do
         allow(service).to receive(:claim_type).and_return("NsmClaim")
         service.send(:assign_costs, payment_request)
-        expect(payment_request.profit_cost).to eq(100)
+        expect(payment_request.claimed_profit_cost).to eq(100)
         expect(payment_request.allowed_disbursement_cost).to eq(50)
       end
     end

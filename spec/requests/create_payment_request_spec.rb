@@ -72,10 +72,10 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
       )
 
       expect(payment).to have_attributes(
-        profit_cost: 100.0,
-        travel_cost: 20.0,
-        waiting_cost: 10.0,
-        disbursement_cost: 5.0,
+        claimed_profit_cost: 100.0,
+        claimed_travel_cost: 20.0,
+        claimed_waiting_cost: 10.0,
+        claimed_disbursement_cost: 5.0,
         allowed_profit_cost: 90.0,
         allowed_travel_cost: 15.0,
         allowed_waiting_cost: 5.0,

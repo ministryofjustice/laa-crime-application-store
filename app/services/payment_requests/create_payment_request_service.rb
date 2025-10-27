@@ -107,10 +107,10 @@ module PaymentRequests
 
     def mapped_nsm_cost_attributes
       {
-        profit_cost: params[:claimed_profit_costs],
-        travel_cost: params[:claimed_travel_costs],
-        waiting_cost: params[:claimed_waiting_costs],
-        disbursement_cost: params[:claimed_disbursement_costs],
+        claimed_profit_cost: params[:claimed_profit_costs],
+        claimed_travel_cost: params[:claimed_travel_costs],
+        claimed_waiting_cost: params[:claimed_waiting_costs],
+        claimed_disbursement_cost: params[:claimed_disbursement_costs],
         allowed_profit_cost: params[:allowed_profit_costs],
         allowed_travel_cost: params[:allowed_travel_costs],
         allowed_waiting_cost: params[:allowed_waiting_costs],

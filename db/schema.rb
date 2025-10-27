@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_10_27_113529) do
+ActiveRecord::Schema[8.1].define(version: 2025_10_27_144609) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -90,19 +90,19 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_27_113529) do
     t.decimal "allowed_travel_cost", precision: 10, scale: 2
     t.decimal "allowed_waiting_cost", precision: 10, scale: 2
     t.decimal "assigned_counsel_vat", precision: 10, scale: 2
+    t.decimal "claimed_disbursement_cost", precision: 10, scale: 2
+    t.decimal "claimed_profit_cost", precision: 10, scale: 2
     t.decimal "claimed_total", precision: 10, scale: 2
+    t.decimal "claimed_travel_cost", precision: 10, scale: 2
+    t.decimal "claimed_waiting_cost", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "date_received"
-    t.decimal "disbursement_cost", precision: 10, scale: 2
     t.decimal "net_assigned_counsel_cost", precision: 10, scale: 2
     t.uuid "payment_request_claim_id"
-    t.decimal "profit_cost", precision: 10, scale: 2
     t.string "request_type"
     t.datetime "submitted_at"
     t.uuid "submitter_id"
-    t.decimal "travel_cost", precision: 10, scale: 2
     t.datetime "updated_at", null: false
-    t.decimal "waiting_cost", precision: 10, scale: 2
     t.index ["payment_request_claim_id"], name: "index_payment_requests_on_payment_request_claim_id"
   end
 
