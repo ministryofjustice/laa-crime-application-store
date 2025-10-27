@@ -3,7 +3,6 @@ FactoryBot.define do
     id { SecureRandom.uuid }
     laa_reference { "LAA-Xcoqqz" }
     client_last_name { "Smith" }
-    date_received { Time.zone.today }
     solicitor_office_code { "1A123B" }
     solicitor_firm_name { "Solicitor Firm" }
     ufn { "120423/001" }

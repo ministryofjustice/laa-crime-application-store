@@ -120,7 +120,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       {
         request_type: "non_standard_mag",
         submitter_id: SecureRandom.uuid,
-        date_claim_received: Time.zone.today,
+        date_received: Time.zone.today,
       }
     end
 

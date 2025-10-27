@@ -125,7 +125,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
         counsel_firm_name: "Counsel Firm",
         solicitor_office_code: "3B123A",
         solicitor_firm_name: "Solicitor Firm",
-        date_claim_received: "2025-02-02",
+        date_received: "2025-02-02",
         net_assigned_counsel_cost: 500.0,
         assigned_counsel_vat: 100.0,
         allowed_net_assigned_counsel_cost: 450.0,

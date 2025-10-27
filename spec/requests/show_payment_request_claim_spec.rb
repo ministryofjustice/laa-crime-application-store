@@ -22,7 +22,6 @@ RSpec.describe "show payment request claim", type: :request do
         id
         type
         laa_reference
-        date_received
         solicitor_office_code
         solicitor_firm_name
         stage_code
@@ -80,7 +79,6 @@ RSpec.describe "show payment request claim", type: :request do
         id
         type
         laa_reference
-        date_received
         counsel_office_code
         counsel_firm_name
         solicitor_office_code
