@@ -16,26 +16,31 @@ class PaymentRequest < ApplicationRecord
 
   belongs_to :payment_request_claim, optional: true
 
-  attribute :profit_cost, :gbp
-  attribute :travel_cost, :gbp
-  attribute :waiting_cost, :gbp
-  attribute :disbursement_cost, :gbp
-  attribute :net_assigned_counsel_cost, :gbp
-  attribute :assigned_counsel_vat, :gbp
+  attribute :claimed_profit_cost, :gbp
   attribute :allowed_profit_cost, :gbp
+  attribute :claimed_travel_cost, :gbp
   attribute :allowed_travel_cost, :gbp
+  attribute :claimed_waiting_cost, :gbp
   attribute :allowed_waiting_cost, :gbp
+  attribute :claimed_disbursement_cost, :gbp
   attribute :allowed_disbursement_cost, :gbp
+
+  attribute :claimed_total, :gbp
+  attribute :allowed_total, :gbp
+
+  attribute :claimed_net_assigned_counsel_cost, :gbp
+  attribute :claimed_assigned_counsel_vat, :gbp
   attribute :allowed_net_assigned_counsel_cost, :gbp
   attribute :allowed_assigned_counsel_vat, :gbp
 
   validates :submitter_id, is_a_uuid: true
   validates :request_type, presence: true, inclusion: { in: REQUEST_TYPES }
-  validates :profit_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :travel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :waiting_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :net_assigned_counsel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :assigned_counsel_vat, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
+  validates :claimed_profit_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
+  validates :claimed_travel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
+  validates :claimed_waiting_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
+  validates :claimed_disbursement_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
+  validates :claimed_net_assigned_counsel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
+  validates :claimed_assigned_counsel_vat, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
   validates :allowed_profit_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
   validates :allowed_travel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
   validates :allowed_waiting_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
