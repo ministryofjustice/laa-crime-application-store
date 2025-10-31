@@ -59,7 +59,7 @@ module PaymentRequests
 
     def nsm_claim_details
       {
-        solicitor_firm_name: params[:solicitor_firm_name],
+        solicitor_firm_name: stub_solictor_firm_name,
         solicitor_office_code: params[:solicitor_office_code],
         stage_code: params[:stage_reached],
         work_completed_date: params[:date_completed],
@@ -107,26 +107,32 @@ module PaymentRequests
 
     def mapped_nsm_cost_attributes
       {
-        profit_cost: params[:claimed_profit_costs],
-        travel_cost: params[:claimed_travel_costs],
-        waiting_cost: params[:claimed_waiting_costs],
-        disbursement_cost: params[:claimed_disbursement_costs],
-        allowed_profit_cost: params[:allowed_profit_costs],
-        allowed_travel_cost: params[:allowed_travel_costs],
-        allowed_waiting_cost: params[:allowed_waiting_costs],
-        allowed_disbursement_cost: params[:allowed_disbursement_costs],
-        allowed_total: params[:total_allowed_costs],
-        claimed_total: params[:total_claimed_costs],
+        claimed_profit_cost: params[:claimed_profit_cost],
+        claimed_travel_cost: params[:claimed_travel_cost],
+        claimed_waiting_cost: params[:claimed_waiting_cost],
+        claimed_disbursement_cost: params[:claimed_disbursement_cost],
+        allowed_profit_cost: params[:allowed_profit_cost],
+        allowed_travel_cost: params[:allowed_travel_cost],
+        allowed_waiting_cost: params[:allowed_waiting_cost],
+        allowed_disbursement_cost: params[:allowed_disbursement_cost],
+        allowed_total: params[:allowed_total],
+        claimed_total: params[:claimed_total],
       }
     end
 
     def mapped_assigned_counsel_cost_attributes
       {
-        net_assigned_counsel_cost: params[:net_assigned_counsel_cost],
-        assigned_counsel_vat: params[:assigned_counsel_vat],
+        claimed_net_assigned_counsel_cost: params[:claimed_net_assigned_counsel_cost],
+        claimed_assigned_counsel_vat: params[:claimed_assigned_counsel_vat],
         allowed_net_assigned_counsel_cost: params[:allowed_net_assigned_counsel_cost],
         allowed_assigned_counsel_vat: params[:allowed_assigned_counsel_vat],
+        allowed_total: params[:allowed_total],
+        claimed_total: params[:claimed_total],
       }
+    end
+
+    def stub_solictor_firm_name
+      params[:solicitor_firm_name] || "some name"
     end
 
     def supplemental_appeal_or_ammendment?

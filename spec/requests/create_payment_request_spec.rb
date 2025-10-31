@@ -26,14 +26,14 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
       number_of_defendants: 1,
       date_completed: "2025-01-01",
       court: "Greenock Sheriff",
-      claimed_profit_costs: 100.0,
-      claimed_travel_costs: 20.0,
-      claimed_waiting_costs: 10.0,
-      claimed_disbursement_costs: 5.0,
-      allowed_profit_costs: 90.0,
-      allowed_travel_costs: 15.0,
-      allowed_waiting_costs: 5.0,
-      allowed_disbursement_costs: 4.0,
+      claimed_profit_cost: 100.0,
+      claimed_travel_cost: 20.0,
+      claimed_waiting_cost: 10.0,
+      claimed_disbursement_cost: 5.0,
+      allowed_profit_cost: 90.0,
+      allowed_travel_cost: 15.0,
+      allowed_waiting_cost: 5.0,
+      allowed_disbursement_cost: 4.0,
     }
   end
 
@@ -72,10 +72,10 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
       )
 
       expect(payment).to have_attributes(
-        profit_cost: 100.0,
-        travel_cost: 20.0,
-        waiting_cost: 10.0,
-        disbursement_cost: 5.0,
+        claimed_profit_cost: 100.0,
+        claimed_travel_cost: 20.0,
+        claimed_waiting_cost: 10.0,
+        claimed_disbursement_cost: 5.0,
         allowed_profit_cost: 90.0,
         allowed_travel_cost: 15.0,
         allowed_waiting_cost: 5.0,
@@ -126,8 +126,8 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
         solicitor_office_code: "3B123A",
         solicitor_firm_name: "Solicitor Firm",
         date_received: "2025-02-02",
-        net_assigned_counsel_cost: 500.0,
-        assigned_counsel_vat: 100.0,
+        claimed_net_assigned_counsel_cost: 500.0,
+        claimed_assigned_counsel_vat: 100.0,
         allowed_net_assigned_counsel_cost: 450.0,
         allowed_assigned_counsel_vat: 90.0,
       }
@@ -148,8 +148,8 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
       expect(claim.solicitor_office_code).to eq("3B123A")
 
       expect(payment).to have_attributes(
-        net_assigned_counsel_cost: 500.0,
-        assigned_counsel_vat: 100.0,
+        claimed_net_assigned_counsel_cost: 500.0,
+        claimed_assigned_counsel_vat: 100.0,
         allowed_net_assigned_counsel_cost: 450.0,
         allowed_assigned_counsel_vat: 90.0,
       )
