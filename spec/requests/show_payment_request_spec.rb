@@ -29,15 +29,17 @@ RSpec.describe "show payment request", type: :request do
         allowed_waiting_cost
         created_at
         date_received
-        disbursement_cost
+        claimed_disbursement_cost
         payment_request_claim
-        profit_cost
+        claimed_profit_cost
         request_type
         submitted_at
         submitter_id
-        travel_cost
+        claimed_travel_cost
         updated_at
-        waiting_cost
+        claimed_waiting_cost
+        claimed_total
+        allowed_total
       ]
 
       get "/v1/payment_requests/#{payment_id}"
@@ -99,11 +101,13 @@ RSpec.describe "show payment request", type: :request do
         request_type
         submitted_at
         submitter_id
-        net_assigned_counsel_cost
-        assigned_counsel_vat
+        claimed_net_assigned_counsel_cost
+        claimed_assigned_counsel_vat
         allowed_net_assigned_counsel_cost
         allowed_assigned_counsel_vat
         updated_at
+        claimed_total
+        allowed_total
       ]
 
       get "/v1/payment_requests/#{payment_id}"
