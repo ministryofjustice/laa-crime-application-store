@@ -84,15 +84,15 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       let(:params) do
         {
           request_type: "non_standard_mag",
-          claimed_profit_costs: 100,
-          allowed_disbursement_costs: 50,
+          claimed_profit_cost: 100,
+          allowed_disbursement_cost: 50,
         }
       end
 
       it "assigns NSM cost attributes" do
         allow(service).to receive(:claim_type).and_return("NsmClaim")
         service.send(:assign_costs, payment_request)
-        expect(payment_request.profit_cost).to eq(100)
+        expect(payment_request.claimed_profit_cost).to eq(100)
         expect(payment_request.allowed_disbursement_cost).to eq(50)
       end
     end
@@ -101,16 +101,16 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       let(:params) do
         {
           request_type: "assigned_counsel",
-          net_assigned_counsel_cost: 200,
-          assigned_counsel_vat: 40,
+          claimed_net_assigned_counsel_cost: 200,
+          claimed_assigned_counsel_vat: 40,
         }
       end
 
       it "assigns assigned counsel cost attributes" do
         allow(service).to receive(:claim_type).and_return("AssignedCounselClaim")
         service.send(:assign_costs, payment_request)
-        expect(payment_request.net_assigned_counsel_cost).to eq(200)
-        expect(payment_request.assigned_counsel_vat).to eq(40)
+        expect(payment_request.claimed_net_assigned_counsel_cost).to eq(200)
+        expect(payment_request.claimed_assigned_counsel_vat).to eq(40)
       end
     end
   end

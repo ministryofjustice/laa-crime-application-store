@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_10_27_113529) do
+ActiveRecord::Schema[8.1].define(version: 2025_10_27_144609) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -42,6 +42,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_27_113529) do
     t.virtual "search_fields", type: :tsvector, as: "((((((setweight(to_tsvector('simple'::regconfig, replace(COALESCE(((application -> 'defendant'::text) ->> 'first_name'::text), ''::text), '/'::text, '-'::text)), 'B'::\"char\") || setweight(to_tsvector('simple'::regconfig, replace(COALESCE(((application -> 'defendant'::text) ->> 'last_name'::text), ''::text), '/'::text, '-'::text)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, (replace((jsonb_path_query_array(application, '$.\"defendants\"[*].\"first_name\"'::jsonpath))::text, '/'::text, '-'::text))::jsonb), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, (replace((jsonb_path_query_array(application, '$.\"defendants\"[*].\"last_name\"'::jsonpath))::text, '/'::text, '-'::text))::jsonb), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, replace(COALESCE(((application -> 'firm_office'::text) ->> 'name'::text), ''::text), '/'::text, '-'::text)), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, COALESCE((application ->> 'ufn'::text), ''::text)), 'A'::\"char\")) || setweight(to_tsvector('simple'::regconfig, replace(lower(COALESCE((application ->> 'laa_reference'::text), ''::text)), '-'::text, ''::text)), 'A'::\"char\"))", stored: true
     t.datetime "updated_at", precision: nil
     t.integer "version", null: false
+    t.index ["application_id", "version"], name: "idx_application_versions_app_id_version"
     t.index ["search_fields"], name: "index_application_version_on_search_fields", using: :gin
   end
 
@@ -89,20 +90,20 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_27_113529) do
     t.decimal "allowed_total", precision: 10, scale: 2
     t.decimal "allowed_travel_cost", precision: 10, scale: 2
     t.decimal "allowed_waiting_cost", precision: 10, scale: 2
-    t.decimal "assigned_counsel_vat", precision: 10, scale: 2
+    t.decimal "claimed_assigned_counsel_vat", precision: 10, scale: 2
+    t.decimal "claimed_disbursement_cost", precision: 10, scale: 2
+    t.decimal "claimed_net_assigned_counsel_cost", precision: 10, scale: 2
+    t.decimal "claimed_profit_cost", precision: 10, scale: 2
     t.decimal "claimed_total", precision: 10, scale: 2
+    t.decimal "claimed_travel_cost", precision: 10, scale: 2
+    t.decimal "claimed_waiting_cost", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "date_received"
-    t.decimal "disbursement_cost", precision: 10, scale: 2
-    t.decimal "net_assigned_counsel_cost", precision: 10, scale: 2
     t.uuid "payment_request_claim_id"
-    t.decimal "profit_cost", precision: 10, scale: 2
     t.string "request_type"
     t.datetime "submitted_at"
     t.uuid "submitter_id"
-    t.decimal "travel_cost", precision: 10, scale: 2
     t.datetime "updated_at", null: false
-    t.decimal "waiting_cost", precision: 10, scale: 2
     t.index ["payment_request_claim_id"], name: "index_payment_requests_on_payment_request_claim_id"
   end
 
