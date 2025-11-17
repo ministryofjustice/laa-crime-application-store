@@ -1,6 +1,6 @@
 class PaymentRequest < ApplicationRecord
   NSM_REQUEST_TYPES =  %w[
-    non_standard_mag
+    non_standard_magistrate
     non_standard_mag_appeal
     non_standard_mag_amendment
     non_standard_mag_supplemental

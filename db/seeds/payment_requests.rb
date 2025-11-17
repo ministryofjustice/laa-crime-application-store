@@ -19,13 +19,13 @@ ActiveRecord::Base.transaction do
   # 12 NSM claims + requests
   # -------------------------
   nsm1 = NsmClaim.create!(laa_reference: "LAA-0001", ufn: "123456/101", solicitor_office_code: "1A123B", stage_code: "PROG", client_first_name: "Ava", client_last_name: "Andrews")
-  PaymentRequest.create!(submitter_id: SecureRandom.uuid, request_type: "non_standard_mag", submitted_at: 25.days.ago, date_received: nsm1.date_received, payment_request_claim: nsm1,
+  PaymentRequest.create!(submitter_id: SecureRandom.uuid, request_type: "non_standard_magistrate", submitted_at: 25.days.ago, date_received: nsm1.date_received, payment_request_claim: nsm1,
     profit_cost: d("300.40"), travel_cost: d("20.55"), waiting_cost: d("10.33"), disbursement_cost: d("100.00"),
     allowed_profit_cost: d("250.40"), allowed_travel_cost: d("0.00"), allowed_waiting_cost: d("6.40"), allowed_disbursement_cost: d("50.00"))
   PaymentRequest.create!(submitter_id: SecureRandom.uuid, request_type: "non_standard_mag_supplemental", submitted_at: 24.days.ago, date_received: nsm1.date_received, payment_request_claim: nsm1,
     allowed_profit_cost: d("300.40"), allowed_travel_cost: d("0.00"), allowed_waiting_cost: d("6.40"), allowed_disbursement_cost: d("50.00"))
   nsm2 = NsmClaim.create!(laa_reference: "LAA-0002", ufn: "123457/102", solicitor_office_code: "1A123B", stage_code: "PROM", client_first_name: "Ben", client_last_name: "Blake")
-  PaymentRequest.create!(submitter_id: SecureRandom.uuid, request_type: "non_standard_mag", submitted_at: 22.days.ago, date_received: nsm2.date_received, payment_request_claim: nsm2,
+  PaymentRequest.create!(submitter_id: SecureRandom.uuid, request_type: "non_standard_magistrate", submitted_at: 22.days.ago, date_received: nsm2.date_received, payment_request_claim: nsm2,
     profit_cost: d("420.00"), travel_cost: d("35.00"), waiting_cost: d("0.00"), disbursement_cost: d("80.00"),
     allowed_profit_cost: d("380.00"), allowed_travel_cost: d("20.00"), allowed_waiting_cost: d("0.00"), allowed_disbursement_cost: d("60.00"))
 
@@ -45,7 +45,7 @@ ActiveRecord::Base.transaction do
     allowed_profit_cost: d("150.00"), allowed_travel_cost: d("10.00"), allowed_waiting_cost: d("5.00"), allowed_disbursement_cost: d("150.00"))
 
   nsm6 = NsmClaim.create!(laa_reference: "LAA-0006", ufn: "123461/106", solicitor_office_code: "3C789D", stage_code: "PROM", client_first_name: "Farah",  client_last_name: "Fisher")
-  PaymentRequest.create!(submitter_id: SecureRandom.uuid, request_type: "non_standard_mag", submitted_at: 14.days.ago, date_received: nsm6.date_received, payment_request_claim: nsm6,
+  PaymentRequest.create!(submitter_id: SecureRandom.uuid, request_type: "non_standard_magistrate", submitted_at: 14.days.ago, date_received: nsm6.date_received, payment_request_claim: nsm6,
     profit_cost: d("350.00"), travel_cost: d("22.50"), waiting_cost: d("9.00"), disbursement_cost: d("120.00"),
     allowed_profit_cost: d("300.00"), allowed_travel_cost: d("15.00"), allowed_waiting_cost: d("8.00"), allowed_disbursement_cost: d("100.00"))
 
@@ -60,7 +60,7 @@ ActiveRecord::Base.transaction do
     allowed_profit_cost: d("420.00"), allowed_travel_cost: d("10.00"), allowed_waiting_cost: d("8.00"), allowed_disbursement_cost: d("60.00"))
 
   nsm9 = NsmClaim.create!(laa_reference: "LAA-0009", ufn: "123464/109", solicitor_office_code: "3C789D", stage_code: "PROG", client_first_name: "Isla",   client_last_name: "Irving")
-  PaymentRequest.create!(submitter_id: SecureRandom.uuid, request_type: "non_standard_mag", submitted_at: 11.days.ago, date_received: nsm9.date_received, payment_request_claim: nsm9,
+  PaymentRequest.create!(submitter_id: SecureRandom.uuid, request_type: "non_standard_magistrate", submitted_at: 11.days.ago, date_received: nsm9.date_received, payment_request_claim: nsm9,
     profit_cost: d("330.00"), travel_cost: d("20.00"), waiting_cost: d("9.00"), disbursement_cost: d("90.00"),
     allowed_profit_cost: d("300.00"), allowed_travel_cost: d("15.00"), allowed_waiting_cost: d("8.00"), allowed_disbursement_cost: d("70.00"))
 
@@ -75,7 +75,7 @@ ActiveRecord::Base.transaction do
     allowed_profit_cost: d("250.00"), allowed_travel_cost: d("12.00"), allowed_waiting_cost: d("6.00"), allowed_disbursement_cost: d("100.00"))
 
   nsm12 = NsmClaim.create!(laa_reference: "LAA-0012", ufn: "123467/112", solicitor_office_code: "1A123B", stage_code: "PROM", client_first_name: "Liam",  client_last_name: "Lewis")
-  PaymentRequest.create!(submitter_id: SecureRandom.uuid, request_type: "non_standard_mag", submitted_at: 8.days.ago, date_received: nsm12.date_received, payment_request_claim: nsm12,
+  PaymentRequest.create!(submitter_id: SecureRandom.uuid, request_type: "non_standard_magistrate", submitted_at: 8.days.ago, date_received: nsm12.date_received, payment_request_claim: nsm12,
     profit_cost: d("365.00"), travel_cost: d("14.00"), waiting_cost: d("8.00"), disbursement_cost: d("115.00"),
     allowed_profit_cost: d("320.00"), allowed_travel_cost: d("10.00"), allowed_waiting_cost: d("7.00"), allowed_disbursement_cost: d("95.00"))
 

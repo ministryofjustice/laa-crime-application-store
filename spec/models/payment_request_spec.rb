@@ -22,7 +22,7 @@ RSpec.describe PaymentRequest do
   end
 
   context "when payment request is for an NsmClaim" do
-    let(:payment_request) { create(:payment_request, :non_standard_mag) }
+    let(:payment_request) { create(:payment_request, :non_standard_magistrate) }
 
     it "returns true when request type is compatible with non-standard mag" do
       payment_request.request_type = "non_standard_mag_appeal"
@@ -51,7 +51,7 @@ RSpec.describe PaymentRequest do
     end
 
     it "invalidates record when request type is not compatible with assigned counsel" do
-      payment_request.request_type = "non_standard_mag"
+      payment_request.request_type = "non_standard_magistrate"
       payment_request.validate
       expect(payment_request.valid?).to be(false)
     end
@@ -79,7 +79,7 @@ RSpec.describe PaymentRequest do
     it "returns true when payment request is linked to a claim and submitted" do
       payment_request = create(
         :payment_request,
-        :non_standard_mag,
+        :non_standard_magistrate,
         submitted_at: submitted_at,
       )
       expect(payment_request.is_linked_to_claim_when_submitted).to be(true)
