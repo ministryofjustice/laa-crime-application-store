@@ -1,0 +1,402 @@
+name: Test, Build, Scan & Deploy
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+  checks: write
+
+env:
+  RACK_ENV: test
+  RAILS_ENV: test
+
+jobs:
+  # ============================================================================
+  # PHASE 1: Fast quality checks (run in parallel)
+  # ============================================================================
+
+  rubocop:
+    name: Rubocop
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby and install gems
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Run Rubocop linter
+        run: bundle exec rubocop --format github --format progress
+
+  helm-lint:
+    name: Helm lint - ${{ matrix.environment }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [development, uat, production]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: '3.7.2'
+
+      - name: Cache Python pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-yamllint
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install yamllint for YAML validation
+        run: pip install yamllint
+
+      - name: Lint Helm chart templates for ${{ matrix.environment }}
+        run: |
+          helm lint helm_deploy --values helm_deploy/values-${{ matrix.environment }}.yaml \
+            --set redis.auth.password=dummy \
+            --set postgresql.auth.password=dummy
+
+      - name: Validate rendered Helm templates for ${{ matrix.environment }}
+        run: |
+          helm template --debug helm_deploy --values helm_deploy/values-${{ matrix.environment }}.yaml > /tmp/helm-output.yaml
+          yamllint /tmp/helm-output.yaml -f github
+
+  test:
+    name: RSpec tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+    env:
+      BASE_DATABASE_HOST: localhost
+      BASE_DATABASE_USERNAME: postgres
+      BASE_DATABASE_PASSWORD: postgres
+      RSPEC_JSON_PATH: tmp/rspec-results.json
+    services:
+      postgres:
+        image: postgres:13.12
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: laa_crime_application_store_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby and install gems
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Set up test database
+        run: |
+          bundle exec rails db:setup
+          bundle exec flatware fan rails db:test:prepare
+
+      - name: Run RSpec tests
+        env:
+          RUBYOPT: -W:no-deprecated
+          INCLUDE_ACCESSIBILITY_SPECS: true
+        run: bundle exec flatware rspec --format progress
+
+      - name: Upload code coverage results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-results
+          path: coverage
+          include-hidden-files: true
+
+  coverage:
+    name: Verify code coverage
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby and install gems
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Download coverage results from all test types
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-results-*
+          path: coverage_results
+
+      - name: Merge coverage results from both test types
+        run: bundle exec rake simplecov:process_coverage
+
+      - name: Upload final coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-final
+          path: coverage
+
+  # ============================================================================
+  # PHASE 2: Build Docker image (depends on tests passing)
+  # ============================================================================
+
+  build:
+    name: Build and push Docker image to ECR
+    runs-on: ubuntu-latest
+    needs: [rubocop, test, helm-lint]
+    # Required for OIDC
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      image-tag: ${{ steps.build.outputs.image-tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials for ECR access
+        uses: ministryofjustice/laa-reusable-github-actions/.github/actions/ecr-auth@e5500aa20b13a1406fe8a62b8788181a2ca18926
+        with:
+          ecr_role: ${{ secrets.APP_STORE_ECR_ROLE_TO_ASSUME }}
+          ecr_region: ${{ vars.APP_STORE_DEV_ECR_REGION }}
+          role-session-name: ${{ vars.ECR_ROLE_SESSION_NAME }}
+
+      - name: Build Docker image and push to ECR
+        id: build
+        run: |
+          IMAGE_TAG="branch-${{ github.sha }}"
+          echo "image-tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+
+          ECR_IMAGE=${{ secrets.ECR_REGISTRY_URL }}/${{ vars.APP_STORE_DEV_DEV_ECR_REPOSITORY }}
+
+          docker build \
+            --build-arg APP_BUILD_DATE=$(date +%Y-%m-%dT%H:%M:%S%z) \
+            --build-arg APP_BUILD_TAG=${{ github.sha }} \
+            --build-arg APP_GIT_COMMIT=${{ github.sha }} \
+            --build-arg APP_BRANCH_NAME=${{ github.ref_name }} \
+            --tag ${ECR_IMAGE}:${IMAGE_TAG} \
+            --file Dockerfile .
+
+          docker push ${ECR_IMAGE}:${IMAGE_TAG}
+
+  # ============================================================================
+  # PHASE 3: Security scans and E2E tests (run in parallel after build)
+  # ============================================================================
+
+  trivy-scan:
+    name: Trivy security scanning
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      security-events: write
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials for ECR access
+        uses: ministryofjustice/laa-reusable-github-actions/.github/actions/ecr-auth@e5500aa20b13a1406fe8a62b8788181a2ca18926
+        with:
+          ecr_role: ${{ secrets.APP_STORE_DEV_ECR_ROLE_TO_ASSUME }}
+          ecr_region: ${{ vars.APP_STORE_DEV_ECR_REGION }}
+          role-session-name: ${{ vars.ECR_ROLE_SESSION_NAME }}
+
+      - name: Scan filesystem for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          vuln-type: 'os'
+          format: 'sarif'
+          output: 'trivy-fs-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+
+      - name: Upload filesystem scan results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-fs-results.sarif'
+          category: 'trivy-filesystem'
+
+      - name: Scan Docker image for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: '${{ secrets.ECR_REGISTRY_URL}}/${{ vars.APP_STORE_DEV_ECR_REPOSITORY}}:${{ needs.build.outputs.image-tag }}'
+          format: 'sarif'
+          vuln-type: 'os'
+          output: 'trivy-image-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+
+      - name: Upload Docker image scan results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-image-results.sarif'
+          category: 'trivy-image'
+
+      - name: Scan infrastructure configuration for issues
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+          format: 'sarif'
+          vuln-type: 'os'
+          output: 'trivy-config-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+
+      - name: Upload config scan results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-config-results.sarif'
+          category: 'trivy-config'
+
+  snyk-scan:
+    name: Snyk security scanning
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      security-events: write
+      contents: read
+    needs: build
+    env:
+      ECR_IMAGE: ${{ secrets.ECR_REGISTRY_URL}}/${{ vars.APP_STORE_DEV_ECR_REPOSITORY}}:${{ needs.build.outputs.image-tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby and install gems
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Configure AWS credentials for ECR access
+        uses: ministryofjustice/laa-reusable-github-actions/.github/actions/ecr-auth@e5500aa20b13a1406fe8a62b8788181a2ca18926
+        with:
+          ecr_role: ${{ secrets.APP_STORE_DEV_ECR_ROLE_TO_ASSUME }}
+          ecr_region: ${{ vars.APP_STORE_DEV_ECR_REGION }}
+          role-session-name: ${{ vars.ECR_ROLE_SESSION_NAME }}
+
+      - name: Pull Docker image from ECR for scanning
+        run: docker pull $ECR_IMAGE
+
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@master
+
+      - name: Snyk Code Test
+        continue-on-error: true
+        run: snyk code test --sarif | tee snyk_sarif
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Upload results to Github Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk_sarif
+
+      - name: Monitor Docker Vulnerabilities
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: ${{ env.ECR_IMAGE }}
+          command: monitor
+
+  e2e-test:
+    name: Run E2E Tests
+    uses: ministryofjustice/nsm-e2e-test/.github/workflows/run-e2e-tests.yml@4ecdd6ddaaf01c6554a9967a290ece0690d89392
+    needs: build
+    secrets: inherit
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      submit-sha: ${{ needs.build.outputs.image-tag }}
+
+  # ============================================================================
+  # PHASE 4: Deploy to dev environment (only after all checks pass)
+  # ============================================================================
+
+  deploy-feature-branch:
+    name: Deploy feature branch to dev
+    runs-on: ubuntu-latest
+    needs: [build, snyk-scan, e2e-test, trivy-scan, coverage]
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to the cluster
+        uses: ministryofjustice/laa-reusable-github-actions/.github/actions/authenticate_to_cluster@2aa2676c3cd9876ec7037ee8b3d729d0306cb7c6
+        with:
+          kube-cert: ${{ secrets.AUTOGENERATED_NSCC_STORE_DEV_K8S_CLUSTER_CERT }}
+          kube-token: ${{ secrets.AUTOGENERATED_NSCC_STORE_DEV_K8S_TOKEN }}
+          kube-cluster: ${{ secrets.AUTOGENERATED_NSCC_STORE_DEV_K8S_CLUSTER_NAME }}
+          kube-namespace: ${{ secrets.AUTOGENERATED_NSCC_STORE_DEV_K8S_NAMESPACE }}
+
+      - name: Configure AWS credentials for ECR access
+        uses: ministryofjustice/laa-reusable-github-actions/.github/actions/ecr-auth@e5500aa20b13a1406fe8a62b8788181a2ca18926
+        with:
+          ecr_role: ${{ secrets.APP_STORE_DEV_ECR_ROLE_TO_ASSUME }}
+          ecr_region: ${{ vars.APP_STORE_DEV_ECR_REGION }}
+          role-session-name: ${{ vars.ECR_ROLE_SESSION_NAME }}
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: '3.7.2'
+
+      - name: Deploy feature branch to dev environment
+        env:
+          CIRCLE_BRANCH: ${{ github.head_ref }}
+          CIRCLE_SHA1: ${{ github.sha }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REGISTRY_URL }}/${{ vars.APP_STORE_DEV_ECR_REPOSITORY }}
+          K8S_NAMESPACE: ${{ secrets.AUTOGENERATED_SUBMIT_FORMS_DEV_K8S_NAMESPACE }}
+          IMAGE_TAG: ${{ needs.build.outputs.image-tag }}
+        run: ./bin/deploy dev
+
+      - name: Output deployment URL to PR
+        run: |
+          BRANCH_RELEASE_NAME=$(echo "${{ github.head_ref }}" | tr '[:upper:]' '[:lower:]' | sed 's:^\w*\/::' | tr -s ' _/[]().' '-' | cut -c1-18 | sed 's/-$//')
+          RELEASE_HOST="${BRANCH_RELEASE_NAME}-nscc-provider-dev.cloud-platform.service.justice.gov.uk"
+          echo "### 🚀 Feature branch deployed!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** https://${RELEASE_HOST}" >> $GITHUB_STEP_SUMMARY
