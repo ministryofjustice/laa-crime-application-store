@@ -93,7 +93,7 @@ jobs:
       RSPEC_JSON_PATH: tmp/rspec-results.json
     services:
       postgres:
-        image: postgres:13.12
+        image: postgis/postgis:16-3.4
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
