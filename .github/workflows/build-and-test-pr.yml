@@ -95,9 +95,8 @@ jobs:
       postgres:
         image: postgis/postgis:16-3.4
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: laa_crime_application_store_test
+          POSTGRES_USER: ${{ env.BASE_DATABASE_USERNAME }}
+          POSTGRES_PASSWORD: ${{ env.BASE_DATABASE_PASSWORD }}
         ports:
           - 5432:5432
         options: >-
