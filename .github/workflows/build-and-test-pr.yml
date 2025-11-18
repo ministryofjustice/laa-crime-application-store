@@ -152,7 +152,7 @@ jobs:
       - name: Configure AWS credentials for ECR access
         uses: ministryofjustice/laa-reusable-github-actions/.github/actions/ecr-auth@e5500aa20b13a1406fe8a62b8788181a2ca18926
         with:
-          ecr_role: ${{ secrets.APP_STORE_ECR_ROLE_TO_ASSUME }}
+          ecr_role: ${{ secrets.APP_STORE_DEV_ECR_ROLE_TO_ASSUME }}
           ecr_region: ${{ vars.APP_STORE_DEV_ECR_REGION }}
           role-session-name: ${{ vars.ECR_ROLE_SESSION_NAME }}
 
@@ -162,7 +162,7 @@ jobs:
           IMAGE_TAG="branch-${{ github.sha }}"
           echo "image-tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
-          ECR_IMAGE=${{ secrets.ECR_REGISTRY_URL }}/${{ vars.APP_STORE_DEV_DEV_ECR_REPOSITORY }}
+          ECR_IMAGE=${{ secrets.ECR_REGISTRY_URL }}/${{ vars.APP_STORE_DEV_ECR_REPOSITORY }}
 
           docker build \
             --build-arg APP_BUILD_DATE=$(date +%Y-%m-%dT%H:%M:%S%z) \
