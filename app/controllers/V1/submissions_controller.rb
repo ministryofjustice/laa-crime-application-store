@@ -15,21 +15,21 @@ module V1
     rescue AlreadyExistsError
       head :conflict
     rescue ActiveRecord::RecordInvalid
-      head :unprocessable_entity
+      head :unprocessable_content
     end
 
     def update
       ::Submissions::UpdateService.call(current_submission, params)
       render json: current_submission, status: :created
     rescue ActiveRecord::RecordInvalid, NoLaaReferenceError => e
-      render json: { errors: e.message }, status: :unprocessable_entity
+      render json: { errors: e.message }, status: :unprocessable_content
     end
 
     def metadata
       ::Submissions::MetadataUpdateService.call(current_submission, params)
       head :ok
     rescue ActiveRecord::RecordInvalid => e
-      render json: { errors: e.message }, status: :unprocessable_entity
+      render json: { errors: e.message }, status: :unprocessable_content
     end
 
     def auto_assignments

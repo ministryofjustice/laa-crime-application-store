@@ -128,7 +128,7 @@ RSpec.describe "Create submission" do
         application_id: SecureRandom.uuid,
         application_state: "submitted",
       }
-      expect(response).to have_http_status :unprocessable_entity
+      expect(response).to have_http_status :unprocessable_content
     end
 
     it "detects a forbidden state" do

@@ -10,7 +10,7 @@ module V1
                                                    error_type: params[:error_type])
       render json: current_import_error, status: :created
     rescue ActiveRecord::RecordInvalid
-      head :unprocessable_entity
+      head :unprocessable_content
     end
 
   private

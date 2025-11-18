@@ -19,7 +19,7 @@ RSpec.describe "Submission search" do
       allow(Search).to receive(:where).and_raise(StandardError, "Some error output")
       post search_endpoint, params: { application_type: "crm4" }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(response.parsed_body).to include(message: "AppStore search query raised Some error output")
     end
 
@@ -604,7 +604,7 @@ RSpec.describe "Submission search" do
       it "raises an error when unsortable column supplied" do
         post search_endpoint, params: { sort_by: "foobar" }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(response.parsed_body).to include(message: "AppStore search query raised Unsortable column \"foobar\" supplied as sort_by argument")
       end
 

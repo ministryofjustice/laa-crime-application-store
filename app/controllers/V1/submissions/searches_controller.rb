@@ -7,7 +7,7 @@ module V1
         render json: @results, status: :created
       rescue StandardError => e
         Rails.logger.fatal("AppStore search query raised #{e.message}")
-        render json: { message: "AppStore search query raised #{e.message}" }, status: :unprocessable_entity
+        render json: { message: "AppStore search query raised #{e.message}" }, status: :unprocessable_content
       end
 
     private
