@@ -290,7 +290,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Upload results to Github Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: snyk_sarif
 
@@ -311,7 +311,7 @@ jobs:
       id-token: write
       contents: read
     with:
-      submit-sha: ${{ needs.build.outputs.image-tag }}
+      appstore-sha: ${{ needs.build.outputs.image-tag }}
 
   # ============================================================================
   # PHASE 4: Deploy to dev environment (only after all checks pass)
