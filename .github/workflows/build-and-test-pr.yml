@@ -115,7 +115,7 @@ jobs:
           bundler-cache: true
 
       - name: Set up test database
-        run: bundle exec flatware fan rails db:test:prepare db:migrate
+        run: bundle exec flatware fan rails db:test:prepare
 
       - name: Run RSpec tests
         env:
