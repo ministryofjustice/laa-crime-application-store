@@ -47,9 +47,10 @@ jobs:
             --build-arg APP_GIT_COMMIT=${{ github.sha }} \
             --build-arg APP_BRANCH_NAME=${{ github.ref_name }} \
             --tag ${ECR_IMAGE}:${IMAGE_TAG} \
+            --tag ${ECR_IMAGE}:latest \
             --file Dockerfile .
 
-          docker push ${ECR_IMAGE}:${IMAGE_TAG}
+          docker push ${ECR_IMAGE}:${IMAGE_TAG} --all-tags
 
   deploy-dev-uat:
     name: Deploy branch to ${{ matrix.env }}
