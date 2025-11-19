@@ -4,7 +4,7 @@ module V1
       ::Submissions::AdjustmentService.call(current_submission, params)
       head :created
     rescue ActiveRecord::RecordInvalid => e
-      render json: { errors: e.message }, status: :unprocessable_entity
+      render json: { errors: e.message }, status: :unprocessable_content
     end
 
   private

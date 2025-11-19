@@ -56,7 +56,7 @@ RSpec.describe "Update submission" do
   it "fails when laa reference is not present in first version" do
     submission = create(:submission, build_scope: [:with_no_laa_reference])
     patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: 1 }
-    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response).to have_http_status(:unprocessable_content)
   end
 
   it "adds the event and updates last_updated_at" do
@@ -149,14 +149,14 @@ RSpec.describe "Update submission" do
   it "validates 'json_schema_version'" do
     submission = create(:submission)
     patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: { new: :data }, json_schema_version: nil }
-    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response).to have_http_status(:unprocessable_content)
     expect(response.parsed_body).to eq("errors" => "Validation failed: Json schema version can't be blank")
   end
 
   it "validates 'application'" do
     submission = create(:submission)
     patch "/v1/submissions/#{submission.id}", params: { application_state: "granted", application: nil, json_schema_version: 1 }
-    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response).to have_http_status(:unprocessable_content)
     expect(response.parsed_body).to eq("errors" => "Validation failed: Application can't be blank")
   end
 

@@ -2,6 +2,9 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV['BASE_DATABASE_HOST'] || 'localhost' %>
+  username: <%= ENV['BASE_DATABASE_USERNAME'] %>
+  password: <%= ENV['BASE_DATABASE_PASSWORD'] %>
   timeout: 5000
 
 development:

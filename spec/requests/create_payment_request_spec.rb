@@ -90,7 +90,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
 
       it "returns 422 and no records created" do
         expect { make_request }.not_to change(PaymentRequest, :count)
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
 
@@ -99,7 +99,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
 
       it "returns 422" do
         make_request
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
 
@@ -108,7 +108,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
 
       it "returns 422 and does not create claim" do
         expect { make_request }.not_to change(NsmClaim, :count)
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
   end
@@ -161,7 +161,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
       it "logs a Sentry exception" do
         make_request
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(Sentry).to have_received(:capture_exception)
       end
     end

@@ -7,7 +7,7 @@ RSpec.describe "Adjust submission" do
 
   it "validates" do
     post "/v1/submissions/#{submission.id}/adjustments", params: {}
-    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response).to have_http_status(:unprocessable_content)
   end
 
   context "when there is no pending version" do

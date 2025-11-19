@@ -18,7 +18,7 @@ module V1
       render json: payment_request_claim, status: :created
     rescue ActiveRecord::RecordInvalid, StandardError => e
       report_error(e)
-      render json: { errors: e.message }, status: :unprocessable_entity
+      render json: { errors: e.message }, status: :unprocessable_content
     end
 
   private

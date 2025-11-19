@@ -6,7 +6,7 @@ module V1
         render json: search_results, status: :created
       rescue StandardError => e
         Rails.logger.fatal("PaymentRequests search query raised #{e.message}")
-        render json: { message: "PaymentRequests search query raised #{e.message}" }, status: :unprocessable_entity
+        render json: { message: "PaymentRequests search query raised #{e.message}" }, status: :unprocessable_content
       end
 
     private
