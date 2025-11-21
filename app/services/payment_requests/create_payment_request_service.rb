@@ -93,6 +93,7 @@ module PaymentRequests
         request_type: params[:request_type],
         submitted_at: Time.current,
         date_received: params[:date_received],
+        submission_id: params[:submission_id]
       )
     end
 

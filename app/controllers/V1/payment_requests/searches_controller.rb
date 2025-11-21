@@ -22,6 +22,7 @@ module V1
           :received_from,
           :received_to,
           :request_type,
+          :submission_id,
           :query,
         )
       end
