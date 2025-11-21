@@ -77,6 +77,22 @@ RSpec.describe "PaymentRequest search" do
       end
     end
 
+    context "with submission_id" do
+      let(:submission_id) { SecureRandom.uuid }
+      let(:another_submission_id) { SecureRandom.uuid }
+
+      before do
+        create(:payment_request, submission_id: submission_id, payment_request_claim: build(:nsm_claim))
+        create(:payment_request, submission_id: another_submission_id, payment_request_claim: build(:nsm_claim))
+      end
+
+      it "brings back only matching submission_id" do
+        post search_endpoint, params: { submission_id: }
+
+        expect(response.parsed_body["data"].size).to be 1
+      end
+    end
+
     context "with submitted_at filter" do
       before do
         travel_to(start_date) do
