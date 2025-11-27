@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe PaymentRequests::SearchService do
   before do
-    create(:payment_request, :non_standard_mag)
+    create(:payment_request, :non_standard_magistrate)
   end
 
   let(:params) { { claim_type: "NsmClaim" } }

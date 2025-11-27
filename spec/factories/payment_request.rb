@@ -9,13 +9,14 @@
 FactoryBot.define do
   factory :payment_request do
     id { SecureRandom.uuid }
-    request_type { "non_standard_mag" }
+    request_type { "non_standard_magistrate" }
     submitter_id { SecureRandom.uuid }
     submitted_at { Time.zone.now }
+    submission_id { nil }
 
-    trait :non_standard_mag do
+    trait :non_standard_magistrate do
       association :payment_request_claim, factory: :nsm_claim
-      request_type { "non_standard_mag" }
+      request_type { "non_standard_magistrate" }
       claimed_profit_cost { 300.40 }
       claimed_travel_cost { 20.55 }
       claimed_waiting_cost { 10.33 }

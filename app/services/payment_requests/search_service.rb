@@ -23,6 +23,7 @@ module PaymentRequests
       claims = claims.where(payment_request_claims: { ufn: query_params[:ufn] }) if query_params[:ufn].present?
       claims = claims.where("LOWER(payment_request_claims.solicitor_office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
       claims = claims.where("LOWER(payment_request_claims.client_last_name) % ?::text", "%#{query_params[:client_last_name].downcase}%") if query_params[:client_last_name].present?
+      claims = claims.where(submission_id: submission_id) if submission_id
       claims.order(sort_clause)
     end
 
@@ -51,6 +52,10 @@ module PaymentRequests
 
     def received_to
       search_params[:received_to]&.to_date&.end_of_day
+    end
+
+    def submission_id
+      search_params[:submission_id]
     end
 
     def date_received?

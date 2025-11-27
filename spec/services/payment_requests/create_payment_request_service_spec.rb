@@ -8,7 +8,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       "non_standard_mag_supplemental" => true,
       "assigned_counsel_amendment" => true,
       "non_standard_mag_appeal" => true,
-      "non_standard_mag" => false,
+      "non_standard_magistrate" => false,
     }.each do |request_type, expected|
       it "returns #{expected} when request_type is '#{request_type}'" do
         params = { request_type: request_type }
@@ -37,7 +37,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
     end
 
     context "when creating a new claim" do
-      let(:params) { { request_type: "non_standard_mag" } }
+      let(:params) { { request_type: "non_standard_magistrate" } }
 
       it "creates an NsmClaim for NSM types" do
         allow(service).to receive_messages(claim_type: "NsmClaim", nsm_claim_details: { firm_name: "Firm X" })
@@ -68,7 +68,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
     context "when assigns_cost by claim_type" do
       let(:params) do
         {
-          request_type: "non_standard_mag",
+          request_type: "non_standard_magistrate",
           claimed_profit_costs: 100,
           allowed_disbursement_costs: 50,
         }
@@ -83,7 +83,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
     context "when claim_type is NsmClaim" do
       let(:params) do
         {
-          request_type: "non_standard_mag",
+          request_type: "non_standard_magistrate",
           claimed_profit_cost: 100,
           allowed_disbursement_cost: 50,
         }
@@ -118,7 +118,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
   describe "#call" do
     let(:params) do
       {
-        request_type: "non_standard_mag",
+        request_type: "non_standard_magistrate",
         submitter_id: SecureRandom.uuid,
         date_received: Time.zone.today,
       }

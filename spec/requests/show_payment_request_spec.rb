@@ -11,7 +11,7 @@ RSpec.describe "show payment request", type: :request do
   context "with payment request for NsmClaim" do
     before do
       create(
-        :payment_request, :non_standard_mag, id: payment_id
+        :payment_request, :non_standard_magistrate, id: payment_id
       )
     end
 

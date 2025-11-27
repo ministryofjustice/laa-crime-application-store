@@ -7,7 +7,7 @@ module PaymentRequests
 
     CLAIM_TYPE_MAP = {
       "NsmClaim" => %w[
-        non_standard_mag
+        non_standard_magistrate
         non_standard_mag_supplemental
         non_standard_mag_appeal
         non_standard_mag_amendment
@@ -93,6 +93,7 @@ module PaymentRequests
         request_type: params[:request_type],
         submitted_at: Time.current,
         date_received: params[:date_received],
+        submission_id: params[:submission_id],
       )
     end
 

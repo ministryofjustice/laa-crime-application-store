@@ -5,7 +5,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
 
   let(:endpoint) { "/v1/payment_requests" }
   let(:submitter_id) { SecureRandom.uuid }
-  let(:request_type) { "non_standard_mag" }
+  let(:request_type) { "non_standard_magistrate" }
   let(:laa_reference) { nil }
   let(:params) do
     {
@@ -55,7 +55,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
       payment = PaymentRequest.last
       claim = NsmClaim.last
 
-      expect(payment.request_type).to eq("non_standard_mag")
+      expect(payment.request_type).to eq("non_standard_magistrate")
       expect(payment.submitter_id).to eq(submitter_id)
       expect(payment.payment_request_claim).to eq(claim)
 
