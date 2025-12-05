@@ -2,22 +2,9 @@ module PaymentRequests
   class CreatePaymentRequestService
     class UnprocessableEntityError < StandardError; end
     include LaaReferenceHelper
+    include ClaimTypeGroupHelper
 
     attr_reader :params
-
-    CLAIM_TYPE_MAP = {
-      "NsmClaim" => %w[
-        non_standard_magistrate
-        non_standard_mag_supplemental
-        non_standard_mag_appeal
-        non_standard_mag_amendment
-      ],
-      "AssignedCounselClaim" => %w[
-        assigned_counsel
-        assigned_counsel_appeal
-        assigned_counsel_amendment
-      ],
-    }.freeze
 
     def initialize(params)
       @params = params
@@ -43,6 +30,7 @@ module PaymentRequests
   private
 
     def find_or_create_claim!
+      #TODO laa-ref from submission
       if params[:laa_reference].present? && supplemental_appeal_or_ammendment?
         PaymentRequestClaim.find_by(laa_reference: params[:laa_reference]) || raise(UnprocessableEntityError, "Claim not found")
       else
@@ -71,7 +59,7 @@ module PaymentRequests
         matter_type: params[:matter_type],
         court_name: params[:court],
         youth_court: params[:youth_court],
-        laa_reference: generate_laa_reference,
+        laa_reference: params[:linked_laa_reference] || generate_laa_reference,
         ufn: params[:ufn],
       }
     end
@@ -83,7 +71,7 @@ module PaymentRequests
         solicitor_office_code: params[:solicitor_office_code],
         solicitor_firm_name: params[:solicitor_firm_name],
         nsm_claim_id: params[:nsm_claim_id],
-        laa_reference: generate_laa_reference,
+        laa_reference: params[:linked_laa_reference] || generate_laa_reference,
       }
     end
 
@@ -141,7 +129,7 @@ module PaymentRequests
     end
 
     def claim_type
-      @claim_type ||= CLAIM_TYPE_MAP.find { |_, types| types.include?(params[:request_type]) }&.first
+      @claim_type ||= find_claim_type_group(params[:request_type])
     end
   end
 end

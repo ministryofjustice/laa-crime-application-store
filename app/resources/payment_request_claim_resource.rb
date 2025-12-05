@@ -6,11 +6,8 @@ class PaymentRequestClaimResource
              :laa_reference,
              :solicitor_office_code,
              :solicitor_firm_name,
-             :client_last_name
 
   attributes :work_completed_date,
-             :court_attendances,
-             :no_of_defendants,
              :matter_type,
              :youth_court,
              :ufn,
@@ -22,6 +19,10 @@ class PaymentRequestClaimResource
 
   attribute :defendant_first_name do |payment_request_claim|
    payment_request_claim.client_first_name
+  end
+
+  attribute :defendant_last_name do |payment_request_claim|
+   payment_request_claim.client_last_name
   end
 
   attribute :hearing_outcome_code do |payment_request_claim|
