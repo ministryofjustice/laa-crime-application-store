@@ -8,17 +8,41 @@ class PaymentRequestClaimResource
              :solicitor_firm_name,
              :client_last_name
 
-  attributes :stage_code,
-             :work_completed_date,
-             :court_name,
+  attributes :work_completed_date,
              :court_attendances,
              :no_of_defendants,
-             :client_first_name,
-             :outcome_code,
              :matter_type,
              :youth_court,
              :ufn,
              if: proc { |payment_request_claim| payment_request_claim.is_a? NsmClaim }
+
+  attribute :stage_reached do |payment_request_claim|
+   payment_request_claim.stage_code if payment_request_claim.is_a? NsmClaim
+  end
+
+  attribute :defendant_first_name do |payment_request_claim|
+   payment_request_claim.client_first_name
+  end
+
+  attribute :hearing_outcome_code do |payment_request_claim|
+   payment_request_claim.outcome_code if payment_request_claim.is_a? NsmClaim
+  end
+
+  attribute :number_of_attendances do |payment_request_claim|
+   payment_request_claim.court_attendances if payment_request_claim.is_a? NsmClaim
+  end
+
+  attribute :number_of_defendants do |payment_request_claim|
+   payment_request_claim.no_of_defendants if payment_request_claim.is_a? NsmClaim
+  end
+
+  attribute :court do |payment_request_claim|
+   payment_request_claim.court_name if payment_request_claim.is_a? NsmClaim
+  end
+
+  attribute :defendant_last_name do |payment_request_claim|
+   payment_request_claim.client_last_name
+  end
 
   attribute :submission_id do |payment_request_claim|
     payment_request_claim.submission&.id if payment_request_claim.is_a? NsmClaim
