@@ -6,7 +6,8 @@ class PaymentRequestClaimResource
              :laa_reference,
              :solicitor_office_code,
              :solicitor_firm_name,
-             :client_last_name
+             :client_last_name,
+             :ufn
 
   attributes :stage_code,
              :work_completed_date,
@@ -17,7 +18,6 @@ class PaymentRequestClaimResource
              :outcome_code,
              :matter_type,
              :youth_court,
-             :ufn,
              if: proc { |payment_request_claim| payment_request_claim.is_a? NsmClaim }
 
   attribute :submission_id do |payment_request_claim|
