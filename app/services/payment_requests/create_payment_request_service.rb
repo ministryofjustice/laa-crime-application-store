@@ -84,6 +84,7 @@ module PaymentRequests
         solicitor_firm_name: params[:solicitor_firm_name],
         client_last_name: params[:defendant_last_name],
         nsm_claim_id: params[:nsm_claim_id],
+        ufn: params[:ufn],
         laa_reference: generate_laa_reference,
       }
     end

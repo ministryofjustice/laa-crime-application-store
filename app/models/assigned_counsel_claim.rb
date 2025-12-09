@@ -4,6 +4,7 @@ class AssignedCounselClaim < PaymentRequestClaim
              inverse_of: :assigned_counsel_claim,
              optional: true
 
+  validates :ufn, presence: true, ufn: true
   validates :laa_reference, presence: true
   validates :counsel_office_code, office_code: true, presence: true
   validates :solicitor_office_code, office_code: true
