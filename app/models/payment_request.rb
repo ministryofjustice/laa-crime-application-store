@@ -18,14 +18,14 @@ class PaymentRequest < ApplicationRecord
   belongs_to :payment_request_claim, optional: true
 
   belongs_to :nsm_claim,
-    class_name: "NsmClaim",
-    foreign_key: :payment_request_claim_id,
-    optional: true
+             class_name: "NsmClaim",
+             foreign_key: :payment_request_claim_id,
+             optional: true
 
   belongs_to :ac_claim,
-    class_name: "AssignedCounselClaim",
-    foreign_key: :payment_request_claim_id,
-    optional: true
+             class_name: "AssignedCounselClaim",
+             foreign_key: :payment_request_claim_id,
+             optional: true
 
   attribute :claimed_profit_cost, :gbp
   attribute :allowed_profit_cost, :gbp

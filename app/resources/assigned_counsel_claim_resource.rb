@@ -11,9 +11,13 @@ class AssignedCounselClaimResource
              :laa_reference,
              :counsel_office_code, :counsel_firm_name,
              :nsm_claim_id, :ufn,
-             :solicitor_office_code, :solicitor_firm_name,
              :client_last_name,
+             :solicitor_office_code, :solicitor_firm_name,
              :created_at, :updated_at
+
+  attribute :linked_crm8_laa_reference do |resource|
+    resource.nsm_claim.laa_reference
+  end
 
   many :payment_requests, params: { include_claim: false }
 end

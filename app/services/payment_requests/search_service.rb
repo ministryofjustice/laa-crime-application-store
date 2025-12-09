@@ -13,10 +13,9 @@ module PaymentRequests
   private
 
     def search_query
-      claim_scope = query_params[:search_scope]&.to_sym || :payment_request_claim
       claims = PaymentRequest
-        .joins(claim_scope)
-        .includes(claim_scope)
+        .left_outer_joins(:payment_request_claim)
+        .includes(:payment_request_claim)
       claims = claims.where(date_received: received_from..received_to) if date_received?
       claims = claims.where(submitted_at: (submitted_from..submitted_to)) if submitted_date?
       claims = claims.where(request_type: request_type) if request_type.present?

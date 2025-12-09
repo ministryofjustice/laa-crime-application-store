@@ -30,7 +30,6 @@ module PaymentRequests
   private
 
     def find_or_create_claim!
-      #TODO laa-ref from submission
       if params[:laa_reference].present? && supplemental_appeal_or_ammendment?
         PaymentRequestClaim.find_by(laa_reference: params[:laa_reference]) || raise(UnprocessableEntityError, "Claim not found")
       else

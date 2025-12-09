@@ -5,7 +5,7 @@ class PaymentRequestClaimResource
              :type,
              :laa_reference,
              :solicitor_office_code,
-             :solicitor_firm_name,
+             :solicitor_firm_name
 
   attributes :work_completed_date,
              :matter_type,
@@ -14,35 +14,27 @@ class PaymentRequestClaimResource
              if: proc { |payment_request_claim| payment_request_claim.is_a? NsmClaim }
 
   attribute :stage_reached do |payment_request_claim|
-   payment_request_claim.stage_code if payment_request_claim.is_a? NsmClaim
+    payment_request_claim.stage_code if payment_request_claim.is_a? NsmClaim
   end
 
-  attribute :defendant_first_name do |payment_request_claim|
-   payment_request_claim.client_first_name
-  end
+  attribute :defendant_first_name, &:client_first_name
 
-  attribute :defendant_last_name do |payment_request_claim|
-   payment_request_claim.client_last_name
-  end
+  attribute :defendant_last_name, &:client_last_name
 
   attribute :hearing_outcome_code do |payment_request_claim|
-   payment_request_claim.outcome_code if payment_request_claim.is_a? NsmClaim
+    payment_request_claim.outcome_code if payment_request_claim.is_a? NsmClaim
   end
 
   attribute :number_of_attendances do |payment_request_claim|
-   payment_request_claim.court_attendances if payment_request_claim.is_a? NsmClaim
+    payment_request_claim.court_attendances if payment_request_claim.is_a? NsmClaim
   end
 
   attribute :number_of_defendants do |payment_request_claim|
-   payment_request_claim.no_of_defendants if payment_request_claim.is_a? NsmClaim
+    payment_request_claim.no_of_defendants if payment_request_claim.is_a? NsmClaim
   end
 
   attribute :court do |payment_request_claim|
-   payment_request_claim.court_name if payment_request_claim.is_a? NsmClaim
-  end
-
-  attribute :defendant_last_name do |payment_request_claim|
-   payment_request_claim.client_last_name
+    payment_request_claim.court_name if payment_request_claim.is_a? NsmClaim
   end
 
   attribute :submission_id do |payment_request_claim|
