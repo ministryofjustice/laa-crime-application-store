@@ -4,7 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby File.read(".ruby-version").strip
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.1.0"
+gem "rails", "~> 8.1.1"
 
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.6"
@@ -19,7 +19,7 @@ gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 gem "bootsnap", require: false
 
 gem 'alba'
-gem "aws-sdk-s3", "~> 1.201"
+gem "aws-sdk-s3", "~> 1.206"
 gem "govuk_notify_rails", "~> 3.0.0"
 gem "httparty"
 gem "jwt", "~> 3.1.2"
