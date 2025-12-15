@@ -1,5 +1,6 @@
 class PaymentRequest < ApplicationRecord
   NSM_REQUEST_TYPES =  %w[
+    breach_of_injunction
     non_standard_magistrate
     non_standard_mag_appeal
     non_standard_mag_amendment
@@ -15,6 +16,16 @@ class PaymentRequest < ApplicationRecord
   REQUEST_TYPES = NSM_REQUEST_TYPES + ASSIGNED_COUNSEL_REQUEST_TYPES
 
   belongs_to :payment_request_claim, optional: true
+
+  belongs_to :nsm_claim,
+             class_name: "NsmClaim",
+             foreign_key: :payment_request_claim_id,
+             optional: true
+
+  belongs_to :ac_claim,
+             class_name: "AssignedCounselClaim",
+             foreign_key: :payment_request_claim_id,
+             optional: true
 
   attribute :claimed_profit_cost, :gbp
   attribute :allowed_profit_cost, :gbp

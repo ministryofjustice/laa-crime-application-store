@@ -128,6 +128,7 @@ RSpec.describe "show payment request", type: :request do
         solicitor_office_code
         solicitor_firm_name
         client_last_name
+        linked_crm8_laa_reference
         created_at
         updated_at
       ]

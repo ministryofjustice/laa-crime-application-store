@@ -19,27 +19,27 @@ RSpec.describe "show payment request claim", type: :request do
 
     it "returns expected keys" do
       keys = %w[
-        id
-        type
-        laa_reference
-        solicitor_office_code
-        solicitor_firm_name
-        stage_code
-        work_completed_date
-        court_name
-        court_attendances
-        no_of_defendants
-        client_first_name
-        client_last_name
-        outcome_code
-        matter_type
-        youth_court
-        ufn
-        submission_id
-        created_at
-        updated_at
-        payment_requests
         assigned_counsel_claim
+        court
+        created_at
+        defendant_first_name
+        defendant_last_name
+        hearing_outcome_code
+        id
+        laa_reference
+        matter_type
+        number_of_attendances
+        number_of_defendants
+        payment_requests
+        solicitor_firm_name
+        solicitor_office_code
+        stage_reached
+        submission_id
+        type
+        ufn
+        updated_at
+        work_completed_date
+        youth_court
       ]
 
       get "/v1/payment_request_claims/#{nsm_id}"
@@ -76,19 +76,25 @@ RSpec.describe "show payment request claim", type: :request do
 
     it "returns expected keys" do
       keys = %w[
-        id
-        type
-        laa_reference
-        counsel_office_code
         counsel_firm_name
-        solicitor_office_code
-        solicitor_firm_name
-        client_last_name
-        submission_id
+        counsel_office_code
+        court
         created_at
-        updated_at
-        payment_requests
+        defendant_first_name
+        defendant_last_name
+        hearing_outcome_code
+        id
+        laa_reference
         nsm_claim
+        number_of_attendances
+        number_of_defendants
+        payment_requests
+        solicitor_firm_name
+        solicitor_office_code
+        stage_reached
+        submission_id
+        type
+        updated_at
       ]
 
       get "/v1/payment_request_claims/#{assigned_counsel_id}"
