@@ -64,7 +64,7 @@ module PaymentRequests
         youth_court: params[:youth_court],
         laa_reference: params[:linked_laa_reference] || generate_laa_reference,
         ufn: params[:ufn],
-        idempotency_token: params[:idempotency_token]
+        idempotency_token: params[:idempotency_token],
       }
     end
 
@@ -87,7 +87,7 @@ module PaymentRequests
         submitter_id: params[:submitter_id],
         request_type: params[:request_type],
         submitted_at: Time.current,
-        date_received: params[:date_received]
+        date_received: params[:date_received],
       )
       payment_request.submission_id = params[:id] if params[:linked_laa_reference]
       payment_request
