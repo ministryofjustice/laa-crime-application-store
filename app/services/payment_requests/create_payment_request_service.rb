@@ -30,6 +30,10 @@ module PaymentRequests
   private
 
     def find_or_create_claim!
+      if PaymentRequestClaim.exists?(idempotency_token: params[:idempotency_token])
+        raise UnprocessableEntityError, "payment already exists: #{params[:idempotency_token]}"
+      end
+
       if params[:laa_reference].present? && supplemental_appeal_or_ammendment?
         PaymentRequestClaim.find_by(laa_reference: params[:laa_reference]) || raise(UnprocessableEntityError, "Claim not found")
       else
@@ -60,6 +64,7 @@ module PaymentRequests
         youth_court: params[:youth_court],
         laa_reference: params[:linked_laa_reference] || generate_laa_reference,
         ufn: params[:ufn],
+        idempotency_token: params[:idempotency_token]
       }
     end
 
@@ -73,17 +78,19 @@ module PaymentRequests
         nsm_claim_id: params[:nsm_claim_id],
         ufn: params[:ufn],
         laa_reference: generate_laa_reference,
+        idempotency_token: params[:idempotency_token]
       }
     end
 
     def build_payment_request(claim)
-      claim.payment_requests.build(
+      payment_request = claim.payment_requests.build(
         submitter_id: params[:submitter_id],
         request_type: params[:request_type],
         submitted_at: Time.current,
-        date_received: params[:date_received],
-        submission_id: params[:submission_id],
+        date_received: params[:date_received]
       )
+      payment_request.submission_id = params[:id] if params[:linked_laa_reference]
+      payment_request
     end
 
     def assign_costs(payment_request)
