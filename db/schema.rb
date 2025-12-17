@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_19_173048) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_15_164857) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -62,6 +62,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_19_173048) do
     t.integer "court_attendances"
     t.string "court_name"
     t.datetime "created_at", null: false
+    t.uuid "idempotency_token"
     t.string "laa_reference"
     t.string "matter_type"
     t.integer "no_of_defendants"
@@ -76,6 +77,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_19_173048) do
     t.datetime "work_completed_date"
     t.boolean "youth_court"
     t.index ["client_last_name"], name: "index_payment_request_claims_on_client_last_name"
+    t.index ["idempotency_token"], name: "index_payment_request_claims_on_idempotency_token", unique: true
     t.index ["laa_reference"], name: "index_payment_request_claims_on_laa_reference"
     t.index ["solicitor_office_code"], name: "index_payment_request_claims_on_solicitor_office_code"
     t.index ["type"], name: "index_payment_request_claims_on_type"
