@@ -2,22 +2,9 @@ module PaymentRequests
   class CreatePaymentRequestService
     class UnprocessableEntityError < StandardError; end
     include LaaReferenceHelper
+    include ClaimTypeGroupHelper
 
     attr_reader :params
-
-    CLAIM_TYPE_MAP = {
-      "NsmClaim" => %w[
-        non_standard_magistrate
-        non_standard_mag_supplemental
-        non_standard_mag_appeal
-        non_standard_mag_amendment
-      ],
-      "AssignedCounselClaim" => %w[
-        assigned_counsel
-        assigned_counsel_appeal
-        assigned_counsel_amendment
-      ],
-    }.freeze
 
     def initialize(params)
       @params = params
@@ -71,7 +58,7 @@ module PaymentRequests
         matter_type: params[:matter_type],
         court_name: params[:court],
         youth_court: params[:youth_court],
-        laa_reference: generate_laa_reference,
+        laa_reference: params[:linked_laa_reference] || generate_laa_reference,
         ufn: params[:ufn],
       }
     end
@@ -143,7 +130,7 @@ module PaymentRequests
     end
 
     def claim_type
-      @claim_type ||= CLAIM_TYPE_MAP.find { |_, types| types.include?(params[:request_type]) }&.first
+      @claim_type ||= find_claim_type_group(params[:request_type])
     end
   end
 end

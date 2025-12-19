@@ -16,9 +16,34 @@ class PaymentRequestClaimResource
              :no_of_defendants,
              :client_first_name,
              :outcome_code,
+  attributes :work_completed_date,
              :matter_type,
              :youth_court,
              if: proc { |payment_request_claim| payment_request_claim.is_a? NsmClaim }
+
+  attribute :stage_reached do |payment_request_claim|
+    payment_request_claim.stage_code if payment_request_claim.is_a? NsmClaim
+  end
+
+  attribute :defendant_first_name, &:client_first_name
+
+  attribute :defendant_last_name, &:client_last_name
+
+  attribute :hearing_outcome_code do |payment_request_claim|
+    payment_request_claim.outcome_code if payment_request_claim.is_a? NsmClaim
+  end
+
+  attribute :number_of_attendances do |payment_request_claim|
+    payment_request_claim.court_attendances if payment_request_claim.is_a? NsmClaim
+  end
+
+  attribute :number_of_defendants do |payment_request_claim|
+    payment_request_claim.no_of_defendants if payment_request_claim.is_a? NsmClaim
+  end
+
+  attribute :court do |payment_request_claim|
+    payment_request_claim.court_name if payment_request_claim.is_a? NsmClaim
+  end
 
   attribute :submission_id do |payment_request_claim|
     payment_request_claim.submission&.id if payment_request_claim.is_a? NsmClaim

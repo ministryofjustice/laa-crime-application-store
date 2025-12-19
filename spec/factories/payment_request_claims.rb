@@ -2,7 +2,6 @@ FactoryBot.define do
   factory :payment_request_claim do
     id { SecureRandom.uuid }
     laa_reference { "LAA-Xcoqqz" }
-    client_last_name { "Smith" }
     solicitor_office_code { "1A123B" }
     solicitor_firm_name { "Solicitor Firm" }
     ufn { "120423/001" }
@@ -10,6 +9,7 @@ FactoryBot.define do
     factory :nsm_claim, class: "NsmClaim" do
       stage_code { "PROM" }
       client_first_name { "Tom" }
+      client_last_name { "Smith" }
       work_completed_date { 1.day.ago }
       outcome_code { "CP01" }
       matter_type { "1" }
