@@ -16,7 +16,8 @@ class PaymentRequestClaimResource
              :no_of_defendants,
              :client_first_name,
              :outcome_code,
-  attributes :work_completed_date,
+             :matter_type,
+             :work_completed_date,
              :matter_type,
              :youth_court,
              if: proc { |payment_request_claim| payment_request_claim.is_a? NsmClaim }
