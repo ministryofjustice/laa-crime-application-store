@@ -6,6 +6,7 @@ class AssignedCounselClaim < PaymentRequestClaim
 
   validates :ufn, presence: true, ufn: true
   validates :laa_reference, presence: true
+  validates :counsel_firm_name, presence: true
   validates :counsel_office_code, office_code: true, presence: true
   validates :solicitor_office_code, office_code: true, presence: true
   validates :solicitor_firm_name, presence: true

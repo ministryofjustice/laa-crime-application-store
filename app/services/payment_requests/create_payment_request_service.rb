@@ -46,7 +46,7 @@ module PaymentRequests
 
     def nsm_claim_details
       {
-        solicitor_firm_name: stub_solictor_firm_name,
+        solicitor_firm_name: params[:solicitor_firm_name],
         solicitor_office_code: params[:solicitor_office_code],
         stage_code: params[:stage_reached],
         work_completed_date: params[:date_completed],
@@ -119,10 +119,6 @@ module PaymentRequests
         allowed_total: params[:allowed_total],
         claimed_total: params[:claimed_total],
       }
-    end
-
-    def stub_solictor_firm_name
-      params[:solicitor_firm_name] || "some name"
     end
 
     def supplemental_appeal_or_ammendment?

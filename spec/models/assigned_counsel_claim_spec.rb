@@ -25,6 +25,11 @@ RSpec.describe AssignedCounselClaim, type: :model do
     it "is invalid without counsel_office_code" do
       claim = build(:assigned_counsel_claim, nsm_claim: nsm_claim, counsel_office_code: nil)
       expect(claim).not_to be_valid
+    end
+
+    it "is invalid with invalid counsel_office_code" do
+      claim = build(:assigned_counsel_claim, nsm_claim: nsm_claim, counsel_office_code: "garbage")
+      expect(claim).not_to be_valid
       expect(claim.errors[:counsel_office_code]).to include("Must be an alphanumeric string starting with a number and ending in a letter")
     end
 
