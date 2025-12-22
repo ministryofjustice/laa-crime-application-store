@@ -125,7 +125,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
         counsel_firm_name: "Counsel Firm",
         solicitor_office_code: "3B123A",
         solicitor_firm_name: "Solicitor Firm",
-        client_last_name: "Jones",
+        defendant_last_name: "Jones",
         ufn: "020225/001",
         date_received: "2025-02-02",
         claimed_net_assigned_counsel_cost: 500.0,
