@@ -172,7 +172,7 @@ GEM
     gserver (0.0.1)
     hashdiff (1.1.2)
     hashie (5.0.0)
-    httparty (0.23.2)
+    httparty (0.24.0)
       csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
@@ -215,8 +215,8 @@ GEM
     mini_mime (1.1.5)
     minitest (5.26.0)
     msgpack (1.8.0)
-    multi_xml (0.7.2)
-      bigdecimal (~> 3.1)
+    multi_xml (0.8.0)
+      bigdecimal (>= 3.1, < 5)
     net-http (0.6.0)
       uri
     net-imap (0.5.12)
