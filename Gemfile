@@ -21,7 +21,7 @@ gem "bootsnap", require: false
 gem 'alba'
 gem "aws-sdk-s3", "~> 1.201"
 gem "govuk_notify_rails", "~> 3.0.0"
-gem "httparty"
+gem "httparty", ">= 0.24.0"
 gem "jwt", "~> 3.1.2"
 gem "laa_crime_forms_common", "~> 0.12.5", github: "ministryofjustice/laa-crime-forms-common"
 gem "lograge"

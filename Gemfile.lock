@@ -172,7 +172,7 @@ GEM
     gserver (0.0.1)
     hashdiff (1.1.2)
     hashie (5.0.0)
-    httparty (0.23.2)
+    httparty (0.24.0)
       csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
@@ -481,7 +481,7 @@ DEPENDENCIES
   factory_bot_rails (>= 6.2.0)
   flatware-rspec
   govuk_notify_rails (~> 3.0.0)
-  httparty
+  httparty (>= 0.24.0)
   jwt (~> 3.1.2)
   laa_crime_forms_common (~> 0.12.5)!
   lograge
