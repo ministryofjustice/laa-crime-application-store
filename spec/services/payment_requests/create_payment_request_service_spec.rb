@@ -1,6 +1,41 @@
 require "rails_helper"
 
 RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
+  let(:submitter_id) { SecureRandom.uuid }
+  let(:request_type) { "non_standard_magistrate" }
+  let(:laa_reference) { nil }
+  let(:idempotency_token) { SecureRandom.uuid }
+  let(:params) do
+    {
+      submitter_id:,
+      request_type:,
+      laa_reference:,
+      idempotency_token:,
+      date_received: "2025-01-01",
+      solicitor_office_code: "3B123A",
+      solicitor_firm_name: "The Firm",
+      defendant_first_name: "Jim",
+      defendant_last_name: "Jones",
+      matter_type: "CRIM",
+      hearing_outcome_code: "PROG",
+      stage_reached: "PROG",
+      ufn: "010125/001",
+      youth_court: false,
+      number_of_attendances: 2,
+      number_of_defendants: 1,
+      date_completed: "2025-01-01",
+      court: "Greenock Sheriff",
+      claimed_profit_cost: 100.0,
+      claimed_travel_cost: 20.0,
+      claimed_waiting_cost: 10.0,
+      claimed_disbursement_cost: 5.0,
+      allowed_profit_cost: 90.0,
+      allowed_travel_cost: 15.0,
+      allowed_waiting_cost: 5.0,
+      allowed_disbursement_cost: 4.0,
+    }
+  end
+
   let(:service) { described_class.new(params) }
 
   describe "#supplemental_appeal_or_ammendment?" do
@@ -22,7 +57,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
     context "when laa_reference is present and request_type has a supplemental/appeal/amendment suffix" do
       subject(:service) { described_class.new(params) }
 
-      let(:params) { { laa_reference: "LAA123", request_type: "non_standard_mag_appeal" } }
+      let(:params) { { idempotency_token: SecureRandom.uuid, laa_reference: "LAA123", request_type: "non_standard_mag_appeal" } }
 
       it "returns the existing claim if found" do
         existing = create(:payment_request_claim, laa_reference: "LAA123")
@@ -36,8 +71,32 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       end
     end
 
+    context "when infering linking an exisiting submission claim from linked_laa_reference param" do
+      let(:linked_laa_reference) { "LAA-EXISTING" }
+      let(:service) { described_class.new(params) }
+
+      describe "when linked_laa_reference exists" do
+        let(:params) { super().except!(:laa_reference).merge({ linked_laa_reference: linked_laa_reference }) }
+
+        it "links the submission ref to the payment" do
+          expect(service.call[:claim][:laa_reference]).to eq(linked_laa_reference)
+        end
+      end
+
+      describe "when linked_laa_reference does not exist" do
+        let(:params) { super().except!(:laa_reference) }
+
+        it "creates a new laa_reference for the payment" do
+          expect(service.call[:claim][:laa_reference]).not_to eq(linked_laa_reference)
+        end
+      end
+    end
+
     context "when creating a new claim" do
-      let(:params) { { request_type: "non_standard_magistrate" } }
+      let(:params) do
+        { idempotency_token: SecureRandom.uuid,
+          request_type: "non_standard_magistrate" }
+      end
 
       it "creates an NsmClaim for NSM types" do
         allow(service).to receive_messages(claim_type: "NsmClaim", nsm_claim_details: { firm_name: "Firm X" })
@@ -68,6 +127,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
     context "when assigns_cost by claim_type" do
       let(:params) do
         {
+          idempotency_token: SecureRandom.uuid,
           request_type: "non_standard_magistrate",
           claimed_profit_costs: 100,
           allowed_disbursement_costs: 50,
@@ -83,6 +143,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
     context "when claim_type is NsmClaim" do
       let(:params) do
         {
+          idempotency_token: SecureRandom.uuid,
           request_type: "non_standard_magistrate",
           claimed_profit_cost: 100,
           allowed_disbursement_cost: 50,
@@ -100,6 +161,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
     context "when claim_type is AssignedCounselClaim" do
       let(:params) do
         {
+          idempotency_token: SecureRandom.uuid,
           request_type: "assigned_counsel",
           claimed_net_assigned_counsel_cost: 200,
           claimed_assigned_counsel_vat: 40,
@@ -118,6 +180,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
   describe "#call" do
     let(:params) do
       {
+        idempotency_token: SecureRandom.uuid,
         request_type: "non_standard_magistrate",
         submitter_id: SecureRandom.uuid,
         date_received: Time.zone.today,
