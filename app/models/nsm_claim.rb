@@ -7,7 +7,6 @@ class NsmClaim < PaymentRequestClaim
   has_one :submission, dependent: :destroy
 
   validates :laa_reference, presence: true
-  validates :ufn, ufn: true, on: :update
   validates :solicitor_office_code, office_code: true
   validates :stage_code, format: { with: /\A\bPROG\b|\bPROM\b\z/, on: :update }
   validates :court_attendances, :no_of_defendants, numericality: { only_integer: true }, on: :update
