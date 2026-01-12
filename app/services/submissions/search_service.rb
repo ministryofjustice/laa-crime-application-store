@@ -30,26 +30,42 @@ module Submissions
       relation.where_terms(query)
     end
 
+    # Builds and returns search results with pagination metadata and formatted data.
+    #
+    # Returns a JSON string containing:
+    #   - metadata: Hash with total_results count, current page number, and per_page limit
+    #   - data: Array of search results for the current page
+    #   - raw_data: Unformatted/raw representation of the current page results
+    #
+    # @return [String] JSON representation of search results with metadata
     def search_results
+      page_rows = current_page_rows
+
       {
         metadata: {
-          total_results: @data.size,
+          total_results: total_results_count,
           page:,
           per_page:,
         },
-        data: @data.limit(limit).offset(offset),
-        raw_data: raw_data_for_page,
+        data: page_rows,
+        raw_data: build_raw_data(page_rows),
       }.to_json
     end
 
-    def raw_data_for_page
-      # Ensures sorting and paginating works for the raw_data query.
-      # Paginate (offset/limit) here just to get an array of ordered ids for
-      # the page then query the "raw data" for just those ids, sorting by the
-      # order they were in from the "data".
-      ids = @data.limit(limit).offset(offset).pluck(:id)
+    def current_page_rows
+      @current_page_rows ||= @data.limit(limit).offset(offset).to_a
+    end
 
-      Submission.find(ids)
+    def total_results_count
+      @total_results_count ||= @data.except(:limit, :offset).count(:all)
+    end
+
+    def build_raw_data(page_rows)
+      ids = page_rows.map(&:id)
+      return [] if ids.empty?
+
+      Submission.includes(:ordered_submission_versions)
+                .where(id: ids)
                 .sort_by { ids.index(_1.id) }
                 .map { _1.as_json(client_role:) }
     end

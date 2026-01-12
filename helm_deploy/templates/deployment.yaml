@@ -48,12 +48,16 @@ spec:
               port: http
             initialDelaySeconds: 20
             periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 6
           readinessProbe:
             httpGet:
               path: /ping
               port: http
             initialDelaySeconds: 20
             periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 3
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           lifecycle:
