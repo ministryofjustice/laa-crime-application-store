@@ -42,25 +42,20 @@ spec:
               containerPort: {{ .Values.service.internalPort }}
               protocol: TCP
             - containerPort: 9394
-          startupProbe:
-            httpGet:
-              path: /ping
-              port: http
-            periodSeconds: 2
-            timeoutSeconds: 2
-            failureThreshold: 60
           livenessProbe:
             httpGet:
               path: /ping
               port: http
-            periodSeconds: 10
+            initialDelaySeconds: 20
+            periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 6
           readinessProbe:
             httpGet:
               path: /ping
               port: http
-            periodSeconds: 5
+            initialDelaySeconds: 20
+            periodSeconds: 30
             timeoutSeconds: 2
             failureThreshold: 3
           resources:
