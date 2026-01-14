@@ -10,7 +10,7 @@ jobs:
     environment: Development
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Delete temporary release from dev environment
         id: delete_dev
         uses: ./.github/actions/delete-dev-release
