@@ -5,6 +5,7 @@ FactoryBot.define do
     solicitor_office_code { "1A123B" }
     solicitor_firm_name { "Solicitor Firm" }
     ufn { "120423/001" }
+    idempotency_token { SecureRandom.uuid }
 
     factory :nsm_claim, class: "NsmClaim" do
       stage_code { "PROM" }
