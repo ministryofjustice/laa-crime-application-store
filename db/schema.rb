@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_05_153259) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_16_125534) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -43,6 +43,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_153259) do
     t.datetime "updated_at", precision: nil
     t.integer "version", null: false
     t.index "(((application -> 'firm_office'::text) ->> 'account_number'::text))", name: "idx_application_version_on_account_number"
+    t.index "((application ->> 'laa_reference'::text))", name: "idx_application_version_on_laa_reference"
     t.index ["application_id", "version"], name: "idx_application_versions_app_id_version"
     t.index ["search_fields"], name: "index_application_version_on_search_fields", using: :gin
   end
