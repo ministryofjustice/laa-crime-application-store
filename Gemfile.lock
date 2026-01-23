@@ -1,9 +1,8 @@
 GIT
   remote: https://github.com/ministryofjustice/laa-crime-forms-common.git
-  revision: ccaa014e1220749b6fe65e751b8e6e96e247f8c8
+  revision: 20cfe6f75c4dfe081782180007dc5366c39bce0e
   specs:
-    laa_crime_forms_common (0.12.7)
-      activemodel
+    laa_crime_forms_common (0.12.5)
       activesupport
       httparty (>= 0.22.0, < 1)
       i18n (>= 1.8.11, < 2)
@@ -87,8 +86,8 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
-    addressable (2.8.8)
-      public_suffix (>= 2.0.2, < 8.0)
+    addressable (2.8.7)
+      public_suffix (>= 2.0.2, < 7.0)
     alba (3.9.1)
     ansi (1.5.0)
     ast (2.4.3)
@@ -112,15 +111,15 @@ GEM
     aws-sigv4 (1.12.1)
       aws-eventstream (~> 1, >= 1.0.2)
     base64 (0.3.0)
-    bigdecimal (4.0.1)
+    bigdecimal (3.3.1)
     binding_of_caller (1.0.1)
       debug_inspector (>= 1.2.0)
     bootsnap (1.18.6)
       msgpack (~> 1.2)
     builder (3.3.0)
     coderay (1.1.3)
-    concurrent-ruby (1.3.6)
-    connection_pool (3.0.2)
+    concurrent-ruby (1.3.5)
+    connection_pool (2.5.4)
     crack (1.0.0)
       bigdecimal
       rexml
@@ -173,11 +172,11 @@ GEM
     gserver (0.0.1)
     hashdiff (1.1.2)
     hashie (5.0.0)
-    httparty (0.24.2)
+    httparty (0.24.0)
       csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
-    i18n (1.14.8)
+    i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     interception (0.5)
     io-console (0.8.1)
@@ -186,10 +185,10 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     jmespath (1.6.2)
-    json (2.18.0)
-    json-schema (6.1.0)
+    json (2.15.1)
+    json-schema (6.0.0)
       addressable (~> 2.8)
-      bigdecimal (>= 3.1, < 5)
+      bigdecimal (~> 3.1)
     jwt (3.1.2)
       base64
     language_server-protocol (3.17.0.5)
@@ -214,10 +213,10 @@ GEM
     marcel (1.1.0)
     method_source (1.0.0)
     mini_mime (1.1.5)
-    minitest (5.27.0)
+    minitest (5.26.0)
     msgpack (1.8.0)
-    multi_xml (0.8.1)
-      bigdecimal (>= 3.1, < 5)
+    multi_xml (0.7.2)
+      bigdecimal (~> 3.1)
     net-http (0.6.0)
       uri
     net-imap (0.5.12)
@@ -277,7 +276,7 @@ GEM
     psych (5.2.6)
       date
       stringio
-    public_suffix (7.0.2)
+    public_suffix (6.0.2)
     puma (7.1.0)
       nio4r (~> 2.0)
     raabro (1.4.0)
@@ -448,7 +447,7 @@ GEM
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.1.0)
-    uri (1.1.1)
+    uri (1.0.4)
     useragent (0.16.11)
     uuid (2.3.9)
       macaddr (~> 1.0)
@@ -484,7 +483,7 @@ DEPENDENCIES
   govuk_notify_rails (~> 3.0.0)
   httparty (>= 0.24.0)
   jwt (~> 3.1.2)
-  laa_crime_forms_common (~> 0.12.7)!
+  laa_crime_forms_common (~> 0.12.5)!
   lograge
   logstash-event
   oauth2
