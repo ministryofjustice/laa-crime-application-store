@@ -25,7 +25,7 @@ RSpec.describe AssignedCounselClaim, type: :model do
     it "is invalid without counsel_office_code" do
       claim = build(:assigned_counsel_claim, nsm_claim: nsm_claim, counsel_office_code: nil)
       expect(claim).not_to be_valid
-      expect(claim.errors[:counsel_office_code]).to include("Must be an alphanumeric string starting with a number and ending in a letter")
+      expect(claim.errors[:counsel_office_code]).to include("can't be blank")
     end
 
     it "invalidates record when solicitor_office_code isnt alphanumeric starting with number and ending in letter" do

@@ -1,5 +1,7 @@
 class OfficeCodeValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
+    return if value.blank?
+
     expected_format = /\A\d[a-zA-Z0-9]*[a-zA-Z]\z/
 
     unless expected_format.match?(value)
