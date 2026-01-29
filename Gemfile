@@ -23,7 +23,7 @@ gem "aws-sdk-s3", "~> 1.208"
 gem "govuk_notify_rails", "~> 3.0.0"
 gem "httparty", ">= 0.24.0"
 gem "jwt", "~> 3.1.2"
-gem "laa_crime_forms_common", "~> 0.12.5", github: "ministryofjustice/laa-crime-forms-common"
+gem "laa_crime_forms_common", "~> 0.12.9", github: "ministryofjustice/laa-crime-forms-common"
 gem "lograge"
 gem "logstash-event"
 gem "oauth2"
@@ -35,6 +35,9 @@ gem "sentry-ruby"
 gem "sidekiq", "~> 8.0"
 gem "sidekiq_alive", "~> 2.4"
 gem "sidekiq-cron"
+# Pin connection_pool to avoid bumping connection pool inadvertently to 3~ since this will break with our version of rails/sidekiq
+# See: https://github.com/rails/rails/issues/56461
+gem "connection_pool", "~> 2.5"
 gem "with_advisory_lock"
 
 group :development, :test do
