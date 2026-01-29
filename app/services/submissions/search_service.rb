@@ -13,6 +13,8 @@ module Submissions
       last_state_change
     ].freeze
 
+    MAX_ACCOUNT_NUMBER_SLICE = 5
+
   private
 
     def search_query
@@ -22,7 +24,7 @@ module Submissions
       relation = relation.where(status_with_assignment:) if status_with_assignment
       relation = has_been_assigned_to(relation) if caseworker_id
       relation = relation.where(assigned_user_id:) if assigned_user_id
-      relation = relation.where(account_number:) if account_number
+      relation = account_number_filter(relation)
       relation = relation.where(high_value:) unless high_value.nil?
       relation = relation.where.not(id: id_to_exclude) if id_to_exclude
       relation = relation.order(sort_clause)
@@ -104,6 +106,22 @@ module Submissions
 
     def account_number
       search_params[:account_number]
+    end
+
+    def account_number_filter(relation)
+      return relation if account_number.blank?
+
+      numbers = Array(account_number)
+      # Keep each IN clause small so PostgreSQL can stick with index scans;
+      # larger lists are split into ORed slices to avoid falling back to
+      # bitmap scans / sequential scans.
+      return relation.where(account_number: numbers) if numbers.size <= MAX_ACCOUNT_NUMBER_SLICE
+
+      table = Search.arel_table
+      slices = numbers.each_slice(MAX_ACCOUNT_NUMBER_SLICE).map { |slice| table[:account_number].in(slice) }
+      combined_condition = slices.reduce { |acc, condition| acc.or(condition) }
+
+      relation.where(combined_condition)
     end
 
     def id_to_exclude
