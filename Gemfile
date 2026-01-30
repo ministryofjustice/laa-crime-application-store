@@ -32,12 +32,9 @@ gem "prometheus_exporter"
 gem "scenic"
 gem "sentry-rails", ">= 5.17.2"
 gem "sentry-ruby"
-gem "sidekiq", "~> 8.0"
-gem "sidekiq_alive", "~> 2.4"
+gem "sidekiq", "~> 8.1"
+gem "sidekiq_alive", "~> 2.5"
 gem "sidekiq-cron"
-# Pin connection_pool to avoid bumping connection pool inadvertently to 3~ since this will break with our version of rails/sidekiq
-# See: https://github.com/rails/rails/issues/56461
-gem "connection_pool", "~> 3.0"
 gem "with_advisory_lock"
 
 group :development, :test do
