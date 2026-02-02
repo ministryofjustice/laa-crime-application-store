@@ -7,6 +7,7 @@ RSpec.describe Nsm::SubmissionMailer, type: :mailer do
   let(:claim) { create(:submission, :with_nsm_version) }
 
   describe "#notify" do
+    before { travel_to Date.new(2024, 8, 1) }
     subject(:mail) { described_class.notify(claim) }
 
     it "is a govuk_notify delivery" do
@@ -33,7 +34,7 @@ RSpec.describe Nsm::SubmissionMailer, type: :mailer do
           main_defendant_name: "Joe Bloggs",
           defendant_reference: "MAAT ID number: 1234567",
           claim_total: "£4,268.75",
-          date: Time.zone.now.to_fs(:stamp),
+          date: "2024-08-01 00:00:00 UTC",
         )
       end
     end
@@ -50,7 +51,7 @@ RSpec.describe Nsm::SubmissionMailer, type: :mailer do
           main_defendant_name: "Joe Bloggs",
           defendant_reference: "Client's CNTP number: CNTP100",
           claim_total: "£4,268.75",
-          date: Time.zone.now.to_fs(:stamp),
+          date: "2024-08-01 00:00:00 UTC",
         )
       end
     end
