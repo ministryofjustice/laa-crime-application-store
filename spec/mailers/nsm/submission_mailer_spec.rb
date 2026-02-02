@@ -7,8 +7,9 @@ RSpec.describe Nsm::SubmissionMailer, type: :mailer do
   let(:claim) { create(:submission, :with_nsm_version) }
 
   describe "#notify" do
-    before { travel_to Date.new(2024, 8, 1) }
     subject(:mail) { described_class.notify(claim) }
+
+    before { travel_to Date.new(2024, 8, 1) }
 
     it "is a govuk_notify delivery" do
       expect(mail.delivery_method).to be_a(GovukNotifyRails::Delivery)
