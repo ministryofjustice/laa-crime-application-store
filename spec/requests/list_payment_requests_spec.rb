@@ -35,6 +35,7 @@ RSpec.describe "list payment request", type: :request do
         id
         laa_reference
         solicitor_firm_name
+        ufn
         client_last_name
         claim_type
         solicitor_office_code

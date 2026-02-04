@@ -20,10 +20,10 @@ RSpec.describe "show payment request claim", type: :request do
     it "returns expected keys" do
       keys = %w[
         assigned_counsel_claim
-        court
-        created_at
         defendant_first_name
         defendant_last_name
+        court
+        created_at
         hearing_outcome_code
         id
         laa_reference
@@ -78,23 +78,17 @@ RSpec.describe "show payment request claim", type: :request do
       keys = %w[
         counsel_firm_name
         counsel_office_code
-        court
         created_at
-        defendant_first_name
+        updated_at
         defendant_last_name
-        hearing_outcome_code
         id
         laa_reference
         nsm_claim
-        number_of_attendances
-        number_of_defendants
         payment_requests
         solicitor_firm_name
         solicitor_office_code
-        stage_reached
-        submission_id
         type
-        updated_at
+        ufn
       ]
 
       get "/v1/payment_request_claims/#{assigned_counsel_id}"
