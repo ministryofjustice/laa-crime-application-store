@@ -76,7 +76,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       let(:service) { described_class.new(params) }
 
       describe "when linked_laa_reference exists" do
-        let(:params) { super().except!(:laa_reference).merge({ linked_laa_reference: linked_laa_reference }) }
+        let(:params) { super().except(:laa_reference).merge({ linked_laa_reference: linked_laa_reference }) }
 
         it "links the submission ref to the payment" do
           expect(service.call[:claim][:laa_reference]).to eq(linked_laa_reference)
@@ -84,7 +84,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       end
 
       describe "when linked_laa_reference does not exist" do
-        let(:params) { super().except!(:laa_reference) }
+        let(:params) { super().except(:laa_reference) }
 
         it "creates a new laa_reference for the payment" do
           expect(service.call[:claim][:laa_reference]).not_to eq(linked_laa_reference)
