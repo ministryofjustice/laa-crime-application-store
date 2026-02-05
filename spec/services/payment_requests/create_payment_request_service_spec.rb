@@ -71,7 +71,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       end
     end
 
-    context "when infering linking an exisiting submission claim from linked_laa_reference param" do
+    context "when inferring linking an existing submission claim from linked_laa_reference param" do
       let(:linked_laa_reference) { "LAA-EXISTING" }
       let(:service) { described_class.new(params) }
 
