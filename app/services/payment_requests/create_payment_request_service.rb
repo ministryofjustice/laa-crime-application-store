@@ -78,7 +78,7 @@ module PaymentRequests
         nsm_claim_id: params[:nsm_claim_id],
         ufn: params[:ufn],
         laa_reference: generate_laa_reference,
-        idempotency_token: params[:idempotency_token]
+        idempotency_token: params[:idempotency_token],
       }
     end
 
