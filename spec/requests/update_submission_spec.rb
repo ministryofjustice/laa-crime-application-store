@@ -185,5 +185,40 @@ RSpec.describe "Update submission" do
       expect(response).to have_http_status(:created)
       expect(submission.reload.events.count).to eq 0
     end
+
+    it "clears unassigned_user_ids when state changes to provider_updated" do
+      caseworker_id = SecureRandom.uuid
+      submission = create(:submission, application_type: "crm7", state: :sent_back, unassigned_user_ids: [caseworker_id])
+      patch "/v1/submissions/#{submission.id}", params: { application_state: "provider_updated", application: { new: :data }, json_schema_version: 1 }
+      expect(response).to have_http_status(:created)
+      expect(submission.reload.unassigned_user_ids).to eq []
+    end
+  end
+
+  context "when caseworker sends submission back" do
+    it "clears assigned_user_id when state changes to sent_back" do
+      caseworker_id = SecureRandom.uuid
+      submission = create(:submission, state: :submitted, assigned_user_id: caseworker_id)
+      patch "/v1/submissions/#{submission.id}", params: { application_state: "sent_back", application: { new: :data }, json_schema_version: 1 }
+      expect(response).to have_http_status(:created)
+      expect(submission.reload.assigned_user_id).to be_nil
+    end
+
+    it "does not add caseworker to unassigned_user_ids when state changes to sent_back" do
+      caseworker_id = SecureRandom.uuid
+      submission = create(:submission, state: :submitted, assigned_user_id: caseworker_id, unassigned_user_ids: [])
+      patch "/v1/submissions/#{submission.id}", params: { application_state: "sent_back", application: { new: :data }, json_schema_version: 1 }
+      expect(response).to have_http_status(:created)
+      expect(submission.reload.unassigned_user_ids).to eq []
+    end
+
+    it "preserves existing unassigned_user_ids when state changes to sent_back" do
+      caseworker_id = SecureRandom.uuid
+      previous_caseworker_id = SecureRandom.uuid
+      submission = create(:submission, state: :submitted, assigned_user_id: caseworker_id, unassigned_user_ids: [previous_caseworker_id])
+      patch "/v1/submissions/#{submission.id}", params: { application_state: "sent_back", application: { new: :data }, json_schema_version: 1 }
+      expect(response).to have_http_status(:created)
+      expect(submission.reload.unassigned_user_ids).to eq [previous_caseworker_id]
+    end
   end
 end
