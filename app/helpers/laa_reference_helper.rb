@@ -1,8 +1,7 @@
 module LaaReferenceHelper
-  CLAIM_CLASSES = [NsmClaim, AssignedCounselClaim].freeze
   def generate_laa_reference
     ActiveRecord::Base.transaction do
-      CLAIM_CLASSES.each(&:lock)
+      PaymentRequestClaim.lock
       loop do
         random_reference = "LAA-#{SecureRandom.alphanumeric(6)}"
         break random_reference unless reference_already_exists?(random_reference)
@@ -11,14 +10,13 @@ module LaaReferenceHelper
   end
 
   def reference_already_exists?(laa_reference)
-    return true if CLAIM_CLASSES.any? { _1.exists?(laa_reference: laa_reference) } || find_referred_submission(laa_reference)
+    return true if find_referred_claim(laa_reference).present? || find_referred_submission(laa_reference)
 
     false
   end
 
   def find_referred_claim(laa_reference)
-    CLAIM_CLASSES.map { _1.find_by(laa_reference:) }
-      .find(&:present?)
+    PaymentRequestClaim.find_by(laa_reference:)
   end
 
   def find_referred_submission(laa_reference)
