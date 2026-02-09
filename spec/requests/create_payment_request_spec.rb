@@ -7,11 +7,13 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
   let(:submitter_id) { SecureRandom.uuid }
   let(:request_type) { "non_standard_magistrate" }
   let(:laa_reference) { nil }
+  let(:idempotency_token) { SecureRandom.uuid }
   let(:params) do
     {
       submitter_id:,
       request_type:,
       laa_reference:,
+      idempotency_token:,
       date_received: "2025-01-01",
       solicitor_office_code: "3B123A",
       solicitor_firm_name: "The Firm",
@@ -111,6 +113,17 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
         expect(response).to have_http_status(:unprocessable_content)
       end
     end
+
+    context "when idempotency_token is same as last request return unprocessable" do
+      before do
+        create(:nsm_claim, idempotency_token:)
+      end
+
+      it "returns 422 and does not create a new claim" do
+        expect { make_request }.not_to change(NsmClaim, :count)
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
   end
 
   describe "when creating an assigned counsel claim" do
@@ -119,6 +132,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
       {
         submitter_id:,
         request_type:,
+        idempotency_token: SecureRandom.uuid,
         nsm_claim_id: create(:nsm_claim).id,
         laa_reference:,
         counsel_office_code: "2C123B",
