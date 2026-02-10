@@ -13,6 +13,14 @@ permissions:
   contents: read
 
 jobs:
+  configure-dashboards:
+    name: Apply dashboard config
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply config
+        run: |
+          kubectl apply -f ./helm_deploy/dashboards/
+
   build:
     name: Build and push Docker image to ECR
     runs-on: ubuntu-latest
