@@ -364,3 +364,11 @@ jobs:
           echo "### 🚀 Feature branch deployed!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**URL:** https://${RELEASE_HOST}" >> $GITHUB_STEP_SUMMARY
+
+  configure-dashboards:
+    name: Apply dashboard config
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply config
+        run: |
+          kubectl apply -f ./helm_deploy/dashboards/
