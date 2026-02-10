@@ -369,6 +369,8 @@ jobs:
     name: Apply dashboard config
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
       - name: Apply config
         run: |
           kubectl apply -f helm_deploy/dashboards/
