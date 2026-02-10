@@ -371,4 +371,4 @@ jobs:
     steps:
       - name: Apply config
         run: |
-          kubectl apply -f ../../helm_deploy/dashboards/
+          kubectl apply -f helm_deploy/dashboards/
