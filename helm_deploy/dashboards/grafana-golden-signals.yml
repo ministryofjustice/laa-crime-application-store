@@ -1050,7 +1050,7 @@ data:
                 "uid": "P896B4444D3F0DAB8"
               },
               "dimensions": {
-                "DBInstanceIdentifier": "cloud-platform-2adb0f1b1829ab4b"
+                "DBInstanceIdentifier": "$RDS_instance"
               },
               "expression": "",
               "id": "",
@@ -1075,7 +1075,7 @@ data:
                 "uid": "P896B4444D3F0DAB8"
               },
               "dimensions": {
-                "DBInstanceIdentifier": "cloud-platform-2adb0f1b1829ab4b"
+                "DBInstanceIdentifier": "$RDS_instance"
               },
               "expression": "",
               "hide": false,
@@ -1096,7 +1096,7 @@ data:
               "statistic": "Maximum"
             }
           ],
-          "title": "ReadIOPS/WriteIOPS/BurstBalance (Production)",
+          "title": "ReadIOPS/WriteIOPS -  ${RDS_instance}",
           "type": "timeseries"
         },
         {
@@ -1969,8 +1969,8 @@ data:
           },
           {
             "current": {
-              "text": "laa-submit-crime-forms-prod",
-              "value": "laa-submit-crime-forms-prod"
+              "text": "laa-crime-application-store-production",
+              "value": "laa-crime-application-store-production"
             },
             "datasource": {
               "type": "prometheus",
@@ -1988,11 +1988,53 @@ data:
             "regex": "/^laa-submit-crime-forms|^laa-assess-crime-forms|^laa-crime-application-store/",
             "sort": 1,
             "type": "query"
+          },
+          {
+            "allowCustomValue": false,
+            "current": {
+              "text": "cloud-platform-2adb0f1b1829ab4b",
+              "value": "cloud-platform-2adb0f1b1829ab4b"
+            },
+            "name": "RDS_instance",
+            "options": [
+              {
+                "selected": false,
+                "text": "App Store (uat)",
+                "value": "cloud-platform-e4d3b45415dc7309"
+              },
+              {
+                "selected": true,
+                "text": "App Store (prod)",
+                "value": "cloud-platform-2adb0f1b1829ab4b"
+              },
+              {
+                "selected": false,
+                "text": "Assess (uat)",
+                "value": "cloud-platform-d4cacc92d6a3d9c3"
+              },
+              {
+                "selected": false,
+                "text": "Assess (prod)",
+                "value": "cloud-platform-1954903b1807b297"
+              },
+              {
+                "selected": false,
+                "text": "Submit (uat)",
+                "value": "cloud-platform-1e4a2dd07dcef107"
+              },
+              {
+                "selected": false,
+                "text": "Submit (prod)",
+                "value": "cloud-platform-26f9df9f55ab0226"
+              }
+            ],
+            "query": "App Store (uat) : cloud-platform-e4d3b45415dc7309,App Store (prod) : cloud-platform-2adb0f1b1829ab4b,Assess (uat) : cloud-platform-d4cacc92d6a3d9c3,Assess (prod) : cloud-platform-1954903b1807b297,Submit (uat) : cloud-platform-1e4a2dd07dcef107, Submit (prod) : cloud-platform-26f9df9f55ab0226",
+            "type": "custom"
           }
         ]
       },
       "time": {
-        "from": "now-7d",
+        "from": "now-24h",
         "to": "now"
       },
       "timepicker": {
@@ -2008,6 +2050,6 @@ data:
       "timezone": "browser",
       "title": "LAA non-standard crime claims / Golden signals",
       "uid": "laa-crime-store-grafana-golden",
-      "version": 1,
+      "version": 2,
       "weekStart": "monday"
     }
