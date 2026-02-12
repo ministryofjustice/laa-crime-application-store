@@ -7,6 +7,7 @@ FactoryBot.define do
     ufn { "120423/001" }
     client_last_name { "Smith" }
     idempotency_token { SecureRandom.uuid }
+    submission_id { nil }
 
     factory :nsm_claim, class: "NsmClaim" do
       stage_code { "PROM" }
