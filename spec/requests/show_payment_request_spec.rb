@@ -32,6 +32,7 @@ RSpec.describe "show payment request", type: :request do
         claimed_disbursement_cost
         payment_request_claim
         claimed_profit_cost
+        submission_id
         request_type
         submitted_at
         submitter_id
@@ -98,6 +99,7 @@ RSpec.describe "show payment request", type: :request do
         created_at
         date_received
         payment_request_claim
+        submission_id
         request_type
         submitted_at
         submitter_id

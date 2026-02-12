@@ -52,7 +52,7 @@ class PaymentRequestClaimResource
   end
 
   def submission_id(payment_request_claim)
-    payment_request_claim.submission&.id
+    payment_request_claim.submission_id || payment_request_claim.submission&.id
   end
 
   def defendant_first_name(payment_request_claim)
