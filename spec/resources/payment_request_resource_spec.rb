@@ -5,7 +5,7 @@ RSpec.describe PaymentRequestResource do
     JSON.parse(
       described_class
         .new(payment_request, params: { include_claim: include_claim })
-        .serialize
+        .serialize,
     )
   end
 
@@ -50,7 +50,7 @@ RSpec.describe PaymentRequestResource do
         serialized = serialize_payment_request(payment_request, include_claim: true)
 
         expect(serialized.fetch("payment_request_claim")).to include(
-          "claim_type" => "NsmClaim"
+          "claim_type" => "NsmClaim",
         )
       end
     end
@@ -90,7 +90,7 @@ RSpec.describe PaymentRequestResource do
 
         expect(serialized["submission_id"]).to eq(submission_id)
         expect(serialized.fetch("payment_request_claim")).to include(
-          "claim_type" => "AssignedCounselClaim"
+          "claim_type" => "AssignedCounselClaim",
         )
       end
     end
@@ -111,7 +111,7 @@ RSpec.describe PaymentRequestResource do
           :payment_request,
           payment_request_claim: nil,
           claimed_total: 250,
-          allowed_total: 200
+          allowed_total: 200,
         )
       end
 

@@ -85,13 +85,12 @@ module PaymentRequests
     end
 
     def build_payment_request(claim)
-      payment_request = claim.payment_requests.build(
+      claim.payment_requests.build(
         submitter_id: params[:submitter_id],
         request_type: params[:request_type],
         submitted_at: Time.current,
         date_received: params[:date_received],
       )
-      payment_request
     end
 
     def assign_costs(payment_request)

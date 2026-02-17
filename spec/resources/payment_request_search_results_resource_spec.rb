@@ -19,7 +19,7 @@ RSpec.describe PaymentRequestSearchResultsResource do
 
         expect(entry.fetch("payment_request_claim")).to include(
           "claim_type" => "NsmClaim",
-          "laa_reference" => claim.laa_reference
+          "laa_reference" => claim.laa_reference,
         )
       end
 
