@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_16_125534) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_12_110100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -73,6 +73,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_16_125534) do
     t.string "solicitor_firm_name"
     t.string "solicitor_office_code"
     t.string "stage_code"
+    t.uuid "submission_id"
     t.string "type"
     t.string "ufn"
     t.datetime "updated_at", null: false
@@ -105,7 +106,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_16_125534) do
     t.datetime "date_received"
     t.uuid "payment_request_claim_id"
     t.string "request_type"
-    t.uuid "submission_id"
     t.datetime "submitted_at"
     t.uuid "submitter_id"
     t.datetime "updated_at", null: false

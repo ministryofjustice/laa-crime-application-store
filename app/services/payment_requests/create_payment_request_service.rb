@@ -15,6 +15,8 @@ module PaymentRequests
         claim = find_or_create_claim!
         raise UnprocessableEntityError, "Unable to determine claim type" unless claim
 
+        persist_linked_submission!(claim)
+
         payment_request = build_payment_request(claim)
         assign_costs(payment_request)
         unless payment_request.save
@@ -83,14 +85,12 @@ module PaymentRequests
     end
 
     def build_payment_request(claim)
-      payment_request = claim.payment_requests.build(
+      claim.payment_requests.build(
         submitter_id: params[:submitter_id],
         request_type: params[:request_type],
         submitted_at: Time.current,
         date_received: params[:date_received],
       )
-      payment_request.submission_id = params[:id] if params[:linked_laa_reference]
-      payment_request
     end
 
     def assign_costs(payment_request)
@@ -134,6 +134,17 @@ module PaymentRequests
 
     def claim_type
       @claim_type ||= find_claim_type_group(params[:request_type])
+    end
+
+    def persist_linked_submission!(claim)
+      linked_laa_reference = params[:linked_laa_reference]
+      submission_id = params[:id]
+      return unless linked_laa_reference.present? && submission_id.present?
+
+      linked_submission = find_referred_submission(linked_laa_reference)
+      return unless linked_submission&.id == submission_id
+
+      claim.update!(submission_id: linked_submission.id)
     end
   end
 end
