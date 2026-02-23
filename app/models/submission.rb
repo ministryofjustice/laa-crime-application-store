@@ -13,7 +13,14 @@ class Submission < ApplicationRecord
   validates :application_type, presence: true
 
   def latest_version(include_pending: true)
-    ordered_submission_versions.then { include_pending ? _1 : _1.where(pending: false) }.first
+    versions = ordered_submission_versions
+
+    if versions.loaded?
+      include_pending ? versions.first : versions.find { !_1.pending? }
+    else
+      versions = versions.where(pending: false) unless include_pending
+      versions.first
+    end
   end
 
   def as_json(args = {})
