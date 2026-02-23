@@ -12,11 +12,11 @@ class PaymentRequestClaimResource
   attributes :work_completed_date,
              :matter_type,
              :youth_court,
+             :court,
              :stage_reached,
              :hearing_outcome_code,
              :number_of_attendances,
              :number_of_defendants,
-             :court,
              :submission_id,
              :defendant_first_name,
              if: proc { |payment_request_claim| payment_request_claim.is_a? NsmClaim }
@@ -48,7 +48,7 @@ class PaymentRequestClaimResource
   end
 
   def court(payment_request_claim)
-    payment_request_claim.court_name
+    "#{payment_request_claim.court_name} - #{payment_request_claim.court_id}"
   end
 
   def submission_id(payment_request_claim)

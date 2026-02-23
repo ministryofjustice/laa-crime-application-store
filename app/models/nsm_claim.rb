@@ -16,6 +16,7 @@ class NsmClaim < PaymentRequestClaim
   validates :outcome_code, presence: true
   validates :matter_type, presence: true
   validates :court_name, presence: true
+  validates :court_id, presence: true
   validates :youth_court, inclusion: { in: [true, false] }
   validates :ufn, presence: true, ufn: true
   validates :work_completed_date, presence: true
