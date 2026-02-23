@@ -82,8 +82,8 @@ RSpec.describe "PaymentRequest search" do
       let(:another_submission_id) { SecureRandom.uuid }
 
       before do
-        create(:payment_request, submission_id: submission_id, payment_request_claim: build(:nsm_claim))
-        create(:payment_request, submission_id: another_submission_id, payment_request_claim: build(:nsm_claim))
+        create(:payment_request, payment_request_claim: build(:nsm_claim, submission_id: submission_id))
+        create(:payment_request, payment_request_claim: build(:nsm_claim, submission_id: another_submission_id))
       end
 
       it "brings back only matching submission_id" do

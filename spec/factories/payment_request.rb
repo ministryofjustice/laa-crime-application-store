@@ -12,7 +12,6 @@ FactoryBot.define do
     request_type { "non_standard_magistrate" }
     submitter_id { SecureRandom.uuid }
     submitted_at { Time.zone.now }
-    submission_id { nil }
 
     trait :non_standard_magistrate do
       association :payment_request_claim, factory: :nsm_claim
