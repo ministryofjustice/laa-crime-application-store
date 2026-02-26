@@ -12,18 +12,8 @@ module PaymentRequests
 
     SUBMISSION_SEARCH_KEYS = %i[
       query
-      submitted_from
-      submitted_to
-      updated_from
-      updated_to
       sort_by
       sort_direction
-      caseworker_id
-      current_caseworker_id
-      status_with_assignment
-      account_number
-      high_value
-      id_to_exclude
       page
       per_page
       application_type
@@ -32,7 +22,7 @@ module PaymentRequests
     def call
       @data = search_query
 
-      return search_results if payment_request_results?
+      return search_results if @data.exists?
 
       crm7_search_results || search_results
     end
@@ -100,10 +90,6 @@ module PaymentRequests
                             .downcase
                             .gsub("ascending", "asc")
                             .gsub("descending", "desc")
-    end
-
-    def payment_request_results?
-      @payment_request_results ||= @data.exists?
     end
 
     def crm7_search_results
