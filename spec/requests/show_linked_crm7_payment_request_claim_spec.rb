@@ -1,7 +1,7 @@
 require "rails_helper"
 
-RSpec.describe "show payment request claim", type: :request do
-  let(:nsm_id) { SecureRandom.uuid }
+RSpec.describe "linked CRM7 payment request search", type: :request do
+  let(:search_endpoint) { "/v1/linked_claim/searches" }
 
   before do
     allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker)
@@ -9,58 +9,45 @@ RSpec.describe "show payment request claim", type: :request do
 
   context "with a CRM7 submission claim" do
     let(:submission) { create(:submission, :with_nsm_version) }
-    let(:crm7_params) { { claim_type: "Crm7SubmissionClaim" } }
+    let(:search_reference) { submission.ordered_submission_versions.first.application["laa_reference"] }
+    let(:crm7_params) { { query: search_reference } }
 
     it "successfully makes the request" do
-      get "/v1/linked_claim/#{submission.id}", params: crm7_params
-      expect(response).to have_http_status(:success)
+      post search_endpoint, params: crm7_params
+      expect(response).to have_http_status(:created)
     end
 
-    it "returns similar keys to the payment request claim resource" do
-      keys = %w[
-        assigned_counsel_claim
-        defendant_first_name
-        defendant_last_name
-        court
-        created_at
-        hearing_outcome_code
-        id
-        laa_reference
-        matter_type
-        number_of_attendances
-        number_of_defendants
-        payment_requests
-        solicitor_firm_name
-        solicitor_office_code
-        stage_reached
-        submission_id
-        type
-        ufn
-        updated_at
-        work_completed_date
-        youth_court
-      ]
+    it "returns CRM7 search results with claim data" do
+      post search_endpoint, params: crm7_params
 
-      get "/v1/payment_request_claims/#{submission.id}", params: crm7_params
-      expect(response.parsed_body.keys.sort).to eq(keys.sort)
-    end
-
-    it "returns CRM7 specific values" do
-      get "/v1/payment_request_claims/#{submission.id}", params: crm7_params
-
-      expect(response.parsed_body).to include(
-        "id" => submission.id,
+      result = response.parsed_body.fetch("data").first
+      expect(result).to include(
         "submission_id" => submission.id,
-        "type" => "Crm7SubmissionClaim",
-        "laa_reference" => submission.ordered_submission_versions.first.application["laa_reference"],
+        "request_type" => "crm7",
+      )
+      expect(result.fetch("payment_request_claim")).to include(
+        "claim_type" => "Crm7SubmissionClaim",
+        "laa_reference" => search_reference,
+        "id" => submission.id,
+      )
+    end
+
+    it "returns metadata about the CRM7 result" do
+      post search_endpoint, params: crm7_params
+
+      expect(response.parsed_body.fetch("metadata")).to include(
+        "total_results" => 1,
+        "page" => 1,
       )
     end
   end
 
 
-  it "returns not found when not found" do
-    get "/v1/linked_claim/#{SecureRandom.uuid}"
+  it "returns an empty result set when not found" do
+    post search_endpoint, params: { query: "LAA-NOTFOUND" }
 
-    expect(response).to have_http_status(:not_found)
+    expect(response).to have_http_status(:created)
+    expect(response.parsed_body.dig("metadata", "total_results")).to eq(0)
+    expect(response.parsed_body["data"]).to eq([])
   end
 end
