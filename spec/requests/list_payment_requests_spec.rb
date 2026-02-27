@@ -20,6 +20,7 @@ RSpec.describe "list payment request", type: :request do
       payment_request_keys = %w[
         id
         payment_request_claim
+        submission_id
         request_type
         submitted_at
         created_at

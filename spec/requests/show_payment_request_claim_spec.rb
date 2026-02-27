@@ -51,8 +51,7 @@ RSpec.describe "show payment request claim", type: :request do
     let(:submission_id) { SecureRandom.uuid }
 
     before do
-      submission = create(:submission, :with_nsm_version, id: submission_id)
-      create(:nsm_claim, id: nsm_id, submission: submission)
+      @nsm_claim = create(:nsm_claim, id: nsm_id, submission_id: submission_id)
     end
 
     it "returns payload with linked submission id" do
