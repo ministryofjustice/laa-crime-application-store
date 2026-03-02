@@ -31,8 +31,8 @@ module PaymentRequests
         solicitor_office_code
         client_last_name
         request_type
-        submitted_at
         solicitor_firm_name
+        created_at
       ].freeze
 
       def call
@@ -48,11 +48,9 @@ module PaymentRequests
     private
 
       def search_query
-        claims = PaymentRequest
-                 .left_outer_joins(:payment_request_claim)
-                 .includes(:payment_request_claim)
+        claims = PaymentRequestClaim.all
         claims = claims.where("LOWER(payment_request_claims.laa_reference) = ?", query_params[:laa_reference].downcase) if query_params[:laa_reference].present?
-        claims = claims.where(payment_request_claims: { ufn: query_params[:ufn] }) if query_params[:ufn].present?
+        claims = claims.where(ufn: query_params[:ufn]) if query_params[:ufn].present?
         claims = claims.where("LOWER(payment_request_claims.solicitor_office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
         claims = claims.where("LOWER(payment_request_claims.client_last_name) % ?::text", "%#{query_params[:client_last_name].downcase}%") if query_params[:client_last_name].present?
         claims.order(sort_clause)
@@ -88,10 +86,10 @@ module PaymentRequests
       end
 
       def sort_clause
-        return "submitted_at desc" unless search_params[:sort_by]
+        return "created_at desc" unless search_params[:sort_by]
         raise "Unsortable column \"#{sort_by}\" supplied as sort_by argument" unless SORTABLE_COLUMNS.include?(sort_by.downcase)
 
-        if sort_by.in?(%w[submitted_at request_type])
+        if sort_by.in?(%w[created_at request_type])
           "#{sort_by} #{sort_direction}"
         else
           "LOWER(payment_request_claims.#{sort_by}) #{sort_direction}"
@@ -99,7 +97,7 @@ module PaymentRequests
       end
 
       def sort_by
-        search_params.fetch(:sort_by, "submitted_at")
+        search_params.fetch(:sort_by, "created_at")
       end
 
       def sort_direction
@@ -111,7 +109,7 @@ module PaymentRequests
       end
 
       def serialialized_data
-        PaymentRequestSearchResultsResource.new(@data.limit(limit).offset(offset))
+        PaymentRequestClaimSearchResultResource.new(@data.limit(limit).offset(offset))
       end
 
       def query

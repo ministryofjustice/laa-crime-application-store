@@ -14,23 +14,34 @@ class Crm7SearchResult
     raw[:application_type]
   end
 
-  def submitted_at
-    application[:submitted_at] || application[:created_at] || raw[:created_at]
+  def ufn
+    payment_request_claim.ufn
   end
 
-  def created_at
-    raw[:created_at]
+  def type
+    payment_request_claim.type
   end
 
-  def updated_at
-    raw[:last_updated_at] || application[:updated_at] || raw[:updated_at]
+  def defendant_last_name
+    payment_request_claim.client_last_name
   end
+
+  def laa_reference
+    payment_request_claim.laa_reference
+  end
+
+  def solicitor_office_code
+    payment_request_claim.solicitor_office_code
+  end
+
+  def solicitor_firm_name
+    payment_request_claim.solicitor_firm_name
+  end
+private
 
   def payment_request_claim
     @payment_request_claim ||= Crm7SubmissionClaim.new(raw)
   end
-
-private
 
   def application
     @application ||= raw[:application] || {}
