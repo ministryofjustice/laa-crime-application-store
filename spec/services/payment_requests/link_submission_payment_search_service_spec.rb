@@ -12,7 +12,8 @@ RSpec.describe PaymentRequests::LinkSubmissionPaymentsSearchService do
         parsed = JSON.parse(call_service)
 
         expect(parsed.dig("metadata", "total_results")).to eq(1)
-        expect(parsed.dig("data", 0, "request_type")).to eq(payment_request.request_type)
+        expect(parsed.dig("data", 0, "laa_reference")).to eq(payment_request.payment_request_claim.laa_reference)
+        expect(parsed.dig("data", 0, "type")).to eq("NsmClaim")
       end
     end
 
@@ -28,8 +29,8 @@ RSpec.describe PaymentRequests::LinkSubmissionPaymentsSearchService do
         parsed = JSON.parse(call_service)
 
         expect(parsed.dig("metadata", "total_results")).to eq(1)
-        expect(parsed.dig("data", 0, "request_type")).to eq("crm7")
-        expect(parsed.dig("data", 0, "payment_request_claim", "laa_reference")).to eq(search_reference)
+        expect(parsed.dig("data", 0, "type")).to eq("Crm7SubmissionClaim")
+        expect(parsed.dig("data", 0, "laa_reference")).to eq(search_reference)
       end
     end
 

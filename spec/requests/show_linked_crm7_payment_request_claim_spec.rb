@@ -23,12 +23,8 @@ RSpec.describe "linked CRM7 payment request search", type: :request do
       result = response.parsed_body.fetch("data").first
       expect(result).to include(
         "submission_id" => submission.id,
-        "request_type" => "crm7",
-      )
-      expect(result.fetch("payment_request_claim")).to include(
-        "claim_type" => "Crm7SubmissionClaim",
+        "type" => "Crm7SubmissionClaim",
         "laa_reference" => search_reference,
-        "id" => submission.id,
       )
     end
 
