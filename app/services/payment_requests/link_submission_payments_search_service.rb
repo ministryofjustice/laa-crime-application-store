@@ -132,10 +132,16 @@ module Submissions
       ].freeze
 
       def call
+        return if claim_type_excluded
+
         crm7_search_results
       end
 
     private
+
+      def claim_type_excluded
+        ['assigned_counsel_appeal', 'assigned_counsel_amendment'].include?(search_params[:claim_type])
+      end
 
       def crm7_search_results
         response = submissions_search_response
