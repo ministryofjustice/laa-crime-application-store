@@ -20,9 +20,29 @@ RSpec.describe PaymentRequests::LinkSubmissionPaymentsSearchService do
     context "when no payment requests match but CRM7 submissions exist" do
       let(:search_reference) { "LAA-CRM7001" }
       let(:params) { { query: search_reference, per_page: 5 } }
+      let(:crm7_raw_record) do
+        {
+          application_id: SecureRandom.uuid,
+          application: {
+            laa_reference: search_reference,
+            firm_office: { account_number: "1A123B", name: "Firm" },
+            defendants: [{ first_name: "Jane", last_name: "Doe", main: true }],
+            ufn: "120223/001",
+          },
+        }
+      end
+      let(:submissions_service) do
+        instance_double(
+          Submissions::SearchService,
+          call: {
+            metadata: { total_results: 1, page: 1, per_page: 5 },
+            raw_data: [crm7_raw_record],
+          }.to_json,
+        )
+      end
 
       before do
-        create(:submission, :with_nsm_version, laa_reference: search_reference)
+        allow(Submissions::SearchService).to receive(:new).and_return(submissions_service)
       end
 
       it "falls back to the CRM7 submission search" do
@@ -42,6 +62,36 @@ RSpec.describe PaymentRequests::LinkSubmissionPaymentsSearchService do
 
         expect(parsed.dig("metadata", "total_results")).to eq(0)
         expect(parsed["data"]).to eq([])
+      end
+    end
+
+    context "when CRM7 submissions have mixed statuses" do
+      let!(:granted_submission) do
+        create(:submission, :with_nsm_version,
+               state: "granted",
+               status: "granted",
+               laa_reference: "LAA-GRANTED")
+      end
+      let!(:part_grant_submission) do
+        create(:submission, :with_nsm_version,
+               state: "part_grant",
+               status: "part_grant",
+               laa_reference: "LAA-PART")
+      end
+      let!(:rejected_submission) do
+        create(:submission, :with_nsm_version,
+               state: "rejected",
+               status: "rejected",
+               laa_reference: "LAA-REJECTED")
+      end
+      let(:params) { { query: nil } }
+
+      it "only returns granted and part-grant CRM7 submissions" do
+        parsed = JSON.parse(call_service)
+
+        expect(parsed.dig("metadata", "total_results")).to eq(2)
+        expect(parsed.fetch("data").map { _1["laa_reference"] })
+          .to match_array(%w[LAA-GRANTED LAA-PART])
       end
     end
   end
@@ -233,6 +283,14 @@ RSpec.describe Submissions::LinkSubmissionPayments::Crm7Search do
         expect(parsed["metadata"]).to include("total_results" => 1, "page" => 2, "per_page" => 3)
         expect(parsed["data"]).to eq(["LAA-CRM7001"])
       end
+
+      it "limits the submissions search to granted statuses" do
+        expect(Submissions::SearchService).to receive(:new)
+          .with(hash_including(status_with_assignment: %w[part_grant granted]), :caseworker)
+          .and_return(search_service)
+
+        service.call
+      end
     end
 
     context "when CRM7 raw data is empty" do
@@ -261,6 +319,14 @@ RSpec.describe Submissions::LinkSubmissionPayments::Crm7Search do
       expect(params[:sort_by]).to be_nil
       expect(params[:page]).to eq(1)
       expect(params[:per_page]).to eq(10)
+      expect(params[:status_with_assignment]).to eq(%w[part_grant granted])
+    end
+
+    it "always restricts statuses to grants even when callers pass other statuses" do
+      service_with_status = described_class.new({ status_with_assignment: %w[rejected granted] }, :caseworker)
+      params = service_with_status.send(:crm7_search_params)
+
+      expect(params[:status_with_assignment]).to eq(%w[part_grant granted])
     end
   end
 end

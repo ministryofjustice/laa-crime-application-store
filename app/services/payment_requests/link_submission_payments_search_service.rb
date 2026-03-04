@@ -178,6 +178,8 @@ module Submissions
         params = search_params.to_h.deep_symbolize_keys
         filtered_params = params.slice(*SUBMISSION_SEARCH_KEYS)
         filtered_params.delete(:sort_by)
+
+        filtered_params[:status_with_assignment] = %w[part_grant granted]
         filtered_params[:application_type] = "crm7"
         filtered_params[:query] ||= query
         filtered_params[:page] ||= page
