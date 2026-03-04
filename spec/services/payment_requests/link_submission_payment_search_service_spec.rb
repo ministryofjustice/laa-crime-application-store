@@ -432,41 +432,17 @@ RSpec.describe Crm7SubmissionClaim do
 
   it "derives identifiers and solicitor details" do
     expect(claim.id).to eq("sub-123")
-    expect(claim.submission_id).to eq("sub-123")
     expect(claim.laa_reference).to eq("LAA-CRM7001")
     expect(claim.solicitor_office_code).to eq("1A123B")
     expect(claim.solicitor_firm_name).to eq("Firm & Sons")
   end
 
   it "selects the main defendant" do
-    expect(claim.client_first_name).to eq("John")
     expect(claim.client_last_name).to eq("Doe")
   end
 
   it "counts defendants and exposes application metrics" do
-    expect(claim.no_of_defendants).to eq(2)
-    expect(claim.court_attendances).to eq(2)
     expect(claim.ufn).to eq("120223/001")
-  end
-
-  it "derives stage and outcome codes with fallbacks" do
-    expect(claim.stage_code).to eq("PROG")
-    expect(claim.outcome_code).to eq("CP17")
-  end
-
-  it "exposes timestamps and defaults" do
-    expect(claim.created_at).to eq(Time.zone.parse("2024-01-01"))
-    expect(claim.updated_at).to eq(Time.zone.parse("2024-01-02"))
-    expect(claim.payment_requests).to eq([])
-    expect(claim.nsm_claim).to be_nil
-  end
-
-  it "exposes additional application attributes" do
-    expect(claim.work_completed_date).to eq(Date.new(2024, 1, 1))
-    expect(claim.matter_type).to eq("13")
-    expect(claim.youth_court).to be(true)
-    expect(claim.court_name).to eq("Ely")
-    expect(claim.assigned_counsel_claim).to be_nil
   end
 
   context "when defendants array is empty" do
@@ -480,7 +456,6 @@ RSpec.describe Crm7SubmissionClaim do
     end
 
     it "falls back to the single defendant" do
-      expect(claim.client_first_name).to eq("Solo")
       expect(claim.client_last_name).to eq("Person")
     end
   end
@@ -489,7 +464,6 @@ RSpec.describe Crm7SubmissionClaim do
     let(:application_data) { {} }
 
     it "returns nil names" do
-      expect(claim.client_first_name).to be_nil
       expect(claim.client_last_name).to be_nil
     end
   end
@@ -515,22 +489,6 @@ RSpec.describe Crm7SubmissionClaim do
 
     it "symbolizes the payload" do
       expect(described_class.new(submission).laa_reference).to eq(submission.latest_version.application["laa_reference"])
-    end
-  end
-
-  context "when stage data is missing" do
-    let(:application_data) { super().merge(stage_reached: nil, stage_code: nil, claim_type: "nsm") }
-
-    it "falls back to the claim_type" do
-      expect(claim.stage_code).to eq("nsm")
-    end
-  end
-
-  context "when updated_at is missing" do
-    let(:raw_payload) { super().merge(last_updated_at: nil, updated_at: Time.zone.parse("2024-03-03")) }
-
-    it "uses the provided updated_at" do
-      expect(claim.updated_at).to eq(Time.zone.parse("2024-03-03"))
     end
   end
 end

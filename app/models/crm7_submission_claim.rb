@@ -25,72 +25,12 @@ class Crm7SubmissionClaim
     firm_office[:name]
   end
 
-  def client_first_name
-    main_defendant&.fetch(:first_name, nil)
-  end
-
   def client_last_name
     main_defendant&.fetch(:last_name, nil)
   end
 
   def ufn
     application[:ufn]
-  end
-
-  def work_completed_date
-    application[:work_completed_date]
-  end
-
-  def matter_type
-    application[:matter_type]
-  end
-
-  def youth_court
-    application[:youth_court]
-  end
-
-  def stage_code
-    application[:stage_code] || application[:stage_reached] || application[:claim_type]
-  end
-
-  def outcome_code
-    application[:outcome_code] || application[:hearing_outcome]
-  end
-
-  def court_attendances
-    application[:court_attendances]
-  end
-
-  def no_of_defendants
-    defendants.count
-  end
-
-  def court_name
-    application[:court]
-  end
-
-  def submission_id
-    id
-  end
-
-  def payment_requests
-    []
-  end
-
-  def created_at
-    raw[:created_at]
-  end
-
-  def updated_at
-    raw[:updated_at] || raw[:last_updated_at]
-  end
-
-  def nsm_claim
-    nil
-  end
-
-  def assigned_counsel_claim
-    nil
   end
 
 private

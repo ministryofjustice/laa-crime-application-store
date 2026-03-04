@@ -20,13 +20,8 @@ module V1
           :per_page,
           :sort_by,
           :sort_direction,
-          :submitted_from,
-          :submitted_to,
-          :received_from,
-          :received_to,
           :claim_type,
           :request_type,
-          :submission_id,
           :query,
         )
       end
