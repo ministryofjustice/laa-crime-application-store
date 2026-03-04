@@ -46,4 +46,17 @@ RSpec.describe "linked CRM7 payment request search", type: :request do
     expect(response.parsed_body.dig("metadata", "total_results")).to eq(0)
     expect(response.parsed_body["data"]).to eq([])
   end
+
+  context "when the search service raises an error" do
+    before do
+      allow(PaymentRequests::LinkSubmissionPaymentsSearchService).to receive(:call).and_raise(StandardError, "boom")
+    end
+
+    it "returns a helpful error response" do
+      post search_endpoint, params: { query: "LAA-FAIL" }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.parsed_body["message"]).to include("boom")
+    end
+  end
 end
