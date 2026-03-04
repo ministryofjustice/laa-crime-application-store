@@ -55,7 +55,6 @@ RSpec.describe "linked CRM7 payment request search", type: :request do
     end
   end
 
-
   it "returns an empty result set when not found" do
     allow(PaymentRequests::LinkSubmissionPaymentsSearchService)
       .to receive(:call).and_return({ metadata: { total_results: 0, page: 1, per_page: 10 }, data: [] }.to_json)

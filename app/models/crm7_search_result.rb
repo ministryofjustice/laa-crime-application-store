@@ -14,29 +14,20 @@ class Crm7SearchResult
     raw[:application_type]
   end
 
-  def ufn
-    payment_request_claim.ufn
-  end
+  delegate :ufn, to: :payment_request_claim
 
-  def type
-    payment_request_claim.type
-  end
+  delegate :type, to: :payment_request_claim
 
   def defendant_last_name
     payment_request_claim.client_last_name
   end
 
-  def laa_reference
-    payment_request_claim.laa_reference
-  end
+  delegate :laa_reference, to: :payment_request_claim
 
-  def solicitor_office_code
-    payment_request_claim.solicitor_office_code
-  end
+  delegate :solicitor_office_code, to: :payment_request_claim
 
-  def solicitor_firm_name
-    payment_request_claim.solicitor_firm_name
-  end
+  delegate :solicitor_firm_name, to: :payment_request_claim
+
 private
 
   def payment_request_claim

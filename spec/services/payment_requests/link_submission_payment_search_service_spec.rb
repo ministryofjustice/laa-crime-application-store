@@ -4,9 +4,16 @@ RSpec.describe PaymentRequests::LinkSubmissionPaymentsSearchService do
   describe "#call" do
     subject(:call_service) { described_class.new(params, :caseworker).call }
 
+    let(:request_type) { "non_standard_magistrate" }
+
     context "when payment requests match the search parameters" do
       let!(:payment_request) { create(:payment_request, :non_standard_magistrate) }
-      let(:params) { { query: payment_request.payment_request_claim.laa_reference } }
+      let(:params) do
+        {
+          query: payment_request.payment_request_claim.laa_reference,
+          request_type: payment_request.request_type,
+        }
+      end
 
       it "returns payment request data" do
         parsed = JSON.parse(call_service)
@@ -19,7 +26,7 @@ RSpec.describe PaymentRequests::LinkSubmissionPaymentsSearchService do
 
     context "when no payment requests match but CRM7 submissions exist" do
       let(:search_reference) { "LAA-CRM7001" }
-      let(:params) { { query: search_reference, per_page: 5 } }
+      let(:params) { { query: search_reference, per_page: 5, request_type: } }
       let(:crm7_raw_record) do
         {
           application_id: SecureRandom.uuid,
@@ -55,7 +62,7 @@ RSpec.describe PaymentRequests::LinkSubmissionPaymentsSearchService do
     end
 
     context "when no payment requests or CRM7 submissions match" do
-      let(:params) { { query: "LAA-NOTFOUND" } }
+      let(:params) { { query: "LAA-NOTFOUND", request_type: } }
 
       it "returns an empty result set" do
         parsed = JSON.parse(call_service)
@@ -84,13 +91,13 @@ RSpec.describe PaymentRequests::LinkSubmissionPaymentsSearchService do
                status: "rejected",
                laa_reference: "LAA-REJECTED")
       end
-      let(:params) { { query: nil } }
+      let(:params) { { query: nil, request_type: } }
 
       it "only returns granted and part-grant CRM7 submissions" do
         parsed = JSON.parse(call_service)
 
         expect(parsed.dig("metadata", "total_results")).to eq(2)
-        expect(parsed.fetch("data").map { _1["laa_reference"] })
+        expect(parsed.fetch("data").pluck("laa_reference"))
           .to match_array(%w[LAA-GRANTED LAA-PART])
       end
     end
@@ -100,7 +107,12 @@ RSpec.describe PaymentRequests::LinkSubmissionPaymentsSearchService do
     subject(:class_call) { described_class.call(params, :caseworker) }
 
     let!(:payment_request) { create(:payment_request, :non_standard_magistrate) }
-    let(:params) { { query: payment_request.payment_request_claim.laa_reference } }
+    let(:params) do
+      {
+        query: payment_request.payment_request_claim.laa_reference,
+        request_type: payment_request.request_type,
+      }
+    end
 
     it "delegates to the instance call" do
       parsed = JSON.parse(class_call)
@@ -113,11 +125,13 @@ end
 RSpec.describe PaymentRequests::LinkSubmissionPayments::PaymentRequestsSearch do
   subject(:search) { described_class.new(search_params, :caseworker) }
 
+  let(:request_type) { "non_standard_magistrate" }
+
   describe "#call" do
     context "with a multi-token query" do
       let!(:claim) do
         create(
-          :payment_request_claim,
+          :nsm_claim,
           laa_reference: "LAA-TOKEN",
           ufn: "120223/001",
           solicitor_office_code: "1A123B",
@@ -125,7 +139,7 @@ RSpec.describe PaymentRequests::LinkSubmissionPayments::PaymentRequestsSearch do
         )
       end
 
-      let(:search_params) { { query: "LAA-TOKEN 120223/001 1A123B Smith" } }
+      let(:search_params) { { query: "LAA-TOKEN 120223/001 1A123B Smith", request_type: } }
 
       it "applies all classifiers" do
         parsed = JSON.parse(search.call)
@@ -134,20 +148,33 @@ RSpec.describe PaymentRequests::LinkSubmissionPayments::PaymentRequestsSearch do
     end
 
     context "with only a client name" do
-      let!(:claim) { create(:payment_request_claim, client_last_name: "carter") }
-      let(:search_params) { { query: "carter" } }
+      let!(:claim) { create(:nsm_claim, client_last_name: "carter") }
+      let(:search_params) { { query: "carter", request_type: } }
 
       it "skips the laa_reference filter" do
         parsed = JSON.parse(search.call)
         expect(parsed.dig("metadata", "total_results")).to eq(1)
       end
     end
+
+    context "when request_type scopes the claim class" do
+      let!(:nsm_claim) { create(:nsm_claim, laa_reference: "LAA-NSM") }
+      let!(:assigned_claim) { create(:assigned_counsel_claim, laa_reference: "LAA-AC") }
+      let(:search_params) { { request_type: "assigned_counsel" } }
+
+      it "returns only assigned counsel claims" do
+        parsed = JSON.parse(search.call)
+
+        expect(parsed.dig("metadata", "total_results")).to eq(1)
+        expect(parsed.fetch("data").map { _1.fetch("laa_reference") }).to eq(%w[LAA-AC])
+      end
+    end
   end
 
   describe "#results?" do
     context "with matching claims" do
-      let!(:claim) { create(:payment_request_claim, laa_reference: "LAA-FINDME") }
-      let(:search_params) { { query: "LAA-FINDME" } }
+      let!(:claim) { create(:nsm_claim, laa_reference: "LAA-FINDME") }
+      let(:search_params) { { query: "LAA-FINDME", request_type: } }
 
       it "returns true after call" do
         search.call
@@ -156,7 +183,7 @@ RSpec.describe PaymentRequests::LinkSubmissionPayments::PaymentRequestsSearch do
     end
 
     context "without matches" do
-      let(:search_params) { { query: "LAA-MISSING" } }
+      let(:search_params) { { query: "LAA-MISSING", request_type: } }
 
       it "returns false after call" do
         search.call
@@ -281,7 +308,7 @@ RSpec.describe Submissions::LinkSubmissionPayments::Crm7Search do
         parsed = JSON.parse(service.call)
 
         expect(parsed["metadata"]).to include("total_results" => 1, "page" => 2, "per_page" => 3)
-        expect(parsed["data"]).to eq(["LAA-CRM7001"])
+        expect(parsed["data"]).to eq(%w[LAA-CRM7001])
       end
 
       it "limits the submissions search to granted statuses" do
@@ -358,18 +385,20 @@ RSpec.describe BaseSearchService do
     end
 
     it "raises when search_query is not implemented" do
-      expect { BaseSearchService.new({}, client_role).send(:search_query) }
+      expect { described_class.new({}, client_role).send(:search_query) }
         .to raise_error(NoMethodError, /method not found/)
     end
 
     it "raises when search_results is not implemented" do
-      expect { BaseSearchService.new({}, client_role).send(:search_results) }
+      expect { described_class.new({}, client_role).send(:search_results) }
         .to raise_error(NoMethodError, /method not found/)
     end
   end
 end
 
 RSpec.describe Crm7SubmissionClaim do
+  subject(:claim) { described_class.new(raw_payload) }
+
   let(:application_data) do
     {
       laa_reference: "LAA-CRM7001",
@@ -400,8 +429,6 @@ RSpec.describe Crm7SubmissionClaim do
       application: application_data,
     }
   end
-
-  subject(:claim) { described_class.new(raw_payload) }
 
   it "derives identifiers and solicitor details" do
     expect(claim.id).to eq("sub-123")
@@ -468,10 +495,10 @@ RSpec.describe Crm7SubmissionClaim do
   end
 
   context "when defendants include scalar values" do
-    let(:application_data) { { defendants: ["legacy-string"] } }
+    let(:application_data) { { defendants: %w[legacy-string] } }
 
     it "preserves scalar entries" do
-      expect(claim.send(:defendants)).to eq(["legacy-string"])
+      expect(claim.send(:defendants)).to eq(%w[legacy-string])
     end
   end
 
@@ -509,6 +536,8 @@ RSpec.describe Crm7SubmissionClaim do
 end
 
 RSpec.describe Crm7SearchResult do
+  subject(:result) { described_class.new(raw_record) }
+
   let(:raw_record) do
     {
       application_id: "app-123",
@@ -521,8 +550,6 @@ RSpec.describe Crm7SearchResult do
       },
     }
   end
-
-  subject(:result) { described_class.new(raw_record) }
 
   it "exposes identifiers and delegates claim data" do
     expect(result.id).to eq("app-123")

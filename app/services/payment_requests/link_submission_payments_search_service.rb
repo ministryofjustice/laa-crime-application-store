@@ -146,7 +146,7 @@ module Submissions
     private
 
       def claim_type_excluded
-        ['assigned_counsel_appeal', 'assigned_counsel_amendment'].include?(search_params[:claim_type])
+        %w[assigned_counsel_appeal assigned_counsel_amendment].include?(search_params[:claim_type])
       end
 
       def crm7_search_results
