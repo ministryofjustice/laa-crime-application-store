@@ -25,6 +25,8 @@ module PaymentRequests
 
   module LinkSubmissionPayments
     class PaymentRequestsSearch < BaseSearchService
+      include ClaimTypeGroupHelper
+
       SORTABLE_COLUMNS = %w[
         ufn
         laa_reference
@@ -48,7 +50,7 @@ module PaymentRequests
     private
 
       def search_query
-        claims = PaymentRequestClaim.all
+        claims = claim_type.all
         claims = claims.where("LOWER(payment_request_claims.laa_reference) = ?", query_params[:laa_reference].downcase) if query_params[:laa_reference].present?
         claims = claims.where(ufn: query_params[:ufn]) if query_params[:ufn].present?
         claims = claims.where("LOWER(payment_request_claims.solicitor_office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
@@ -110,6 +112,10 @@ module PaymentRequests
 
       def serialialized_data
         PaymentRequestClaimSearchResultResource.new(@data.limit(limit).offset(offset))
+      end
+
+      def claim_type
+        find_claim_type_group(search_params[:request_type]).constantize
       end
 
       def query
