@@ -15,6 +15,7 @@ class Submission < ApplicationRecord
   def latest_version(include_pending: true)
     versions = ordered_submission_versions
 
+    # When preloaded by the search query, stay in-memory to avoid per-record SQL lookups.
     if versions.loaded?
       include_pending ? versions.first : versions.find { !_1.pending? }
     else
