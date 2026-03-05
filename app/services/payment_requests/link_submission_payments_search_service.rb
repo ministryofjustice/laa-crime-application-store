@@ -24,7 +24,7 @@ module PaymentRequests
   end
 
   module LinkSubmissionPayments
-    class PaymentRequestsSearch < BaseSearchService
+    class PaymentRequestsSearch < SearchService
       include ClaimTypeGroupHelper
 
       SORTABLE_COLUMNS = %w[
@@ -69,24 +69,6 @@ module PaymentRequests
         }.to_json
       end
 
-      def query_params
-        return {} if query.nil?
-
-        words = query.strip.downcase.split(/\s+/)
-        results = words.each_with_object({}) do |word, acc|
-          if word.start_with?("laa-")
-            acc[:laa_reference] = word
-          elsif /^\d{6}|\d{6}\/\d{3}$/.match?(word)
-            acc[:ufn] = word
-          elsif /^\d.*[a-zA-Z]$/.match?(word)
-            acc[:office_code] = word
-          else
-            acc[:client_last_name] = word
-          end
-        end
-        @query_params ||= results
-      end
-
       def sort_clause
         return "created_at desc" unless search_params[:sort_by]
         raise "Unsortable column \"#{sort_by}\" supplied as sort_by argument" unless SORTABLE_COLUMNS.include?(sort_by.downcase)
@@ -96,18 +78,6 @@ module PaymentRequests
         else
           "LOWER(payment_request_claims.#{sort_by}) #{sort_direction}"
         end
-      end
-
-      def sort_by
-        search_params.fetch(:sort_by, "created_at")
-      end
-
-      def sort_direction
-        @sort_direction ||= search_params
-                              .fetch(:sort_direction, "asc")
-                              .downcase
-                              .gsub("ascending", "asc")
-                              .gsub("descending", "desc")
       end
 
       def serialialized_data
