@@ -17,6 +17,7 @@ FactoryBot.define do
       matter_type { "1" }
       youth_court { true }
       court_name { "Leeds Court" }
+      court_id { "1" }
       court_attendances { 2 }
       no_of_defendants { 1 }
     end
