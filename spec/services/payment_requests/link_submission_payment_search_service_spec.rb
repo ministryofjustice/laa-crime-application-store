@@ -484,13 +484,6 @@ RSpec.describe Crm7SubmissionClaim do
     end
   end
 
-  context "when application is a Submission" do
-    let(:submission) { create(:submission, :with_nsm_version) }
-
-    it "symbolizes the payload" do
-      expect(described_class.new(submission).laa_reference).to eq(submission.latest_version.application["laa_reference"])
-    end
-  end
 end
 
 RSpec.describe Crm7SearchResult do
@@ -523,9 +516,8 @@ RSpec.describe Crm7SearchResult do
     expect(result.defendant_last_name).to eq("Doe")
   end
 
-  it "exposes request metadata and the raw application" do
+  it "exposes request metadata" do
     expect(result.request_type).to eq("crm7")
-    expect(result.send(:application)).to include(:laa_reference)
   end
 
   context "when application_id is missing" do

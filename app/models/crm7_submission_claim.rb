@@ -2,7 +2,7 @@ class Crm7SubmissionClaim
   attr_reader :raw
 
   def initialize(source)
-    @raw = build_raw_payload(source)
+    @raw = source.deep_symbolize_keys
   end
 
   def id
@@ -35,17 +35,6 @@ class Crm7SubmissionClaim
 
 private
 
-  def build_raw_payload(source)
-    payload =
-      if source.is_a?(Submission)
-        source.as_json(client_role: :caseworker)
-      else
-        source
-      end
-
-    payload.deep_symbolize_keys
-  end
-
   def application
     @application ||= raw[:application] || {}
   end
@@ -61,9 +50,7 @@ private
   end
 
   def main_defendant
-    return @main_defendant if defined?(@main_defendant)
-
-    @main_defendant =
+    @main_defendant ||=
       if defendants.any?
         defendants.find { |defendant| truthy?(defendant[:main]) } || defendants.first
       else

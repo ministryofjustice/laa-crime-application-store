@@ -33,8 +33,4 @@ private
   def payment_request_claim
     @payment_request_claim ||= Crm7SubmissionClaim.new(raw)
   end
-
-  def application
-    @application ||= raw[:application] || {}
-  end
 end
