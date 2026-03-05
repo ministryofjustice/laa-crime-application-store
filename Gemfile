@@ -19,11 +19,11 @@ gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 gem "bootsnap", require: false
 
 gem 'alba'
-gem "aws-sdk-s3", "~> 1.213"
+gem "aws-sdk-s3", "~> 1.214"
 gem "govuk_notify_rails", "~> 3.0.0"
 gem "httparty", ">= 0.24.0"
 gem "jwt", "~> 3.1.2"
-gem "laa_crime_forms_common", "~> 0.12.9", github: "ministryofjustice/laa-crime-forms-common"
+gem "laa_crime_forms_common", "~> 0.12.10", github: "ministryofjustice/laa-crime-forms-common"
 gem "lograge"
 gem "logstash-event"
 gem "oauth2"
