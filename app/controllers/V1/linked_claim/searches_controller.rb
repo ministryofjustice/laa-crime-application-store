@@ -1,5 +1,5 @@
 module V1
-  module PaymentRequests
+  module LinkedClaim
     class SearchesController < ApplicationController
       def create
         render json: search_results, status: :created
@@ -10,7 +10,7 @@ module V1
     private
 
       def search_results
-        ::PaymentRequests::SearchService.call(search_params, current_client_role)
+        ::PaymentRequests::LinkSubmissionPaymentsSearchService.call(search_params, current_client_role)
       end
 
       def search_params
@@ -19,12 +19,8 @@ module V1
           :per_page,
           :sort_by,
           :sort_direction,
-          :submitted_from,
-          :submitted_to,
-          :received_from,
-          :received_to,
+          :claim_type,
           :request_type,
-          :submission_id,
           :query,
         )
       end
