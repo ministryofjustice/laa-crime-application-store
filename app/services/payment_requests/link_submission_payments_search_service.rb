@@ -65,7 +65,7 @@ module PaymentRequests
             page:,
             per_page:,
           },
-          data: serialialized_data,
+          data: serialized_data,
         }.to_json
       end
 
@@ -80,7 +80,7 @@ module PaymentRequests
         end
       end
 
-      def serialialized_data
+      def serialized_data
         PaymentRequestClaimSearchResultResource.new(@data.limit(limit).offset(offset))
       end
 
