@@ -1,12 +1,6 @@
 class PaymentRequestClaimResource
   include Alba::Resource
 
-  class << self
-    def nsm_like?(claim)
-      claim.is_a?(NsmClaim) || claim.is_a?(Crm7SubmissionClaim)
-    end
-  end
-
   attributes :id,
              :type,
              :laa_reference,
@@ -25,7 +19,7 @@ class PaymentRequestClaimResource
              :court,
              :submission_id,
              :defendant_first_name,
-             if: proc { |payment_request_claim| PaymentRequestClaimResource.nsm_like?(payment_request_claim) }
+             if: proc { |payment_request_claim| payment_request_claim.is_a? NsmClaim }
 
   attributes :counsel_office_code,
              :counsel_firm_name,
@@ -35,7 +29,7 @@ class PaymentRequestClaimResource
 
   many :payment_requests, resource: PaymentRequestResource
   one :nsm_claim, if: proc { |payment_request_claim| payment_request_claim.is_a? AssignedCounselClaim }
-  one :assigned_counsel_claim, if: proc { |payment_request_claim| PaymentRequestClaimResource.nsm_like?(payment_request_claim) }
+  one :assigned_counsel_claim, if: proc { |payment_request_claim| payment_request_claim.is_a? NsmClaim }
 
   def stage_reached(payment_request_claim)
     payment_request_claim.stage_code
