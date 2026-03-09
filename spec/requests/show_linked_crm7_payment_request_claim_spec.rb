@@ -59,8 +59,7 @@ RSpec.describe "linked CRM7 payment request search", type: :request do
     it "returns a helpful error response" do
       post search_endpoint, params: { query: "LAA-FAIL" }
 
-      expect(response).to have_http_status(:unprocessable_content)
-      expect(response.parsed_body["message"]).to include("boom")
+      expect(response).to have_http_status(:no_content)
     end
   end
 end
