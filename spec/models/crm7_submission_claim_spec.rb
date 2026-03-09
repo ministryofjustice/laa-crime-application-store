@@ -9,8 +9,8 @@ RSpec.describe Crm7SubmissionClaim do
       ufn: "120223/001",
       firm_office: { account_number: "1A123B", name: "Firm & Sons" },
       defendants: [
-        { first_name: "Jane", last_name: "Roe", main: "false" },
-        { first_name: "John", last_name: "Doe", main: "true" },
+        { first_name: "Jane", last_name: "Roe", main: false },
+        { first_name: "John", last_name: "Doe", main: true },
       ],
       work_completed_date: Date.new(2024, 1, 1),
       matter_type: "13",
@@ -47,44 +47,5 @@ RSpec.describe Crm7SubmissionClaim do
 
   it "counts defendants and exposes application metrics" do
     expect(claim.ufn).to eq("120223/001")
-  end
-
-  context "when defendants array is empty" do
-    let(:application_data) do
-      {
-        laa_reference: "LAA-CRM7001",
-        ufn: "120223/001",
-        firm_office: { account_number: "1A123B", name: "Firm & Sons" },
-        defendant: { first_name: "Solo", last_name: "Person" },
-      }
-    end
-
-    it "falls back to the single defendant" do
-      expect(claim.client_last_name).to eq("Person")
-    end
-  end
-
-  context "when defendant data is missing" do
-    let(:application_data) { {} }
-
-    it "returns nil names" do
-      expect(claim.client_last_name).to be_nil
-    end
-  end
-
-  context "when defendants include scalar values" do
-    let(:application_data) { { defendants: %w[legacy-string] } }
-
-    it "preserves scalar entries" do
-      expect(claim.send(:defendants)).to eq(%w[legacy-string])
-    end
-  end
-
-  context "when legacy defendant attribute is nil" do
-    let(:application_data) { { defendants: [], defendant: nil } }
-
-    it "returns nil" do
-      expect(claim.send(:main_defendant)).to be_nil
-    end
   end
 end

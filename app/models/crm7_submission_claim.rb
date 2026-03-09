@@ -26,7 +26,7 @@ class Crm7SubmissionClaim
   end
 
   def client_last_name
-    main_defendant&.fetch(:last_name, nil)
+    main_defendant[:last_name]
   end
 
   def ufn
@@ -43,23 +43,7 @@ private
     @firm_office ||= application[:firm_office] || {}
   end
 
-  def defendants
-    @defendants ||= Array(application[:defendants]).map do |defendant|
-      defendant.is_a?(Hash) ? defendant.deep_symbolize_keys : defendant
-    end
-  end
-
   def main_defendant
-    @main_defendant ||=
-      if defendants.any?
-        defendants.find { |defendant| truthy?(defendant[:main]) } || defendants.first
-      else
-        value = application[:defendant]
-        value.is_a?(Hash) ? value.deep_symbolize_keys : value
-      end
-  end
-
-  def truthy?(value)
-    ActiveModel::Type::Boolean.new.cast(value)
+    @main_defendant ||= application[:defendants].find { _1[:main] }
   end
 end

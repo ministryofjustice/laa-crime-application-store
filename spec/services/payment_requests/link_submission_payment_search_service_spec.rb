@@ -367,5 +367,4 @@ RSpec.describe "Link submission payment search services" do
       end
     end
   end
-
 end
