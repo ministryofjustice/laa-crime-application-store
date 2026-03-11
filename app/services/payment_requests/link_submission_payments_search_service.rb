@@ -7,165 +7,19 @@ module PaymentRequests
       crm7_search.call || payment_results
     end
 
-  private
+    private
 
     def payment_requests_search
       memoized_search(LinkSubmissionPayments::PaymentRequestsSearch)
     end
 
     def crm7_search
-      memoized_search(::Submissions::LinkSubmissionPayments::Crm7Search)
+      memoized_search(LinkSubmissionPayments::Crm7Search)
     end
 
     def memoized_search(klass)
       @searches ||= {}
       @searches[klass] ||= klass.new(search_params, client_role)
-    end
-  end
-
-  module LinkSubmissionPayments
-    class PaymentRequestsSearch < SearchService
-      include ClaimTypeGroupHelper
-
-      SORTABLE_COLUMNS = %w[
-        ufn
-        laa_reference
-        solicitor_office_code
-        client_last_name
-        request_type
-        solicitor_firm_name
-        created_at
-      ].freeze
-
-      def call
-        @data = search_query
-        @has_results = @data.exists?
-        search_results
-      end
-
-      def results?
-        @has_results || false
-      end
-
-    private
-
-      def search_query
-        claims = claim_type.all
-        claims = claims.where("LOWER(payment_request_claims.laa_reference) = ?", query_params[:laa_reference].downcase) if query_params[:laa_reference].present?
-        claims = claims.where(ufn: query_params[:ufn]) if query_params[:ufn].present?
-        claims = claims.where("LOWER(payment_request_claims.solicitor_office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
-        claims = claims.where("LOWER(payment_request_claims.client_last_name) % ?::text", "%#{query_params[:client_last_name].downcase}%") if query_params[:client_last_name].present?
-        claims.order(sort_clause)
-      end
-
-      def search_results
-        {
-          metadata: {
-            total_results: @data.size,
-            page:,
-            per_page:,
-          },
-          data: serialized_data,
-        }.to_json
-      end
-
-      def sort_clause
-        return "created_at desc" unless search_params[:sort_by]
-        raise "Unsortable column \"#{sort_by}\" supplied as sort_by argument" unless SORTABLE_COLUMNS.include?(sort_by.downcase)
-
-        if sort_by.in?(%w[created_at request_type])
-          "#{sort_by} #{sort_direction}"
-        else
-          "LOWER(payment_request_claims.#{sort_by}) #{sort_direction}"
-        end
-      end
-
-      def serialized_data
-        PaymentRequestClaimSearchResultResource.new(@data.limit(limit).offset(offset))
-      end
-
-      def claim_type
-        find_claim_type_group(search_params[:request_type]).constantize
-      end
-
-      def query
-        search_params.fetch(:query, nil)
-      end
-    end
-  end
-end
-
-module Submissions
-  module LinkSubmissionPayments
-    class Crm7Search < BaseSearchService
-      SUBMISSION_SEARCH_KEYS = %i[
-        query
-        sort_by
-        sort_direction
-        page
-        per_page
-        application_type
-      ].freeze
-
-      def call
-        return if claim_type_excluded?
-
-        crm7_search_results
-      end
-
-    private
-
-      def claim_type_excluded?
-        %w[assigned_counsel_appeal assigned_counsel_amendment].include?(search_params[:claim_type])
-      end
-
-      def crm7_search_results
-        response = submissions_search_response
-        return unless response
-
-        results = response.fetch(:raw_data, []).map { Crm7SearchResult.new(_1) }
-        return if results.empty?
-
-        {
-          metadata: response.fetch(:metadata),
-          data: Crm7SearchResultsResource.new(results),
-        }.to_json
-      end
-
-      def submissions_search_response
-        parsed = JSON.parse(submissions_search_service.call).deep_symbolize_keys
-        metadata = parsed.fetch(:metadata, {})
-        return if metadata.fetch(:total_results, 0).to_i.zero?
-
-        metadata[:page] ||= page
-        metadata[:per_page] ||= per_page
-
-        {
-          metadata: metadata.slice(:total_results, :page, :per_page),
-          raw_data: parsed.fetch(:raw_data, []),
-        }
-      end
-
-      def submissions_search_service
-        @submissions_search_service ||= ::Submissions::SearchService.new(crm7_search_params, client_role)
-      end
-
-      def crm7_search_params
-        params = search_params.to_h.deep_symbolize_keys
-        filtered_params = params.slice(*SUBMISSION_SEARCH_KEYS)
-        filtered_params.delete(:sort_by)
-
-        filtered_params[:status_with_assignment] = %w[part_grant granted]
-        filtered_params[:application_type] = "crm7"
-        filtered_params[:query] ||= query
-        filtered_params[:page] ||= page
-        filtered_params[:per_page] ||= per_page
-        filtered_params
-      end
-
-      def query
-        search_params.fetch(:query, nil)
-      end
     end
   end
 end

@@ -247,7 +247,7 @@ RSpec.describe "Link submission payment search services" do
     end
   end
 
-  describe Submissions::LinkSubmissionPayments::Crm7Search do
+  describe PaymentRequests::LinkSubmissionPayments::Crm7Search do
     subject(:service) { described_class.new(search_params, :caseworker) }
 
     let(:search_params) { { query: "LAA-CRM7001", page: 2, per_page: 3 } }
