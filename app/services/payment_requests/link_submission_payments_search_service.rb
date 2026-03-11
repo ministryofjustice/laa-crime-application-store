@@ -7,7 +7,7 @@ module PaymentRequests
       crm7_search.call || payment_results
     end
 
-    private
+  private
 
     def payment_requests_search
       memoized_search(LinkSubmissionPayments::PaymentRequestsSearch)
