@@ -34,12 +34,16 @@ Rails.application.routes.draw do
     resources :assigned_counsel_claims, only: %i[update]
     resources :payment_request_claims, only: %i[show]
 
+    namespace :linked_claim do
+      resource :searches, only: %i[create]
+    end
+
     namespace :payment_requests do
-      resource :searches, only: %(create)
+      resource :searches, only: %i[create]
     end
 
     namespace :submissions do
-      resource :searches, only: %(create)
+      resource :searches, only: %i[create]
     end
 
     # Legacy endpoint aliases
