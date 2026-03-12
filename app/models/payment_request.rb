@@ -15,7 +15,7 @@ class PaymentRequest < ApplicationRecord
 
   REQUEST_TYPES = NSM_REQUEST_TYPES + ASSIGNED_COUNSEL_REQUEST_TYPES
 
-  belongs_to :payment_request_claim, optional: true
+  belongs_to :payment_request_claim, optional: false
 
   belongs_to :nsm_claim,
              class_name: "NsmClaim",
@@ -59,7 +59,6 @@ class PaymentRequest < ApplicationRecord
   validates :allowed_net_assigned_counsel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
   validates :allowed_assigned_counsel_vat, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
   validate :correct_request_type
-  validate :is_linked_to_claim_when_submitted
 
   def nsm_claim
     payment_request_claim.is_a?(NsmClaim) ? payment_request_claim : nil
@@ -86,13 +85,5 @@ class PaymentRequest < ApplicationRecord
       errors.add(:request_type, "invalid request type for a #{payment_request_claim.type}")
     end
     # :nocov:
-  end
-
-  def is_linked_to_claim_when_submitted
-    if payment_request_claim.nil? && submitted_at.present?
-      errors.add(:submitted_at, "a payment request must be linked to a claim to be submitted")
-    else
-      true
-    end
   end
 end

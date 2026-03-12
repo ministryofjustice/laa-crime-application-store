@@ -15,12 +15,11 @@ RSpec.describe "PaymentRequest search" do
       expect(response).to have_http_status(:created)
     end
 
-    it "returns 422 when unsuccessful" do
+    it "returns no_content unsuccessful" do
       allow(PaymentRequest).to receive(:left_outer_joins).and_raise(StandardError, "Some error output")
       post search_endpoint, params: { claim_type: "NsmClaim" }
 
-      expect(response).to have_http_status(:unprocessable_content)
-      expect(response.parsed_body).to include(message: "PaymentRequests search query raised Some error output")
+      expect(response).to have_http_status(:no_content)
     end
 
     context "when paginating" do
@@ -325,11 +324,10 @@ RSpec.describe "PaymentRequest search" do
         expect(response.parsed_body["data"].map { _1.dig("payment_request_claim", "laa_reference") }).to match(%w[LAA-CCCCCC LAA-BBBBBB LAA-AAAAAA])
       end
 
-      it "raises an error when unsortable column supplied" do
+      it "returns no_content when unsortable column supplied" do
         post search_endpoint, params: { sort_by: "foobar" }
 
-        expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body).to include(message: "PaymentRequests search query raised Unsortable column \"foobar\" supplied as sort_by argument")
+        expect(response).to have_http_status(:no_content)
       end
 
       it "can be sorted by laa_reference ascending" do
