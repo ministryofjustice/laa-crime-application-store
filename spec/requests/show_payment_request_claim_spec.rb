@@ -45,6 +45,24 @@ RSpec.describe "show payment request claim", type: :request do
       get "/v1/payment_request_claims/#{nsm_id}"
       expect(response.parsed_body.keys.sort).to eq(keys.sort)
     end
+
+    it "correctly formats the court field" do
+      get "/v1/payment_request_claims/#{nsm_id}"
+      expect(response.parsed_body["court"]).to eq("Leeds Court - 1")
+    end
+
+    context "when court is custom" do
+      let(:custom_nsm_id) { SecureRandom.uuid }
+
+      before do
+        create(:nsm_claim, id: custom_nsm_id, court_id: "custom", court_name: "Custom Court")
+      end
+
+      it "correctly formats the court field for custom court" do
+        get "/v1/payment_request_claims/#{custom_nsm_id}"
+        expect(response.parsed_body["court"]).to eq("Custom Court - N/A")
+      end
+    end
   end
 
   context "with NsmClaim payment request claim attached to a submission" do
