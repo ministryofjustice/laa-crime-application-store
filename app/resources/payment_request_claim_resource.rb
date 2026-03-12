@@ -48,7 +48,11 @@ class PaymentRequestClaimResource
   end
 
   def court(payment_request_claim)
-    "#{payment_request_claim.court_name} - #{payment_request_claim.court_id}"
+    if payment_request_claim.court_id == "custom"
+      "#{payment_request_claim.court_name} - N/A"
+    else
+      "#{payment_request_claim.court_name} - #{payment_request_claim.court_id}"
+    end
   end
 
   def submission_id(payment_request_claim)
