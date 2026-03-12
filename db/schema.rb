@@ -29,9 +29,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_113739) do
     t.text "state", null: false
     t.string "unassigned_user_ids", default: [], array: true
     t.datetime "updated_at", precision: nil
-    t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null"
-    t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null"
   end
+
+  add_check_constraint "application", "created_at IS NOT NULL", name: "application_created_at_null", validate: false
+  add_check_constraint "application", "updated_at IS NOT NULL", name: "application_updated_at_null", validate: false
 
   create_table "application_version", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.jsonb "application", null: false
@@ -194,16 +195,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_113739) do
        LEFT JOIN translations t ON ((((t.key)::text = (av.application ->> 'service_type'::text)) AND ((t.translation_type)::text = 'service'::text))))
     WHERE (a.state = 'auto_grant'::text);
   SQL
-  create_view "import_counts", sql_definition: <<-SQL
-      SELECT (app_ver.created_at)::date AS submitted_date,
-          CASE
-              WHEN (((app_ver.application ->> 'import_date'::text))::timestamp without time zone IS NOT NULL) THEN true
-              ELSE false
-          END AS claim_imported
-     FROM (application_version app_ver
-       LEFT JOIN application app ON (((app.id = app_ver.application_id) AND (app_ver.pending IS FALSE) AND (app_ver.version = 1))))
-    ORDER BY ((app_ver.created_at)::date);
-  SQL
   create_view "processing_times", sql_definition: <<-SQL
       WITH base AS (
            SELECT application.id,
@@ -252,7 +243,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_113739) do
       ((app_ver.application -> 'firm_office'::text) ->> 'name'::text) AS firm_name,
       ((app_ver.application -> 'firm_office'::text) ->> 'account_number'::text) AS account_number,
       (app_ver.application ->> 'service_name'::text) AS service_name,
-      (((app_ver.application -> 'cost_summary'::text) ->> 'high_value'::text))::boolean AS high_value,
+      ((app_ver.application -> 'cost_summary'::text) -> 'high_value'::text) AS high_value,
       app_ver.created_at AS last_state_change,
           CASE app.application_risk
               WHEN 'high'::text THEN 3
