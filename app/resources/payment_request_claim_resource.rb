@@ -48,8 +48,8 @@ class PaymentRequestClaimResource
   end
 
   def court(payment_request_claim)
-    if payment_request_claim.court_id == "custom"
-      "#{payment_request_claim.court_name} - N/A"
+    if payment_request_claim.court_id == I18n.t("laa_crime_forms_common.shared.custom")
+      "#{payment_request_claim.court_name} - #{I18n.t('laa_crime_forms_common.shared.na')}"
     else
       "#{payment_request_claim.court_name} - #{payment_request_claim.court_id}"
     end
