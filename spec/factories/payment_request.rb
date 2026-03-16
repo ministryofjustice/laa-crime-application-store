@@ -50,7 +50,7 @@ FactoryBot.define do
       allowed_profit_cost { 250.40 }
       allowed_travel_cost { 0 }
       allowed_waiting_cost { 6.40 }
-      allowed_disbursment_cost { 50 }
+      allowed_disbursement_cost { 50 }
     end
 
     trait :assigned_counsel do
