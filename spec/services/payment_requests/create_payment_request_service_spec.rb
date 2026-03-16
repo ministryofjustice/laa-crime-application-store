@@ -61,7 +61,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       let(:params) { { idempotency_token: SecureRandom.uuid, laa_reference: "LAA123", request_type: "non_standard_mag_appeal" } }
 
       it "returns the existing claim if found" do
-        existing = create(:payment_request_claim, laa_reference: "LAA123")
+        existing = create(:payable_claim, laa_reference: "LAA123")
         expect(service.send(:find_or_create_claim!)).to eq(existing)
       end
 
