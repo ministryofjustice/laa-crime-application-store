@@ -296,23 +296,23 @@ RSpec.describe "PaymentRequest search" do
         # create in order that will not return succcess without sorting
         travel_to(2.days.ago) do
           create(:payment_request, submitted_at: Time.zone.now, payable_claim: build(:nsm_claim,
-                                                                                             laa_reference: "LAA-BBBBBB",
-                                                                                             solicitor_office_code: "1ab",
-                                                                                             client_last_name: "Bob"))
+                                                                                     laa_reference: "LAA-BBBBBB",
+                                                                                     solicitor_office_code: "1ab",
+                                                                                     client_last_name: "Bob"))
         end
 
         travel_to(1.day.ago) do
           create(:payment_request, submitted_at: Time.zone.now, payable_claim: build(:nsm_claim,
-                                                                                             laa_reference: "LAA-CCCCCC",
-                                                                                             solicitor_office_code: "2ab",
-                                                                                             client_last_name: "Dodger"))
+                                                                                     laa_reference: "LAA-CCCCCC",
+                                                                                     solicitor_office_code: "2ab",
+                                                                                     client_last_name: "Dodger"))
         end
 
         travel_to(3.days.ago) do
           create(:payment_request, submitted_at: Time.zone.now, payable_claim: build(:nsm_claim,
-                                                                                             laa_reference: "LAA-AAAAAA",
-                                                                                             solicitor_office_code: "3ab",
-                                                                                             client_last_name: "Zeigler"))
+                                                                                     laa_reference: "LAA-AAAAAA",
+                                                                                     solicitor_office_code: "3ab",
+                                                                                     client_last_name: "Zeigler"))
         end
       end
 
@@ -410,26 +410,26 @@ RSpec.describe "PaymentRequest search" do
     context "when searching for queries that may be invalid" do
       before do
         create(:payment_request, payable_claim: build(:nsm_claim,
-                                                              laa_reference: "LAA-AAAAAA",
-                                                              client_last_name: "Fred Arbor"))
+                                                      laa_reference: "LAA-AAAAAA",
+                                                      client_last_name: "Fred Arbor"))
 
         create(:payment_request, payable_claim: build(:nsm_claim,
-                                                              laa_reference: "LAA-BBBBBB",
-                                                              client_last_name: "Bloggs"))
+                                                      laa_reference: "LAA-BBBBBB",
+                                                      client_last_name: "Bloggs"))
 
         create(:payment_request, payable_claim: build(:nsm_claim,
-                                                              laa_reference: "LAA-CCC123",
-                                                              client_last_name: "Buffer",
-                                                              ufn: "311223/001"))
+                                                      laa_reference: "LAA-CCC123",
+                                                      client_last_name: "Buffer",
+                                                      ufn: "311223/001"))
 
         create(:payment_request, payable_claim: build(:nsm_claim,
-                                                              laa_reference: "LAA-MiXeD1",
-                                                              client_last_name: "Pérson",
-                                                              ufn: "311223/002"))
+                                                      laa_reference: "LAA-MiXeD1",
+                                                      client_last_name: "Pérson",
+                                                      ufn: "311223/002"))
 
         create(:payment_request, payable_claim: build(:nsm_claim,
-                                                              laa_reference: "LAA-PUNC28",
-                                                              client_last_name: "O'Connor-Smith"))
+                                                      laa_reference: "LAA-PUNC28",
+                                                      client_last_name: "O'Connor-Smith"))
       end
 
       it "handles a completely invalid query" do
