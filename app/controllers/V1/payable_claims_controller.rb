@@ -1,5 +1,5 @@
 module V1
-  class PaymentRequestClaimsController < ApplicationController
+  class PayableClaimsController < ApplicationController
     def show
       render json: payable_claim_resource, status: :ok
     rescue ActiveRecord::RecordNotFound => e

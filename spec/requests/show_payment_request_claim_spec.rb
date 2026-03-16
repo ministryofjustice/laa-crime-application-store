@@ -13,7 +13,7 @@ RSpec.describe "show payment request claim", type: :request do
     end
 
     it "successfully makes the request" do
-      get "/v1/payment_request_claims/#{nsm_id}"
+      get "/v1/payable_claims/#{nsm_id}"
       expect(response).to have_http_status(:success)
     end
 
@@ -42,7 +42,7 @@ RSpec.describe "show payment request claim", type: :request do
         youth_court
       ]
 
-      get "/v1/payment_request_claims/#{nsm_id}"
+      get "/v1/payable_claims/#{nsm_id}"
       expect(response.parsed_body.keys.sort).to eq(keys.sort)
     end
 
@@ -73,7 +73,7 @@ RSpec.describe "show payment request claim", type: :request do
     end
 
     it "returns payload with linked submission id" do
-      get "/v1/payment_request_claims/#{nsm_id}"
+      get "/v1/payable_claims/#{nsm_id}"
       expect(response.parsed_body["submission_id"]).to eq(submission_id)
     end
   end
@@ -87,7 +87,7 @@ RSpec.describe "show payment request claim", type: :request do
     end
 
     it "successfully makes the request" do
-      get "/v1/payment_request_claims/#{assigned_counsel_id}"
+      get "/v1/payable_claims/#{assigned_counsel_id}"
       expect(response).to have_http_status(:success)
     end
 
@@ -108,13 +108,13 @@ RSpec.describe "show payment request claim", type: :request do
         ufn
       ]
 
-      get "/v1/payment_request_claims/#{assigned_counsel_id}"
+      get "/v1/payable_claims/#{assigned_counsel_id}"
       expect(response.parsed_body.keys.sort).to eq(keys.sort)
     end
   end
 
   it "returns not found when not found" do
-    get "/v1/payment_request_claims/#{SecureRandom.uuid}"
+    get "/v1/payable_claims/#{SecureRandom.uuid}"
 
     expect(response).to have_http_status(:not_found)
   end
