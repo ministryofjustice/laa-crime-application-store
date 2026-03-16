@@ -1,4 +1,4 @@
-class PaymentRequestClaim < ApplicationRecord
+class PayableClaim < ApplicationRecord
   has_many :payment_requests, dependent: :destroy
   self.inheritance_column = :type
 end
