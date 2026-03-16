@@ -14,8 +14,8 @@ module V1
     end
 
     def create
-      payable_claim = ::PaymentRequests::CreatePaymentRequestService.new(params).call
-      render json: payable_claim, status: :created
+      payload = ::PaymentRequests::CreatePaymentRequestService.new(params).call
+      render json: payload, status: :created
     rescue ActiveRecord::RecordInvalid, StandardError => e
       report_error(e)
       render json: { errors: e.message }, status: :unprocessable_content
