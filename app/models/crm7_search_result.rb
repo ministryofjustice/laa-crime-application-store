@@ -14,23 +14,23 @@ class Crm7SearchResult
     raw[:application_type]
   end
 
-  delegate :ufn, to: :payment_request_claim
+  delegate :ufn, to: :payable_claim
 
-  delegate :type, to: :payment_request_claim
+  delegate :type, to: :payable_claim
 
   def defendant_last_name
-    payment_request_claim.client_last_name
+    payable_claim.client_last_name
   end
 
-  delegate :laa_reference, to: :payment_request_claim
+  delegate :laa_reference, to: :payable_claim
 
-  delegate :solicitor_office_code, to: :payment_request_claim
+  delegate :solicitor_office_code, to: :payable_claim
 
-  delegate :solicitor_firm_name, to: :payment_request_claim
+  delegate :solicitor_firm_name, to: :payable_claim
 
 private
 
-  def payment_request_claim
-    @payment_request_claim ||= Crm7SubmissionClaim.new(raw)
+  def payable_claim
+    @payable_claim ||= Crm7SubmissionClaim.new(raw)
   end
 end
