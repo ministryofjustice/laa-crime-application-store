@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_23_113739) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -56,7 +56,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_113739) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "payment_request_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "payable_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "client_first_name"
     t.string "client_last_name"
     t.string "counsel_firm_name"
@@ -80,12 +80,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_113739) do
     t.datetime "updated_at", null: false
     t.datetime "work_completed_date"
     t.boolean "youth_court"
-    t.index ["client_last_name"], name: "index_payment_request_claims_on_client_last_name"
-    t.index ["idempotency_token"], name: "index_payment_request_claims_on_idempotency_token", unique: true
-    t.index ["laa_reference"], name: "index_payment_request_claims_on_laa_reference"
-    t.index ["solicitor_office_code"], name: "index_payment_request_claims_on_solicitor_office_code"
-    t.index ["type"], name: "index_payment_request_claims_on_type"
-    t.index ["ufn"], name: "index_payment_request_claims_on_ufn"
+    t.index ["client_last_name"], name: "index_payable_claims_on_client_last_name"
+    t.index ["idempotency_token"], name: "index_payable_claims_on_idempotency_token", unique: true
+    t.index ["laa_reference"], name: "index_payable_claims_on_laa_reference"
+    t.index ["solicitor_office_code"], name: "index_payable_claims_on_solicitor_office_code"
+    t.index ["type"], name: "index_payable_claims_on_type"
+    t.index ["ufn"], name: "index_payable_claims_on_ufn"
   end
 
   create_table "payment_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -105,12 +105,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_113739) do
     t.decimal "claimed_waiting_cost", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "date_received"
-    t.uuid "payment_request_claim_id"
+    t.uuid "payable_claim_id"
     t.string "request_type"
     t.datetime "submitted_at"
     t.uuid "submitter_id"
     t.datetime "updated_at", null: false
-    t.index ["payment_request_claim_id"], name: "index_payment_requests_on_payment_request_claim_id"
+    t.index ["payable_claim_id"], name: "index_payment_requests_on_payable_claim_id"
   end
 
   create_table "translations", force: :cascade do |t|
@@ -123,8 +123,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_113739) do
   end
 
   add_foreign_key "application_version", "application", name: "application_version_application_id_fkey"
-  add_foreign_key "payment_request_claims", "payment_request_claims", column: "nsm_claim_id"
-  add_foreign_key "payment_requests", "payment_request_claims"
+  add_foreign_key "payable_claims", "payable_claims", column: "nsm_claim_id"
+  add_foreign_key "payment_requests", "payable_claims"
 
   create_view "active_providers", sql_definition: <<-SQL
       WITH submissions AS (
