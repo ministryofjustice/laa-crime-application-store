@@ -1,4 +1,4 @@
-class RenamePaymentRequestClaimToPayableClaim < ActiveRecord::Migration[8.0]
+class RenamePaymentRequestClaimToPayableClaim < ActiveRecord::Migration[8.1]
   def up
     remove_foreign_key :payment_requests, :payment_request_claims
 
