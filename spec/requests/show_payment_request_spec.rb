@@ -30,7 +30,7 @@ RSpec.describe "show payment request", type: :request do
         created_at
         date_received
         claimed_disbursement_cost
-        payment_request_claim
+        payable_claim
         claimed_profit_cost
         submission_id
         request_type
@@ -47,7 +47,7 @@ RSpec.describe "show payment request", type: :request do
       expect(response.parsed_body.keys.sort).to eq(payment_request_keys.sort)
     end
 
-    it "returns expected payment_request_claim keys" do
+    it "returns expected payable_claim keys" do
       payable_keys = %w[
         id
         claim_type
@@ -71,7 +71,7 @@ RSpec.describe "show payment request", type: :request do
       ]
 
       get "/v1/payment_requests/#{payment_id}"
-      expect(response.parsed_body["payment_request_claim"].keys.sort).to eq(payable_keys.sort)
+      expect(response.parsed_body["payable_claim"].keys.sort).to eq(payable_keys.sort)
     end
 
     it "returns not found when not found" do
@@ -98,7 +98,7 @@ RSpec.describe "show payment request", type: :request do
         id
         created_at
         date_received
-        payment_request_claim
+        payable_claim
         submission_id
         request_type
         submitted_at
@@ -135,7 +135,7 @@ RSpec.describe "show payment request", type: :request do
         updated_at
       ]
       get "/v1/payment_requests/#{payment_id}"
-      expect(response.parsed_body["payment_request_claim"].keys.sort).to eq(payable_keys.sort)
+      expect(response.parsed_body["payable_claim"].keys.sort).to eq(payable_keys.sort)
     end
 
     it "returns not found when not found" do
