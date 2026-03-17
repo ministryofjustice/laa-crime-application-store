@@ -27,7 +27,8 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
       number_of_attendances: 2,
       number_of_defendants: 1,
       date_completed: "2025-01-01",
-      court: "Greenock Sheriff",
+      court_name: "Greenock Sheriff",
+      court_id: "123",
       claimed_profit_cost: 100.0,
       claimed_travel_cost: 20.0,
       claimed_waiting_cost: 10.0,
@@ -69,6 +70,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
         matter_type: "CRIM",
         youth_court: false,
         court_name: "Greenock Sheriff",
+        court_id: "123",
         stage_code: "PROG",
         no_of_defendants: 1,
       )

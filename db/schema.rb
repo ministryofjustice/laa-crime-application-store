@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_12_110100) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_23_113739) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -63,6 +63,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_12_110100) do
     t.string "counsel_office_code"
     t.integer "court_attendances"
     t.string "court_name"
+    t.string "court_id"
     t.datetime "created_at", null: false
     t.uuid "idempotency_token"
     t.string "laa_reference"
