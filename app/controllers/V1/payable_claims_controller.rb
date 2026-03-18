@@ -10,7 +10,7 @@ module V1
   private
 
     def payable_claim_resource
-      payable_claim ||= PayableClaim.find(params[:id])
+      payable_claim = PayableClaim.find(params[:id])
 
       @payable_claim_resource ||= PayableClaimResource.new(
         payable_claim, params: { include_claim: false }
