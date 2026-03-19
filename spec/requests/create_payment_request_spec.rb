@@ -60,7 +60,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
 
       expect(payment.request_type).to eq("non_standard_magistrate")
       expect(payment.submitter_id).to eq(submitter_id)
-      expect(payment.payment_request_claim).to eq(claim)
+      expect(payment.payable_claim).to eq(claim)
 
       expect(claim).to have_attributes(
         client_first_name: "Jim",
@@ -161,7 +161,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
       claim = AssignedCounselClaim.last
 
       expect(payment.request_type).to eq("assigned_counsel")
-      expect(payment.payment_request_claim).to eq(claim)
+      expect(payment.payable_claim).to eq(claim)
       expect(claim.counsel_office_code).to eq("2C123B")
       expect(claim.solicitor_office_code).to eq("3B123A")
 

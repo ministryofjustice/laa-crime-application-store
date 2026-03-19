@@ -11,7 +11,7 @@ RSpec.describe "Link submission payment search services" do
         let(:payment_request) { create(:payment_request, :non_standard_magistrate) }
         let(:params) do
           {
-            query: payment_request.payment_request_claim.laa_reference,
+            query: payment_request.payable_claim.laa_reference,
             request_type: payment_request.request_type,
           }
         end
@@ -20,7 +20,7 @@ RSpec.describe "Link submission payment search services" do
           parsed = JSON.parse(call_service)
 
           expect(parsed.dig("metadata", "total_results")).to eq(1)
-          expect(parsed.dig("data", 0, "laa_reference")).to eq(payment_request.payment_request_claim.laa_reference)
+          expect(parsed.dig("data", 0, "laa_reference")).to eq(payment_request.payable_claim.laa_reference)
           expect(parsed.dig("data", 0, "type")).to eq("NsmClaim")
         end
       end
@@ -107,7 +107,7 @@ RSpec.describe "Link submission payment search services" do
       let!(:payment_request) { create(:payment_request, :non_standard_magistrate) }
       let(:params) do
         {
-          query: payment_request.payment_request_claim.laa_reference,
+          query: payment_request.payable_claim.laa_reference,
           request_type: payment_request.request_type,
         }
       end
@@ -225,7 +225,7 @@ RSpec.describe "Link submission payment search services" do
         let(:search_params) { { sort_by: "laa_reference", sort_direction: "Descending" } }
 
         it "builds a LOWER(...) clause with normalized direction" do
-          expect(search.send(:sort_clause)).to eq("LOWER(payment_request_claims.laa_reference) desc")
+          expect(search.send(:sort_clause)).to eq("LOWER(payable_claims.laa_reference) desc")
         end
       end
 

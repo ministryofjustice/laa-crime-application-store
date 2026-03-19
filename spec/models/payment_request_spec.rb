@@ -5,9 +5,9 @@ RSpec.describe PaymentRequest do
     let(:payment_request) { build(:payment_request) }
     let(:nsm_claim) { build(:nsm_claim) }
 
-    it "sets payment_request_claim to the given NsmClaim" do
+    it "sets payable_claim to the given NsmClaim" do
       payment_request.nsm_claim = nsm_claim
-      expect(payment_request.payment_request_claim).to eq(nsm_claim)
+      expect(payment_request.payable_claim).to eq(nsm_claim)
     end
   end
 
@@ -15,9 +15,9 @@ RSpec.describe PaymentRequest do
     let(:payment_request) { build(:payment_request) }
     let(:assigned_counsel_claim) { build(:assigned_counsel_claim) }
 
-    it "sets payment_request_claim to the given AssignedCounselClaim" do
+    it "sets payable_claim to the given AssignedCounselClaim" do
       payment_request.assigned_counsel_claim = assigned_counsel_claim
-      expect(payment_request.payment_request_claim).to eq(assigned_counsel_claim)
+      expect(payment_request.payable_claim).to eq(assigned_counsel_claim)
     end
   end
 
@@ -65,8 +65,8 @@ RSpec.describe PaymentRequest do
 
   describe "#is_linked_to_claim_when_submitted" do
     it "invalidates record if payment request is not linked to claim" do
-      expect { create(:payment_request, payment_request_claim: nil) }
-        .to raise_error ActiveRecord::RecordInvalid, "Validation failed: Payment request claim must exist"
+      expect { create(:payment_request, payable_claim: nil) }
+        .to raise_error ActiveRecord::RecordInvalid, "Validation failed: Payable claim must exist"
     end
   end
 
@@ -75,7 +75,7 @@ RSpec.describe PaymentRequest do
       let(:claim) { build(:nsm_claim) }
 
       context "with valid NSM request type" do
-        let(:payment_request) { build(:payment_request, request_type: PaymentRequest::NSM_REQUEST_TYPES.first, payment_request_claim: claim) }
+        let(:payment_request) { build(:payment_request, request_type: PaymentRequest::NSM_REQUEST_TYPES.first, payable_claim: claim) }
 
         it "is valid" do
           expect(payment_request).to be_valid
@@ -83,7 +83,7 @@ RSpec.describe PaymentRequest do
       end
 
       context "with invalid NSM request type" do
-        let(:payment_request) { build(:payment_request, request_type: "invalid_request", payment_request_claim: claim) }
+        let(:payment_request) { build(:payment_request, request_type: "invalid_request", payable_claim: claim) }
 
         it "is invalid" do
           expect(payment_request).to be_invalid
@@ -91,7 +91,7 @@ RSpec.describe PaymentRequest do
       end
 
       context "with invalid request type" do
-        let(:payment_request) { build(:payment_request, request_type: PaymentRequest::ASSIGNED_COUNSEL_REQUEST_TYPES.first, payment_request_claim: claim) }
+        let(:payment_request) { build(:payment_request, request_type: PaymentRequest::ASSIGNED_COUNSEL_REQUEST_TYPES.first, payable_claim: claim) }
 
         it "adds an error about invalid request type" do
           payment_request.valid?
@@ -104,7 +104,7 @@ RSpec.describe PaymentRequest do
       let(:claim) { build(:assigned_counsel_claim) }
 
       context "with valid assigned counsel request type" do
-        let(:payment_request) { build(:payment_request, request_type: PaymentRequest::ASSIGNED_COUNSEL_REQUEST_TYPES.first, payment_request_claim: claim) }
+        let(:payment_request) { build(:payment_request, request_type: PaymentRequest::ASSIGNED_COUNSEL_REQUEST_TYPES.first, payable_claim: claim) }
 
         it "is valid" do
           expect(payment_request).to be_valid
@@ -112,7 +112,7 @@ RSpec.describe PaymentRequest do
       end
 
       context "with invalid request type" do
-        let(:payment_request) { build(:payment_request, request_type: PaymentRequest::NSM_REQUEST_TYPES.first, payment_request_claim: claim) }
+        let(:payment_request) { build(:payment_request, request_type: PaymentRequest::NSM_REQUEST_TYPES.first, payable_claim: claim) }
 
         it "adds an error about invalid request type" do
           payment_request.valid?

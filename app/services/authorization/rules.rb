@@ -30,7 +30,7 @@ module Authorization
           index: true,
           update: true,
         },
-        payment_request_claims: {
+        payable_claims: {
           show: true,
         },
         assigned_counsel_claims: {

@@ -15,16 +15,16 @@ class PaymentRequest < ApplicationRecord
 
   REQUEST_TYPES = NSM_REQUEST_TYPES + ASSIGNED_COUNSEL_REQUEST_TYPES
 
-  belongs_to :payment_request_claim, optional: false
+  belongs_to :payable_claim, optional: false
 
   belongs_to :nsm_claim,
              class_name: "NsmClaim",
-             foreign_key: :payment_request_claim_id,
+             foreign_key: :payable_claim_id,
              optional: true
 
   belongs_to :ac_claim,
              class_name: "AssignedCounselClaim",
-             foreign_key: :payment_request_claim_id,
+             foreign_key: :payable_claim_id,
              optional: true
 
   attribute :claimed_profit_cost, :gbp
@@ -61,19 +61,19 @@ class PaymentRequest < ApplicationRecord
   validate :correct_request_type
 
   def nsm_claim
-    payment_request_claim.is_a?(NsmClaim) ? payment_request_claim : nil
+    payable_claim.is_a?(NsmClaim) ? payable_claim : nil
   end
 
   def nsm_claim=(record)
-    self.payment_request_claim = record
+    self.payable_claim = record
   end
 
   def assigned_counsel_claim
-    payment_request_claim.is_a?(AssignedCounselClaim) ? payment_request_claim : nil
+    payable_claim.is_a?(AssignedCounselClaim) ? payable_claim : nil
   end
 
   def assigned_counsel_claim=(record)
-    self.payment_request_claim = record
+    self.payable_claim = record
   end
 
   def correct_request_type
@@ -81,8 +81,8 @@ class PaymentRequest < ApplicationRecord
     return true if assigned_counsel_claim && ASSIGNED_COUNSEL_REQUEST_TYPES.include?(request_type)
 
     # :nocov:
-    if payment_request_claim
-      errors.add(:request_type, "invalid request type for a #{payment_request_claim.type}")
+    if payable_claim
+      errors.add(:request_type, "invalid request type for a #{payable_claim.type}")
     end
     # :nocov:
   end

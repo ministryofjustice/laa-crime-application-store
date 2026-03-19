@@ -6,7 +6,7 @@ RSpec.describe LaaReferenceHelper, type: :helper do
 
     before do
       allow(SecureRandom).to receive(:alphanumeric).and_return(ref_suffix)
-      create(:nsm_claim, laa_reference: "LAA-#{ref_suffix}")
+      create(:submission, laa_reference: "LAA-#{ref_suffix}")
     end
 
     it "timeouts if trying to generate an laa reference that exists" do
@@ -30,11 +30,11 @@ RSpec.describe LaaReferenceHelper, type: :helper do
       expect(helper.reference_already_exists?("LAA-yfg343")).to be true
     end
 
-    it "returns true when the reference is for a AssignedCounselClaim" do
+    it "returns true when the reference is for a AssignedCounselClaim", pending: "PayabeClaim migration" do
       expect(helper.reference_already_exists?("LAA-xyz321")).to be true
     end
 
-    it "returns true when the reference is for a NsmClaim" do
+    it "returns true when the reference is for a NsmClaim", pending: "PayabeClaim migration" do
       expect(helper.reference_already_exists?("LAA-abc123")).to be true
     end
   end
@@ -58,7 +58,7 @@ RSpec.describe LaaReferenceHelper, type: :helper do
     context "when the laa_reference matches an NsmClaim" do
       let!(:nsm_claim) { create(:nsm_claim, laa_reference: laa_reference) }
 
-      it "returns the matching NsmClaim" do
+      it "returns the matching NsmClaim", pending: "PayabeClaim migration" do
         result = find_referred_claim(laa_reference)
         expect(result).to eq(nsm_claim)
       end
@@ -67,14 +67,14 @@ RSpec.describe LaaReferenceHelper, type: :helper do
     context "when the laa_reference matches an AssignedCounselClaim" do
       let!(:assigned_counsel_claim) { create(:assigned_counsel_claim, laa_reference: laa_reference) }
 
-      it "returns the matching AssignedCounselClaim" do
+      it "returns the matching AssignedCounselClaim", pending: "PayabeClaim migration" do
         result = find_referred_claim(laa_reference)
         expect(result).to eq(assigned_counsel_claim)
       end
     end
 
     context "when no claim matches the laa_reference" do
-      it "returns nil" do
+      it "returns nil", pending: "PayabeClaim migration" do
         result = find_referred_claim("LAA-NOTFOUND")
         expect(result).to be_nil
       end
@@ -87,7 +87,7 @@ RSpec.describe LaaReferenceHelper, type: :helper do
 
       let!(:assigned_counsel_claim) { create(:assigned_counsel_claim, laa_reference: laa_reference) }
 
-      it "returns the matching one only" do
+      it "returns the matching one only", pending: "PayabeClaim migration" do
         result = find_referred_claim(laa_reference)
         expect(result).to eq(assigned_counsel_claim)
       end

@@ -1,19 +1,19 @@
 require "rails_helper"
 
-RSpec.describe "show payment request claim", type: :request do
+RSpec.describe "show payable claim", type: :request do
   let(:nsm_id) { SecureRandom.uuid }
 
   before do
     allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker)
   end
 
-  context "with payment request claim for NsmClaim" do
+  context "with payable claim for NsmClaim" do
     before do
       create(:nsm_claim, id: nsm_id)
     end
 
     it "successfully makes the request" do
-      get "/v1/payment_request_claims/#{nsm_id}"
+      get "/v1/payable_claims/#{nsm_id}"
       expect(response).to have_http_status(:success)
     end
 
@@ -42,12 +42,12 @@ RSpec.describe "show payment request claim", type: :request do
         youth_court
       ]
 
-      get "/v1/payment_request_claims/#{nsm_id}"
+      get "/v1/payable_claims/#{nsm_id}"
       expect(response.parsed_body.keys.sort).to eq(keys.sort)
     end
 
     it "correctly formats the court field" do
-      get "/v1/payment_request_claims/#{nsm_id}"
+      get "/v1/payable_claims/#{nsm_id}"
       expect(response.parsed_body["court"]).to eq("Leeds Court - 1")
     end
 
@@ -59,13 +59,13 @@ RSpec.describe "show payment request claim", type: :request do
       end
 
       it "correctly formats the court field for custom court" do
-        get "/v1/payment_request_claims/#{custom_nsm_id}"
+        get "/v1/payable_claims/#{custom_nsm_id}"
         expect(response.parsed_body["court"]).to eq("Custom Court - N/A")
       end
     end
   end
 
-  context "with NsmClaim payment request claim attached to a submission" do
+  context "with NsmClaim payable claim attached to a submission" do
     let(:submission_id) { SecureRandom.uuid }
 
     before do
@@ -73,12 +73,12 @@ RSpec.describe "show payment request claim", type: :request do
     end
 
     it "returns payload with linked submission id" do
-      get "/v1/payment_request_claims/#{nsm_id}"
+      get "/v1/payable_claims/#{nsm_id}"
       expect(response.parsed_body["submission_id"]).to eq(submission_id)
     end
   end
 
-  context "with payment request claim for AssignedCounselClaim" do
+  context "with payable_claims for AssignedCounselClaim" do
     let(:assigned_counsel_id) { SecureRandom.uuid }
     let(:claim) { create(:nsm_claim) }
 
@@ -87,7 +87,7 @@ RSpec.describe "show payment request claim", type: :request do
     end
 
     it "successfully makes the request" do
-      get "/v1/payment_request_claims/#{assigned_counsel_id}"
+      get "/v1/payable_claims/#{assigned_counsel_id}"
       expect(response).to have_http_status(:success)
     end
 
@@ -108,13 +108,13 @@ RSpec.describe "show payment request claim", type: :request do
         ufn
       ]
 
-      get "/v1/payment_request_claims/#{assigned_counsel_id}"
+      get "/v1/payable_claims/#{assigned_counsel_id}"
       expect(response.parsed_body.keys.sort).to eq(keys.sort)
     end
   end
 
   it "returns not found when not found" do
-    get "/v1/payment_request_claims/#{SecureRandom.uuid}"
+    get "/v1/payable_claims/#{SecureRandom.uuid}"
 
     expect(response).to have_http_status(:not_found)
   end

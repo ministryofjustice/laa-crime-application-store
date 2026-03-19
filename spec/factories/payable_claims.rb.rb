@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :payment_request_claim do
+  factory :payable_claim do
     id { SecureRandom.uuid }
     laa_reference { "LAA-Xcoqqz" }
     solicitor_office_code { "1A123B" }

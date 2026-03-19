@@ -1,4 +1,4 @@
-class NsmClaim < PaymentRequestClaim
+class NsmClaim < PayableClaim
   has_one :assigned_counsel_claim, -> { where(type: "AssignedCounselClaim") },
           class_name: "AssignedCounselClaim",
           foreign_key: :nsm_claim_id,

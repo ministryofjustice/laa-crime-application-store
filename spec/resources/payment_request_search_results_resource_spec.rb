@@ -10,14 +10,14 @@ RSpec.describe PaymentRequestSearchResultsResource do
       let(:submission_id) { SecureRandom.uuid }
       let(:claim) { build(:nsm_claim, submission_id: submission_id) }
       let(:payment_request) do
-        build(:payment_request, :non_standard_magistrate, payment_request_claim: claim)
+        build(:payment_request, :non_standard_magistrate, payable_claim: claim)
       end
 
       it "embeds the claim summary via ClaimPaymentSearchResultsResource" do
         serialized = serialize_collection([payment_request])
         entry = serialized.first
 
-        expect(entry.fetch("payment_request_claim")).to include(
+        expect(entry.fetch("payable_claim")).to include(
           "claim_type" => "NsmClaim",
           "laa_reference" => claim.laa_reference,
         )
@@ -31,13 +31,13 @@ RSpec.describe PaymentRequestSearchResultsResource do
     end
 
     context "when a payment request is not linked to a claim" do
-      let(:payment_request) { build(:payment_request, payment_request_claim: nil) }
+      let(:payment_request) { build(:payment_request, payable_claim: nil) }
 
       it "renders nil for the claim and submission_id" do
         serialized = serialize_collection([payment_request])
         entry = serialized.first
 
-        expect(entry["payment_request_claim"]).to be_nil
+        expect(entry["payable_claim"]).to be_nil
         expect(entry["submission_id"]).to be_nil
       end
     end

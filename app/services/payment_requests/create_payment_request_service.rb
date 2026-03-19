@@ -32,12 +32,12 @@ module PaymentRequests
   private
 
     def find_or_create_claim!
-      if PaymentRequestClaim.exists?(idempotency_token: params[:idempotency_token])
+      if PayableClaim.exists?(idempotency_token: params[:idempotency_token])
         raise UnprocessableEntityError, "payment already exists: #{params[:idempotency_token]}"
       end
 
       if params[:laa_reference].present? && supplemental_appeal_or_ammendment?
-        PaymentRequestClaim.find_by(laa_reference: params[:laa_reference]) || raise(UnprocessableEntityError, "Claim not found")
+        PayableClaim.find_by(laa_reference: params[:laa_reference]) || raise(UnprocessableEntityError, "Claim not found")
       else
         case claim_type
         when "NsmClaim"
