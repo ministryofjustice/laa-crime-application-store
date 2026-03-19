@@ -1,4 +1,4 @@
-class PaymentRequestClaimSearchResultResource
+class PayableClaimSearchResultResource
   include Alba::Resource
 
   attributes :id,
@@ -9,7 +9,7 @@ class PaymentRequestClaimSearchResultResource
              :type,
              :ufn
 
-  def defendant_last_name(payment_request_claim)
-    payment_request_claim.client_last_name
+  def defendant_last_name(payable_claim)
+    payable_claim.client_last_name
   end
 end

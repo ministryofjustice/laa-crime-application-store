@@ -27,10 +27,10 @@ module PaymentRequests
 
       def search_query
         claims = claim_type.all
-        claims = claims.where("LOWER(payment_request_claims.laa_reference) = ?", query_params[:laa_reference].downcase) if query_params[:laa_reference].present?
+        claims = claims.where("LOWER(payable_claims.laa_reference) = ?", query_params[:laa_reference].downcase) if query_params[:laa_reference].present?
         claims = claims.where(ufn: query_params[:ufn]) if query_params[:ufn].present?
-        claims = claims.where("LOWER(payment_request_claims.solicitor_office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
-        claims = claims.where("LOWER(payment_request_claims.client_last_name) % ?::text", "%#{query_params[:client_last_name].downcase}%") if query_params[:client_last_name].present?
+        claims = claims.where("LOWER(payable_claims.solicitor_office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
+        claims = claims.where("LOWER(payable_claims.client_last_name) % ?::text", "%#{query_params[:client_last_name].downcase}%") if query_params[:client_last_name].present?
         claims.order(sort_clause)
       end
 
@@ -52,12 +52,12 @@ module PaymentRequests
         if sort_by.in?(%w[created_at request_type])
           "#{sort_by} #{sort_direction}"
         else
-          "LOWER(payment_request_claims.#{sort_by}) #{sort_direction}"
+          "LOWER(payable_claims.#{sort_by}) #{sort_direction}"
         end
       end
 
       def serialized_data
-        PaymentRequestClaimSearchResultResource.new(@data.limit(limit).offset(offset))
+        PayableClaimSearchResultResource.new(@data.limit(limit).offset(offset))
       end
 
       def claim_type

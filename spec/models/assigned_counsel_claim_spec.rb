@@ -41,8 +41,8 @@ RSpec.describe AssignedCounselClaim, type: :model do
   end
 
   describe "inheritance" do
-    it "inherits from PaymentRequestClaim" do
-      expect(described_class < PaymentRequestClaim).to be(true)
+    it "inherits from PayableClaim" do
+      expect(described_class < PayableClaim).to be(true)
     end
   end
 

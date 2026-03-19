@@ -8,7 +8,7 @@ RSpec.describe "list payment request", type: :request do
   context "with payment requests" do
     before do
       create_list(:payment_request, 20,
-                  payment_request_claim: build(:nsm_claim, client_last_name: "Andrex"))
+                  payable_claim: build(:nsm_claim, client_last_name: "Andrex"))
     end
 
     it "successfully update when fields are valid" do
@@ -19,7 +19,7 @@ RSpec.describe "list payment request", type: :request do
     it "returns expected keys" do
       payment_request_keys = %w[
         id
-        payment_request_claim
+        payable_claim
         submission_id
         request_type
         submitted_at
@@ -31,7 +31,7 @@ RSpec.describe "list payment request", type: :request do
       expect(response.parsed_body["data"].first.keys.sort).to eq(payment_request_keys.sort)
     end
 
-    it "returns expected payment_request_claim keys" do
+    it "returns expected payable_claim keys" do
       payable_keys = %w[
         id
         laa_reference
@@ -43,7 +43,7 @@ RSpec.describe "list payment request", type: :request do
       ]
 
       get "/v1/payment_requests"
-      expect(response.parsed_body["data"].first["payment_request_claim"].keys.sort).to eq(payable_keys.sort)
+      expect(response.parsed_body["data"].first["payable_claim"].keys.sort).to eq(payable_keys.sort)
     end
   end
 end

@@ -14,7 +14,7 @@ RSpec.describe PaymentRequestResource do
       let(:submission_id) { SecureRandom.uuid }
       let(:payment_request) do
         build(:payment_request, :non_standard_magistrate).tap do |request|
-          request.payment_request_claim.submission_id = submission_id
+          request.payable_claim.submission_id = submission_id
           request.claimed_total = 500
           request.allowed_total = 450
         end
@@ -49,7 +49,7 @@ RSpec.describe PaymentRequestResource do
       it "serializes the linked NSM claim when include_claim is true" do
         serialized = serialize_payment_request(payment_request, include_claim: true)
 
-        expect(serialized.fetch("payment_request_claim")).to include(
+        expect(serialized.fetch("payable_claim")).to include(
           "claim_type" => "NsmClaim",
         )
       end
@@ -59,7 +59,7 @@ RSpec.describe PaymentRequestResource do
       let(:submission_id) { SecureRandom.uuid }
       let(:payment_request) do
         build(:payment_request, :assigned_counsel).tap do |request|
-          request.payment_request_claim.submission_id = submission_id
+          request.payable_claim.submission_id = submission_id
           request.claimed_total = 400
           request.allowed_total = 350
         end
@@ -89,7 +89,7 @@ RSpec.describe PaymentRequestResource do
         ].each { expect(serialized).not_to have_key(_1) }
 
         expect(serialized["submission_id"]).to eq(submission_id)
-        expect(serialized.fetch("payment_request_claim")).to include(
+        expect(serialized.fetch("payable_claim")).to include(
           "claim_type" => "AssignedCounselClaim",
         )
       end
@@ -98,10 +98,10 @@ RSpec.describe PaymentRequestResource do
     context "when include_claim is false" do
       let(:payment_request) { build(:payment_request, :non_standard_magistrate) }
 
-      it "omits the payment_request_claim relationship" do
+      it "omits the payable_claim relationship" do
         serialized = serialize_payment_request(payment_request, include_claim: false)
 
-        expect(serialized).not_to have_key("payment_request_claim")
+        expect(serialized).not_to have_key("payable_claim")
       end
     end
 
@@ -109,7 +109,7 @@ RSpec.describe PaymentRequestResource do
       let(:payment_request) do
         build(
           :payment_request,
-          payment_request_claim: nil,
+          payable_claim: nil,
           claimed_total: 250,
           allowed_total: 200,
         )

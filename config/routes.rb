@@ -32,7 +32,7 @@ Rails.application.routes.draw do
       member { patch :link_payable }
     end
     resources :assigned_counsel_claims, only: %i[update]
-    resources :payment_request_claims, only: %i[show]
+    resources :payable_claims, only: %i[show]
 
     namespace :linked_claim do
       resource :searches, only: %i[create]
