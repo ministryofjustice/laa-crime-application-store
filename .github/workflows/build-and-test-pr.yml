@@ -178,79 +178,6 @@ jobs:
   # PHASE 3: Security scans and E2E tests (run in parallel after build)
   # ============================================================================
 
-  trivy-scan:
-    name: Trivy security scanning
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      security-events: write
-    needs: build
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Configure AWS credentials for ECR access
-        uses: ministryofjustice/laa-reusable-github-actions/.github/actions/ecr-auth@e5500aa20b13a1406fe8a62b8788181a2ca18926
-        with:
-          ecr_role: ${{ secrets.APP_STORE_DEV_ECR_ROLE_TO_ASSUME }}
-          ecr_region: ${{ vars.APP_STORE_DEV_ECR_REGION }}
-          role-session-name: ${{ vars.ECR_ROLE_SESSION_NAME }}
-
-      - name: Scan filesystem for vulnerabilities
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          vuln-type: 'os'
-          format: 'sarif'
-          output: 'trivy-fs-results.sarif'
-          severity: 'CRITICAL,HIGH'
-          exit-code: '0'
-
-      - name: Upload filesystem scan results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
-        if: always()
-        with:
-          sarif_file: 'trivy-fs-results.sarif'
-          category: 'trivy-filesystem'
-
-      - name: Scan Docker image for vulnerabilities
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'image'
-          image-ref: '${{ secrets.ECR_REGISTRY_URL}}/${{ vars.APP_STORE_DEV_ECR_REPOSITORY}}:${{ needs.build.outputs.image-tag }}'
-          format: 'sarif'
-          vuln-type: 'os'
-          output: 'trivy-image-results.sarif'
-          severity: 'CRITICAL,HIGH'
-          exit-code: '0'
-
-      - name: Upload Docker image scan results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
-        if: always()
-        with:
-          sarif_file: 'trivy-image-results.sarif'
-          category: 'trivy-image'
-
-      - name: Scan infrastructure configuration for issues
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'config'
-          scan-ref: '.'
-          format: 'sarif'
-          vuln-type: 'os'
-          output: 'trivy-config-results.sarif'
-          severity: 'CRITICAL,HIGH'
-          exit-code: '0'
-
-      - name: Upload config scan results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
-        if: always()
-        with:
-          sarif_file: 'trivy-config-results.sarif'
-          category: 'trivy-config'
-
   snyk-scan:
     name: Snyk security scanning
     runs-on: ubuntu-latest
@@ -320,7 +247,7 @@ jobs:
   deploy-feature-branch:
     name: Deploy feature branch to dev
     runs-on: ubuntu-latest
-    needs: [build, snyk-scan, e2e-test, trivy-scan]
+    needs: [build, snyk-scan, e2e-test]
     permissions:
       id-token: write
       contents: read
