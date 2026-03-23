@@ -12,7 +12,7 @@ Rails.application.configure do
   # Full error reports are disabled.
   config.consider_all_requests_local = false
 
- # Disable serving static files from the `/public` folder by default since
+  # Disable serving static files from the `/public` folder by default since
   # Apache or NGINX already handles this.
   config.public_file_server.enabled = ENV["RAILS_SERVE_STATIC_FILES"].present?
 
@@ -32,8 +32,8 @@ Rails.application.configure do
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
 
   # Log to STDOUT with the current request id as a default log tag.
-  config.log_tags = [ :request_id ]
-  config.logger   = ActiveSupport::TaggedLogging.logger(STDOUT)
+  config.log_tags = [:request_id]
+  config.logger   = ActiveSupport::TaggedLogging.logger($stdout)
 
   # information to avoid inadvertent exposure of personally identifiable information (PII).
   config.log_level = :info
@@ -45,7 +45,7 @@ Rails.application.configure do
   # config.cache_store = :mem_cache_store
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
-# Use a real queuing backend for Active Job (and separate queues per environment).
+  # Use a real queuing backend for Active Job (and separate queues per environment).
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
@@ -68,8 +68,7 @@ Rails.application.configure do
   config.i18n.fallbacks = true
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
-  
-  
+
   if ENV["RAILS_LOG_TO_STDOUT"].present?
     logger           = ActiveSupport::Logger.new($stdout)
     logger.formatter = config.log_formatter
@@ -79,7 +78,7 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   # Only use :id for inspections in production.
-  config.active_record.attributes_for_inspect = [ :id ]
+  config.active_record.attributes_for_inspect = [:id]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
   # config.hosts = [
