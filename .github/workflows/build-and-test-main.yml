@@ -94,7 +94,7 @@ jobs:
           role-session-name: ${{ vars.ECR_ROLE_SESSION_NAME }}
 
       - name: Install Helm
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@v5
         with:
           version: '3.7.2'
 
@@ -134,7 +134,7 @@ jobs:
           role-session-name: ${{ vars.ECR_ROLE_SESSION_NAME }}
 
       - name: Install Helm
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@v5
         with:
           version: '3.7.2'
 
