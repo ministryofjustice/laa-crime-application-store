@@ -21,7 +21,7 @@ Bundler.require(*Rails.groups)
 module CrimeApplicationStore
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.0
+    config.load_defaults 8.1
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
@@ -43,5 +43,16 @@ module CrimeApplicationStore
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+    
+    # Skips escaping HTML entities and line separators. When set to `false`, the
+    # JSON renderer no longer escapes these to improve performance.
+    # Kept as `true` to maintain the previous escaping behavior, which can be important 
+    # for security and compatibility reasons, even though modern browsers support these characters in JSON.
+    config.action_controller.escape_json_responses = true
+
+    # Skips escaping LINE SEPARATOR (U+2028) and PARAGRAPH SEPARATOR (U+2029) in JSON.
+    # Kept as `true` to maintain the previous escaping behavior, which can be important 
+    # for security and compatibility reasons, even though modern browsers support these characters in JSON.
+    config.active_support.escape_js_separators_in_json = true
   end
 end
