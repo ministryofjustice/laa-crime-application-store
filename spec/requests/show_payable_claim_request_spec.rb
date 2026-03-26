@@ -22,7 +22,8 @@ RSpec.describe "show payable claim", type: :request do
         assigned_counsel_claim
         defendant_first_name
         defendant_last_name
-        court
+        court_name
+        court_id
         created_at
         hearing_outcome_code
         id
@@ -44,24 +45,6 @@ RSpec.describe "show payable claim", type: :request do
 
       get "/v1/payable_claims/#{nsm_id}"
       expect(response.parsed_body.keys.sort).to eq(keys.sort)
-    end
-
-    it "correctly formats the court field" do
-      get "/v1/payable_claims/#{nsm_id}"
-      expect(response.parsed_body["court"]).to eq("Leeds Court - 1")
-    end
-
-    context "when court is custom" do
-      let(:custom_nsm_id) { SecureRandom.uuid }
-
-      before do
-        create(:nsm_claim, id: custom_nsm_id, court_id: "custom", court_name: "Custom Court")
-      end
-
-      it "correctly formats the court field for custom court" do
-        get "/v1/payable_claims/#{custom_nsm_id}"
-        expect(response.parsed_body["court"]).to eq("Custom Court - N/A")
-      end
     end
   end
 
