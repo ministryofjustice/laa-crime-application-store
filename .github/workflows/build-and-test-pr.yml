@@ -221,6 +221,12 @@ jobs:
         with:
           sarif_file: snyk_sarif
 
+      - name: Scan UAT Metabase Docker Image for Vulnerabilities
+        continue-on-error: true
+        run: snyk container test $(cat helm_deploy/values-uat.yaml | yq '.metabase.image') --policy-path=.snyk --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
       - name: Monitor Docker Vulnerabilities
         uses: snyk/actions/docker@master
         env:
