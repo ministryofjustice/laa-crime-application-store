@@ -223,7 +223,13 @@ jobs:
 
       - name: Scan UAT Metabase Docker Image for Vulnerabilities
         continue-on-error: true
-        run: snyk container test $(cat helm_deploy/values-uat.yaml | yq '.metabase.image') --policy-path=.snyk --severity-threshold=high
+        run: snyk container test $(cat helm_deploy/values-uat.yaml | yq '.metabase.image') --policy-path=.snyk --severity-threshold=high --fail-on=patchable
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Scan Prod Metabase Docker Image for Vulnerabilities
+        continue-on-error: true
+        run: snyk container test $(cat helm_deploy/values-prod.yaml | yq '.metabase.image') --policy-path=.snyk --severity-threshold=high --fail-on=patchable
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
