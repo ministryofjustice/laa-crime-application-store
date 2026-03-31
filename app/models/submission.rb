@@ -1,9 +1,9 @@
 class Submission < ApplicationRecord
-  self.table_name = "application"
+  self.table_name = 'application'
   has_many :ordered_submission_versions, -> { order(version: :desc) },
            dependent: :destroy,
-           foreign_key: "application_id",
-           class_name: "SubmissionVersion"
+           foreign_key: 'application_id',
+           class_name: 'SubmissionVersion'
   belongs_to :nsm_claim, optional: true
 
   attribute :caseworker_history_events, :jsonb, default: -> { [] }

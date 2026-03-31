@@ -1,4 +1,4 @@
-require "sidekiq/web"
+require 'sidekiq/web'
 
 # Configure Sidekiq-specific session middleware
 Sidekiq::Web.use ActionDispatch::Cookies
@@ -11,12 +11,12 @@ Rails.application.routes.draw do
     # - See https://web.archive.org/web/20180709235757/https://thisdata.com/blog/timing-attacks-against-string-comparison/
     # - Use & (do not use &&) so that it doesn't short circuit.
     # - Use digests to stop length information leaking (see also ActiveSupport::SecurityUtils.variable_size_secure_compare)
-    ActiveSupport::SecurityUtils.secure_compare(Digest::SHA256.hexdigest(username), Digest::SHA256.hexdigest(ENV.fetch("SIDEKIQ_WEB_UI_USERNAME", nil))) &
-      ActiveSupport::SecurityUtils.secure_compare(Digest::SHA256.hexdigest(password), Digest::SHA256.hexdigest(ENV.fetch("SIDEKIQ_WEB_UI_PASSWORD", nil)))
+    ActiveSupport::SecurityUtils.secure_compare(Digest::SHA256.hexdigest(username), Digest::SHA256.hexdigest(ENV.fetch('SIDEKIQ_WEB_UI_USERNAME', nil))) &
+      ActiveSupport::SecurityUtils.secure_compare(Digest::SHA256.hexdigest(password), Digest::SHA256.hexdigest(ENV.fetch('SIDEKIQ_WEB_UI_PASSWORD', nil)))
   end
-  mount Sidekiq::Web => "/sidekiq"
+  mount Sidekiq::Web => '/sidekiq'
 
-  namespace "v1" do
+  namespace 'v1' do
     resources :submissions, only: %i[show create index update] do
       resources :events, only: %i[create]
       resources :adjustments, only: %i[create]
@@ -47,12 +47,12 @@ Rails.application.routes.draw do
     end
 
     # Legacy endpoint aliases
-    get :applications, to: "submissions#index"
-    post :application, to: "submissions#create"
-    get "application/:id", to: "submissions#show"
-    put "application/:id", to: "submissions#update"
+    get :applications, to: 'submissions#index'
+    post :application, to: 'submissions#create'
+    get 'application/:id', to: 'submissions#show'
+    put 'application/:id', to: 'submissions#update'
   end
 
-  root to: "v1/submissions#index"
-  get :ping, to: "health#show"
+  root to: 'v1/submissions#index'
+  get :ping, to: 'health#show'
 end

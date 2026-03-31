@@ -20,7 +20,7 @@ module Submissions
     def apply_since_param(query)
       return query if params[:since].blank?
 
-      query.where("updated_at > ?", Time.zone.at(params[:since].to_i))
+      query.where('updated_at > ?', Time.zone.at(params[:since].to_i))
     end
   end
 end

@@ -5,7 +5,7 @@ module PriorAuthority
     def notify(submission)
       @data = submission.latest_version.application
       @application = V1::PriorAuthority::ApplicationPresenter.new(submission)
-      set_template("d07d03fd-65d0-45e4-8d49-d4ee41efad35")
+      set_template('d07d03fd-65d0-45e4-8d49-d4ee41efad35')
       set_personalisation(
         laa_case_reference: case_reference,
         ufn: unique_file_number,
@@ -23,15 +23,15 @@ module PriorAuthority
     end
 
     def email_recipient
-      @data.dig("solicitor", "contact_email").presence
+      @data.dig('solicitor', 'contact_email').presence
     end
 
     def case_reference
-      @data["laa_reference"]
+      @data['laa_reference']
     end
 
     def unique_file_number
-      @data["ufn"]
+      @data['ufn']
     end
 
     def application_total

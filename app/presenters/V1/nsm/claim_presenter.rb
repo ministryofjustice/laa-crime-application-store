@@ -2,7 +2,7 @@ module V1
   module Nsm
     class ClaimPresenter < V1::Base
       def main_defendant
-        @application["defendants"].find { _1["main"] }
+        @application['defendants'].find { _1['main'] }
       end
 
       def totals
@@ -10,11 +10,11 @@ module V1
       end
 
       def work_items_for_calculation
-        @application["work_items"].map { WorkItemCostsPresenter.new(_1, @application).data_for_calculation }
+        @application['work_items'].map { WorkItemCostsPresenter.new(_1, @application).data_for_calculation }
       end
 
       def disbursements_for_calculation
-        @application["disbursements"].map { DisbursementCostsPresenter.new(_1).data_for_calculation }
+        @application['disbursements'].map { DisbursementCostsPresenter.new(_1).data_for_calculation }
       end
 
       def letters_and_calls_for_calculation
@@ -32,14 +32,14 @@ module V1
 
       def data_for_calculation
         {
-          claim_type: @application["claim_type"],
-          rep_order_date: @application["rep_order_date"],
-          cntp_date: @application["cntp_date"],
-          claimed_youth_court_fee_included: @application.fetch("include_youth_court_fee",  false),
-          assessed_youth_court_fee_included: @application.fetch("allowed_youth_court_fee", false),
-          youth_court: @application["youth_court"] == "yes",
-          plea_category: @application["plea_category"],
-          vat_registered: @application.dig("firm_office", "vat_registered") == "yes",
+          claim_type: @application['claim_type'],
+          rep_order_date: @application['rep_order_date'],
+          cntp_date: @application['cntp_date'],
+          claimed_youth_court_fee_included: @application.fetch('include_youth_court_fee',  false),
+          assessed_youth_court_fee_included: @application.fetch('allowed_youth_court_fee', false),
+          youth_court: @application['youth_court'] == 'yes',
+          plea_category: @application['plea_category'],
+          vat_registered: @application.dig('firm_office', 'vat_registered') == 'yes',
           work_items: [],
           letters_and_calls: [],
           disbursements: [],

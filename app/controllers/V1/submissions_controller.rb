@@ -48,7 +48,7 @@ module V1
     end
 
     def authorization_object
-      current_submission if action_name == "update"
+      current_submission if action_name == 'update'
     end
   end
 end

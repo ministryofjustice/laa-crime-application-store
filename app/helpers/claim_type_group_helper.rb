@@ -1,13 +1,13 @@
 module ClaimTypeGroupHelper
   CLAIM_TYPE_MAP = {
-    "NsmClaim" => %w[
+    'NsmClaim' => %w[
       breach_of_injunction
       non_standard_magistrate
       non_standard_mag_supplemental
       non_standard_mag_appeal
       non_standard_mag_amendment
     ],
-    "AssignedCounselClaim" => %w[
+    'AssignedCounselClaim' => %w[
       assigned_counsel
       assigned_counsel_appeal
       assigned_counsel_amendment

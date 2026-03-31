@@ -16,9 +16,9 @@ module Submissions
             last_updated_at = params.dig(:application, :updated_at)&.to_time || submission.created_at
             submission.update!(last_updated_at:)
           end
-          if ENV.fetch("SEND_EMAILS", "false") == "true"
-            Nsm::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == "crm7"
-            PriorAuthority::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == "crm4"
+          if ENV.fetch('SEND_EMAILS', 'false') == 'true'
+            Nsm::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == 'crm7'
+            PriorAuthority::SubmissionMailer.notify(submission).deliver_now! if submission.application_type == 'crm4'
           end
           submission
         end
@@ -32,7 +32,7 @@ module Submissions
       end
 
       def add_version(submission, params)
-        params[:application]["laa_reference"] = generate_laa_reference
+        params[:application]['laa_reference'] = generate_laa_reference
         submission.ordered_submission_versions.create!(
           json_schema_version: params[:json_schema_version],
           application: params[:application],
@@ -49,7 +49,7 @@ module Submissions
         latest_version = submission.latest_version
         submission.ordered_submission_versions.create!(
           json_schema_version: latest_version.json_schema_version,
-          application: latest_version.application.merge("updated_at" => Time.zone.now, "status" => new_state),
+          application: latest_version.application.merge('updated_at' => Time.zone.now, 'status' => new_state),
           version: submission.current_version,
         )
 

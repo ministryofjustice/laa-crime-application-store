@@ -1,6 +1,6 @@
 class AssignedCounselClaim < PayableClaim
   belongs_to :nsm_claim,
-             class_name: "NsmClaim",
+             class_name: 'NsmClaim',
              inverse_of: :assigned_counsel_claim,
              optional: true
 

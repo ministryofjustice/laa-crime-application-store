@@ -20,11 +20,11 @@ private
 
   # :nocov:
   def search_query
-    raise NoMethodError, "method not found in BaseSearchService child class"
+    raise NoMethodError, 'method not found in BaseSearchService child class'
   end
 
   def search_results
-    raise NoMethodError, "method not found in BaseSearchService child class"
+    raise NoMethodError, 'method not found in BaseSearchService child class'
   end
   # :nocov:
 

@@ -119,7 +119,7 @@ module Submissions
     end
 
     def sort_clause
-      return "last_updated desc" unless search_params[:sort_by]
+      return 'last_updated desc' unless search_params[:sort_by]
       raise "Unsortable column \"#{sort_by}\" supplied as sort_by argument" unless SORTABLE_COLUMNS.include?(sort_by.downcase)
 
       if sort_by.in?(%w[last_updated risk_level last_state_change])
@@ -130,19 +130,19 @@ module Submissions
     end
 
     def sort_by
-      search_params.fetch(:sort_by, "last_updated")
+      search_params.fetch(:sort_by, 'last_updated')
     end
 
     def sort_direction
       @sort_direction ||= search_params
-                            .fetch(:sort_direction, "asc")
+                            .fetch(:sort_direction, 'asc')
                             .downcase
-                            .gsub("ascending", "asc")
-                            .gsub("descending", "desc")
+                            .gsub('ascending', 'asc')
+                            .gsub('descending', 'desc')
     end
 
     def has_been_assigned_to(relation)
-      relation.where("assigned_user_id = :caseworker_id OR :caseworker_id = ANY(unassigned_user_ids)", caseworker_id:)
+      relation.where('assigned_user_id = :caseworker_id OR :caseworker_id = ANY(unassigned_user_ids)', caseworker_id:)
     end
   end
 end

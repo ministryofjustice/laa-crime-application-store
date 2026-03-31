@@ -1,21 +1,21 @@
-require "simplecov"
-require "simplecov-console"
+require 'simplecov'
+require 'simplecov-console'
 
-unless ENV["NOCOVERAGE"]
-  SimpleCov.formatter = SimpleCov::Formatter::Console if ENV["TEST_ENV_NUMBER"]
+unless ENV['NOCOVERAGE']
+  SimpleCov.formatter = SimpleCov::Formatter::Console if ENV['TEST_ENV_NUMBER']
 
   SimpleCov.use_merging true
   SimpleCov.merge_timeout 3600
 
   SimpleCov.start do
-    add_filter "config/initializers/prometheus.rb"
-    add_filter "config/initializers/sentry.rb"
-    add_filter "config/initializers/sidekiq.rb"
-    add_filter "config/initializers/lograge.rb"
-    add_filter "config/routes.rb"
-    add_filter "lib/tasks/"
-    add_filter "spec/"
-    add_group "Ignored Code" do |src_file|
+    add_filter 'config/initializers/prometheus.rb'
+    add_filter 'config/initializers/sentry.rb'
+    add_filter 'config/initializers/sidekiq.rb'
+    add_filter 'config/initializers/lograge.rb'
+    add_filter 'config/routes.rb'
+    add_filter 'lib/tasks/'
+    add_filter 'spec/'
+    add_group 'Ignored Code' do |src_file|
       File.readlines(src_file.filename).grep(/:nocov:/).any?
     end
 
@@ -46,7 +46,7 @@ end
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
   # Reduce noise when running tests in parallel
-  config.silence_filter_announcements = true if ENV["TEST_ENV_NUMBER"]
+  config.silence_filter_announcements = true if ENV['TEST_ENV_NUMBER']
 
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
@@ -90,13 +90,13 @@ RSpec.configure do |config|
   #
   # NOTE: you can also use `fit`, `fdescribe`, `fcontext` to focus specs
   #
-  config.filter_run_including focus: true unless ENV["CI"]
+  config.filter_run_including focus: true unless ENV['CI']
   config.run_all_when_everything_filtered = true
   #
   #   # Allows RSpec to persist some state between runs in order to support
   #   # the `--only-failures` and `--next-failure` CLI options. We recommend
   #   # you configure your source control system to ignore this file.
-  config.example_status_persistence_file_path = "tmp/examples.txt"
+  config.example_status_persistence_file_path = 'tmp/examples.txt'
   #
   #   # Limits the available syntax to the non-monkey patched syntax that is
   #   # recommended. For more details, see:

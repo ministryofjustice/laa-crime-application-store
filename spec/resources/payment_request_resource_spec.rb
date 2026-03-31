@@ -1,4 +1,4 @@
-require "rails_helper"
+require 'rails_helper'
 
 RSpec.describe PaymentRequestResource do
   def serialize_payment_request(payment_request, include_claim: true)
@@ -9,8 +9,8 @@ RSpec.describe PaymentRequestResource do
     )
   end
 
-  describe "#serialize" do
-    context "when the payment request belongs to an NSM claim" do
+  describe '#serialize' do
+    context 'when the payment request belongs to an NSM claim' do
       let(:submission_id) { SecureRandom.uuid }
       let(:payment_request) do
         build(:payment_request, :non_standard_magistrate).tap do |request|
@@ -20,7 +20,7 @@ RSpec.describe PaymentRequestResource do
         end
       end
 
-      it "exposes NSM specific cost attributes and suppresses assigned counsel ones" do
+      it 'exposes NSM specific cost attributes and suppresses assigned counsel ones' do
         serialized = serialize_payment_request(payment_request)
 
         %w[
@@ -43,19 +43,19 @@ RSpec.describe PaymentRequestResource do
           allowed_assigned_counsel_vat
         ].each { expect(serialized).not_to have_key(_1) }
 
-        expect(serialized["submission_id"]).to eq(submission_id)
+        expect(serialized['submission_id']).to eq(submission_id)
       end
 
-      it "serializes the linked NSM claim when include_claim is true" do
+      it 'serializes the linked NSM claim when include_claim is true' do
         serialized = serialize_payment_request(payment_request, include_claim: true)
 
-        expect(serialized.fetch("payable_claim")).to include(
-          "claim_type" => "NsmClaim",
+        expect(serialized.fetch('payable_claim')).to include(
+          'claim_type' => 'NsmClaim',
         )
       end
     end
 
-    context "when the payment request belongs to an Assigned Counsel claim" do
+    context 'when the payment request belongs to an Assigned Counsel claim' do
       let(:submission_id) { SecureRandom.uuid }
       let(:payment_request) do
         build(:payment_request, :assigned_counsel).tap do |request|
@@ -65,7 +65,7 @@ RSpec.describe PaymentRequestResource do
         end
       end
 
-      it "exposes assigned counsel attributes and hides NSM cost fields" do
+      it 'exposes assigned counsel attributes and hides NSM cost fields' do
         serialized = serialize_payment_request(payment_request)
 
         %w[
@@ -88,24 +88,24 @@ RSpec.describe PaymentRequestResource do
           allowed_disbursement_cost
         ].each { expect(serialized).not_to have_key(_1) }
 
-        expect(serialized["submission_id"]).to eq(submission_id)
-        expect(serialized.fetch("payable_claim")).to include(
-          "claim_type" => "AssignedCounselClaim",
+        expect(serialized['submission_id']).to eq(submission_id)
+        expect(serialized.fetch('payable_claim')).to include(
+          'claim_type' => 'AssignedCounselClaim',
         )
       end
     end
 
-    context "when include_claim is false" do
+    context 'when include_claim is false' do
       let(:payment_request) { build(:payment_request, :non_standard_magistrate) }
 
-      it "omits the payable_claim relationship" do
+      it 'omits the payable_claim relationship' do
         serialized = serialize_payment_request(payment_request, include_claim: false)
 
-        expect(serialized).not_to have_key("payable_claim")
+        expect(serialized).not_to have_key('payable_claim')
       end
     end
 
-    context "when the payment request is not linked to a supported claim" do
+    context 'when the payment request is not linked to a supported claim' do
       let(:payment_request) do
         build(
           :payment_request,
@@ -115,17 +115,17 @@ RSpec.describe PaymentRequestResource do
         )
       end
 
-      it "does not expose total fields that depend on a supported claim" do
+      it 'does not expose total fields that depend on a supported claim' do
         serialized = serialize_payment_request(payment_request, include_claim: false)
 
-        expect(serialized).not_to have_key("claimed_total")
-        expect(serialized).not_to have_key("allowed_total")
+        expect(serialized).not_to have_key('claimed_total')
+        expect(serialized).not_to have_key('allowed_total')
       end
 
-      it "returns a nil submission_id gracefully" do
+      it 'returns a nil submission_id gracefully' do
         serialized = serialize_payment_request(payment_request, include_claim: false)
 
-        expect(serialized["submission_id"]).to be_nil
+        expect(serialized['submission_id']).to be_nil
       end
     end
   end

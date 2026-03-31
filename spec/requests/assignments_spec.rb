@@ -1,13 +1,13 @@
-require "rails_helper"
+require 'rails_helper'
 
-RSpec.describe "Assignments" do
+RSpec.describe 'Assignments' do
   let(:submission) { create(:submission) }
   let(:caseworker_id) { SecureRandom.uuid }
 
   before { allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker) }
 
-  describe "#create" do
-    it "records the assignment" do
+  describe '#create' do
+    it 'records the assignment' do
       post "/v1/submissions/#{submission.id}/assignment", params: { caseworker_id: }
       expect(response).to have_http_status :created
 
@@ -15,21 +15,21 @@ RSpec.describe "Assignments" do
     end
   end
 
-  describe "#destroy" do
+  describe '#destroy' do
     before { submission.update(assigned_user_id: caseworker_id, unassigned_user_ids: %w[foo]) }
 
-    it "removes the assignment" do
+    it 'removes the assignment' do
       delete "/v1/submissions/#{submission.id}/assignment"
       expect(response).to have_http_status :no_content
 
       expect(submission.reload.assigned_user_id).to be_nil
     end
 
-    it "adds to the previous assignee list" do
+    it 'adds to the previous assignee list' do
       delete "/v1/submissions/#{submission.id}/assignment"
       expect(response).to have_http_status :no_content
 
-      expect(submission.reload.unassigned_user_ids).to eq ["foo", caseworker_id]
+      expect(submission.reload.unassigned_user_ids).to eq ['foo', caseworker_id]
     end
   end
 end

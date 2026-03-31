@@ -1,6 +1,6 @@
-require "rails_helper"
+require 'rails_helper'
 
-RSpec.describe "show payment request", type: :request do
+RSpec.describe 'show payment request', type: :request do
   let(:payment_id) { SecureRandom.uuid }
   let(:submitted_date) { Time.zone.local(2025, 1, 1) }
 
@@ -8,19 +8,19 @@ RSpec.describe "show payment request", type: :request do
     allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker)
   end
 
-  context "with payment request for NsmClaim" do
+  context 'with payment request for NsmClaim' do
     before do
       create(
         :payment_request, :non_standard_magistrate, id: payment_id
       )
     end
 
-    it "successfully update when fields are valid" do
+    it 'successfully update when fields are valid' do
       get "/v1/payment_requests/#{payment_id}"
       expect(response).to have_http_status(:success)
     end
 
-    it "returns expected keys" do
+    it 'returns expected keys' do
       payment_request_keys = %w[
         id
         allowed_disbursement_cost
@@ -47,7 +47,7 @@ RSpec.describe "show payment request", type: :request do
       expect(response.parsed_body.keys.sort).to eq(payment_request_keys.sort)
     end
 
-    it "returns expected payable_claim keys" do
+    it 'returns expected payable_claim keys' do
       payable_keys = %w[
         id
         claim_type
@@ -71,29 +71,29 @@ RSpec.describe "show payment request", type: :request do
       ]
 
       get "/v1/payment_requests/#{payment_id}"
-      expect(response.parsed_body["payable_claim"].keys.sort).to eq(payable_keys.sort)
+      expect(response.parsed_body['payable_claim'].keys.sort).to eq(payable_keys.sort)
     end
 
-    it "returns not found when not found" do
+    it 'returns not found when not found' do
       get "/v1/payment_requests/#{SecureRandom.uuid}"
 
       expect(response).to have_http_status(:not_found)
     end
   end
 
-  context "with payment request for AssignedCounselClaim" do
+  context 'with payment request for AssignedCounselClaim' do
     before do
       create(
         :payment_request, :assigned_counsel, id: payment_id
       )
     end
 
-    it "successfully update when fields are valid" do
+    it 'successfully update when fields are valid' do
       get "/v1/payment_requests/#{payment_id}"
       expect(response).to have_http_status(:success)
     end
 
-    it "returns expected payment request keys" do
+    it 'returns expected payment request keys' do
       payment_request_keys = %w[
         id
         created_at
@@ -117,7 +117,7 @@ RSpec.describe "show payment request", type: :request do
       expect(response.parsed_body.keys.sort).to eq(payment_request_keys.sort)
     end
 
-    it "returns expected payable keys" do
+    it 'returns expected payable keys' do
       payable_keys = %w[
         claim_type
         laa_reference
@@ -135,10 +135,10 @@ RSpec.describe "show payment request", type: :request do
         updated_at
       ]
       get "/v1/payment_requests/#{payment_id}"
-      expect(response.parsed_body["payable_claim"].keys.sort).to eq(payable_keys.sort)
+      expect(response.parsed_body['payable_claim'].keys.sort).to eq(payable_keys.sort)
     end
 
-    it "returns not found when not found" do
+    it 'returns not found when not found' do
       get "/v1/payment_requests/#{SecureRandom.uuid}"
 
       expect(response).to have_http_status(:not_found)

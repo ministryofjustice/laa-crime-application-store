@@ -26,3 +26,7 @@ AllCops:
 
 RSpec/MessageChain:
   Enabled: false
+
+# overrides default from rubocop-govuk (Rails default is single quotes)
+Style/StringLiterals:
+  EnforcedStyle: single_quotes

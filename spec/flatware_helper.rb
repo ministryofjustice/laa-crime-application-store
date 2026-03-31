@@ -1,11 +1,11 @@
-return if ENV["CI"]
+return if ENV['CI']
 return unless defined?(Flatware)
 
-ENV["PGGSSENCMODE"] = "disable"
+ENV['PGGSSENCMODE'] = 'disable'
 
 Flatware.configure do |conf|
   conf.before_fork do
-    require "rails_helper"
+    require 'rails_helper'
 
     ActiveRecord::Base.connection.disconnect!
   end

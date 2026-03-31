@@ -7,7 +7,7 @@ FactoryBot.define do
     pricing { 65.42 }
     time_spent { 60 }
     completed_on { Date.current.iso8601 }
-    work_type { { "en" => "Advocacy", "value" => "advocacy" } }
-    fee_earner { "Joe Bloggs" }
+    work_type { { 'en' => 'Advocacy', 'value' => 'advocacy' } }
+    fee_earner { 'Joe Bloggs' }
   end
 end
