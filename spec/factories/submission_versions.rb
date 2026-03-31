@@ -7,10 +7,10 @@ FactoryBot.define do
       defendant_name { nil }
       additional_defendant_names { nil }
       firm_name { nil }
-      account_number { '1A123B' }
+      account_number { "1A123B" }
       ufn { nil }
       laa_reference { nil }
-      status { 'submitted' }
+      status { "submitted" }
       high_value { false }
     end
 
@@ -21,8 +21,8 @@ FactoryBot.define do
             account_number:,
             status:,
             high_value:,
-            ufn: ufn || '010124/001',
-            laa_reference: laa_reference || 'LAA-123456')
+            ufn: ufn || "010124/001",
+            laa_reference: laa_reference || "LAA-123456")
     end
 
     trait :with_no_laa_reference do
@@ -33,8 +33,8 @@ FactoryBot.define do
               account_number:,
               firm_name:,
               status:,
-              ufn: ufn || '010124/001',
-              service_type: 'ae_consultant',
+              ufn: ufn || "010124/001",
+              service_type: "ae_consultant",
               laa_reference: nil)
       end
     end
@@ -47,9 +47,9 @@ FactoryBot.define do
               account_number:,
               firm_name:,
               status:,
-              ufn: ufn || '010124/001',
-              service_type: 'ae_consultant',
-              laa_reference: laa_reference || 'LAA-123456')
+              ufn: ufn || "010124/001",
+              service_type: "ae_consultant",
+              laa_reference: laa_reference || "LAA-123456")
       end
     end
 
@@ -61,9 +61,9 @@ FactoryBot.define do
               account_number:,
               firm_name:,
               status:,
-              ufn: ufn || '010124/001',
-              service_type: 'custom',
-              custom_service_name: 'Test')
+              ufn: ufn || "010124/001",
+              service_type: "custom",
+              custom_service_name: "Test")
       end
     end
 
@@ -76,9 +76,9 @@ FactoryBot.define do
               account_number:,
               firm_name:,
               status:,
-              ufn: ufn || '010124/001',
-              service_type: 'custom',
-              custom_service_name: 'Test')
+              ufn: ufn || "010124/001",
+              service_type: "custom",
+              custom_service_name: "Test")
       end
     end
 
@@ -91,9 +91,9 @@ FactoryBot.define do
               account_number:,
               firm_name:,
               status:,
-              ufn: ufn || '010124/001',
-              service_type: 'custom',
-              custom_service_name: 'Test')
+              ufn: ufn || "010124/001",
+              service_type: "custom",
+              custom_service_name: "Test")
       end
     end
 
@@ -106,9 +106,9 @@ FactoryBot.define do
               account_number:,
               firm_name:,
               status:,
-              ufn: ufn || '010124/001',
-              service_type: 'custom',
-              custom_service_name: 'Test')
+              ufn: ufn || "010124/001",
+              service_type: "custom",
+              custom_service_name: "Test")
       end
     end
 
@@ -121,8 +121,8 @@ FactoryBot.define do
               account_number:,
               firm_name:,
               status:,
-              ufn: ufn || '010124/001',
-              laa_reference: laa_reference || 'LAA-123456')
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
       end
     end
 
@@ -137,8 +137,8 @@ FactoryBot.define do
               firm_name:,
               status:,
               maat: nil,
-              ufn: ufn || '010124/001',
-              laa_reference: laa_reference || 'LAA-123456')
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
       end
     end
 
@@ -151,8 +151,8 @@ FactoryBot.define do
               account_number:,
               firm_name:,
               status:,
-              ufn: ufn || '010124/001',
-              laa_reference: laa_reference || 'LAA-123456')
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
       end
     end
 
@@ -166,8 +166,8 @@ FactoryBot.define do
               account_number:,
               firm_name:,
               status:,
-              ufn: ufn || '010124/001',
-              laa_reference: laa_reference || 'LAA-123456')
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
       end
     end
 
@@ -181,8 +181,8 @@ FactoryBot.define do
               account_number:,
               firm_name:,
               status:,
-              ufn: ufn || '010124/001',
-              laa_reference: laa_reference || 'LAA-123456')
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
       end
     end
 
@@ -196,8 +196,8 @@ FactoryBot.define do
               account_number:,
               firm_name:,
               status:,
-              ufn: ufn || '010124/001',
-              laa_reference: laa_reference || 'LAA-123456')
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
       end
     end
 
@@ -211,8 +211,8 @@ FactoryBot.define do
               account_number:,
               firm_name:,
               status:,
-              ufn: ufn || '010124/001',
-              laa_reference: laa_reference || 'LAA-123456')
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
       end
     end
 
@@ -224,9 +224,9 @@ FactoryBot.define do
               account_number:,
               firm_name:,
               status:,
-              supplemental_claim: 'yes',
-              ufn: ufn || '010124/001',
-              laa_reference: laa_reference || 'LAA-123456')
+              supplemental_claim: "yes",
+              ufn: ufn || "010124/001",
+              laa_reference: laa_reference || "LAA-123456")
       end
     end
   end

@@ -1,11 +1,11 @@
 EXCLUDE_PATHS = %w[/ping /ping.json /health /health.json].freeze
 
-if ENV.fetch('SENTRY_DSN', nil).present?
+if ENV.fetch("SENTRY_DSN", nil).present?
   Sentry.init do |config|
-    config.environment = ENV.fetch('ENV', 'local')
-    config.dsn = ENV.fetch('SENTRY_DSN', nil)
+    config.environment = ENV.fetch("ENV", "local")
+    config.dsn = ENV.fetch("SENTRY_DSN", nil)
     config.breadcrumbs_logger = [:active_support_logger]
-    config.release = ENV.fetch('BUILD_TAG', 'unknown')
+    config.release = ENV.fetch("BUILD_TAG", "unknown")
 
     config.excluded_exceptions += %w[RetryJobError]
 

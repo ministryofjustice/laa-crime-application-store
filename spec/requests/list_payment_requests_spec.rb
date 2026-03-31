@@ -1,22 +1,22 @@
-require 'rails_helper'
+require "rails_helper"
 
-RSpec.describe 'list payment request', type: :request do
+RSpec.describe "list payment request", type: :request do
   before do
     allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker)
   end
 
-  context 'with payment requests' do
+  context "with payment requests" do
     before do
       create_list(:payment_request, 20,
-                  payable_claim: build(:nsm_claim, client_last_name: 'Andrex'))
+                  payable_claim: build(:nsm_claim, client_last_name: "Andrex"))
     end
 
-    it 'successfully update when fields are valid' do
-      get '/v1/payment_requests'
+    it "successfully update when fields are valid" do
+      get "/v1/payment_requests"
       expect(response).to have_http_status(:success)
     end
 
-    it 'returns expected keys' do
+    it "returns expected keys" do
       payment_request_keys = %w[
         id
         payable_claim
@@ -27,11 +27,11 @@ RSpec.describe 'list payment request', type: :request do
         updated_at
       ]
 
-      get '/v1/payment_requests'
-      expect(response.parsed_body['data'].first.keys.sort).to eq(payment_request_keys.sort)
+      get "/v1/payment_requests"
+      expect(response.parsed_body["data"].first.keys.sort).to eq(payment_request_keys.sort)
     end
 
-    it 'returns expected payable_claim keys' do
+    it "returns expected payable_claim keys" do
       payable_keys = %w[
         id
         laa_reference
@@ -42,8 +42,8 @@ RSpec.describe 'list payment request', type: :request do
         solicitor_office_code
       ]
 
-      get '/v1/payment_requests'
-      expect(response.parsed_body['data'].first['payable_claim'].keys.sort).to eq(payable_keys.sort)
+      get "/v1/payment_requests"
+      expect(response.parsed_body["data"].first["payable_claim"].keys.sort).to eq(payable_keys.sort)
     end
   end
 end

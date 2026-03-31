@@ -19,10 +19,10 @@ module PaymentRequests
       claims = claims.where(date_received: received_from..received_to) if date_received?
       claims = claims.where(submitted_at: (submitted_from..submitted_to)) if submitted_date?
       claims = claims.where(request_type:) if request_type.present?
-      claims = claims.where('LOWER(payable_claims.laa_reference) = ?', query_params[:laa_reference].downcase) if query_params[:laa_reference].present?
+      claims = claims.where("LOWER(payable_claims.laa_reference) = ?", query_params[:laa_reference].downcase) if query_params[:laa_reference].present?
       claims = claims.where(payable_claims: { ufn: query_params[:ufn] }) if query_params[:ufn].present?
-      claims = claims.where('LOWER(payable_claims.solicitor_office_code) = ?', query_params[:office_code].downcase) if query_params[:office_code].present?
-      claims = claims.where('LOWER(payable_claims.client_last_name) % ?::text', "%#{query_params[:client_last_name].downcase}%") if query_params[:client_last_name].present?
+      claims = claims.where("LOWER(payable_claims.solicitor_office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
+      claims = claims.where("LOWER(payable_claims.client_last_name) % ?::text", "%#{query_params[:client_last_name].downcase}%") if query_params[:client_last_name].present?
       claims = claims.where(payable_claims: { submission_id: }) if submission_id
       claims.order(sort_clause)
     end
@@ -75,7 +75,7 @@ module PaymentRequests
 
       words = query.strip.downcase.split(/\s+/)
       results = words.each_with_object({}) do |word, acc|
-        if word.start_with?('laa-')
+        if word.start_with?("laa-")
           acc[:laa_reference] = word
         elsif /^\d{6}|\d{6}\/\d{3}$/.match?(word)
           acc[:ufn] = word
@@ -89,7 +89,7 @@ module PaymentRequests
     end
 
     def sort_clause
-      return 'submitted_at desc' unless search_params[:sort_by]
+      return "submitted_at desc" unless search_params[:sort_by]
       raise "Unsortable column \"#{sort_by}\" supplied as sort_by argument" unless SORTABLE_COLUMNS.include?(sort_by.downcase)
 
       if sort_by.in?(%w[submitted_at request_type])
@@ -100,15 +100,15 @@ module PaymentRequests
     end
 
     def sort_by
-      search_params.fetch(:sort_by, 'submitted_at')
+      search_params.fetch(:sort_by, "submitted_at")
     end
 
     def sort_direction
       @sort_direction ||= search_params
-                            .fetch(:sort_direction, 'asc')
+                            .fetch(:sort_direction, "asc")
                             .downcase
-                            .gsub('ascending', 'asc')
-                            .gsub('descending', 'desc')
+                            .gsub("ascending", "asc")
+                            .gsub("descending", "desc")
     end
 
     def serialialized_data

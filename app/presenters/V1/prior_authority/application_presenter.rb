@@ -6,14 +6,14 @@ module V1
       end
 
       def quote_costs
-        @quotes = @application['quotes'].map { QuoteCostsPresenter.new(_1, @application) }
+        @quotes = @application["quotes"].map { QuoteCostsPresenter.new(_1, @application) }
       end
 
       def defendant_full_name
         [
-          @application['defendant']['first_name'],
-          @application['defendant']['last_name'],
-        ].join(' ')
+          @application["defendant"]["first_name"],
+          @application["defendant"]["last_name"],
+        ].join(" ")
       end
     end
   end

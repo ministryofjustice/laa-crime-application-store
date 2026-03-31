@@ -13,7 +13,7 @@ module PaymentRequests
     def call
       ActiveRecord::Base.transaction do
         claim = find_or_create_claim!
-        raise UnprocessableEntityError, 'Unable to determine claim type' unless claim
+        raise UnprocessableEntityError, "Unable to determine claim type" unless claim
 
         persist_linked_submission!(claim)
 
@@ -37,12 +37,12 @@ module PaymentRequests
       end
 
       if params[:laa_reference].present? && supplemental_appeal_or_ammendment?
-        PayableClaim.find_by(laa_reference: params[:laa_reference]) || raise(UnprocessableEntityError, 'Claim not found')
+        PayableClaim.find_by(laa_reference: params[:laa_reference]) || raise(UnprocessableEntityError, "Claim not found")
       else
         case claim_type
-        when 'NsmClaim'
+        when "NsmClaim"
           NsmClaim.create!(**nsm_claim_details)
-        when 'AssignedCounselClaim'
+        when "AssignedCounselClaim"
           AssignedCounselClaim.create!(**assigned_counsel_claim_details)
         else
           raise UnprocessableEntityError, "Unknown claim type: #{params[:request_type]}"
@@ -96,9 +96,9 @@ module PaymentRequests
 
     def assign_costs(payment_request)
       case claim_type
-      when 'NsmClaim'
+      when "NsmClaim"
         payment_request.assign_attributes(mapped_nsm_cost_attributes)
-      when 'AssignedCounselClaim'
+      when "AssignedCounselClaim"
         payment_request.assign_attributes(mapped_assigned_counsel_cost_attributes)
       end
     end
@@ -130,7 +130,7 @@ module PaymentRequests
     end
 
     def supplemental_appeal_or_ammendment?
-      params[:request_type].end_with?('_supplemental', '_amendment', '_appeal')
+      params[:request_type].end_with?("_supplemental", "_amendment", "_appeal")
     end
 
     def claim_type

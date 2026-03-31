@@ -18,12 +18,12 @@ class PaymentRequest < ApplicationRecord
   belongs_to :payable_claim, optional: false
 
   belongs_to :nsm_claim,
-             class_name: 'NsmClaim',
+             class_name: "NsmClaim",
              foreign_key: :payable_claim_id,
              optional: true
 
   belongs_to :ac_claim,
-             class_name: 'AssignedCounselClaim',
+             class_name: "AssignedCounselClaim",
              foreign_key: :payable_claim_id,
              optional: true
 

@@ -8,9 +8,9 @@ module V1
       # TODO: CRM457-2747 - Make assessed costs not compulsory
       def data_for_calculation
         {
-          disbursement_type: @disbursement['disbursement_type'],
-          claimed_cost: BigDecimal(@disbursement['total_cost_without_vat']),
-          claimed_miles: BigDecimal(@disbursement['miles'].to_f),
+          disbursement_type: @disbursement["disbursement_type"],
+          claimed_cost: BigDecimal(@disbursement["total_cost_without_vat"]),
+          claimed_miles: BigDecimal(@disbursement["miles"].to_f),
           claimed_apply_vat: apply_vat?,
           assessed_cost: BigDecimal(0),
           assessed_miles: BigDecimal(0),
@@ -19,7 +19,7 @@ module V1
       end
 
       def apply_vat?
-        @disbursement['apply_vat'].in?([true, 'true'])
+        @disbursement["apply_vat"].in?([true, "true"])
       end
     end
   end

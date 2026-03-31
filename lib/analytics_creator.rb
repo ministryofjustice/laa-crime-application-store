@@ -1,21 +1,21 @@
 class AnalyticsCreator
-  SCHEMA = 'public'.freeze
+  SCHEMA = "public".freeze
   NON_VIEW_TABLES = %w[failed_imports].freeze
   attr_reader :username, :password, :database_name
 
   class << self
     def run
       creator = AnalyticsCreator.new(
-        username: ENV.fetch('ANALYTICS_USERNAME'),
-        password: ENV.fetch('ANALYTICS_PASSWORD'),
+        username: ENV.fetch("ANALYTICS_USERNAME"),
+        password: ENV.fetch("ANALYTICS_PASSWORD"),
       )
       creator.run
     end
 
     def drop_user
       creator = AnalyticsCreator.new(
-        username: ENV.fetch('ANALYTICS_USERNAME'),
-        password: ENV.fetch('ANALYTICS_PASSWORD'),
+        username: ENV.fetch("ANALYTICS_USERNAME"),
+        password: ENV.fetch("ANALYTICS_PASSWORD"),
       )
       creator.drop_user
     end
@@ -46,7 +46,7 @@ class AnalyticsCreator
 private
 
   def create_user
-    raise 'ANALYTICS_PASSWORD must be set.' if password.blank?
+    raise "ANALYTICS_PASSWORD must be set." if password.blank?
 
     roles = execute("select * from pg_catalog.pg_roles where rolname='#{username}'")
 

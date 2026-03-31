@@ -1,10 +1,10 @@
 module HostEnv
   # Update if more environments are needed
   NAMED_ENVIRONMENTS = [
-    LOCAL = 'local'.freeze,
-    DEVELOPMENT = 'development'.freeze,
-    UAT = 'uat'.freeze,
-    PRODUCTION = 'production'.freeze,
+    LOCAL = "local".freeze,
+    DEVELOPMENT = "development".freeze,
+    UAT = "uat".freeze,
+    PRODUCTION = "production".freeze,
   ].freeze
 
   class << self
@@ -13,7 +13,7 @@ module HostEnv
     def env_name
       return LOCAL if Rails.env.local?
 
-      ENV.fetch('ENV')
+      ENV.fetch("ENV")
     end
 
   private

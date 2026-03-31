@@ -1,23 +1,23 @@
-require 'rails_helper'
+require "rails_helper"
 
-RSpec.describe 'show payable claim', type: :request do
+RSpec.describe "show payable claim", type: :request do
   let(:nsm_id) { SecureRandom.uuid }
 
   before do
     allow(Tokens::VerificationService).to receive(:call).and_return(valid: true, role: :caseworker)
   end
 
-  context 'with payable claim for NsmClaim' do
+  context "with payable claim for NsmClaim" do
     before do
       create(:nsm_claim, id: nsm_id)
     end
 
-    it 'successfully makes the request' do
+    it "successfully makes the request" do
       get "/v1/payable_claims/#{nsm_id}"
       expect(response).to have_http_status(:success)
     end
 
-    it 'returns expected keys' do
+    it "returns expected keys" do
       keys = %w[
         assigned_counsel_claim
         defendant_first_name
@@ -48,20 +48,20 @@ RSpec.describe 'show payable claim', type: :request do
     end
   end
 
-  context 'with NsmClaim payable claim attached to a submission' do
+  context "with NsmClaim payable claim attached to a submission" do
     let(:submission_id) { SecureRandom.uuid }
 
     before do
       @nsm_claim = create(:nsm_claim, id: nsm_id, submission_id: submission_id)
     end
 
-    it 'returns payload with linked submission id' do
+    it "returns payload with linked submission id" do
       get "/v1/payable_claims/#{nsm_id}"
-      expect(response.parsed_body['submission_id']).to eq(submission_id)
+      expect(response.parsed_body["submission_id"]).to eq(submission_id)
     end
   end
 
-  context 'with payable_claims for AssignedCounselClaim' do
+  context "with payable_claims for AssignedCounselClaim" do
     let(:assigned_counsel_id) { SecureRandom.uuid }
     let(:claim) { create(:nsm_claim) }
 
@@ -69,12 +69,12 @@ RSpec.describe 'show payable claim', type: :request do
       create(:assigned_counsel_claim, id: assigned_counsel_id, nsm_claim: claim)
     end
 
-    it 'successfully makes the request' do
+    it "successfully makes the request" do
       get "/v1/payable_claims/#{assigned_counsel_id}"
       expect(response).to have_http_status(:success)
     end
 
-    it 'returns expected keys' do
+    it "returns expected keys" do
       keys = %w[
         counsel_firm_name
         counsel_office_code
@@ -96,7 +96,7 @@ RSpec.describe 'show payable claim', type: :request do
     end
   end
 
-  it 'returns not found when not found' do
+  it "returns not found when not found" do
     get "/v1/payable_claims/#{SecureRandom.uuid}"
 
     expect(response).to have_http_status(:not_found)

@@ -1,53 +1,53 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe AssignedCounselClaim, type: :model do
-  describe 'associations' do
-    it 'belongs to nsm_claim with correct class, foreign key, and inverse' do
+  describe "associations" do
+    it "belongs to nsm_claim with correct class, foreign key, and inverse" do
       association = described_class.reflect_on_association(:nsm_claim)
 
       expect(association.macro).to eq(:belongs_to)
-      expect(association.class_name).to eq('NsmClaim')
-      expect(association.foreign_key).to eq('nsm_claim_id')
+      expect(association.class_name).to eq("NsmClaim")
+      expect(association.foreign_key).to eq("nsm_claim_id")
       expect(association.options[:inverse_of]).to eq(:assigned_counsel_claim)
     end
   end
 
-  describe 'validations' do
+  describe "validations" do
     let(:nsm_claim) { create(:nsm_claim) }
 
-    it 'is valid with all required attributes' do
+    it "is valid with all required attributes" do
       claim = build(:assigned_counsel_claim, nsm_claim: nsm_claim)
       expect(claim).to be_valid
     end
 
-    it 'is invalid without counsel_office_code' do
+    it "is invalid without counsel_office_code" do
       claim = build(:assigned_counsel_claim, nsm_claim: nsm_claim, counsel_office_code: nil)
       expect(claim).not_to be_valid
     end
 
-    it 'is invalid with invalid counsel_office_code' do
-      claim = build(:assigned_counsel_claim, nsm_claim: nsm_claim, counsel_office_code: 'garbage')
+    it "is invalid with invalid counsel_office_code" do
+      claim = build(:assigned_counsel_claim, nsm_claim: nsm_claim, counsel_office_code: "garbage")
       expect(claim).not_to be_valid
-      expect(claim.errors[:counsel_office_code]).to include('Must be an alphanumeric string starting with a number and ending in a letter')
+      expect(claim.errors[:counsel_office_code]).to include("Must be an alphanumeric string starting with a number and ending in a letter")
     end
 
-    it 'invalidates record when solicitor_office_code isnt alphanumeric starting with number and ending in letter' do
-      claim = build(:assigned_counsel_claim, nsm_claim: nsm_claim, solicitor_office_code: 'ABCD1234')
+    it "invalidates record when solicitor_office_code isnt alphanumeric starting with number and ending in letter" do
+      claim = build(:assigned_counsel_claim, nsm_claim: nsm_claim, solicitor_office_code: "ABCD1234")
       expect(claim).not_to be_valid
-      expect(claim.errors[:solicitor_office_code]).to include('Must be an alphanumeric string starting with a number and ending in a letter')
+      expect(claim.errors[:solicitor_office_code]).to include("Must be an alphanumeric string starting with a number and ending in a letter")
     end
   end
 
-  describe 'inheritance' do
-    it 'inherits from PayableClaim' do
+  describe "inheritance" do
+    it "inherits from PayableClaim" do
       expect(described_class < PayableClaim).to be(true)
     end
   end
 
-  describe 'factory' do
-    it 'creates a valid record' do
+  describe "factory" do
+    it "creates a valid record" do
       nsm_claim = create(:nsm_claim)
       claim = create(:assigned_counsel_claim, nsm_claim: nsm_claim)
 

@@ -9,13 +9,13 @@
 FactoryBot.define do
   factory :payment_request do
     id { SecureRandom.uuid }
-    request_type { 'non_standard_magistrate' }
+    request_type { "non_standard_magistrate" }
     submitter_id { SecureRandom.uuid }
     submitted_at { Time.zone.now }
 
     trait :non_standard_magistrate do
       association :payable_claim, factory: :nsm_claim
-      request_type { 'non_standard_magistrate' }
+      request_type { "non_standard_magistrate" }
       claimed_profit_cost { 300.40 }
       claimed_travel_cost { 20.55 }
       claimed_waiting_cost { 10.33 }
@@ -28,7 +28,7 @@ FactoryBot.define do
 
     trait :non_standard_mag_appeal do
       association :payable_claim, factory: :nsm_claim
-      request_type { 'non_standard_mag_appeal' }
+      request_type { "non_standard_mag_appeal" }
       allowed_profit_cost { 250.40 }
       allowed_travel_cost { 0 }
       allowed_waiting_cost { 6.40 }
@@ -37,7 +37,7 @@ FactoryBot.define do
 
     trait :non_standard_mag_supplemental do
       association :payable_claim, factory: :nsm_claim
-      request_type { 'non_standard_mag_supplemental' }
+      request_type { "non_standard_mag_supplemental" }
       claimed_profit_cost { 300.40 }
       claimed_travel_cost { 20.55 }
       claimed_waiting_cost { 10.33 }
@@ -46,7 +46,7 @@ FactoryBot.define do
 
     trait :non_standard_mag_amendment do
       association :payable_claim, factory: :nsm_claim
-      request_type { 'non_standard_mag_amendment' }
+      request_type { "non_standard_mag_amendment" }
       allowed_profit_cost { 250.40 }
       allowed_travel_cost { 0 }
       allowed_waiting_cost { 6.40 }
@@ -55,7 +55,7 @@ FactoryBot.define do
 
     trait :assigned_counsel do
       association :payable_claim, factory: :assigned_counsel_claim
-      request_type { 'assigned_counsel' }
+      request_type { "assigned_counsel" }
       claimed_net_assigned_counsel_cost { 100 }
       claimed_assigned_counsel_vat { 20 }
       allowed_net_assigned_counsel_cost { 50 }
@@ -64,7 +64,7 @@ FactoryBot.define do
 
     trait :assigned_counsel_appeal do
       association :payable_claim, factory: :assigned_counsel_claim
-      request_type { 'assigned_counsel_appeal' }
+      request_type { "assigned_counsel_appeal" }
       claimed_net_assigned_counsel_cost { 100 }
       claimed_assigned_counsel_vat { 20 }
       allowed_net_assigned_counsel_cost { 50 }
@@ -73,7 +73,7 @@ FactoryBot.define do
 
     trait :assigned_counsel_amendment do
       association :payable_claim, factory: :assigned_counsel_claim
-      request_type { 'assigned_counsel_amendment' }
+      request_type { "assigned_counsel_amendment" }
       allowed_net_assigned_counsel_cost { 50 }
       allowed_assigned_counsel_vat { 10 }
     end

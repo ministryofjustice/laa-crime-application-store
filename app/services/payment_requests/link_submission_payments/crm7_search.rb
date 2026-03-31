@@ -59,7 +59,7 @@ module PaymentRequests
         filtered_params.delete(:sort_by)
 
         filtered_params[:status_with_assignment] = %w[part_grant granted]
-        filtered_params[:application_type] = 'crm7'
+        filtered_params[:application_type] = "crm7"
         filtered_params[:query] ||= query
         filtered_params[:page] ||= page
         filtered_params[:per_page] ||= per_page

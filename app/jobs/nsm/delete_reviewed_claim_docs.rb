@@ -7,19 +7,19 @@ module Nsm
       submission = Submission.find(submission_id)
       latest_version_data = submission.latest_version.application
       docs_to_destroy = []
-      supporting_evidences = latest_version_data['supporting_evidences']
-      further_informations = latest_version_data['further_information']
+      supporting_evidences = latest_version_data["supporting_evidences"]
+      further_informations = latest_version_data["further_information"]
 
-      docs_to_destroy << supporting_evidences.pluck('file_path', 'file_name')
+      docs_to_destroy << supporting_evidences.pluck("file_path", "file_name")
         .map { |file_path, file_name| { file_path:, file_name: } }
 
       if further_informations
         further_informations.each do |fi|
-          docs = fi['documents']
+          docs = fi["documents"]
           next unless docs.any?
 
           docs.each do |doc|
-            docs_to_destroy << [file_path: doc['file_path'], file_name: doc['file_name']]
+            docs_to_destroy << [file_path: doc["file_path"], file_name: doc["file_name"]]
           end
         end
       end
@@ -49,7 +49,7 @@ module Nsm
         latest_version = submission.latest_version
         submission.ordered_submission_versions.create!(
           json_schema_version: latest_version.json_schema_version,
-          application: latest_version.application.merge('gdpr_documents_deleted' => true),
+          application: latest_version.application.merge("gdpr_documents_deleted" => true),
           version: submission.current_version,
         )
       end
@@ -62,7 +62,7 @@ module Nsm
       when Hash
         application.each do |key, value|
           application[key] = if paths.include?(key.to_s) && value == path
-                               '<Redacted for GDPR compliance>'
+                               "<Redacted for GDPR compliance>"
                              else
                                redact_file_names(value, path)
                              end
@@ -86,9 +86,9 @@ module Nsm
         submission_version: current_version,
         id: SecureRandom.uuid,
         created_at: now,
-        details: { comment: 'Automated GDPR deletion of supporting evidence' },
+        details: { comment: "Automated GDPR deletion of supporting evidence" },
         updated_at: now,
-        event_type: 'gdpr_documents_deleted',
+        event_type: "gdpr_documents_deleted",
         public: true,
         does_not_constitute_update: true,
       }

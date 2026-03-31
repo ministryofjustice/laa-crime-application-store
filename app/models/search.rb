@@ -16,7 +16,7 @@ class Search < ApplicationRecord
       str = str.gsub("'", "''")
 
       # Is this an LAA reference? (LAA-123ABC)
-      if str.start_with?('laa-') then %('''#{str.gsub(/\Alaa-/, 'laa')}''':A)
+      if str.start_with?("laa-") then %('''#{str.gsub(/\Alaa-/, 'laa')}''':A)
 
       # Is this a UFN? (311223/001)
       elsif /\A\d+\/\d+\z/.match?(str) then %('''#{str}''':A)
@@ -38,6 +38,6 @@ class Search < ApplicationRecord
     # In which we have the expected fields converted to lexemes, however in the case of the "Jason/Jim"
     # first name; other lexemes are generated for both the full and partial matches of both names because
     # we convert the / to a - which gets treated as a word boundary.
-    where("searches.search_fields @@ to_tsquery('simple', ?)", sub_strings.compact.join(' & '))
+    where("searches.search_fields @@ to_tsquery('simple', ?)", sub_strings.compact.join(" & "))
   end
 end
