@@ -243,7 +243,7 @@ jobs:
 
   e2e-test:
     name: Run E2E Tests
-    uses: ministryofjustice/nsm-e2e-test/.github/workflows/run-e2e-tests.yml@4ecdd6ddaaf01c6554a9967a290ece0690d89392
+    uses: ministryofjustice/nsm-e2e-test/.github/workflows/run-e2e-tests.yml@413ec16d7dcf61e440124797f6036eb134e092a8
     needs: build
     secrets: inherit
     permissions:
