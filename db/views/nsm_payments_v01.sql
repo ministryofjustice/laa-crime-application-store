@@ -2,7 +2,7 @@ SELECT
   payable_claims.id AS claim_id,
   payable_claims.court_attendances AS court_attendances,
   payable_claims.court_name AS court_name,
-  payment_claims.court_id AS court_id,
+  payable_claims.court_id AS court_id,
   payable_claims.matter_type AS matter_type,
   payable_claims.no_of_defendants AS no_of_defendants,
   payable_claims.outcome_code AS outcome_code,

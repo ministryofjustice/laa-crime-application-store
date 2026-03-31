@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_31_153128) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -29,9 +29,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
     t.text "state", null: false
     t.string "unassigned_user_ids", default: [], array: true
     t.datetime "updated_at", precision: nil
-    t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null"
-    t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null"
   end
+
+  add_check_constraint "application", "created_at IS NOT NULL", name: "application_created_at_null", validate: false
+  add_check_constraint "application", "updated_at IS NOT NULL", name: "application_updated_at_null", validate: false
 
   create_table "application_version", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.jsonb "application", null: false
@@ -62,8 +63,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
     t.string "counsel_firm_name"
     t.string "counsel_office_code"
     t.integer "court_attendances"
-    t.string "court_name"
     t.string "court_id"
+    t.string "court_name"
     t.datetime "created_at", null: false
     t.uuid "idempotency_token"
     t.string "laa_reference"
@@ -136,16 +137,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
             WHERE (application_version.version = 1)
             GROUP BY application.application_type, (application_version.application -> 'office_code'::text), (date_trunc('week'::text, application_version.created_at))
           )
-   SELECT submissions.application_type,
-      submissions.submitted_start,
-      count(DISTINCT submissions.office_code) AS office_codes_submitting_during_the_period,
+   SELECT application_type,
+      submitted_start,
+      count(DISTINCT office_code) AS office_codes_submitting_during_the_period,
       ( SELECT count(DISTINCT subs.office_code) AS count
              FROM submissions subs
             WHERE ((submissions.submitted_start >= subs.submitted_start) AND (submissions.application_type = subs.application_type))) AS total_office_codes_submitters,
-      jsonb_agg(DISTINCT submissions.office_code) AS office_codes_during_the_period
+      jsonb_agg(DISTINCT office_code) AS office_codes_during_the_period
      FROM submissions
-    GROUP BY submissions.application_type, submissions.submitted_start
-    ORDER BY submissions.application_type, submissions.submitted_start;
+    GROUP BY application_type, submitted_start
+    ORDER BY application_type, submitted_start;
   SQL
   create_view "additional_fee_uptakes", sql_definition: <<-SQL
       WITH dates AS (
@@ -194,15 +195,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
        LEFT JOIN translations t ON ((((t.key)::text = (av.application ->> 'service_type'::text)) AND ((t.translation_type)::text = 'service'::text))))
     WHERE (a.state = 'auto_grant'::text);
   SQL
-  create_view "import_counts", sql_definition: <<-SQL
-      SELECT (app_ver.created_at)::date AS submitted_date,
-          CASE
-              WHEN (((app_ver.application ->> 'import_date'::text))::timestamp without time zone IS NOT NULL) THEN true
-              ELSE false
-          END AS claim_imported
-     FROM (application_version app_ver
-       LEFT JOIN application app ON (((app.id = app_ver.application_id) AND (app_ver.pending IS FALSE) AND (app_ver.version = 1))))
-    ORDER BY ((app_ver.created_at)::date);
+  create_view "nsm_payments", sql_definition: <<-SQL
+      SELECT payable_claims.id AS claim_id,
+      payable_claims.court_attendances,
+      payable_claims.court_name,
+      payable_claims.court_id,
+      payable_claims.matter_type,
+      payable_claims.no_of_defendants,
+      payable_claims.outcome_code,
+      payable_claims.solicitor_firm_name AS office_name,
+      payable_claims.solicitor_office_code AS office_code,
+      payable_claims.stage_code,
+      payable_claims.ufn,
+      payable_claims.work_completed_date,
+      payable_claims.youth_court,
+      payment_requests.request_type,
+      payment_requests.allowed_disbursement_cost,
+      payment_requests.claimed_disbursement_cost,
+      payment_requests.allowed_profit_cost,
+      payment_requests.claimed_profit_cost,
+      payment_requests.allowed_travel_cost,
+      payment_requests.claimed_travel_cost,
+      payment_requests.allowed_waiting_cost,
+      payment_requests.claimed_waiting_cost,
+      payment_requests.claimed_total,
+      payment_requests.allowed_total,
+      payment_requests.date_received,
+      payment_requests.submitted_at
+     FROM (payment_requests
+       JOIN payable_claims ON ((payment_requests.payable_claim_id = payable_claims.id)))
+    WHERE ((payment_requests.request_type)::text = ANY ((ARRAY['breach_of_injunction'::character varying, 'non_standard_magistrate'::character varying, 'non_standard_mag_supplemental'::character varying, 'non_standard_mag_appeal'::character varying, 'non_standard_mag_amendment'::character varying])::text[]));
   SQL
   create_view "processing_times", sql_definition: <<-SQL
       WITH base AS (
@@ -220,17 +242,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
              FROM (application_version
                JOIN application ON (((application_version.application_id = application.id) AND (application_version.pending IS FALSE))))
           )
-   SELECT base.id,
-      base.application_type,
-      base.version,
-      base.from_status,
-      base.from_time,
-      base.to_status,
-      base.to_time,
-      base.claim_imported,
-      (base.from_time)::date AS from_date,
-      (base.to_time)::date AS to_date,
-      GREATEST(EXTRACT(epoch FROM (base.to_time - base.from_time)), (0)::numeric) AS processing_seconds
+   SELECT id,
+      application_type,
+      version,
+      from_status,
+      from_time,
+      to_status,
+      to_time,
+      claim_imported,
+      (from_time)::date AS from_date,
+      (to_time)::date AS to_date,
+      GREATEST(EXTRACT(epoch FROM (to_time - from_time)), (0)::numeric) AS processing_seconds
      FROM base;
   SQL
   create_view "searches", sql_definition: <<-SQL
@@ -252,7 +274,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
       ((app_ver.application -> 'firm_office'::text) ->> 'name'::text) AS firm_name,
       ((app_ver.application -> 'firm_office'::text) ->> 'account_number'::text) AS account_number,
       (app_ver.application ->> 'service_name'::text) AS service_name,
-      (((app_ver.application -> 'cost_summary'::text) ->> 'high_value'::text))::boolean AS high_value,
+      ((app_ver.application -> 'cost_summary'::text) -> 'high_value'::text) AS high_value,
       app_ver.created_at AS last_state_change,
           CASE app.application_risk
               WHEN 'high'::text THEN 3
@@ -342,21 +364,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
                JOIN application ON ((app_ver.application_id = application.id)))
             WHERE ((app_ver.application ->> 'status'::text) = 'submitted'::text)
           )
-   SELECT base.application_id,
-      base.application_type,
-      base.draft_created_date,
-      base.office_code,
-      base.submission_date,
-      base.claim_imported,
-      (EXTRACT(epoch FROM (base.submission_date - base.draft_created_date)) / (60)::numeric) AS minutes_to_submit
+   SELECT application_id,
+      application_type,
+      draft_created_date,
+      office_code,
+      submission_date,
+      claim_imported,
+      (EXTRACT(epoch FROM (submission_date - draft_created_date)) / (60)::numeric) AS minutes_to_submit
      FROM base;
   SQL
   create_view "submissions_by_date", sql_definition: <<-SQL
-      SELECT counted_values.event_on,
-      counted_values.application_type,
-      counted_values.submission,
-      counted_values.resubmission,
-      (counted_values.submission + counted_values.resubmission) AS total
+      SELECT event_on,
+      application_type,
+      submission,
+      resubmission,
+      (submission + resubmission) AS total
      FROM ( SELECT (av.created_at)::date AS event_on,
               a.application_type,
               count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'submitted'::text)) AS submission,
