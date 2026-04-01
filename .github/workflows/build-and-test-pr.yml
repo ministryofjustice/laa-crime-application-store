@@ -30,10 +30,10 @@ jobs:
       contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Set up Ruby and install gems
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@3ff19f5e2baf30647122352b96108b1fbe250c64
         with:
           bundler-cache: true
 
@@ -51,15 +51,15 @@ jobs:
         environment: [development, uat, production]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Install Helm
-        uses: azure/setup-helm@v5
+        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2
         with:
           version: '3.7.2'
 
       - name: Cache Python pip packages
-        uses: actions/cache@v5
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-yamllint
@@ -107,10 +107,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Set up Ruby and install gems
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@3ff19f5e2baf30647122352b96108b1fbe250c64
         with:
           bundler-cache: true
 
@@ -125,7 +125,7 @@ jobs:
 
       - name: Upload code coverage results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: coverage-results
           path: coverage
@@ -147,7 +147,7 @@ jobs:
       image-tag: ${{ steps.build.outputs.image-tag }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Configure AWS credentials for ECR access
         uses: ministryofjustice/laa-reusable-github-actions/.github/actions/ecr-auth@e5500aa20b13a1406fe8a62b8788181a2ca18926
@@ -190,10 +190,10 @@ jobs:
       ECR_IMAGE: ${{ secrets.ECR_REGISTRY_URL}}/${{ vars.APP_STORE_DEV_ECR_REPOSITORY}}:${{ needs.build.outputs.image-tag }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Set up Ruby and install gems
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@3ff19f5e2baf30647122352b96108b1fbe250c64
         with:
           bundler-cache: true
 
@@ -208,7 +208,7 @@ jobs:
         run: docker pull $ECR_IMAGE
 
       - name: Install Snyk CLI
-        uses: snyk/actions/setup@master
+        uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04
 
       - name: Snyk Code Test
         continue-on-error: true
@@ -217,7 +217,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Upload results to Github Code Scanning
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13
         with:
           sarif_file: snyk_sarif
 
@@ -234,7 +234,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Monitor Docker Vulnerabilities
-        uses: snyk/actions/docker@master
+        uses: snyk/actions/docker@9adf32b1121593767fc3c057af55b55db032dc04
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -243,7 +243,7 @@ jobs:
 
   e2e-test:
     name: Run E2E Tests
-    uses: ministryofjustice/nsm-e2e-test/.github/workflows/run-e2e-tests.yml@4ecdd6ddaaf01c6554a9967a290ece0690d89392
+    uses: ministryofjustice/nsm-e2e-test/.github/workflows/run-e2e-tests.yml@413ec16d7dcf61e440124797f6036eb134e092a8
     needs: build
     secrets: inherit
     permissions:
@@ -265,7 +265,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Authenticate to the cluster
         uses: ministryofjustice/laa-reusable-github-actions/.github/actions/authenticate_to_cluster@2aa2676c3cd9876ec7037ee8b3d729d0306cb7c6
@@ -283,7 +283,7 @@ jobs:
           role-session-name: ${{ vars.ECR_ROLE_SESSION_NAME }}
 
       - name: Install Helm
-        uses: azure/setup-helm@v5
+        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2
         with:
           version: '3.7.2'
 
