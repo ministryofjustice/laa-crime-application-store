@@ -372,7 +372,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_31_153128) do
       payable_claims.court_attendances,
       payable_claims.court_name,
       payable_claims.court_id,
-      payable_claims.matter_type,
       payable_claims.no_of_defendants,
       payable_claims.outcome_code,
       payable_claims.solicitor_firm_name AS office_name,

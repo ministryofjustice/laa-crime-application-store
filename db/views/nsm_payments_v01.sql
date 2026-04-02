@@ -3,7 +3,6 @@ SELECT
   payable_claims.court_attendances AS court_attendances,
   payable_claims.court_name AS court_name,
   payable_claims.court_id AS court_id,
-  payable_claims.matter_type AS matter_type,
   payable_claims.no_of_defendants AS no_of_defendants,
   payable_claims.outcome_code AS outcome_code,
   payable_claims.solicitor_firm_name AS office_name,
