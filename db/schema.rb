@@ -10,8 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_07_101638) do
- # These are extensions that must be enabled in order to support this database
+ActiveRecord::Schema[8.1].define(version: 2026_04_08_080100) do
+  # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
   enable_extension "postgis"
@@ -104,7 +104,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_101638) do
     t.decimal "claimed_travel_cost", precision: 10, scale: 2
     t.decimal "claimed_waiting_cost", precision: 10, scale: 2
     t.datetime "created_at", null: false
-    t.datetime "date_received"
+    t.datetime "date_claim_assessed"
     t.uuid "payable_claim_id"
     t.string "request_type"
     t.datetime "submitted_at"
@@ -392,7 +392,7 @@ create_view "nsm_payments", sql_definition: <<-SQL
       payment_requests.claimed_waiting_cost,
       payment_requests.claimed_total,
       payment_requests.allowed_total,
-      payment_requests.date_received,
+      payment_requests.date_claim_assessed,
       payment_requests.submitted_at
      FROM (payment_requests
        JOIN payable_claims ON ((payment_requests.payable_claim_id = payable_claims.id)))

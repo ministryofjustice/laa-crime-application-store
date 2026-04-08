@@ -90,7 +90,7 @@ module PaymentRequests
         submitter_id: params[:submitter_id],
         request_type: params[:request_type],
         submitted_at: Time.current,
-        date_received: params[:date_received],
+        date_claim_assessed: params[:date_claim_assessed],
       )
     end
 

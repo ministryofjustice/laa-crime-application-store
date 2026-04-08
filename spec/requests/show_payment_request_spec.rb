@@ -28,7 +28,7 @@ RSpec.describe "show payment request", type: :request do
         allowed_travel_cost
         allowed_waiting_cost
         created_at
-        date_received
+        date_claim_assessed
         claimed_disbursement_cost
         payable_claim
         claimed_profit_cost
@@ -97,7 +97,7 @@ RSpec.describe "show payment request", type: :request do
       payment_request_keys = %w[
         id
         created_at
-        date_received
+        date_claim_assessed
         payable_claim
         submission_id
         request_type
