@@ -10,8 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
-  # These are extensions that must be enabled in order to support this database
+ActiveRecord::Schema[8.1].define(version: 2026_04_07_101638) do
+ # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
   enable_extension "postgis"
@@ -111,6 +111,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
     t.uuid "submitter_id"
     t.datetime "updated_at", null: false
     t.index ["payable_claim_id"], name: "index_payment_requests_on_payable_claim_id"
+    t.index ["request_type"], name: "index_payment_requests_on_request_type"
   end
 
   create_table "translations", force: :cascade do |t|
@@ -365,5 +366,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
                LEFT JOIN application a ON (((a.id = av.application_id) AND (av.pending IS FALSE))))
             GROUP BY a.application_type, ((av.created_at)::date)
             ORDER BY a.application_type, ((av.created_at)::date)) counted_values;
+  SQL
+
+create_view "nsm_payments", sql_definition: <<-SQL
+      SELECT payable_claims.id AS claim_id,
+      payable_claims.court_attendances,
+      payable_claims.court_name,
+      payable_claims.court_id,
+      payable_claims.no_of_defendants,
+      payable_claims.outcome_code,
+      payable_claims.solicitor_firm_name AS office_name,
+      payable_claims.solicitor_office_code AS office_code,
+      payable_claims.stage_code,
+      payable_claims.ufn,
+      payable_claims.work_completed_date,
+      payable_claims.youth_court,
+      payment_requests.request_type,
+      payment_requests.allowed_disbursement_cost,
+      payment_requests.claimed_disbursement_cost,
+      payment_requests.allowed_profit_cost,
+      payment_requests.claimed_profit_cost,
+      payment_requests.allowed_travel_cost,
+      payment_requests.claimed_travel_cost,
+      payment_requests.allowed_waiting_cost,
+      payment_requests.claimed_waiting_cost,
+      payment_requests.claimed_total,
+      payment_requests.allowed_total,
+      payment_requests.date_received,
+      payment_requests.submitted_at
+     FROM (payment_requests
+       JOIN payable_claims ON ((payment_requests.payable_claim_id = payable_claims.id)))
+    WHERE ((payment_requests.request_type)::text = ANY ((ARRAY['breach_of_injunction'::character varying, 'non_standard_magistrate'::character varying, 'non_standard_mag_supplemental'::character varying, 'non_standard_mag_appeal'::character varying, 'non_standard_mag_amendment'::character varying])::text[]));
   SQL
 end
