@@ -392,7 +392,7 @@ create_view "nsm_payments", sql_definition: <<-SQL
       payment_requests.claimed_waiting_cost,
       payment_requests.claimed_total,
       payment_requests.allowed_total,
-      payment_requests.date_received,
+      payment_requests.date_claim_assessed,
       payment_requests.submitted_at
      FROM (payment_requests
        JOIN payable_claims ON ((payment_requests.payable_claim_id = payable_claims.id)))
