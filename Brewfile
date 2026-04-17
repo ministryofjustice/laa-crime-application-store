@@ -1,3 +1,3 @@
 tap "homebrew/cask"
-brew "postgresql@16"
+brew "postgresql@18"
 brew "redis", restart_service: true
