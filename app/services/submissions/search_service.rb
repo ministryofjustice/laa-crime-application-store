@@ -57,7 +57,7 @@ module Submissions
     end
 
     def total_results_count
-      @total_results_count ||= @data.except(:limit, :offset).count(:all)
+      @total_results_count ||= @data.size
     end
 
     def build_raw_data(page_rows)
