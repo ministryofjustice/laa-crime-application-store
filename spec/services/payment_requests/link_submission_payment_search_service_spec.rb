@@ -207,7 +207,7 @@ RSpec.describe "Link submission payment search services" do
           laa_reference: "laa-crm7001",
           ufn: "120223/001",
           office_code: "1a123b",
-          client_last_name: "smith",
+          query: "smith",
         )
       end
     end
