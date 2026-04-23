@@ -30,7 +30,10 @@ module PaymentRequests
         claims = claims.where("LOWER(payable_claims.laa_reference) = ?", query_params[:laa_reference].downcase) if query_params[:laa_reference].present?
         claims = claims.where(ufn: query_params[:ufn]) if query_params[:ufn].present?
         claims = claims.where("LOWER(payable_claims.solicitor_office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
-        claims = claims.where("LOWER(payable_claims.client_last_name) % ?", "%#{query_params[:query].downcase}%") if query_params[:query].present?
+        if query_params[:query].present?
+          claims = claims.where("LOWER(payable_claims.client_last_name) % ?", query_params[:query].downcase)
+                        .or(claims.where("LOWER(payable_claims.solicitor_firm_name) % ?", query_params[:query].downcase))
+        end
         claims.order(sort_clause)
       end
 
