@@ -11,7 +11,7 @@ class BaseSearchService
   end
 
   def call
-    @data = search_query.load
+    @data = search_query
 
     search_results
   end
