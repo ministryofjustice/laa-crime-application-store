@@ -21,10 +21,7 @@ module PaymentRequests
       claims = claims.where(request_type:) if request_type.present?
       claims = claims.where("LOWER(payable_claims.laa_reference) = ?", query_params[:laa_reference].downcase) if query_params[:laa_reference].present?
       claims = claims.where(payable_claims: { ufn: query_params[:ufn] }) if query_params[:ufn].present?
-      if query_params[:query].present?
-        claims = claims.where("LOWER(payable_claims.client_last_name) % ?", query_params[:query].downcase)
-                       .or(claims.where("LOWER(payable_claims.solicitor_firm_name) % ?", query_params[:query].downcase))
-      end
+      claims = search_query_text(claims) if query_params[:query].present?
       claims = claims.where("LOWER(payable_claims.solicitor_office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
       claims = claims.where(payable_claims: { submission_id: }) if submission_id
       claims.order(sort_clause)
@@ -120,6 +117,11 @@ module PaymentRequests
 
     def query
       search_params.fetch(:query, nil)
+    end
+
+    def search_query_text(claims)
+      claims.where("LOWER(payable_claims.client_last_name) % ?", query_params[:query].downcase)
+                      .or(claims.where("LOWER(payable_claims.solicitor_firm_name) % ?", query_params[:query].downcase))
     end
   end
 end
