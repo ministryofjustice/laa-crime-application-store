@@ -1,0 +1,13 @@
+repos:
+  - repo: https://github.com/ministryofjustice/devsecops-hooks
+    rev: v1.6.0
+    hooks:
+      - id: baseline
+        env:
+          STAGE_MODE: "false"
+  - repo: local
+    hooks:
+      - id: rubocop
+        name: rubocop
+        entry: bundle exec rubocop --force-exclusion
+        language: system
