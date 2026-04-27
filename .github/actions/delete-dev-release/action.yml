@@ -55,6 +55,13 @@ runs:
         branch=${{ steps.extract_branch.outputs.branch }}
         truncated_branch=$(echo $branch | tr '[:upper:]' '[:lower:]' | sed 's:^\w*\/::' | tr -s ' _/[]().' '-' | cut -c1-18 | sed 's/-$//')
         echo "release=$truncated_branch" >> $GITHUB_OUTPUT
+
+    - name: Mask sensitive inputs
+      shell: bash
+      run: |
+        echo "::add-mask::${{ inputs.k8s_token }}"
+        echo "::add-mask::${{ inputs.k8s_cluster_cert }}"
+
     - name: Authenticate to the cluster
       id: authenticate_to_cluster
       shell: bash
