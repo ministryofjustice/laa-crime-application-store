@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_08_080100) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_29_090951) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -29,6 +29,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_08_080100) do
     t.text "state", null: false
     t.string "unassigned_user_ids", default: [], array: true
     t.datetime "updated_at", precision: nil
+    t.index ["application_type", "last_updated_at"], name: "idx_application_on_type_last_updated_at"
     t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null"
     t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null"
   end
