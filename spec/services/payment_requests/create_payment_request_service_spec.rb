@@ -127,7 +127,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
 
     context "when a submission exists for the linked reference" do
       let!(:submission) { create(:submission, :with_nsm_version, laa_reference: linked_laa_reference) }
-      let(:params) { super().merge(linked_laa_reference:, id: submission.id) }
+      let(:params) { super().merge(linked_laa_reference:, submission_id: submission.id) }
 
       it "stores the submission id on the claim" do
         result = service.call
