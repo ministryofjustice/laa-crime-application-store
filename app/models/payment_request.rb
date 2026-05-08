@@ -52,12 +52,18 @@ class PaymentRequest < ApplicationRecord
   validates :claimed_disbursement_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
   validates :claimed_net_assigned_counsel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
   validates :claimed_assigned_counsel_vat, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :allowed_profit_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :allowed_travel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :allowed_waiting_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :allowed_disbursement_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :allowed_net_assigned_counsel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :allowed_assigned_counsel_vat, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
+  validates :allowed_profit_cost, is_a_number: true, numericality: { allow_nil: true }
+  validates :allowed_travel_cost, is_a_number: true, numericality: { allow_nil: true }
+  validates :allowed_waiting_cost, is_a_number: true, numericality: { allow_nil: true }
+  validates :allowed_disbursement_cost, is_a_number: true, numericality: { allow_nil: true }
+  validates :allowed_net_assigned_counsel_cost, is_a_number: true, numericality: { allow_nil: true }
+  validates :allowed_assigned_counsel_vat, is_a_number: true, numericality: { allow_nil: true }
+  validates :allowed_profit_cost, numericality: { greater_than_or_equal_to: 0, allow_nil: true }, unless: -> { amendment? }
+  validates :allowed_travel_cost, numericality: { greater_than_or_equal_to: 0, allow_nil: true }, unless: -> { amendment? }
+  validates :allowed_waiting_cost, numericality: { greater_than_or_equal_to: 0, allow_nil: true }, unless: -> { amendment? }
+  validates :allowed_disbursement_cost, numericality: { greater_than_or_equal_to: 0, allow_nil: true }, unless: -> { amendment? }
+  validates :allowed_net_assigned_counsel_cost, numericality: { greater_than_or_equal_to: 0, allow_nil: true }, unless: -> { amendment? }
+  validates :allowed_assigned_counsel_vat, numericality: { greater_than_or_equal_to: 0, allow_nil: true }, unless: -> { amendment? }
   validate :correct_request_type
 
   def nsm_claim
@@ -85,5 +91,9 @@ class PaymentRequest < ApplicationRecord
       errors.add(:request_type, "invalid request type for a #{payable_claim.type}")
     end
     # :nocov:
+  end
+
+  def amendment?
+    request_type.end_with?("_amendment")
   end
 end
