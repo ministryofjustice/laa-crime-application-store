@@ -1,5 +1,7 @@
 class PaymentRequest < ApplicationRecord
-  NSM_REQUEST_TYPES =  %w[
+  include NumericLimits
+
+  NSM_REQUEST_TYPES = %w[
     breach_of_injunction
     non_standard_magistrate
     non_standard_mag_appeal
@@ -46,18 +48,24 @@ class PaymentRequest < ApplicationRecord
 
   validates :submitter_id, is_a_uuid: true
   validates :request_type, presence: true, inclusion: { in: REQUEST_TYPES }
-  validates :claimed_profit_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :claimed_travel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :claimed_waiting_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :claimed_disbursement_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :claimed_net_assigned_counsel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :claimed_assigned_counsel_vat, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :allowed_profit_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :allowed_travel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :allowed_waiting_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :allowed_disbursement_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :allowed_net_assigned_counsel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-  validates :allowed_assigned_counsel_vat, is_a_number: true, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
+  validates :claimed_profit_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: NumericLimits::MAX_FLOAT, allow_nil: true }
+  validates :claimed_travel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: NumericLimits::MAX_FLOAT, allow_nil: true }
+  validates :claimed_waiting_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: NumericLimits::MAX_FLOAT, allow_nil: true }
+  validates :claimed_disbursement_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: NumericLimits::MAX_FLOAT, allow_nil: true }
+  validates :claimed_net_assigned_counsel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: NumericLimits::MAX_FLOAT, allow_nil: true }
+  validates :claimed_assigned_counsel_vat, is_a_number: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: NumericLimits::MAX_FLOAT, allow_nil: true }
+  validates :allowed_profit_cost, is_a_number: true, numericality: { allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT, greater_than_or_equal_to: -NumericLimits::MAX_FLOAT }
+  validates :allowed_travel_cost, is_a_number: true, numericality: { allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT, greater_than_or_equal_to: -NumericLimits::MAX_FLOAT }
+  validates :allowed_waiting_cost, is_a_number: true, numericality: { allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT, greater_than_or_equal_to: -NumericLimits::MAX_FLOAT }
+  validates :allowed_disbursement_cost, is_a_number: true, numericality: { allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT, greater_than_or_equal_to: -NumericLimits::MAX_FLOAT }
+  validates :allowed_net_assigned_counsel_cost, is_a_number: true, numericality: { allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT, greater_than_or_equal_to: -NumericLimits::MAX_FLOAT }
+  validates :allowed_assigned_counsel_vat, is_a_number: true, numericality: { allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT, greater_than_or_equal_to: -NumericLimits::MAX_FLOAT }
+  validates :allowed_profit_cost, numericality: { greater_than_or_equal_to: 0, allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT }, unless: -> { amendment? }
+  validates :allowed_travel_cost, numericality: { greater_than_or_equal_to: 0, allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT }, unless: -> { amendment? }
+  validates :allowed_waiting_cost, numericality: { greater_than_or_equal_to: 0, allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT }, unless: -> { amendment? }
+  validates :allowed_disbursement_cost, numericality: { greater_than_or_equal_to: 0, allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT }, unless: -> { amendment? }
+  validates :allowed_net_assigned_counsel_cost, numericality: { greater_than_or_equal_to: 0, allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT }, unless: -> { amendment? }
+  validates :allowed_assigned_counsel_vat, numericality: { greater_than_or_equal_to: 0, allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT }, unless: -> { amendment? }
   validate :correct_request_type
 
   def nsm_claim
@@ -85,5 +93,9 @@ class PaymentRequest < ApplicationRecord
       errors.add(:request_type, "invalid request type for a #{payable_claim.type}")
     end
     # :nocov:
+  end
+
+  def amendment?
+    request_type.end_with?("_amendment")
   end
 end
