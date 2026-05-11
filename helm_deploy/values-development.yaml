@@ -54,7 +54,8 @@ service_account:
 envVars:
   environment: development
   swaggerEndpoint: /docs
-  authenticationRequired: True
+  authenticationRequired: true
+  sentryTraceSampleRate: 0.05
 
 # This is used to configure the temporary non-RDS postgres DB
 postgresql:
@@ -120,5 +121,3 @@ redis:
 # If you want to create metabase queries pointing at a dev branch database then you can do that from the UI in UAT
 metabase:
   enabled: false
-
-sentryTraceSampleRate: 0.05
