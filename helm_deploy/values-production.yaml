@@ -49,7 +49,7 @@ envVars:
   environment: production
   swaggerEndpoint:
   authenticationRequired: true
-  sentryTraceSampleRate: 0.05
+  sentryTraceSampleRate: 0.05"
 
 # Instead of a temporary postgres pod we use RDS
 postgresql:

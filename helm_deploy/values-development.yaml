@@ -55,7 +55,7 @@ envVars:
   environment: development
   swaggerEndpoint: /docs
   authenticationRequired: true
-  sentryTraceSampleRate: 0.05
+  sentryTraceSampleRate: "0.05"
 
 # This is used to configure the temporary non-RDS postgres DB
 postgresql:
