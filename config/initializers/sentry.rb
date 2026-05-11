@@ -16,7 +16,7 @@ if ENV.fetch("SENTRY_DSN", nil).present?
       # Set traces_sample_rate to 1.0 to capture 100%
       # of transactions for performance monitoring.
       # We recommend adjusting this value in production.
-      transaction_name.in?(EXCLUDE_PATHS) ? 0.0 : 0.2
+      transaction_name.in?(EXCLUDE_PATHS) ? 0.0 : ENV.fetch("SENTRY_TRACE_SAMPLE_RATE", 0.05).to_f
     end
 
     # Opt in to new Rails error reporting API

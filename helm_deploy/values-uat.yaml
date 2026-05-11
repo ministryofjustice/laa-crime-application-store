@@ -74,3 +74,5 @@ metabase:
   applicationDbPoolSize: "30"
   whitelist:
     enabled: true
+
+sentryTraceSampleRate: 0.2
