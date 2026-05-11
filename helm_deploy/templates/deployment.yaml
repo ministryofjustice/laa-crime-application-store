@@ -192,6 +192,8 @@ spec:
           {{ end }}
             - name: ENABLE_PROMETHEUS_EXPORTER
               value: 'true'
+            - name: SENTRY_TRACE_SAMPLE_RATE
+              value: {{ .Values.envVars.sentryTraceSampleRate | quote }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

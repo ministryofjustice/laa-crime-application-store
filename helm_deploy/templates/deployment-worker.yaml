@@ -165,6 +165,8 @@ spec:
               value: 'true'
             - name: SEND_EMAILS
               value: 'true'
+            - name: SENTRY_TRACE_SAMPLE_RATE
+              value: {{ .Values.envVars.sentryTraceSampleRate | quote }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
