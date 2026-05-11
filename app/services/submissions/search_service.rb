@@ -16,6 +16,8 @@ module Submissions
   private
 
     def search_query
+      Sentry.add_breadcrumb(office_code_breadcrumb) if account_number
+
       relation = Search.where(date_submitted: (submitted_from..submitted_to))
       relation = relation.where(last_updated: (updated_from..updated_to))
       relation = relation.where(application_type:) if application_type
@@ -28,6 +30,10 @@ module Submissions
       relation = relation.order(sort_clause)
 
       relation.where_terms(query)
+    end
+
+    def office_code_breadcrumb
+      Sentry::Breadcrumb.new(message: "Office Codes: #{account_number}")
     end
 
     # Builds and returns search results with pagination metadata and formatted data.
