@@ -122,4 +122,3 @@ metabase:
   enabled: false
 
 sentryTraceSampleRate: 0.05
-
