@@ -86,6 +86,41 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
         allowed_disbursement_cost: 4.0,
       )
     end
+
+    context "when request type is an amendment" do
+      let(:request_type) { "non_standard_mag_amendment" }
+
+      it "allows negative allowed cost values" do
+        params.merge!(
+          claimed_profit_cost: 100.0,
+          claimed_travel_cost: 20.0,
+          claimed_waiting_cost: 10.0,
+          claimed_disbursement_cost: 5.0,
+          allowed_profit_cost: -90.0,
+          allowed_travel_cost: -15.0,
+          allowed_waiting_cost: -5.0,
+          allowed_disbursement_cost: -4.0,
+        )
+
+        expect { make_request }.to change(PaymentRequest, :count).by(1)
+                               .and change(NsmClaim, :count).by(1)
+
+        expect(response).to have_http_status(:created)
+
+        payment = PaymentRequest.last
+
+        expect(payment).to have_attributes(
+          claimed_profit_cost: 100.0,
+          claimed_travel_cost: 20.0,
+          claimed_waiting_cost: 10.0,
+          claimed_disbursement_cost: 5.0,
+          allowed_profit_cost: -90.0,
+          allowed_travel_cost: -15.0,
+          allowed_waiting_cost: -5.0,
+          allowed_disbursement_cost: -4.0,
+        )
+      end
+    end
   end
 
   describe "validation errors" do
@@ -122,6 +157,26 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
       end
 
       it "returns 422 and does not create a new claim" do
+        expect { make_request }.not_to change(NsmClaim, :count)
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context "when cost attributes are negative and request is not an amendment" do
+      let(:params) do
+        super().merge(
+          claimed_profit_cost: -100.0,
+          claimed_travel_cost: -20.0,
+          claimed_waiting_cost: -10.0,
+          claimed_disbursement_cost: -5.0,
+          allowed_profit_cost: -90.0,
+          allowed_travel_cost: -15.0,
+          allowed_waiting_cost: -5.0,
+          allowed_disbursement_cost: -4.0,
+        )
+      end
+
+      it "returns 422 and does not create claim" do
         expect { make_request }.not_to change(NsmClaim, :count)
         expect(response).to have_http_status(:unprocessable_content)
       end
