@@ -39,7 +39,8 @@ module Submissions
     # Builds and returns search results with pagination metadata and formatted data.
     #
     # Returns a JSON string containing:
-    #   - metadata: Hash with total_results count, current page number, and per_page limit
+    #   - metadata: Hash with current page number and per_page limit,
+    #               plus total_results OR has_more depending on include_total_results
     #   - data: Array of search results for the current page
     #   - raw_data: Unformatted/raw representation of the current page results
     #
@@ -48,22 +49,47 @@ module Submissions
       page_rows = current_page_rows
 
       {
-        metadata: {
-          total_results: total_results_count,
-          page:,
-          per_page:,
-        },
+        metadata:,
         data: page_rows,
         raw_data: build_raw_data(page_rows),
       }.to_json
     end
 
     def current_page_rows
-      @current_page_rows ||= @data.limit(limit).offset(offset).to_a
+      @current_page_rows ||= if include_total_results?
+                               @data.limit(limit).offset(offset).to_a
+                             else
+                               current_page_rows_with_has_more.first(limit)
+                             end
+    end
+
+    def metadata
+      {
+        page:,
+        per_page:,
+      }.tap do |result|
+        if include_total_results?
+          result[:total_results] = total_results_count
+        else
+          result[:has_more] = has_more?
+        end
+      end
     end
 
     def total_results_count
       @total_results_count ||= @data.except(:limit, :offset).count(:all)
+    end
+
+    def current_page_rows_with_has_more
+      @current_page_rows_with_has_more ||= @data.limit(limit + 1).offset(offset).to_a
+    end
+
+    def has_more?
+      current_page_rows_with_has_more.size > limit
+    end
+
+    def include_total_results?
+      ActiveModel::Type::Boolean.new.cast(search_params.fetch(:include_total_results, true))
     end
 
     def build_raw_data(page_rows)
