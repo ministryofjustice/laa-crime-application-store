@@ -90,7 +90,7 @@ module PaymentRequests
         submitter_id: params[:submitter_id],
         request_type: params[:request_type],
         submitted_at: Time.current,
-        date_received: params[:date_received],
+        date_claim_assessed: params[:date_claim_assessed],
       )
     end
 
@@ -139,7 +139,7 @@ module PaymentRequests
 
     def persist_linked_submission!(claim)
       linked_laa_reference = params[:linked_laa_reference]
-      submission_id = params[:id]
+      submission_id = params[:submission_id]
       return unless linked_laa_reference.present? && submission_id.present?
 
       linked_submission = find_referred_submission(linked_laa_reference)

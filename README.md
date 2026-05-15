@@ -18,6 +18,10 @@ The instructions assume you have [Homebrew](https://brew.sh) installed in your m
 * `gem install bundler`
 * `bundle install`
 
+### Install Prek for the pre-commit hooks to work
+* `brew install prek`
+* execute `prek install` in the repository to install the pre-commit hooks
+
 ### Configuration
 
 * Copy `.env.development` to `.env.development.local` and modify with suitable values for your local machine

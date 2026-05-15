@@ -12,13 +12,14 @@ class PayableClaimResource
   attributes :work_completed_date,
              :matter_type,
              :youth_court,
-             :court,
              :stage_reached,
              :hearing_outcome_code,
              :number_of_attendances,
              :number_of_defendants,
              :submission_id,
              :defendant_first_name,
+             :court_name,
+             :court_id,
              if: proc { |payable_claim| payable_claim.is_a? NsmClaim }
 
   attributes :counsel_office_code,
@@ -45,14 +46,6 @@ class PayableClaimResource
 
   def number_of_defendants(payable_claim)
     payable_claim.no_of_defendants
-  end
-
-  def court(payable_claim)
-    if payable_claim.court_id == I18n.t("laa_crime_forms_common.shared.custom")
-      "#{payable_claim.court_name} - #{I18n.t('laa_crime_forms_common.shared.na')}"
-    else
-      "#{payable_claim.court_name} - #{payable_claim.court_id}"
-    end
   end
 
   def submission_id(payable_claim)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_30_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -29,6 +29,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
     t.text "state", null: false
     t.string "unassigned_user_ids", default: [], array: true
     t.datetime "updated_at", precision: nil
+    t.index ["application_type", "last_updated_at"], name: "idx_application_on_type_last_updated_at"
     t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null"
     t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null"
   end
@@ -104,13 +105,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
     t.decimal "claimed_travel_cost", precision: 10, scale: 2
     t.decimal "claimed_waiting_cost", precision: 10, scale: 2
     t.datetime "created_at", null: false
-    t.datetime "date_received"
+    t.datetime "date_claim_assessed"
     t.uuid "payable_claim_id"
     t.string "request_type"
     t.datetime "submitted_at"
     t.uuid "submitter_id"
     t.datetime "updated_at", null: false
     t.index ["payable_claim_id"], name: "index_payment_requests_on_payable_claim_id"
+    t.index ["request_type"], name: "index_payment_requests_on_request_type"
   end
 
   create_table "translations", force: :cascade do |t|
@@ -234,47 +236,43 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
      FROM base;
   SQL
   create_view "searches", sql_definition: <<-SQL
-      WITH defendants AS (
-           SELECT app_1.id,
-                  CASE
-                      WHEN (app_1.application_type = 'crm4'::text) THEN ((((app_ver_1.application -> 'defendant'::text) ->> 'first_name'::text) || ' '::text) || ((app_ver_1.application -> 'defendant'::text) ->> 'last_name'::text))
-                      ELSE ( SELECT (((defendants.value ->> 'first_name'::text) || ' '::text) || (defendants.value ->> 'last_name'::text))
-                         FROM jsonb_array_elements((app_ver_1.application -> 'defendants'::text)) defendants(value)
-                        WHERE ((defendants.value ->> 'main'::text) = 'true'::text))
-                  END AS client_name
-             FROM (application app_1
-               JOIN application_version app_ver_1 ON (((app_1.id = app_ver_1.application_id) AND (app_1.current_version = app_ver_1.version))))
-          )
-   SELECT app.id,
-      app_ver.id AS application_version_id,
-      (app_ver.application ->> 'ufn'::text) AS ufn,
-      (app_ver.application ->> 'laa_reference'::text) AS laa_reference,
-      ((app_ver.application -> 'firm_office'::text) ->> 'name'::text) AS firm_name,
-      ((app_ver.application -> 'firm_office'::text) ->> 'account_number'::text) AS account_number,
-      (app_ver.application ->> 'service_name'::text) AS service_name,
-      (((app_ver.application -> 'cost_summary'::text) ->> 'high_value'::text))::boolean AS high_value,
-      app_ver.created_at AS last_state_change,
-          CASE app.application_risk
-              WHEN 'high'::text THEN 3
-              WHEN 'medium'::text THEN 2
-              ELSE 1
-          END AS risk_level,
-      def.client_name,
-      app_ver.search_fields,
-      app.unassigned_user_ids,
-      app.assigned_user_id,
-      app.created_at AS date_submitted,
-      app.last_updated_at AS last_updated,
-          CASE
-              WHEN ((app.state = 'submitted'::text) AND (app.assigned_user_id IS NOT NULL)) THEN 'in_progress'::text
-              WHEN ((app.state = 'submitted'::text) AND (app.assigned_user_id IS NULL)) THEN 'not_assigned'::text
-              ELSE app.state
-          END AS status_with_assignment,
-      app.application_type,
-      app.application_risk AS risk
-     FROM ((application app
-       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))))
-       JOIN defendants def ON ((def.id = app.id)));
+      SELECT
+        app.id,
+        app_ver.id as application_version_id,
+        app_ver.application ->> 'ufn' as ufn,
+        app_ver.application ->> 'laa_reference' as laa_reference,
+        app_ver.application -> 'firm_office' ->> 'name' as firm_name,
+        app_ver.application -> 'firm_office' ->> 'account_number' as account_number,
+        app_ver.application ->> 'service_name' as service_name,
+        (app_ver.application -> 'cost_summary' ->> 'high_value')::boolean as high_value,
+        app_ver.created_at as last_state_change,
+        CASE app.application_risk
+        WHEN 'high' THEN 3
+        WHEN 'medium' THEN 2
+        ELSE 1 END as risk_level,
+        CASE WHEN app.application_type = 'crm4' THEN
+            (app_ver.application -> 'defendant' ->> 'first_name') || ' ' || (app_ver.application -> 'defendant' ->> 'last_name')
+           ELSE
+            (
+              SELECT (defendants.value->>'first_name') || ' ' || (defendants.value->>'last_name')
+              FROM jsonb_array_elements(app_ver.application->'defendants') AS defendants
+              WHERE defendants.value->>'main' = 'true'
+            )
+           END AS client_name,
+        app_ver.search_fields,
+        app.unassigned_user_ids,
+        app.assigned_user_id,
+        app.created_at as date_submitted,
+        app.last_updated_at as last_updated,
+        CASE WHEN app.state = 'submitted' AND app.assigned_user_id IS NOT NULL THEN 'in_progress'
+             WHEN app.state = 'submitted' AND app.assigned_user_id IS NULL THEN 'not_assigned'
+             ELSE app.state
+             END AS status_with_assignment,
+        app.application_type as application_type,
+        app.application_risk as risk
+      FROM application AS app
+      JOIN application_version AS app_ver
+        ON app.id = app_ver.application_id AND app.current_version = app_ver.version
   SQL
   create_view "submission_assess_times", sql_definition: <<-SQL
       WITH base AS (
@@ -365,5 +363,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_111440) do
                LEFT JOIN application a ON (((a.id = av.application_id) AND (av.pending IS FALSE))))
             GROUP BY a.application_type, ((av.created_at)::date)
             ORDER BY a.application_type, ((av.created_at)::date)) counted_values;
+  SQL
+
+create_view "nsm_payments", sql_definition: <<-SQL
+      SELECT payable_claims.id AS claim_id,
+      payable_claims.court_attendances,
+      payable_claims.court_name,
+      payable_claims.court_id,
+      payable_claims.no_of_defendants,
+      payable_claims.outcome_code,
+      payable_claims.solicitor_firm_name AS office_name,
+      payable_claims.solicitor_office_code AS office_code,
+      payable_claims.stage_code,
+      payable_claims.ufn,
+      payable_claims.work_completed_date,
+      payable_claims.youth_court,
+      payment_requests.request_type,
+      payment_requests.allowed_disbursement_cost,
+      payment_requests.claimed_disbursement_cost,
+      payment_requests.allowed_profit_cost,
+      payment_requests.claimed_profit_cost,
+      payment_requests.allowed_travel_cost,
+      payment_requests.claimed_travel_cost,
+      payment_requests.allowed_waiting_cost,
+      payment_requests.claimed_waiting_cost,
+      payment_requests.claimed_total,
+      payment_requests.allowed_total,
+      payment_requests.date_claim_assessed,
+      payment_requests.submitted_at
+     FROM (payment_requests
+       JOIN payable_claims ON ((payment_requests.payable_claim_id = payable_claims.id)))
+    WHERE ((payment_requests.request_type)::text = ANY ((ARRAY['breach_of_injunction'::character varying, 'non_standard_magistrate'::character varying, 'non_standard_mag_supplemental'::character varying, 'non_standard_mag_appeal'::character varying, 'non_standard_mag_amendment'::character varying])::text[]));
   SQL
 end

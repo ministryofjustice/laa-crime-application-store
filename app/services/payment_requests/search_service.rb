@@ -16,13 +16,13 @@ module PaymentRequests
       claims = PaymentRequest
         .left_outer_joins(:payable_claim)
         .includes(:payable_claim)
-      claims = claims.where(date_received: received_from..received_to) if date_received?
+      claims = claims.where(date_claim_assessed: received_from..received_to) if date_assessed?
       claims = claims.where(submitted_at: (submitted_from..submitted_to)) if submitted_date?
       claims = claims.where(request_type:) if request_type.present?
       claims = claims.where("LOWER(payable_claims.laa_reference) = ?", query_params[:laa_reference].downcase) if query_params[:laa_reference].present?
       claims = claims.where(payable_claims: { ufn: query_params[:ufn] }) if query_params[:ufn].present?
+      claims = search_query_text(claims) if query_params[:query].present?
       claims = claims.where("LOWER(payable_claims.solicitor_office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
-      claims = claims.where("LOWER(payable_claims.client_last_name) % ?::text", "%#{query_params[:client_last_name].downcase}%") if query_params[:client_last_name].present?
       claims = claims.where(payable_claims: { submission_id: }) if submission_id
       claims.order(sort_clause)
     end
@@ -58,7 +58,7 @@ module PaymentRequests
       search_params[:submission_id]
     end
 
-    def date_received?
+    def date_assessed?
       received_from.present? || received_to.present?
     end
 
@@ -82,7 +82,7 @@ module PaymentRequests
         elsif /^\d.*[a-zA-Z]$/.match?(word)
           acc[:office_code] = word
         else
-          acc[:client_last_name] = word
+          acc[:query] = word
         end
       end
       @query_params ||= results
@@ -117,6 +117,11 @@ module PaymentRequests
 
     def query
       search_params.fetch(:query, nil)
+    end
+
+    def search_query_text(claims)
+      claims.where("LOWER(payable_claims.client_last_name) % ?", query_params[:query].downcase)
+                      .or(claims.where("LOWER(payable_claims.solicitor_firm_name) % ?", query_params[:query].downcase))
     end
   end
 end

@@ -2,7 +2,7 @@ class PaymentRequestResource
   include Alba::Resource
 
   attributes :id, :submitter_id, :request_type,
-             :submitted_at, :submission_id, :date_received
+             :submitted_at, :submission_id, :date_claim_assessed
   attributes :claimed_profit_cost, :allowed_profit_cost,
              :claimed_travel_cost, :allowed_travel_cost,
              :claimed_waiting_cost, :allowed_waiting_cost,

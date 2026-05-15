@@ -11,7 +11,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       request_type:,
       laa_reference:,
       idempotency_token:,
-      date_received: "2025-01-01",
+      date_claim_assessed: "2025-01-01",
       solicitor_office_code: "3B123A",
       solicitor_firm_name: "The Firm",
       defendant_first_name: "Jim",
@@ -127,7 +127,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
 
     context "when a submission exists for the linked reference" do
       let!(:submission) { create(:submission, :with_nsm_version, laa_reference: linked_laa_reference) }
-      let(:params) { super().merge(linked_laa_reference:, id: submission.id) }
+      let(:params) { super().merge(linked_laa_reference:, submission_id: submission.id) }
 
       it "stores the submission id on the claim" do
         result = service.call
@@ -207,7 +207,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
         idempotency_token: SecureRandom.uuid,
         request_type: "non_standard_magistrate",
         submitter_id: SecureRandom.uuid,
-        date_received: Time.zone.today,
+        date_claim_assessed: Time.zone.today,
       }
     end
 

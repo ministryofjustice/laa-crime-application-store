@@ -48,7 +48,8 @@ service_account:
 envVars:
   environment: production
   swaggerEndpoint:
-  authenticationRequired: True
+  authenticationRequired: true
+  sentryTraceSampleRate: 0.2
 
 # Instead of a temporary postgres pod we use RDS
 postgresql:
@@ -61,7 +62,7 @@ redis:
 metabase:
   enabled: true
   url: "crime-forms-metabase.service.justice.gov.uk"
-  image: metabase/metabase:v0.55.x
+  image: metabase/metabase:v0.59.x
   service:
     port: 80
     internalPort: 3000
