@@ -81,10 +81,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
     t.datetime "updated_at", null: false
     t.datetime "work_completed_date"
     t.boolean "youth_court"
+    t.index "lower((client_last_name)::text) gin_trgm_ops", name: "idx_pc_client_last_name_trgm", using: :gin
+    t.index "lower((laa_reference)::text)", name: "idx_pc_lower_laa_reference"
+    t.index "lower((solicitor_firm_name)::text) gin_trgm_ops", name: "idx_pc_solicitor_firm_name_trgm", using: :gin
+    t.index "lower((solicitor_office_code)::text)", name: "idx_pc_lower_solicitor_office_code"
     t.index ["client_last_name"], name: "index_payable_claims_on_client_last_name"
     t.index ["idempotency_token"], name: "index_payable_claims_on_idempotency_token", unique: true
     t.index ["laa_reference"], name: "index_payable_claims_on_laa_reference"
     t.index ["solicitor_office_code"], name: "index_payable_claims_on_solicitor_office_code"
+    t.index ["submission_id"], name: "idx_pc_submission_id"
     t.index ["type"], name: "index_payable_claims_on_type"
     t.index ["ufn"], name: "index_payable_claims_on_ufn"
   end
@@ -111,8 +116,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
     t.datetime "submitted_at"
     t.uuid "submitter_id"
     t.datetime "updated_at", null: false
+    t.index ["date_claim_assessed"], name: "idx_pr_date_claim_assessed"
     t.index ["payable_claim_id"], name: "index_payment_requests_on_payable_claim_id"
+    t.index ["request_type", "date_claim_assessed"], name: "idx_pr_request_type_date_assessed"
+    t.index ["request_type", "submitted_at"], name: "idx_pr_request_type_submitted_at", order: { submitted_at: :desc }
     t.index ["request_type"], name: "index_payment_requests_on_request_type"
+    t.index ["submitted_at"], name: "idx_pr_submitted_at_desc", order: :desc
   end
 
   create_table "translations", force: :cascade do |t|
