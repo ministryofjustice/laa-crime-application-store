@@ -48,7 +48,8 @@ service_account:
 envVars:
   environment: production
   swaggerEndpoint:
-  authenticationRequired: True
+  authenticationRequired: true
+  sentryTraceSampleRate: 0.2
 
 # Instead of a temporary postgres pod we use RDS
 postgresql:
