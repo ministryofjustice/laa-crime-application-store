@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_30_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_01_150127) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -316,9 +316,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_30_090000) do
       date_trunc('DAY'::text, app.created_at) AS date_submitted,
       count(*) AS submissions
      FROM (application app
-       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1) AND (app_ver.pending IS FALSE))))
-    WHERE (app.application_type = 'crm4'::text)
-    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
+       JOIN application_version app_ver ON ((app_ver.application_id = app.id)))
+    WHERE ((app.application_type = 'crm4'::text) AND (app_ver.version = 1) AND (app_ver.pending IS FALSE))
+    GROUP BY (app_ver.application ->> 'service_type'::text), (date_trunc('DAY'::text, app.created_at))
+    ORDER BY (date_trunc('DAY'::text, app.created_at)), COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text);
   SQL
   create_view "submission_creation_times", sql_definition: <<-SQL
       WITH base AS (
@@ -350,22 +351,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_30_090000) do
      FROM base;
   SQL
   create_view "submissions_by_date", sql_definition: <<-SQL
-      SELECT counted_values.event_on,
-      counted_values.application_type,
-      counted_values.submission,
-      counted_values.resubmission,
-      (counted_values.submission + counted_values.resubmission) AS total
-     FROM ( SELECT (av.created_at)::date AS event_on,
-              a.application_type,
-              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'submitted'::text)) AS submission,
-              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'provider_updated'::text)) AS resubmission
-             FROM (application_version av
-               LEFT JOIN application a ON (((a.id = av.application_id) AND (av.pending IS FALSE))))
-            GROUP BY a.application_type, ((av.created_at)::date)
-            ORDER BY a.application_type, ((av.created_at)::date)) counted_values;
+      SELECT (av.created_at)::date AS event_on,
+      a.application_type,
+      count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'submitted'::text)) AS submission,
+      count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'provider_updated'::text)) AS resubmission,
+      count(*) AS total
+     FROM (application_version av
+       JOIN application a ON ((a.id = av.application_id)))
+    WHERE ((av.pending IS FALSE) AND ((av.application ->> 'status'::text) = ANY (ARRAY['submitted'::text, 'provider_updated'::text])))
+    GROUP BY a.application_type, ((av.created_at)::date)
+    ORDER BY a.application_type, ((av.created_at)::date);
   SQL
 
-create_view "nsm_payments", sql_definition: <<-SQL
+  create_view "nsm_payments", sql_definition: <<-SQL
       SELECT payable_claims.id AS claim_id,
       payable_claims.court_attendances,
       payable_claims.court_name,
