@@ -316,10 +316,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_150127) do
       date_trunc('DAY'::text, app.created_at) AS date_submitted,
       count(*) AS submissions
      FROM (application app
-       JOIN application_version app_ver ON ((app_ver.application_id = app.id)))
-    WHERE ((app.application_type = 'crm4'::text) AND (app_ver.version = 1) AND (app_ver.pending IS FALSE))
-    GROUP BY (app_ver.application ->> 'service_type'::text), (date_trunc('DAY'::text, app.created_at))
-    ORDER BY (date_trunc('DAY'::text, app.created_at)), COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text);
+       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1) AND (app_ver.pending IS FALSE))))
+    WHERE (app.application_type = 'crm4'::text)
+    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
   SQL
   create_view "submission_creation_times", sql_definition: <<-SQL
       WITH base AS (
