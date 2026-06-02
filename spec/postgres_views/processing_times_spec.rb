@@ -49,7 +49,7 @@ RSpec.describe "processing times" do
         "to_status" => "approved",
         "to_time" => Time.zone.local(2024, 6, 26, 12, 20),
         "version" => 2,
-      "claim_imported" => false },
+        "claim_imported" => false },
     )
   end
 
