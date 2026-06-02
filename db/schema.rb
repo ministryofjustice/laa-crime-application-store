@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_30_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -211,28 +211,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_30_090000) do
            SELECT application.id,
               application.application_type,
               application_version.version,
-              COALESCE(lag((application_version.application ->> 'status'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), 'draft'::text) AS from_status,
-              (COALESCE(lag((application_version.application ->> 'updated_at'::text), 1) OVER (PARTITION BY application_version.application_id ORDER BY application_version.version), (application_version.application ->> 'created_at'::text)))::timestamp without time zone AS from_time,
+              COALESCE((previous_application_version.application ->> 'status'::text), 'draft'::text) AS from_status,
+              (COALESCE((previous_application_version.application ->> 'updated_at'::text), (application_version.application ->> 'created_at'::text)))::timestamp without time zone AS from_time,
               (application_version.application ->> 'status'::text) AS to_status,
               ((application_version.application ->> 'updated_at'::text))::timestamp without time zone AS to_time,
-                  CASE
-                      WHEN (((application_version.application ->> 'import_date'::text))::timestamp without time zone IS NOT NULL) THEN true
-                      ELSE false
-                  END AS claim_imported
-             FROM (application_version
-               JOIN application ON (((application_version.application_id = application.id) AND (application_version.pending IS FALSE))))
+              (NULLIF((application_version.application ->> 'import_date'::text), ''::text) IS NOT NULL) AS claim_imported
+             FROM ((application_version
+               JOIN application ON ((application_version.application_id = application.id)))
+               LEFT JOIN LATERAL ( SELECT previous_application_version_1.application
+                     FROM application_version previous_application_version_1
+                    WHERE ((previous_application_version_1.application_id = application_version.application_id) AND (previous_application_version_1.pending IS FALSE) AND (previous_application_version_1.version < application_version.version))
+                    ORDER BY previous_application_version_1.version DESC
+                   LIMIT 1) previous_application_version ON (true))
+            WHERE (application_version.pending IS FALSE)
           )
-   SELECT base.id,
-      base.application_type,
-      base.version,
-      base.from_status,
-      base.from_time,
-      base.to_status,
-      base.to_time,
-      base.claim_imported,
-      (base.from_time)::date AS from_date,
-      (base.to_time)::date AS to_date,
-      GREATEST(EXTRACT(epoch FROM (base.to_time - base.from_time)), (0)::numeric) AS processing_seconds
+   SELECT id,
+      application_type,
+      version,
+      from_status,
+      from_time,
+      to_status,
+      to_time,
+      claim_imported,
+      (from_time)::date AS from_date,
+      (to_time)::date AS to_date,
+      GREATEST(EXTRACT(epoch FROM (to_time - from_time)), (0)::numeric) AS processing_seconds
      FROM base;
   SQL
   create_view "searches", sql_definition: <<-SQL
