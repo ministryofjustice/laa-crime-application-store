@@ -353,22 +353,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
      FROM base;
   SQL
   create_view "submissions_by_date", sql_definition: <<-SQL
-      SELECT counted_values.event_on,
-      counted_values.application_type,
-      counted_values.submission,
-      counted_values.resubmission,
-      (counted_values.submission + counted_values.resubmission) AS total
-     FROM ( SELECT (av.created_at)::date AS event_on,
-              a.application_type,
-              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'submitted'::text)) AS submission,
-              count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'provider_updated'::text)) AS resubmission
-             FROM (application_version av
-               LEFT JOIN application a ON (((a.id = av.application_id) AND (av.pending IS FALSE))))
-            GROUP BY a.application_type, ((av.created_at)::date)
-            ORDER BY a.application_type, ((av.created_at)::date)) counted_values;
+      SELECT (av.created_at)::date AS event_on,
+      a.application_type,
+      count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'submitted'::text)) AS submission,
+      count(*) FILTER (WHERE ((av.application ->> 'status'::text) = 'provider_updated'::text)) AS resubmission,
+      count(*) AS total
+     FROM (application_version av
+       JOIN application a ON ((a.id = av.application_id)))
+    WHERE ((av.pending IS FALSE) AND ((av.application ->> 'status'::text) = ANY (ARRAY['submitted'::text, 'provider_updated'::text])))
+    GROUP BY a.application_type, ((av.created_at)::date)
+    ORDER BY a.application_type, ((av.created_at)::date);
   SQL
 
-create_view "nsm_payments", sql_definition: <<-SQL
+  create_view "nsm_payments", sql_definition: <<-SQL
       SELECT payable_claims.id AS claim_id,
       payable_claims.court_attendances,
       payable_claims.court_name,
