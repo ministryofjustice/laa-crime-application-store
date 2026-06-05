@@ -112,6 +112,18 @@ RSpec.describe NsmClaim, type: :model do
         nsm_claim.no_of_defendants = 3
         expect(nsm_claim).to be_valid
       end
+
+      it "is invalid if original_submission_year is not an integer" do
+        nsm_claim.original_submission_year = "year"
+        expect(nsm_claim).to be_invalid
+        expect(nsm_claim.errors[:original_submission_year]).to include("is not a number")
+      end
+
+      it "is invalid if original_submission_month is not an integer" do
+        nsm_claim.original_submission_month = "month"
+        expect(nsm_claim).to be_invalid
+        expect(nsm_claim.errors[:original_submission_month]).to include("is not a number")
+      end
     end
   end
 
