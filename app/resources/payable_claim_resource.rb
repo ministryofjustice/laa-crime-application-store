@@ -16,6 +16,8 @@ class PayableClaimResource
              :hearing_outcome_code,
              :number_of_attendances,
              :number_of_defendants,
+             :original_submission_year,
+             :original_submission_month,
              :submission_id,
              :defendant_first_name,
              :court_name,
