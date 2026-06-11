@@ -1,7 +1,7 @@
-class AddDateStatusIndexToSubmissionsByDate < ActiveRecord::Migration[8.1]
+class AddDateStatusIndexToApplicationVersion < ActiveRecord::Migration[8.1]
   disable_ddl_transaction! #allows concurrently
 
-  INDEX_NAME = "idx_submissions_by_date_on_date_status"
+  INDEX_NAME = "idx_application_version_by_date_on_date_status"
 
   def up
     return if index_exists_by_name?
