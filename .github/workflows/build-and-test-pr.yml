@@ -250,7 +250,7 @@ jobs:
       id-token: write
       contents: read
     with:
-      appstore-sha: ${{ needs.build.outputs.image-tag }}
+      appstore-image-name: ${{ needs.build.outputs.image-tag }}
 
   # ============================================================================
   # PHASE 4: Deploy to dev environment (only after all checks pass)
