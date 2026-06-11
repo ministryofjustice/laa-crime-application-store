@@ -243,14 +243,14 @@ jobs:
 
   e2e-test:
     name: Run E2E Tests
-    uses: ministryofjustice/nsm-e2e-test/.github/workflows/run-e2e-tests.yml@413ec16d7dcf61e440124797f6036eb134e092a8
+    uses: ministryofjustice/nsm-e2e-test/.github/workflows/run-e2e-tests.yml@main
     needs: build
     secrets: inherit
     permissions:
       id-token: write
       contents: read
     with:
-      appstore-sha: ${{ needs.build.outputs.image-tag }}
+      appstore-image-name: ${{ needs.build.outputs.image-tag }}
 
   # ============================================================================
   # PHASE 4: Deploy to dev environment (only after all checks pass)

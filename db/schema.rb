@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_04_163946) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -63,14 +63,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
     t.string "counsel_firm_name"
     t.string "counsel_office_code"
     t.integer "court_attendances"
-    t.string "court_name"
     t.string "court_id"
+    t.string "court_name"
     t.datetime "created_at", null: false
     t.uuid "idempotency_token"
     t.string "laa_reference"
     t.string "matter_type"
     t.integer "no_of_defendants"
     t.uuid "nsm_claim_id"
+    t.integer "original_submission_month"
+    t.integer "original_submission_year"
     t.string "outcome_code"
     t.string "solicitor_firm_name"
     t.string "solicitor_office_code"
