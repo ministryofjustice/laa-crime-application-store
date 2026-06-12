@@ -20,6 +20,8 @@ FactoryBot.define do
       court_id { "1" }
       court_attendances { 2 }
       no_of_defendants { 1 }
+      original_submission_year { 2024 }
+      original_submission_month { 5 }
     end
 
     factory :assigned_counsel_claim, class: "AssignedCounselClaim" do
