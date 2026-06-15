@@ -1,12 +1,16 @@
+require "active_support/testing/time_helpers"
 module Submissions
   class CreationService
     class << self
+      include ActiveSupport::Testing::TimeHelpers
       include LaaReferenceHelper
 
       def call(params)
         raise AlreadyExistsError if Submission.find_by(id: params[:application_id])
 
         Submission.transaction do
+          travel_to(params[:current_date].to_time) unless params[:current_date].blank? || HostEnv.production?
+
           submission = Submission.create!(initial_data(params))
           submission.with_lock do
             add_version(submission, params)
