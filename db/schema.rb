@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_11_161506) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_15_124418) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -30,6 +30,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_161506) do
     t.string "unassigned_user_ids", default: [], array: true
     t.datetime "updated_at", precision: nil
     t.index ["application_type", "last_updated_at"], name: "idx_application_on_type_last_updated_at"
+    t.index ["application_type"], name: "idx_application_type"
+    t.index ["application_type"], name: "idx_application_version_type"
   end
 
   add_check_constraint "application", "created_at IS NOT NULL", name: "application_created_at_null", validate: false
@@ -47,6 +49,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_161506) do
     t.index "(((application -> 'firm_office'::text) ->> 'account_number'::text))", name: "idx_application_version_on_account_number"
     t.index "((application ->> 'laa_reference'::text))", name: "idx_application_version_on_laa_reference"
     t.index "((application ->> 'status'::text)), ((created_at)::date), application_id", name: "idx_application_version_by_date_on_date_status", where: "(pending IS FALSE)"
+    t.index "application_id, ((application ->> 'service_type'::text)), date_trunc('DAY'::text, created_at)", name: "idx_application_version_service_type_pending"
     t.index ["application_id", "version"], name: "idx_application_versions_app_id_version"
     t.index ["application_id"], name: "idx_application_version_pending", where: "((version = 1) AND (pending IS FALSE))"
     t.index ["search_fields"], name: "index_application_version_on_search_fields", using: :gin
@@ -338,12 +341,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_161506) do
   SQL
   create_view "submission_by_services", sql_definition: <<-SQL
       SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
-      date_trunc('DAY'::text, app.created_at) AS date_submitted,
+      date_trunc('DAY'::text, app_ver.created_at) AS date_submitted,
       count(*) AS submissions
      FROM (application app
        JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1) AND (app_ver.pending IS FALSE))))
     WHERE (app.application_type = 'crm4'::text)
-    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
+    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app_ver.created_at));
   SQL
   create_view "submission_creation_times", sql_definition: <<-SQL
       WITH base AS (
