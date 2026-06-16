@@ -49,7 +49,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_124418) do
     t.index "(((application -> 'firm_office'::text) ->> 'account_number'::text))", name: "idx_application_version_on_account_number"
     t.index "((application ->> 'laa_reference'::text))", name: "idx_application_version_on_laa_reference"
     t.index "((application ->> 'status'::text)), ((created_at)::date), application_id", name: "idx_application_version_by_date_on_date_status", where: "(pending IS FALSE)"
-    t.index "application_id, ((application ->> 'service_type'::text)), date_trunc('DAY'::text, created_at)", name: "idx_application_version_service_type_pending"
+    t.index "application_id, ((application ->> 'service_type'::text)), date_trunc('DAY'::text, created_at)", name: "idx_application_version_service_type_pending", where: "(pending IS FALSE)"
     t.index ["application_id", "version"], name: "idx_application_versions_app_id_version"
     t.index ["application_id"], name: "idx_application_version_pending", where: "((version = 1) AND (pending IS FALSE))"
     t.index ["search_fields"], name: "index_application_version_on_search_fields", using: :gin
@@ -343,9 +343,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_124418) do
       SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
       date_trunc('DAY'::text, app_ver.created_at) AS date_submitted,
       count(*) AS submissions
-     FROM (application app
-       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1) AND (app_ver.pending IS FALSE))))
-    WHERE (app.application_type = 'crm4'::text)
+     FROM (application_version app_ver
+       JOIN application app ON ((app.id = app_ver.application_id)))
+    WHERE ((app.application_type = 'crm4'::text) AND (app_ver.version = 1) AND (app_ver.pending IS FALSE))
     GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app_ver.created_at));
   SQL
   create_view "submission_creation_times", sql_definition: <<-SQL

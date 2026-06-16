@@ -12,7 +12,7 @@ class AddVersionServiceTypeToApplicationVersion < ActiveRecord::Migration[8.1]
         application_id,
         (application ->> 'service_type'),
         DATE_TRUNC('DAY', created_at)
-      )
+      ) WHERE pending IS FALSE;
     SQL
   end
 
@@ -23,6 +23,7 @@ class AddVersionServiceTypeToApplicationVersion < ActiveRecord::Migration[8.1]
       DROP INDEX CONCURRENTLY #{INDEX_NAME};
     SQL
   end
+
 
   private
 
