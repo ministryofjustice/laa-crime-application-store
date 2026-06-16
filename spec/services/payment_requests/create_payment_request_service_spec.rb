@@ -138,7 +138,20 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
     end
 
     context "when no submission exists for the linked reference" do
-      let(:params) { super().merge(linked_laa_reference:, id: SecureRandom.uuid) }
+      let(:params) { super().merge(linked_laa_reference:, submission_id: SecureRandom.uuid) }
+
+      it "leaves submission_id as nil" do
+        result = service.call
+        expect(result[:claim].reload.submission_id).to be_nil
+      end
+    end
+
+    context "when a different submission exists for the linked reference" do
+      let(:params) { super().merge(linked_laa_reference:, submission_id: SecureRandom.uuid) }
+
+      before do
+        create(:submission, :with_nsm_version, laa_reference: linked_laa_reference)
+      end
 
       it "leaves submission_id as nil" do
         result = service.call
