@@ -2,10 +2,28 @@ require "rails_helper"
 
 RSpec.describe "Active Providers" do
   let(:base_date) { Date.new(2024, 6, 26) }
+  let(:view_definition) { Rails.root.join("db/views/active_providers_v02.sql").read }
   let(:klass) do
     Class.new(ApplicationRecord) do
       self.table_name = :active_providers
     end
+  end
+
+  it "calculates cumulative provider counts without a correlated submissions self-scan" do
+    expect(view_definition).not_to match(/from\s+submissions\s+as\s+subs/i)
+    expect(view_definition).not_to match(/select\s+count\s*\(\s*distinct\s*\(\s*subs\.office_code\s*\)\s*\)/i)
+  end
+
+  it "keeps the Metabase dashboard field names" do
+    expected_fields = %w[
+      application_type
+      submitted_start
+      office_codes_submitting_during_the_period
+      total_office_codes_submitters
+      office_codes_during_the_period
+    ]
+
+    expect(klass.column_names).to eq(expected_fields)
   end
 
   it "correctly calculates the total provider counts" do
