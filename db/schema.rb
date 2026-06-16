@@ -213,7 +213,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_111231) do
       'CL_CON_CWA'::text AS invoice_type,
       NULLIF(TRIM(BOTH FROM concat_ws(' '::text, payable_claims.client_first_name, payable_claims.client_last_name)), ''::text) AS client_name,
       payable_claims.ufn AS case_reference,
-      (payment_requests.submitted_at)::date AS date_requested,
+      (payment_requests.date_claim_assessed)::date AS date_requested,
       payable_claims.counsel_office_code AS office_code,
       COALESCE(payment_requests.allowed_total, (COALESCE(payment_requests.allowed_net_assigned_counsel_cost, (0)::numeric) + COALESCE(payment_requests.allowed_assigned_counsel_vat, (0)::numeric))) AS invoice_amount_inc_vat,
           CASE

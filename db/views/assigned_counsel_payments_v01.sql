@@ -14,7 +14,7 @@ SELECT
     ''
   ) AS client_name,
   payable_claims.ufn AS case_reference,
-  payment_requests.submitted_at::date AS date_requested,
+  payment_requests.date_claim_assessed::date AS date_requested,
   payable_claims.counsel_office_code AS office_code,
   COALESCE(
     payment_requests.allowed_total,

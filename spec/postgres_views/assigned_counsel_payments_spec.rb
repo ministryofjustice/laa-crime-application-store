@@ -37,7 +37,7 @@ RSpec.describe "Assigned counsel payments" do
       "invoice_type" => "CL_CON_CWA",
       "client_name" => "Ada Lovelace",
       "case_reference" => "120423/001",
-      "date_requested" => Date.new(2026, 1, 20),
+      "date_requested" => Date.new(2026, 1, 19),
       "office_code" => "1C234D",
       "invoice_amount_inc_vat" => 540,
       "tax_amount_percentage" => 20,
