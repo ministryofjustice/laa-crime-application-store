@@ -34,7 +34,8 @@ RSpec.describe "show payable claim", type: :request do
         payment_requests
         solicitor_firm_name
         solicitor_office_code
-        original_submission_date
+        original_submission_month
+        original_submission_year
         stage_reached
         submission_id
         type
