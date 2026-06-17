@@ -16,11 +16,11 @@ class NsmClaimResource
 
   many :payment_requests, params: { include_claim: false }
 
-  def original_submission_month
-    original_submission_date&.month
+  def original_submission_month(nsm_claim)
+    nsm_claim.original_submission_date&.month
   end
 
-  def original_submission_year
-    original_submission_date&.year
+  def original_submission_year(nsm_claim)
+    nsm_claim.original_submission_date&.year
   end
 end
