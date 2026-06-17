@@ -16,11 +16,7 @@ SELECT
   payable_claims.ufn AS case_reference,
   payment_requests.date_claim_assessed::date AS date_requested,
   payable_claims.counsel_office_code AS office_code,
-  COALESCE(
-    payment_requests.allowed_total,
-    COALESCE(payment_requests.allowed_net_assigned_counsel_cost, 0) +
-      COALESCE(payment_requests.allowed_assigned_counsel_vat, 0)
-  ) AS invoice_amount_inc_vat,
+  payment_requests.allowed_total AS invoice_amount_inc_vat,
   CASE
     WHEN COALESCE(payment_requests.allowed_assigned_counsel_vat, payment_requests.claimed_assigned_counsel_vat, 0) = 0 THEN 0
     ELSE 20
