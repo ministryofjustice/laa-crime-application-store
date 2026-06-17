@@ -49,6 +49,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_111231) do
     t.index "(((application -> 'firm_office'::text) ->> 'account_number'::text))", name: "idx_application_version_on_account_number"
     t.index "((application ->> 'laa_reference'::text))", name: "idx_application_version_on_laa_reference"
     t.index "((application ->> 'status'::text)), ((created_at)::date), application_id", name: "idx_application_version_by_date_on_date_status", where: "(pending IS FALSE)"
+    t.index ["application_id", "created_at"], name: "idx_app_ver_final_status_first_decision", where: "((application ->> 'status'::text) = ANY (ARRAY['rejected'::text, 'part_grant'::text, 'granted'::text]))"
     t.index ["application_id", "version"], name: "idx_application_versions_app_id_version"
     t.index ["search_fields"], name: "index_application_version_on_search_fields", using: :gin
   end
