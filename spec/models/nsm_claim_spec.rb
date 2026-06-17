@@ -49,8 +49,7 @@ RSpec.describe NsmClaim, type: :model do
         court_name
         ufn
         work_completed_date
-        original_submission_month
-        original_submission_year
+        original_submission_date
       ].each do |attr|
         it "is invalid without #{attr}" do
           nsm_claim.public_send("#{attr}=", nil)
@@ -115,16 +114,10 @@ RSpec.describe NsmClaim, type: :model do
         expect(nsm_claim).to be_valid
       end
 
-      it "is invalid if original_submission_year is not an integer" do
-        nsm_claim.original_submission_year = "year"
+      it "is invalid if original_submission_date is not present" do
+        nsm_claim.original_submission_date = nil
         expect(nsm_claim).to be_invalid
-        expect(nsm_claim.errors[:original_submission_year]).to include("is not a number")
-      end
-
-      it "is invalid if original_submission_month is not an integer" do
-        nsm_claim.original_submission_month = "month"
-        expect(nsm_claim).to be_invalid
-        expect(nsm_claim.errors[:original_submission_month]).to include("is not a number")
+        expect(nsm_claim.errors[:original_submission_date]).to include("can't be blank")
       end
     end
   end
