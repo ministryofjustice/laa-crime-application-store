@@ -75,6 +75,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
         court_id: "123",
         stage_code: "PROG",
         no_of_defendants: 1,
+        original_submission_date: Date.new(2025, 1, 1),
       )
 
       expect(payment).to have_attributes(
