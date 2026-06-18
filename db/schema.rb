@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_15_124418) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_17_095153) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -49,9 +49,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_124418) do
     t.index "(((application -> 'firm_office'::text) ->> 'account_number'::text))", name: "idx_application_version_on_account_number"
     t.index "((application ->> 'laa_reference'::text))", name: "idx_application_version_on_laa_reference"
     t.index "((application ->> 'status'::text)), ((created_at)::date), application_id", name: "idx_application_version_by_date_on_date_status", where: "(pending IS FALSE)"
-    t.index "application_id, ((application ->> 'service_type'::text)), date_trunc('DAY'::text, created_at)", name: "idx_application_version_service_type_pending", where: "(pending IS FALSE)"
     t.index ["application_id", "version"], name: "idx_application_versions_app_id_version"
-    t.index ["application_id"], name: "idx_application_version_pending", where: "((version = 1) AND (pending IS FALSE))"
     t.index ["search_fields"], name: "index_application_version_on_search_fields", using: :gin
   end
 
