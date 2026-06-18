@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_17_123902) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_18_111231) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -222,6 +222,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_123902) do
       payable_claims.stage_code,
       payable_claims.ufn,
       payable_claims.work_completed_date,
+      payable_claims.original_submission_date,
       payable_claims.youth_court,
       payment_requests.request_type,
       payment_requests.allowed_disbursement_cost,
