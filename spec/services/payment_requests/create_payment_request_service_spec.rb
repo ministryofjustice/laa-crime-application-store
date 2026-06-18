@@ -12,6 +12,8 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       laa_reference:,
       idempotency_token:,
       date_claim_assessed: "2025-01-01",
+      original_submission_year: 2024,
+      original_submission_month: 12,
       solicitor_office_code: "3B123A",
       solicitor_firm_name: "The Firm",
       defendant_first_name: "Jim",
