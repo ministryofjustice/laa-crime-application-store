@@ -65,8 +65,8 @@ RSpec.describe "show payment request", type: :request do
         court_name
         court_attendances
         no_of_defendants
-        original_submission_year
         original_submission_month
+        original_submission_year
         payment_requests
         created_at
         updated_at
