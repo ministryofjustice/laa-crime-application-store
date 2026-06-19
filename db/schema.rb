@@ -199,6 +199,42 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_111231) do
     GROUP BY dates.day
     ORDER BY dates.day;
   SQL
+  create_view "assigned_counsel_payments", sql_definition: <<-SQL
+      SELECT payment_requests.id AS payment_request_id,
+      payable_claims.id AS claim_id,
+      payable_claims.laa_reference,
+          CASE payment_requests.request_type
+              WHEN 'assigned_counsel'::text THEN 'AC'::text
+              WHEN 'assigned_counsel_appeal'::text THEN 'AC Appeal'::text
+              WHEN 'assigned_counsel_amendment'::text THEN 'AC Amendment'::text
+              ELSE NULL::text
+          END AS payment_type,
+      'CRM8'::text AS description,
+      'CL_CON_CWA'::text AS invoice_type,
+      NULLIF(TRIM(BOTH FROM concat_ws(' '::text, payable_claims.client_first_name, payable_claims.client_last_name)), ''::text) AS client_name,
+      payable_claims.ufn AS case_reference,
+      (payment_requests.date_claim_assessed)::date AS date_requested,
+      payable_claims.counsel_office_code AS office_code,
+      payment_requests.allowed_total AS invoice_amount_inc_vat,
+          CASE
+              WHEN (COALESCE(payment_requests.allowed_assigned_counsel_vat, payment_requests.claimed_assigned_counsel_vat, (0)::numeric) = (0)::numeric) THEN 0
+              ELSE 20
+          END AS tax_amount_percentage,
+      'Profit costs'::text AS fee_type,
+      payable_claims.counsel_firm_name AS provider_reference,
+      payment_requests.request_type,
+      payment_requests.claimed_net_assigned_counsel_cost,
+      payment_requests.claimed_assigned_counsel_vat,
+      payment_requests.claimed_total,
+      payment_requests.allowed_net_assigned_counsel_cost,
+      payment_requests.allowed_assigned_counsel_vat,
+      payment_requests.allowed_total,
+      payment_requests.date_claim_assessed,
+      payment_requests.submitted_at
+     FROM (payment_requests
+       JOIN payable_claims ON ((payment_requests.payable_claim_id = payable_claims.id)))
+    WHERE ((payment_requests.request_type)::text = ANY ((ARRAY['assigned_counsel'::character varying, 'assigned_counsel_appeal'::character varying, 'assigned_counsel_amendment'::character varying])::text[]));
+  SQL
   create_view "autogrant_events", sql_definition: <<-SQL
       SELECT a.id,
       av.version AS submission_version,
@@ -235,11 +271,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_111231) do
       payment_requests.claimed_waiting_cost,
       payment_requests.claimed_total,
       payment_requests.allowed_total,
-      payment_requests.date_claim_assessed AS date_received,
+      payment_requests.date_claim_assessed,
       payment_requests.submitted_at
      FROM (payment_requests
        JOIN payable_claims ON ((payment_requests.payable_claim_id = payable_claims.id)))
-    WHERE ((payment_requests.request_type)::text = ANY ((ARRAY['breach_of_injunction'::character varying, 'non_standard_magistrate'::character varying, 'non_standard_mag_supplemental'::character varying, 'non_standard_mag_appeal'::character varying, 'non_standard_mag_amendment'::character varying])::text[]));
+    WHERE ((payment_requests.request_type)::text = ANY (ARRAY[('breach_of_injunction'::character varying)::text, ('non_standard_magistrate'::character varying)::text, ('non_standard_mag_supplemental'::character varying)::text, ('non_standard_mag_appeal'::character varying)::text, ('non_standard_mag_amendment'::character varying)::text]));
   SQL
   create_view "processing_times", sql_definition: <<-SQL
       WITH base AS (
