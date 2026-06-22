@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_18_111231) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_18_151830) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -348,26 +348,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_111231) do
        JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))));
   SQL
   create_view "submission_assess_times", sql_definition: <<-SQL
-      WITH base AS (
+      WITH first_decision AS (
+           SELECT DISTINCT ON (application_version.application_id) application_version.application_id,
+              application_version.application,
+              application_version.created_at AS first_decision_date
+             FROM application_version
+            WHERE ((application_version.application ->> 'status'::text) = ANY (ARRAY['rejected'::text, 'part_grant'::text, 'granted'::text]))
+            ORDER BY application_version.application_id, application_version.created_at
+          ), base AS (
            SELECT application.id,
               application.application_type,
               application.created_at AS submission_date,
               (first_decision.application ->> 'status'::text) AS first_decision,
               (first_decision.application ->> 'office_code'::text) AS office_code,
-              first_decision.decision_created_at AS first_decision_date
+              first_decision.first_decision_date
              FROM (application
-               JOIN ( SELECT application_version.application_id,
-                      application_version.application,
-                      min(application_version.created_at) AS decision_created_at
-                     FROM application_version
-                    GROUP BY application_version.application_id, application_version.application) first_decision ON ((application.id = first_decision.application_id)))
-            WHERE (((first_decision.application ->> 'status'::text) = ANY (ARRAY['rejected'::text, 'part_grant'::text, 'granted'::text])) AND (first_decision.decision_created_at IS NOT NULL))
-          ), assignment_events AS (
-           SELECT application.id,
-              ((events.value ->> 'created_at'::text))::timestamp without time zone AS assigned_at
-             FROM (application
+               JOIN first_decision ON ((application.id = first_decision.application_id)))
+          ), first_assignment AS (
+           SELECT base_1.id,
+              min(((events.value ->> 'created_at'::text))::timestamp without time zone) AS first_assigned_date
+             FROM ((base base_1
+               JOIN application ON ((application.id = base_1.id)))
                CROSS JOIN LATERAL jsonb_array_elements(application.caseworker_history_events) events(value))
             WHERE ((events.value ->> 'event_type'::text) = 'assignment'::text)
+            GROUP BY base_1.id
           )
    SELECT base.id,
       base.application_type,
@@ -379,10 +383,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_111231) do
       (EXTRACT(epoch FROM (first_assignment.first_assigned_date - base.submission_date)) / (60)::numeric) AS minutes_to_assign,
       (EXTRACT(epoch FROM (base.first_decision_date - first_assignment.first_assigned_date)) / (60)::numeric) AS minutes_to_assess
      FROM (base
-       JOIN ( SELECT assignment_events.id,
-              min(assignment_events.assigned_at) AS first_assigned_date
-             FROM assignment_events
-            GROUP BY assignment_events.id) first_assignment ON ((base.id = first_assignment.id)));
+       JOIN first_assignment ON ((base.id = first_assignment.id)));
   SQL
   create_view "submission_by_services", sql_definition: <<-SQL
       SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
