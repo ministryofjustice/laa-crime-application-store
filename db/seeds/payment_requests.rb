@@ -40,7 +40,8 @@ def claim_defaults
     youth_court: [true, false].sample,
     work_completed_date: rand(10..40).days.ago.to_date,
     court_attendances: rand(1..5),
-    no_of_defendants: rand(1..3)
+    no_of_defendants: rand(1..3), 
+    original_submission_date: rand(10..40).days.ago.to_date
   }
 end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_18_111231) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -30,9 +30,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
     t.string "unassigned_user_ids", default: [], array: true
     t.datetime "updated_at", precision: nil
     t.index ["application_type", "last_updated_at"], name: "idx_application_on_type_last_updated_at"
-    t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null"
-    t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null"
+    t.index ["application_type"], name: "idx_application_type"
+    t.index ["application_type"], name: "idx_application_version_type"
   end
+
+  add_check_constraint "application", "created_at IS NOT NULL", name: "application_created_at_null", validate: false
+  add_check_constraint "application", "updated_at IS NOT NULL", name: "application_updated_at_null", validate: false
 
   create_table "application_version", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.jsonb "application", null: false
@@ -45,6 +48,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
     t.integer "version", null: false
     t.index "(((application -> 'firm_office'::text) ->> 'account_number'::text))", name: "idx_application_version_on_account_number"
     t.index "((application ->> 'laa_reference'::text))", name: "idx_application_version_on_laa_reference"
+    t.index "((application ->> 'status'::text)), ((created_at)::date), application_id", name: "idx_application_version_by_date_on_date_status", where: "(pending IS FALSE)"
     t.index ["application_id", "version"], name: "idx_application_versions_app_id_version"
     t.index ["search_fields"], name: "index_application_version_on_search_fields", using: :gin
   end
@@ -63,14 +67,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
     t.string "counsel_firm_name"
     t.string "counsel_office_code"
     t.integer "court_attendances"
-    t.string "court_name"
     t.string "court_id"
+    t.string "court_name"
     t.datetime "created_at", null: false
     t.uuid "idempotency_token"
     t.string "laa_reference"
     t.string "matter_type"
     t.integer "no_of_defendants"
     t.uuid "nsm_claim_id"
+    t.date "original_submission_date"
     t.string "outcome_code"
     t.string "solicitor_firm_name"
     t.string "solicitor_office_code"
@@ -81,10 +86,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
     t.datetime "updated_at", null: false
     t.datetime "work_completed_date"
     t.boolean "youth_court"
+    t.index "lower((client_last_name)::text) gin_trgm_ops", name: "idx_pc_client_last_name_trgm", using: :gin
+    t.index "lower((laa_reference)::text)", name: "idx_pc_lower_laa_reference"
+    t.index "lower((solicitor_firm_name)::text) gin_trgm_ops", name: "idx_pc_solicitor_firm_name_trgm", using: :gin
+    t.index "lower((solicitor_office_code)::text)", name: "idx_pc_lower_solicitor_office_code"
     t.index ["client_last_name"], name: "index_payable_claims_on_client_last_name"
     t.index ["idempotency_token"], name: "index_payable_claims_on_idempotency_token", unique: true
     t.index ["laa_reference"], name: "index_payable_claims_on_laa_reference"
     t.index ["solicitor_office_code"], name: "index_payable_claims_on_solicitor_office_code"
+    t.index ["submission_id"], name: "idx_pc_submission_id"
     t.index ["type"], name: "index_payable_claims_on_type"
     t.index ["ufn"], name: "index_payable_claims_on_ufn"
   end
@@ -111,8 +121,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
     t.datetime "submitted_at"
     t.uuid "submitter_id"
     t.datetime "updated_at", null: false
+    t.index ["date_claim_assessed"], name: "idx_pr_date_claim_assessed"
     t.index ["payable_claim_id"], name: "index_payment_requests_on_payable_claim_id"
+    t.index ["request_type", "date_claim_assessed"], name: "idx_pr_request_type_date_assessed"
+    t.index ["request_type", "submitted_at"], name: "idx_pr_request_type_submitted_at", order: { submitted_at: :desc }
     t.index ["request_type"], name: "index_payment_requests_on_request_type"
+    t.index ["submitted_at"], name: "idx_pr_submitted_at_desc", order: :desc
   end
 
   create_table "translations", force: :cascade do |t|
@@ -138,16 +152,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
             WHERE (application_version.version = 1)
             GROUP BY application.application_type, (application_version.application -> 'office_code'::text), (date_trunc('week'::text, application_version.created_at))
           )
-   SELECT submissions.application_type,
-      submissions.submitted_start,
-      count(DISTINCT submissions.office_code) AS office_codes_submitting_during_the_period,
+   SELECT application_type,
+      submitted_start,
+      count(DISTINCT office_code) AS office_codes_submitting_during_the_period,
       ( SELECT count(DISTINCT subs.office_code) AS count
              FROM submissions subs
             WHERE ((submissions.submitted_start >= subs.submitted_start) AND (submissions.application_type = subs.application_type))) AS total_office_codes_submitters,
-      jsonb_agg(DISTINCT submissions.office_code) AS office_codes_during_the_period
+      jsonb_agg(DISTINCT office_code) AS office_codes_during_the_period
      FROM submissions
-    GROUP BY submissions.application_type, submissions.submitted_start
-    ORDER BY submissions.application_type, submissions.submitted_start;
+    GROUP BY application_type, submitted_start
+    ORDER BY application_type, submitted_start;
   SQL
   create_view "additional_fee_uptakes", sql_definition: <<-SQL
       WITH dates AS (
@@ -185,6 +199,42 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
     GROUP BY dates.day
     ORDER BY dates.day;
   SQL
+  create_view "assigned_counsel_payments", sql_definition: <<-SQL
+      SELECT payment_requests.id AS payment_request_id,
+      payable_claims.id AS claim_id,
+      payable_claims.laa_reference,
+          CASE payment_requests.request_type
+              WHEN 'assigned_counsel'::text THEN 'AC'::text
+              WHEN 'assigned_counsel_appeal'::text THEN 'AC Appeal'::text
+              WHEN 'assigned_counsel_amendment'::text THEN 'AC Amendment'::text
+              ELSE NULL::text
+          END AS payment_type,
+      'CRM8'::text AS description,
+      'CL_CON_CWA'::text AS invoice_type,
+      NULLIF(TRIM(BOTH FROM concat_ws(' '::text, payable_claims.client_first_name, payable_claims.client_last_name)), ''::text) AS client_name,
+      payable_claims.ufn AS case_reference,
+      (payment_requests.date_claim_assessed)::date AS date_requested,
+      payable_claims.counsel_office_code AS office_code,
+      payment_requests.allowed_total AS invoice_amount_inc_vat,
+          CASE
+              WHEN (COALESCE(payment_requests.allowed_assigned_counsel_vat, payment_requests.claimed_assigned_counsel_vat, (0)::numeric) = (0)::numeric) THEN 0
+              ELSE 20
+          END AS tax_amount_percentage,
+      'Profit costs'::text AS fee_type,
+      payable_claims.counsel_firm_name AS provider_reference,
+      payment_requests.request_type,
+      payment_requests.claimed_net_assigned_counsel_cost,
+      payment_requests.claimed_assigned_counsel_vat,
+      payment_requests.claimed_total,
+      payment_requests.allowed_net_assigned_counsel_cost,
+      payment_requests.allowed_assigned_counsel_vat,
+      payment_requests.allowed_total,
+      payment_requests.date_claim_assessed,
+      payment_requests.submitted_at
+     FROM (payment_requests
+       JOIN payable_claims ON ((payment_requests.payable_claim_id = payable_claims.id)))
+    WHERE ((payment_requests.request_type)::text = ANY ((ARRAY['assigned_counsel'::character varying, 'assigned_counsel_appeal'::character varying, 'assigned_counsel_amendment'::character varying])::text[]));
+  SQL
   create_view "autogrant_events", sql_definition: <<-SQL
       SELECT a.id,
       av.version AS submission_version,
@@ -196,15 +246,38 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
        LEFT JOIN translations t ON ((((t.key)::text = (av.application ->> 'service_type'::text)) AND ((t.translation_type)::text = 'service'::text))))
     WHERE (a.state = 'auto_grant'::text);
   SQL
-  create_view "import_counts", sql_definition: <<-SQL
-      SELECT (app_ver.created_at)::date AS submitted_date,
-          CASE
-              WHEN (((app_ver.application ->> 'import_date'::text))::timestamp without time zone IS NOT NULL) THEN true
-              ELSE false
-          END AS claim_imported
-     FROM (application_version app_ver
-       LEFT JOIN application app ON (((app.id = app_ver.application_id) AND (app_ver.pending IS FALSE) AND (app_ver.version = 1))))
-    ORDER BY ((app_ver.created_at)::date);
+  create_view "nsm_payments", sql_definition: <<-SQL
+      SELECT payable_claims.id AS claim_id,
+      payable_claims.court_attendances,
+      payable_claims.court_name,
+      payable_claims.court_id,
+      payable_claims.no_of_defendants,
+      payable_claims.outcome_code,
+      payable_claims.solicitor_firm_name AS office_name,
+      payable_claims.solicitor_office_code AS office_code,
+      payable_claims.stage_code,
+      payable_claims.ufn,
+      payable_claims.laa_reference,
+      payable_claims.work_completed_date,
+      payable_claims.original_submission_date,
+      payable_claims.youth_court,
+      payable_claims.client_last_name,
+      payment_requests.request_type,
+      payment_requests.allowed_disbursement_cost,
+      payment_requests.claimed_disbursement_cost,
+      payment_requests.allowed_profit_cost,
+      payment_requests.claimed_profit_cost,
+      payment_requests.allowed_travel_cost,
+      payment_requests.claimed_travel_cost,
+      payment_requests.allowed_waiting_cost,
+      payment_requests.claimed_waiting_cost,
+      payment_requests.claimed_total,
+      payment_requests.allowed_total,
+      payment_requests.date_claim_assessed,
+      payment_requests.submitted_at
+     FROM (payment_requests
+       JOIN payable_claims ON ((payment_requests.payable_claim_id = payable_claims.id)))
+    WHERE ((payment_requests.request_type)::text = ANY (ARRAY[('breach_of_injunction'::character varying)::text, ('non_standard_magistrate'::character varying)::text, ('non_standard_mag_supplemental'::character varying)::text, ('non_standard_mag_appeal'::character varying)::text, ('non_standard_mag_amendment'::character varying)::text]));
   SQL
   create_view "processing_times", sql_definition: <<-SQL
       WITH base AS (
@@ -239,43 +312,40 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
      FROM base;
   SQL
   create_view "searches", sql_definition: <<-SQL
-      SELECT
-        app.id,
-        app_ver.id as application_version_id,
-        app_ver.application ->> 'ufn' as ufn,
-        app_ver.application ->> 'laa_reference' as laa_reference,
-        app_ver.application -> 'firm_office' ->> 'name' as firm_name,
-        app_ver.application -> 'firm_office' ->> 'account_number' as account_number,
-        app_ver.application ->> 'service_name' as service_name,
-        (app_ver.application -> 'cost_summary' ->> 'high_value')::boolean as high_value,
-        app_ver.created_at as last_state_change,
-        CASE app.application_risk
-        WHEN 'high' THEN 3
-        WHEN 'medium' THEN 2
-        ELSE 1 END as risk_level,
-        CASE WHEN app.application_type = 'crm4' THEN
-            (app_ver.application -> 'defendant' ->> 'first_name') || ' ' || (app_ver.application -> 'defendant' ->> 'last_name')
-           ELSE
-            (
-              SELECT (defendants.value->>'first_name') || ' ' || (defendants.value->>'last_name')
-              FROM jsonb_array_elements(app_ver.application->'defendants') AS defendants
-              WHERE defendants.value->>'main' = 'true'
-            )
-           END AS client_name,
-        app_ver.search_fields,
-        app.unassigned_user_ids,
-        app.assigned_user_id,
-        app.created_at as date_submitted,
-        app.last_updated_at as last_updated,
-        CASE WHEN app.state = 'submitted' AND app.assigned_user_id IS NOT NULL THEN 'in_progress'
-             WHEN app.state = 'submitted' AND app.assigned_user_id IS NULL THEN 'not_assigned'
-             ELSE app.state
-             END AS status_with_assignment,
-        app.application_type as application_type,
-        app.application_risk as risk
-      FROM application AS app
-      JOIN application_version AS app_ver
-        ON app.id = app_ver.application_id AND app.current_version = app_ver.version
+      SELECT app.id,
+      app_ver.id AS application_version_id,
+      (app_ver.application ->> 'ufn'::text) AS ufn,
+      (app_ver.application ->> 'laa_reference'::text) AS laa_reference,
+      ((app_ver.application -> 'firm_office'::text) ->> 'name'::text) AS firm_name,
+      ((app_ver.application -> 'firm_office'::text) ->> 'account_number'::text) AS account_number,
+      (app_ver.application ->> 'service_name'::text) AS service_name,
+      (((app_ver.application -> 'cost_summary'::text) ->> 'high_value'::text))::boolean AS high_value,
+      app_ver.created_at AS last_state_change,
+          CASE app.application_risk
+              WHEN 'high'::text THEN 3
+              WHEN 'medium'::text THEN 2
+              ELSE 1
+          END AS risk_level,
+          CASE
+              WHEN (app.application_type = 'crm4'::text) THEN ((((app_ver.application -> 'defendant'::text) ->> 'first_name'::text) || ' '::text) || ((app_ver.application -> 'defendant'::text) ->> 'last_name'::text))
+              ELSE ( SELECT (((defendants.value ->> 'first_name'::text) || ' '::text) || (defendants.value ->> 'last_name'::text))
+                 FROM jsonb_array_elements((app_ver.application -> 'defendants'::text)) defendants(value)
+                WHERE ((defendants.value ->> 'main'::text) = 'true'::text))
+          END AS client_name,
+      app_ver.search_fields,
+      app.unassigned_user_ids,
+      app.assigned_user_id,
+      app.created_at AS date_submitted,
+      app.last_updated_at AS last_updated,
+          CASE
+              WHEN ((app.state = 'submitted'::text) AND (app.assigned_user_id IS NOT NULL)) THEN 'in_progress'::text
+              WHEN ((app.state = 'submitted'::text) AND (app.assigned_user_id IS NULL)) THEN 'not_assigned'::text
+              ELSE app.state
+          END AS status_with_assignment,
+      app.application_type,
+      app.application_risk AS risk
+     FROM (application app
+       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app.current_version = app_ver.version))));
   SQL
   create_view "submission_assess_times", sql_definition: <<-SQL
       WITH base AS (
@@ -316,12 +386,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
   SQL
   create_view "submission_by_services", sql_definition: <<-SQL
       SELECT COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text) AS service_type,
-      date_trunc('DAY'::text, app.created_at) AS date_submitted,
+      date_trunc('DAY'::text, app_ver.created_at) AS date_submitted,
       count(*) AS submissions
-     FROM (application app
-       JOIN application_version app_ver ON (((app.id = app_ver.application_id) AND (app_ver.version = 1) AND (app_ver.pending IS FALSE))))
-    WHERE (app.application_type = 'crm4'::text)
-    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app.created_at));
+     FROM (application_version app_ver
+       JOIN application app ON ((app.id = app_ver.application_id)))
+    WHERE ((app.application_type = 'crm4'::text) AND (app_ver.version = 1) AND (app_ver.pending IS FALSE))
+    GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app_ver.created_at));
   SQL
   create_view "submission_creation_times", sql_definition: <<-SQL
       WITH base AS (
@@ -343,13 +413,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
                JOIN application ON ((app_ver.application_id = application.id)))
             WHERE ((app_ver.application ->> 'status'::text) = 'submitted'::text)
           )
-   SELECT base.application_id,
-      base.application_type,
-      base.draft_created_date,
-      base.office_code,
-      base.submission_date,
-      base.claim_imported,
-      (EXTRACT(epoch FROM (base.submission_date - base.draft_created_date)) / (60)::numeric) AS minutes_to_submit
+   SELECT application_id,
+      application_type,
+      draft_created_date,
+      office_code,
+      submission_date,
+      claim_imported,
+      (EXTRACT(epoch FROM (submission_date - draft_created_date)) / (60)::numeric) AS minutes_to_submit
      FROM base;
   SQL
   create_view "submissions_by_date", sql_definition: <<-SQL
@@ -363,36 +433,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_100000) do
     WHERE ((av.pending IS FALSE) AND ((av.application ->> 'status'::text) = ANY (ARRAY['submitted'::text, 'provider_updated'::text])))
     GROUP BY a.application_type, ((av.created_at)::date)
     ORDER BY a.application_type, ((av.created_at)::date);
-  SQL
-
-  create_view "nsm_payments", sql_definition: <<-SQL
-      SELECT payable_claims.id AS claim_id,
-      payable_claims.court_attendances,
-      payable_claims.court_name,
-      payable_claims.court_id,
-      payable_claims.no_of_defendants,
-      payable_claims.outcome_code,
-      payable_claims.solicitor_firm_name AS office_name,
-      payable_claims.solicitor_office_code AS office_code,
-      payable_claims.stage_code,
-      payable_claims.ufn,
-      payable_claims.work_completed_date,
-      payable_claims.youth_court,
-      payment_requests.request_type,
-      payment_requests.allowed_disbursement_cost,
-      payment_requests.claimed_disbursement_cost,
-      payment_requests.allowed_profit_cost,
-      payment_requests.claimed_profit_cost,
-      payment_requests.allowed_travel_cost,
-      payment_requests.claimed_travel_cost,
-      payment_requests.allowed_waiting_cost,
-      payment_requests.claimed_waiting_cost,
-      payment_requests.claimed_total,
-      payment_requests.allowed_total,
-      payment_requests.date_claim_assessed,
-      payment_requests.submitted_at
-     FROM (payment_requests
-       JOIN payable_claims ON ((payment_requests.payable_claim_id = payable_claims.id)))
-    WHERE ((payment_requests.request_type)::text = ANY ((ARRAY['breach_of_injunction'::character varying, 'non_standard_magistrate'::character varying, 'non_standard_mag_supplemental'::character varying, 'non_standard_mag_appeal'::character varying, 'non_standard_mag_amendment'::character varying])::text[]));
   SQL
 end

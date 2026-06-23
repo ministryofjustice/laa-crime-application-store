@@ -16,6 +16,8 @@ class PayableClaimResource
              :hearing_outcome_code,
              :number_of_attendances,
              :number_of_defendants,
+             :original_submission_month,
+             :original_submission_year,
              :submission_id,
              :defendant_first_name,
              :court_name,
@@ -46,6 +48,14 @@ class PayableClaimResource
 
   def number_of_defendants(payable_claim)
     payable_claim.no_of_defendants
+  end
+
+  def original_submission_month(payable_claim)
+    payable_claim.original_submission_date&.month
+  end
+
+  def original_submission_year(payable_claim)
+    payable_claim.original_submission_date&.year
   end
 
   def submission_id(payable_claim)

@@ -22,4 +22,5 @@ class NsmClaim < PayableClaim
   validates :work_completed_date, presence: true
   validates :stage_code, format: { with: /\A\bPROG\b|\bPROM\b\z/ }
   validates :court_attendances, :no_of_defendants, numericality: { only_integer: true }
+  validates :original_submission_date, presence: true
 end

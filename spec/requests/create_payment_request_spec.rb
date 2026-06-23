@@ -19,6 +19,8 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
       solicitor_firm_name: "The Firm",
       defendant_first_name: "Jim",
       defendant_last_name: "Jones",
+      original_submission_month: 1,
+      original_submission_year: 2025,
       matter_type: "CRIM",
       hearing_outcome_code: "PROG",
       stage_reached: "PROG",
@@ -73,6 +75,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
         court_id: "123",
         stage_code: "PROG",
         no_of_defendants: 1,
+        original_submission_date: Date.new(2025, 1, 1),
       )
 
       expect(payment).to have_attributes(

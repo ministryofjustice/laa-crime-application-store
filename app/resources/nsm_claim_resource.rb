@@ -12,7 +12,15 @@ class NsmClaimResource
              :client_first_name, :client_last_name, :work_completed_date,
              :outcome_code, :matter_type, :youth_court,
              :court_name, :court_attendances, :no_of_defendants,
-             :created_at, :updated_at
+             :original_submission_month, :original_submission_year, :created_at, :updated_at
 
   many :payment_requests, params: { include_claim: false }
+
+  def original_submission_month(nsm_claim)
+    nsm_claim.original_submission_date&.month
+  end
+
+  def original_submission_year(nsm_claim)
+    nsm_claim.original_submission_date&.year
+  end
 end
