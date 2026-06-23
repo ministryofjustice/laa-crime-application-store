@@ -394,33 +394,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_111231) do
     GROUP BY COALESCE((app_ver.application ->> 'service_type'::text), 'not_found'::text), (date_trunc('DAY'::text, app_ver.created_at));
   SQL
   create_view "submission_creation_times", sql_definition: <<-SQL
-      WITH base AS (
-           SELECT DISTINCT app_ver.application_id,
-              application.application_type,
-              ((app_ver.application ->> 'created_at'::text))::timestamp without time zone AS draft_created_date,
-              (app_ver.application ->> 'office_code'::text) AS office_code,
-              application_submissions.submission_date,
-                  CASE
-                      WHEN (((app_ver.application ->> 'import_date'::text))::timestamp without time zone IS NOT NULL) THEN true
-                      ELSE false
-                  END AS claim_imported
-             FROM ((application_version app_ver
-               JOIN ( SELECT application_version.application_id,
-                      min(application_version.created_at) AS submission_date
-                     FROM application_version
-                    WHERE ((application_version.application ->> 'status'::text) = 'submitted'::text)
-                    GROUP BY application_version.application_id) application_submissions ON ((app_ver.application_id = application_submissions.application_id)))
-               JOIN application ON ((app_ver.application_id = application.id)))
-            WHERE ((app_ver.application ->> 'status'::text) = 'submitted'::text)
+      WITH first_submissions AS (
+           SELECT DISTINCT ON (application_version.application_id) application_version.application_id,
+              application_version.application,
+              application_version.created_at AS submission_date
+             FROM application_version
+            WHERE ((application_version.pending IS FALSE) AND ((application_version.application ->> 'status'::text) = 'submitted'::text))
+            ORDER BY application_version.application_id, application_version.version
           )
-   SELECT application_id,
-      application_type,
-      draft_created_date,
-      office_code,
-      submission_date,
-      claim_imported,
-      (EXTRACT(epoch FROM (submission_date - draft_created_date)) / (60)::numeric) AS minutes_to_submit
-     FROM base;
+   SELECT first_submissions.application_id,
+      application.application_type,
+      ((first_submissions.application ->> 'created_at'::text))::timestamp without time zone AS draft_created_date,
+      (first_submissions.application ->> 'office_code'::text) AS office_code,
+      first_submissions.submission_date,
+      (NULLIF((first_submissions.application ->> 'import_date'::text), ''::text) IS NOT NULL) AS claim_imported,
+      (EXTRACT(epoch FROM (first_submissions.submission_date - ((first_submissions.application ->> 'created_at'::text))::timestamp without time zone)) / (60)::numeric) AS minutes_to_submit
+     FROM (first_submissions
+       JOIN application ON ((first_submissions.application_id = application.id)));
   SQL
   create_view "submissions_by_date", sql_definition: <<-SQL
       SELECT (av.created_at)::date AS event_on,
