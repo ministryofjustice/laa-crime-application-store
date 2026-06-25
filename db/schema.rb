@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_18_151830) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_24_094444) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -32,6 +32,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_151830) do
     t.index ["application_type", "last_updated_at"], name: "idx_application_on_type_last_updated_at"
     t.index ["application_type"], name: "idx_application_type"
     t.index ["application_type"], name: "idx_application_version_type"
+    t.index ["id", "current_version"], name: "idx_application_auto_grant_current_version", where: "(state = 'auto_grant'::text)"
   end
 
   add_check_constraint "application", "created_at IS NOT NULL", name: "application_created_at_null", validate: false
@@ -265,9 +266,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_151830) do
       av.version AS submission_version,
       (av.created_at)::date AS event_on,
       (av.application ->> 'service_type'::text) AS service_key,
-      COALESCE((av.application ->> 'custom_service_name'::text), (COALESCE(t.translation, ((av.application ->> 'service_type'::text))::character varying))::text) AS service
-     FROM ((application_version av
-       JOIN application a ON (((a.id = av.application_id) AND (a.current_version = av.version))))
+      COALESCE((av.application ->> 'custom_service_name'::text), (t.translation)::text, (av.application ->> 'service_type'::text)) AS service
+     FROM ((application a
+       JOIN application_version av ON (((av.application_id = a.id) AND (av.version = a.current_version))))
        LEFT JOIN translations t ON ((((t.key)::text = (av.application ->> 'service_type'::text)) AND ((t.translation_type)::text = 'service'::text))))
     WHERE (a.state = 'auto_grant'::text);
   SQL
