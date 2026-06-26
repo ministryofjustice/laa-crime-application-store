@@ -39,6 +39,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
       allowed_travel_cost: 15.0,
       allowed_waiting_cost: 5.0,
       allowed_disbursement_cost: 4.0,
+      nsm_claim_type: "non_standard_magistrate",
     }
   end
 
@@ -76,6 +77,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
         stage_code: "PROG",
         no_of_defendants: 1,
         original_submission_date: Date.new(2025, 1, 1),
+        nsm_claim_type: "non_standard_magistrate",
       )
 
       expect(payment).to have_attributes(
