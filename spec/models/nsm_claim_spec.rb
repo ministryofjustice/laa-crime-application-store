@@ -50,6 +50,7 @@ RSpec.describe NsmClaim, type: :model do
         ufn
         work_completed_date
         original_submission_date
+        nsm_claim_type
       ].each do |attr|
         it "is invalid without #{attr}" do
           nsm_claim.public_send("#{attr}=", nil)

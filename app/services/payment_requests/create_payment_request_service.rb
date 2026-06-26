@@ -69,6 +69,7 @@ module PaymentRequests
         laa_reference: params[:linked_laa_reference] || generate_laa_reference,
         ufn: params[:ufn],
         idempotency_token: params[:idempotency_token],
+        nsm_claim_type: params[:nsm_claim_type],
       }
     end
 

@@ -36,6 +36,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       allowed_travel_cost: 15.0,
       allowed_waiting_cost: 5.0,
       allowed_disbursement_cost: 4.0,
+      nsm_claim_type: "non_standard_magistrate",
     }
   end
 

@@ -23,4 +23,5 @@ class NsmClaim < PayableClaim
   validates :stage_code, format: { with: /\A\bPROG\b|\bPROM\b\z/ }
   validates :court_attendances, :no_of_defendants, numericality: { only_integer: true }
   validates :original_submission_date, presence: true
+  validates :nsm_claim_type, presence: true, inclusion: { in: %w[non_standard_magistrate breach_of_injunction] }
 end
