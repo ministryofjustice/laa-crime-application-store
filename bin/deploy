@@ -16,6 +16,7 @@ deploy_branch() {
         --install --wait --timeout 10m0s \
         --namespace="${K8S_NAMESPACE}" \
         --values ./helm_deploy/values-branch.yaml \
+        --values ./helm_deploy/branch-overrides.yaml \
         --set image.repository="${ECR_REPOSITORY}" \
         --set image.tag="$IMAGE_TAG" \
         --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/set-identifier"="$IDENTIFIER" \
