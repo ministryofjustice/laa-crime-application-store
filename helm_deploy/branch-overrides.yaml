@@ -1,0 +1,36 @@
+# Default values for helm_deploy.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This is used to configure the temporary non-RDS postgres DB
+postgresql:
+  enabled: true
+  image:
+    repository: bitnamilegacy/postgresql
+  global:
+    security:
+      allowInsecureImages: true
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  auth:
+    database: nsm_store_dev
+    enablePostgresUser: true
+    postgresPassword: postgres
+    analyticsPassword: postgres
+  postgresqlUsername: postgres
+  analyticsUsername: analytics
+  primary:
+    persistence:
+      enabled: true
+    containerSecurityContext:
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop: [ "ALL" ]
