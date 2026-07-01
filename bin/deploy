@@ -15,7 +15,7 @@ deploy_branch() {
     helm upgrade "$BRANCH_RELEASE_NAME" ./helm_deploy/. \
         --install --wait --timeout 10m0s \
         --namespace="${K8S_NAMESPACE}" \
-        --values ./helm_deploy/values-branch.yaml \
+        --values ./helm_deploy/values-dev.yaml \
         --values ./helm_deploy/branch-overrides.yaml \
         --set image.repository="${ECR_REPOSITORY}" \
         --set image.tag="$IMAGE_TAG" \
