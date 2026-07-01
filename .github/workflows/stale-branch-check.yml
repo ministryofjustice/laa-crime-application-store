@@ -1,0 +1,195 @@
+name: Stale branches and PRs check
+
+on:
+  schedule:
+    # Runs every Monday at 04:00 UTC
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  stale-check:
+    name: Check stale branches and PRs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check stale branches and PRs
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+
+            const now = new Date()
+
+            // Thresholds — adjust these to tune what counts as stale
+            const branchStaleAfterDays = 365
+            const prOpenAfterDays = 90
+            const prInactiveAfterDays = 30
+
+            // Returns the number of whole days between a given date and now
+            const daysAgo = (date) => {
+              return Math.floor((now - new Date(date)) / (1000 * 60 * 60 * 24))
+            }
+
+            const repoInfo = await github.rest.repos.get({ owner, repo })
+            const defaultBranch = repoInfo.data.default_branch
+            core.info(`Default branch: ${defaultBranch}`)
+
+
+            // --- Stale branches ---
+
+            const branches = await github.paginate(github.rest.repos.listBranches, {
+              owner,
+              repo,
+              per_page: 100
+            })
+
+            const staleBranches = []
+
+            for (const branch of branches) {
+              if (branch.name === defaultBranch) continue
+              if (branch.protected) continue
+
+              const commit = await github.rest.repos.getCommit({
+                owner,
+                repo,
+                ref: branch.commit.sha
+              })
+
+              // Prefer committer date (reflects rebases/merges), fall back to author date
+              const commitDate =
+                commit.data.commit.committer?.date ||
+                commit.data.commit.author?.date
+
+              if (!commitDate) continue
+
+              const ageInDays = daysAgo(commitDate)
+
+              if (ageInDays > branchStaleAfterDays) {
+                staleBranches.push({ name: branch.name, commitDate, ageInDays })
+              }
+            }
+
+            // Sort oldest first
+            staleBranches.sort((a, b) => b.ageInDays - a.ageInDays)
+
+
+            // --- Stale PRs ---
+            const pullRequests = await github.paginate(github.rest.pulls.list, {
+              owner,
+              repo,
+              state: "open",
+              per_page: 100
+            })
+
+            const stalePullRequests = pullRequests
+              .map((pr) => ({
+                number: pr.number,
+                title: pr.title,
+                url: pr.html_url,
+                updatedAt: pr.updated_at,
+                openForDays: daysAgo(pr.created_at),
+                inactiveForDays: daysAgo(pr.updated_at)
+              }))
+              .filter((pr) =>
+                pr.openForDays > prOpenAfterDays &&
+                pr.inactiveForDays > prInactiveAfterDays
+              )
+              .sort((a, b) => b.openForDays - a.openForDays)
+
+            // --- Job summary ---
+            const summary = core.summary.addHeading("Stale branches and PRs check")
+
+            summary
+              .addHeading("Stale branch rules", 2)
+              .addList([
+                `No commits in more than ${branchStaleAfterDays} days`,
+                "Branch is not protected",
+                "Branch is not the default branch"
+              ])
+
+            if (staleBranches.length === 0) {
+              summary.addRaw("No stale branches found.\n")
+            } else {
+              // GitHub job summaries have a size limit, cap the table at 50 rows
+              const maxDisplay = 50
+
+              summary.addTable([
+                [
+                  { data: "Branch", header: true },
+                  { data: "Last commit date", header: true },
+                  { data: "Age in days", header: true }
+                ],
+                ...staleBranches.slice(0, maxDisplay).map((branch) => [
+                  branch.name,
+                  branch.commitDate,
+                  String(branch.ageInDays)
+                ])
+              ])
+
+              if (staleBranches.length > maxDisplay) {
+                summary.addRaw(
+                  `\n*Showing ${maxDisplay} of ${staleBranches.length} stale branches (oldest first). See job logs for the full list.*\n`
+                )
+              }
+            }
+
+            summary
+              .addHeading("Stale PR rules", 2)
+              .addList([
+                `Open for more than ${prOpenAfterDays} days`,
+                `No activity in more than ${prInactiveAfterDays} days`
+              ])
+
+            if (stalePullRequests.length === 0) {
+              summary.addRaw("No stale PRs found.\n")
+            } else {
+              summary.addTable([
+                [
+                  { data: "PR", header: true },
+                  { data: "Title", header: true },
+                  { data: "Open for days", header: true },
+                  { data: "Inactive for days", header: true },
+                  { data: "Last activity", header: true }
+                ],
+                ...stalePullRequests.map((pr) => [
+                  `<a href="${pr.url}">#${pr.number}</a>`,
+                  pr.title,
+                  String(pr.openForDays),
+                  String(pr.inactiveForDays),
+                  pr.updatedAt
+                ])
+              ])
+            }
+
+            await summary.write()
+
+            // --- Full lists in job logs ---
+            if (staleBranches.length > 0) {
+              await core.group(`Full stale branches list (${staleBranches.length} total)`, async () => {
+                staleBranches.forEach((branch, i) => {
+                  core.info(`${i + 1}. ${branch.name} — last commit: ${branch.commitDate} (${branch.ageInDays} days ago)`)
+                })
+              })
+            }
+
+            if (stalePullRequests.length > 0) {
+              await core.group(`Full stale PRs list (${stalePullRequests.length} total)`, async () => {
+                stalePullRequests.forEach((pr, i) => {
+                  core.info(`${i + 1}. #${pr.number} — ${pr.title} (open ${pr.openForDays} days, inactive ${pr.inactiveForDays} days) ${pr.url}`)
+                })
+              })
+            }
+
+            core.info(`Stale branches found: ${staleBranches.length}`)
+            core.info(`Stale PRs found: ${stalePullRequests.length}`)
+
+            if (staleBranches.length > 0 || stalePullRequests.length > 0) {
+              core.setFailed(
+                `Found ${staleBranches.length} stale branch(es) and ${stalePullRequests.length} stale PR(s).`
+              )
+            }
