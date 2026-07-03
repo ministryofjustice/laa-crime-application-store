@@ -180,11 +180,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_094444) do
              FROM (weekly_submissions weekly_submissions_1
                LEFT JOIN provider_growth_by_week ON (((provider_growth_by_week.application_type = weekly_submissions_1.application_type) AND (provider_growth_by_week.submitted_start = weekly_submissions_1.submitted_start))))
           )
-   SELECT weekly_submissions.application_type AS application_type,
-      weekly_submissions.submitted_start AS submitted_start,
-      weekly_submissions.office_codes_submitting_during_the_period AS office_codes_submitting_during_the_period,
-      cumulative_counts.total_office_codes_submitters AS total_office_codes_submitters,
-      weekly_submissions.office_codes_during_the_period AS office_codes_during_the_period
+   SELECT weekly_submissions.application_type,
+      weekly_submissions.submitted_start,
+      weekly_submissions.office_codes_submitting_during_the_period,
+      cumulative_counts.total_office_codes_submitters,
+      weekly_submissions.office_codes_during_the_period
      FROM (weekly_submissions
        JOIN cumulative_counts ON (((cumulative_counts.application_type = weekly_submissions.application_type) AND (cumulative_counts.submitted_start = weekly_submissions.submitted_start))))
     ORDER BY weekly_submissions.application_type, weekly_submissions.submitted_start;
@@ -259,7 +259,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_094444) do
       payment_requests.submitted_at
      FROM (payment_requests
        JOIN payable_claims ON ((payment_requests.payable_claim_id = payable_claims.id)))
-    WHERE ((payment_requests.request_type)::text = ANY ((ARRAY['assigned_counsel'::character varying, 'assigned_counsel_appeal'::character varying, 'assigned_counsel_amendment'::character varying])::text[]));
+    WHERE ((payment_requests.request_type)::text = ANY (ARRAY[('assigned_counsel'::character varying)::text, ('assigned_counsel_appeal'::character varying)::text, ('assigned_counsel_amendment'::character varying)::text]));
   SQL
   create_view "autogrant_events", sql_definition: <<-SQL
       SELECT a.id,
@@ -299,11 +299,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_094444) do
       payment_requests.claimed_waiting_cost,
       payment_requests.claimed_total,
       payment_requests.allowed_total,
-      payment_requests.date_claim_assessed,
+      payment_requests.date_claim_assessed AS date_received,
       payment_requests.submitted_at
      FROM (payment_requests
        JOIN payable_claims ON ((payment_requests.payable_claim_id = payable_claims.id)))
-    WHERE ((payment_requests.request_type)::text = ANY (ARRAY[('breach_of_injunction'::character varying)::text, ('non_standard_magistrate'::character varying)::text, ('non_standard_mag_supplemental'::character varying)::text, ('non_standard_mag_appeal'::character varying)::text, ('non_standard_mag_amendment'::character varying)::text]));
+    WHERE ((payment_requests.request_type)::text = ANY ((ARRAY['breach_of_injunction'::character varying, 'non_standard_magistrate'::character varying, 'non_standard_mag_supplemental'::character varying, 'non_standard_mag_appeal'::character varying, 'non_standard_mag_amendment'::character varying])::text[]));
   SQL
   create_view "processing_times", sql_definition: <<-SQL
       WITH base AS (
