@@ -22,7 +22,7 @@ SELECT
   payment_requests.claimed_waiting_cost AS claimed_waiting_cost,
   payment_requests.claimed_total AS claimed_total,
   payment_requests.allowed_total AS allowed_total,
-  payment_requests.date_received AS date_received,
+  payment_requests.date_claim_assessed AS date_received,
   payment_requests.submitted_at AS submitted_at
 FROM
   payment_requests
