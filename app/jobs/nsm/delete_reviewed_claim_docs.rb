@@ -19,7 +19,9 @@ module Nsm
           next unless docs.any?
 
           docs.each do |doc|
+            # rubocop:disable Style/HashAsLastArrayItem
             docs_to_destroy << [file_path: doc["file_path"], file_name: doc["file_name"]]
+            # rubocop:enable Style/HashAsLastArrayItem
           end
         end
       end
@@ -69,8 +71,6 @@ module Nsm
         end
       when Array
         application.map! { |item| redact_file_names(item, path) }
-      else
-        application
       end
       application
     end
