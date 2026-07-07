@@ -14,6 +14,7 @@ Rails.application.configure do
   config.lograge.custom_payload do |controller|
     {
       client_role: controller.current_client_role,
+      request_id: controller.request.headers["request-id"],
     }
   end
 end
