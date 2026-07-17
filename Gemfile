@@ -19,7 +19,7 @@ gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 gem "bootsnap", require: false
 
 gem 'alba'
-gem "aws-sdk-s3", "~> 1.219"
+gem "aws-sdk-s3", "~> 1.227"
 gem "govuk_notify_rails", "~> 3.0.0"
 gem "httparty", ">= 0.24.0"
 gem "jwt", "~> 3.2.0"
