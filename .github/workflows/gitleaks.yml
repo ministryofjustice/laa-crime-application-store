@@ -1,0 +1,110 @@
+name: Gitleaks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    # Keep the pull-request job name stable so branch protection can require it.
+    name: "${{ github.event_name == 'pull_request' && 'Gitleaks PR' || github.event_name == 'push' && 'Gitleaks push' || 'Gitleaks manual' }}"
+    if: github.event_name != 'push' || github.event.deleted == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install Gitleaks
+        env:
+          # Update the version and release checksum together.
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          set -euo pipefail
+
+          archive_name="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          release_url="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          archive="${RUNNER_TEMP}/${archive_name}"
+          install_dir="${RUNNER_TEMP}/gitleaks"
+
+          curl --fail --silent --show-error --location --retry 3 \
+            "${release_url}/${archive_name}" \
+            --output "${archive}"
+
+          echo "${GITLEAKS_SHA256}  ${archive}" | sha256sum --check --status
+          mkdir -p "${install_dir}"
+          tar -xzf "${archive}" -C "${install_dir}" gitleaks
+          "${install_dir}/gitleaks" version
+
+      - name: Determine commits to scan
+        id: commits
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          EVENT_HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          # PRs provide base/head SHAs; pushes provide before/current SHAs.
+          # New branches and manual runs fall back to the default-branch merge base.
+          # Unrelated histories have no base, so their full history is scanned.
+          zero_sha="0000000000000000000000000000000000000000"
+          head_sha="${PR_HEAD_SHA:-${EVENT_HEAD_SHA}}"
+          base_sha="${PR_BASE_SHA:-${BEFORE_SHA}}"
+
+          git cat-file -e "${head_sha}^{commit}"
+
+          if [[ -z "${base_sha}" ]] ||
+            [[ "${base_sha}" == "${zero_sha}" ]] ||
+            ! git cat-file -e "${base_sha}^{commit}" 2>/dev/null; then
+            base_sha="$(
+              git merge-base "origin/${DEFAULT_BRANCH}" "${head_sha}" 2>/dev/null || true
+            )"
+          fi
+
+          if [[ -z "${base_sha}" ]]; then
+            scan_range="${head_sha}"
+          elif [[ "${base_sha}" != "${head_sha}" ]]; then
+            scan_range="${base_sha}..${head_sha}"
+          elif git rev-parse --verify --quiet "${head_sha}^" >/dev/null; then
+            scan_range="${head_sha}^..${head_sha}"
+          else
+            scan_range="${head_sha}"
+          fi
+
+          git rev-list --max-count=1 "${scan_range}" >/dev/null
+          echo "Scanning introduced commits: ${scan_range}"
+          echo "range=${scan_range}" >> "${GITHUB_OUTPUT}"
+
+      - name: Scan introduced commits
+        env:
+          SCAN_RANGE: ${{ steps.commits.outputs.range }}
+        run: |
+          set -euo pipefail
+
+          if ! "${RUNNER_TEMP}/gitleaks/gitleaks" git \
+            --log-opts="${SCAN_RANGE}" \
+            --redact \
+            --no-banner \
+            --verbose \
+            .; then
+            error_message="Gitleaks did not pass. Review the finding or error above. "
+            error_message+="If a secret was detected, remove it from every commit in this branch, "
+            error_message+="rotate any real credential, and push rewritten history "
+            error_message+="before requesting review."
+            echo "::error::${error_message}"
+            exit 1
+          fi
