@@ -140,7 +140,7 @@ module PaymentRequests
 
     def persist_linked_submission!(claim)
       linked_laa_reference = params[:linked_laa_reference]
-      submission_id = params[:submission_id]
+      submission_id = params[:id]
       return unless linked_laa_reference.present? && submission_id.present?
 
       linked_submission = find_referred_submission(linked_laa_reference)
