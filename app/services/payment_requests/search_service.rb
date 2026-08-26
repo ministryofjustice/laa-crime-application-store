@@ -24,6 +24,7 @@ module PaymentRequests
       claims = search_query_text(claims) if query_params[:query].present?
       claims = claims.where("LOWER(payable_claims.solicitor_office_code) = ?", query_params[:office_code].downcase) if query_params[:office_code].present?
       claims = claims.where(payable_claims: { submission_id: }) if submission_id
+      claims = claims.where(created_at: created_at_from..created_at_to) if created_at?
       claims.order(sort_clause)
     end
 
@@ -36,6 +37,14 @@ module PaymentRequests
         },
         data: serialialized_data,
       }.to_json
+    end
+
+    def created_at_from
+      search_params[:created_at_from]&.to_date&.beginning_of_day
+    end
+
+    def created_at_to
+      search_params[:created_at_to]&.to_date&.end_of_day
     end
 
     def submitted_from
@@ -56,6 +65,10 @@ module PaymentRequests
 
     def submission_id
       search_params[:submission_id]
+    end
+
+    def created_at?
+      created_at_from.present? || created_at_to.present?
     end
 
     def date_assessed?
@@ -112,7 +125,11 @@ module PaymentRequests
     end
 
     def serialialized_data
-      PaymentRequestSearchResultsResource.new(@data.limit(limit).offset(offset))
+      if created_at?
+        DownloadRequestResource.new(@data)
+      else
+        PaymentRequestSearchResultsResource.new(@data.limit(limit).offset(offset))
+      end
     end
 
     def query
