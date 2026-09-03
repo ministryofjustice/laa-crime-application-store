@@ -15,6 +15,7 @@ RSpec.describe PaymentRequestResource do
       let(:payment_request) do
         build(:payment_request, :non_standard_magistrate).tap do |request|
           request.payable_claim.submission_id = submission_id
+          request.payment_basis = "existing_payment_record"
           request.claimed_total = 500
           request.allowed_total = 450
         end
@@ -44,6 +45,7 @@ RSpec.describe PaymentRequestResource do
         ].each { expect(serialized).not_to have_key(_1) }
 
         expect(serialized["submission_id"]).to eq(submission_id)
+        expect(serialized["payment_basis"]).to eq("existing_payment_record")
       end
 
       it "serializes the linked NSM claim when include_claim is true" do
@@ -60,6 +62,7 @@ RSpec.describe PaymentRequestResource do
       let(:payment_request) do
         build(:payment_request, :assigned_counsel).tap do |request|
           request.payable_claim.submission_id = submission_id
+          request.payment_basis = "new_unlinked_record"
           request.claimed_total = 400
           request.allowed_total = 350
         end
@@ -89,6 +92,7 @@ RSpec.describe PaymentRequestResource do
         ].each { expect(serialized).not_to have_key(_1) }
 
         expect(serialized["submission_id"]).to eq(submission_id)
+        expect(serialized["payment_basis"]).to eq("new_unlinked_record")
         expect(serialized.fetch("payable_claim")).to include(
           "claim_type" => "AssignedCounselClaim",
         )
