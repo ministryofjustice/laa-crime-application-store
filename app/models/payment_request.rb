@@ -48,6 +48,7 @@ class PaymentRequest < ApplicationRecord
 
   validates :submitter_id, is_a_uuid: true
   validates :request_type, presence: true, inclusion: { in: REQUEST_TYPES }
+  validates :payment_basis, inclusion: { in: LaaCrimeFormsCommon::PaymentBasis::ALL }, allow_nil: true
   validates :claimed_profit_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: NumericLimits::MAX_FLOAT, allow_nil: true }
   validates :claimed_travel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: NumericLimits::MAX_FLOAT, allow_nil: true }
   validates :claimed_waiting_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: NumericLimits::MAX_FLOAT, allow_nil: true }
