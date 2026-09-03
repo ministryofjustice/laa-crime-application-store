@@ -30,13 +30,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_04_120410) do
     t.string "unassigned_user_ids", default: [], array: true
     t.datetime "updated_at", precision: nil
     t.index ["application_type", "last_updated_at"], name: "idx_application_on_type_last_updated_at"
-    t.index ["application_type"], name: "idx_application_type"
-    t.index ["application_type"], name: "idx_application_version_type"
     t.index ["id", "current_version"], name: "idx_application_auto_grant_current_version", where: "(state = 'auto_grant'::text)"
+    t.check_constraint "created_at IS NOT NULL", name: "application_created_at_null"
+    t.check_constraint "updated_at IS NOT NULL", name: "application_updated_at_null"
   end
-
-  add_check_constraint "application", "created_at IS NOT NULL", name: "application_created_at_null", validate: false
-  add_check_constraint "application", "updated_at IS NOT NULL", name: "application_updated_at_null", validate: false
 
   create_table "application_version", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.jsonb "application", null: false
@@ -119,12 +116,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_04_120410) do
     t.datetime "created_at", null: false
     t.datetime "date_claim_assessed"
     t.uuid "payable_claim_id"
+    t.string "payment_basis"
     t.string "request_type"
     t.datetime "submitted_at"
     t.uuid "submitter_id"
     t.datetime "updated_at", null: false
     t.index ["date_claim_assessed"], name: "idx_pr_date_claim_assessed"
     t.index ["payable_claim_id"], name: "index_payment_requests_on_payable_claim_id"
+    t.index ["payment_basis"], name: "index_payment_requests_on_payment_basis"
     t.index ["request_type", "date_claim_assessed"], name: "idx_pr_request_type_date_assessed"
     t.index ["request_type", "submitted_at"], name: "idx_pr_request_type_submitted_at", order: { submitted_at: :desc }
     t.index ["request_type"], name: "index_payment_requests_on_request_type"
@@ -259,7 +258,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_04_120410) do
       payment_requests.submitted_at
      FROM (payment_requests
        JOIN payable_claims ON ((payment_requests.payable_claim_id = payable_claims.id)))
-    WHERE ((payment_requests.request_type)::text = ANY (ARRAY[('assigned_counsel'::character varying)::text, ('assigned_counsel_appeal'::character varying)::text, ('assigned_counsel_amendment'::character varying)::text]));
+    WHERE ((payment_requests.request_type)::text = ANY ((ARRAY['assigned_counsel'::character varying, 'assigned_counsel_appeal'::character varying, 'assigned_counsel_amendment'::character varying])::text[]));
   SQL
   create_view "autogrant_events", sql_definition: <<-SQL
       SELECT a.id,
