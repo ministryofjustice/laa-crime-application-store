@@ -90,6 +90,7 @@ module PaymentRequests
       claim.payment_requests.build(
         submitter_id: params[:submitter_id],
         request_type: params[:request_type],
+        payment_basis: params[:payment_basis],
         submitted_at: Time.current,
         date_claim_assessed: params[:date_claim_assessed],
       )

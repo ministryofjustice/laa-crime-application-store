@@ -39,6 +39,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
       allowed_travel_cost: 15.0,
       allowed_waiting_cost: 5.0,
       allowed_disbursement_cost: 4.0,
+      payment_basis: "standard_manual_entry",
     }
   end
 
@@ -87,6 +88,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
         allowed_travel_cost: 15.0,
         allowed_waiting_cost: 5.0,
         allowed_disbursement_cost: 4.0,
+        payment_basis: "standard_manual_entry",
       )
     end
 

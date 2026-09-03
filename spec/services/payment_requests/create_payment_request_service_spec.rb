@@ -36,6 +36,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       allowed_travel_cost: 15.0,
       allowed_waiting_cost: 5.0,
       allowed_disbursement_cost: 4.0,
+      payment_basis: "standard_manual_entry",
     }
   end
 
@@ -213,6 +214,24 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
         expect(payment_request.claimed_net_assigned_counsel_cost).to eq(200)
         expect(payment_request.claimed_assigned_counsel_vat).to eq(40)
       end
+    end
+  end
+
+  describe "#build_payment_request" do
+    let(:claim) { build_stubbed(:nsm_claim) }
+    let(:params) do
+      {
+        submitter_id: SecureRandom.uuid,
+        request_type: "non_standard_magistrate",
+        date_claim_assessed: Date.new(2025, 1, 1),
+        payment_basis: "standard_manual_entry",
+      }
+    end
+
+    it "sets payment_basis on the new payment request" do
+      payment_request = described_class.new(params).send(:build_payment_request, claim)
+
+      expect(payment_request.payment_basis).to eq("standard_manual_entry")
     end
   end
 
