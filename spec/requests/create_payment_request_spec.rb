@@ -89,6 +89,7 @@ RSpec.describe "POST /v1/payment_requests", type: :request do
         allowed_waiting_cost: 5.0,
         allowed_disbursement_cost: 4.0,
         payment_basis: "standard_manual_entry",
+        calculation_method: "entered_to_be_paid",
       )
     end
 
