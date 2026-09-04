@@ -10,7 +10,13 @@ RSpec.describe PaymentRequestSearchResultsResource do
       let(:submission_id) { SecureRandom.uuid }
       let(:claim) { build(:nsm_claim, submission_id: submission_id) }
       let(:payment_request) do
-        build(:payment_request, :non_standard_magistrate, payable_claim: claim, payment_basis: "digital_claim")
+        build(
+          :payment_request,
+          :non_standard_magistrate,
+          payable_claim: claim,
+          payment_basis: "digital_claim",
+          calculation_method: "entered_to_be_paid",
+        )
       end
 
       it "embeds the claim summary via ClaimPaymentSearchResultsResource" do
@@ -33,6 +39,12 @@ RSpec.describe PaymentRequestSearchResultsResource do
         serialized = serialize_collection([payment_request])
 
         expect(serialized.first["payment_basis"]).to eq("digital_claim")
+      end
+
+      it "includes calculation_method for reporting" do
+        serialized = serialize_collection([payment_request])
+
+        expect(serialized.first["calculation_method"]).to eq("entered_to_be_paid")
       end
     end
 
