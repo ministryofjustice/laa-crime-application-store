@@ -187,6 +187,8 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
           request_type: "non_standard_magistrate",
           claimed_profit_cost: 100,
           allowed_disbursement_cost: 50,
+          payment_basis: "standard_manual_entry",
+          allowed_total: 120,
         }
       end
 
@@ -195,6 +197,17 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
         service.send(:assign_costs, payment_request)
         expect(payment_request.claimed_profit_cost).to eq(100)
         expect(payment_request.allowed_disbursement_cost).to eq(50)
+      end
+
+      it "sets allowed_total from calculator output" do
+        allow(service).to receive(:claim_type).and_return("NsmClaim")
+        payment_request.payment_basis = "standard_manual_entry"
+        payment_request.calculation_method = "entered_to_be_paid"
+        payment_request.entered_allowed_total = 120
+
+        service.send(:assign_costs, payment_request)
+
+        expect(payment_request.allowed_total).to eq(120.to_d)
       end
     end
 
@@ -253,6 +266,13 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
 
       expect(payment_request.entered_allowed_total).to eq(150.0)
     end
+
+    it "defaults payment_basis to standard_manual_entry when missing" do
+      payment_request = described_class.new(params.except(:payment_basis)).send(:build_payment_request, claim)
+
+      expect(payment_request.payment_basis).to eq("standard_manual_entry")
+      expect(payment_request.calculation_method).to eq("entered_to_be_paid")
+    end
   end
 
   describe "#call" do
@@ -274,6 +294,66 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
         allow(payment_request).to receive(:save).and_return(true)
 
         expect(service.call).to eq({ claim:, payment_request: })
+      end
+    end
+
+    context "when payment basis maps to calculated_difference" do
+      let(:laa_reference) { "LAA-EXISTING" }
+      let(:claim) { create(:nsm_claim, laa_reference:) }
+      let(:params) do
+        {
+          idempotency_token: SecureRandom.uuid,
+          request_type: "non_standard_mag_appeal",
+          laa_reference:,
+          submitter_id: SecureRandom.uuid,
+          date_claim_assessed: "2026-09-20",
+          payment_basis: "existing_payment_record",
+          allowed_total: 200,
+        }
+      end
+
+      before do
+        create(
+          :payment_request,
+          :non_standard_magistrate,
+          payable_claim: claim,
+          request_type: "non_standard_magistrate",
+          payment_basis: "standard_manual_entry",
+          calculation_method: "entered_to_be_paid",
+          allowed_total: 120,
+          submitted_at: Time.zone.parse("2026-09-01 10:00:00 UTC"),
+        )
+      end
+
+      it "stores the payable difference in allowed_total" do
+        result = service.call
+
+        expect(result[:payment_request].allowed_total).to eq(80.to_d)
+        expect(result[:payment_request].entered_allowed_total).to eq(200.to_d)
+      end
+    end
+
+    context "when calculated_difference has no previous payment value" do
+      let(:laa_reference) { "LAA-EXISTING" }
+      let(:params) do
+        {
+          idempotency_token: SecureRandom.uuid,
+          request_type: "non_standard_mag_appeal",
+          laa_reference:,
+          submitter_id: SecureRandom.uuid,
+          date_claim_assessed: "2026-09-20",
+          payment_basis: "existing_payment_record",
+          allowed_total: 200,
+        }
+      end
+
+      before do
+        create(:nsm_claim, laa_reference:)
+      end
+
+      it "raises an UnprocessableEntityError" do
+        expect { service.call }
+          .to raise_error(described_class::UnprocessableEntityError, /previous_allowed_total is required/)
       end
     end
 

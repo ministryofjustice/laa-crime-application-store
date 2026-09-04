@@ -1,53 +1,59 @@
 module PaymentRequests
   class ToBePaidCalculator
-    LINKED_NSM_REQUEST_TYPES = %w[
-      non_standard_magistrate
-      non_standard_mag_amendment
-      non_standard_mag_supplemental
-      non_standard_mag_appeal
-    ].freeze
+    class MissingPreviousPaymentError < StandardError; end
+    class MissingEnteredAllowedTotalError < StandardError; end
 
-    def initialize(payment_requests:, amount_keys: %i[claimed_total allowed_total], cutoff_date: nil)
-      @payment_requests = payment_requests
-      @amount_keys = amount_keys
-      @cutoff_date = cutoff_date
+    Result = Struct.new(
+      :entered_allowed_total,
+      :previously_paid_allowed_total,
+      :payable_allowed_total,
+      :calculation_method,
+    )
+
+    def self.call(calculation_method:, entered_allowed_total:, previous_allowed_total: nil)
+      new(calculation_method:, entered_allowed_total:, previous_allowed_total:).call
+    end
+
+    def initialize(calculation_method:, entered_allowed_total:, previous_allowed_total: nil)
+      @calculation_method = calculation_method
+      @entered_allowed_total = entered_allowed_total
+      @previous_allowed_total = previous_allowed_total
     end
 
     def call
-      latest = scoped_payment_requests.first
-      return if latest.blank?
-      return latest if cutoff_date.present? && submitted_at(latest).to_date < cutoff_date
-
-      previous = scoped_payment_requests.second
-      return latest if previous.blank?
-
-      calculate_difference(latest, previous)
+      case calculation_method
+      when LaaCrimeFormsCommon::PaymentBasis::ENTERED_TO_BE_PAID
+        entered_to_be_paid_result
+      when LaaCrimeFormsCommon::PaymentBasis::CALCULATED_DIFFERENCE
+        calculated_difference_result
+      else
+        raise ArgumentError, "Unknown calculation method: #{calculation_method}"
+      end
     end
 
   private
 
-    attr_reader :payment_requests, :amount_keys, :cutoff_date
+    attr_reader :calculation_method, :entered_allowed_total, :previous_allowed_total
 
-    def scoped_payment_requests
-      @scoped_payment_requests ||= begin
-        requests = payment_requests.map(&:with_indifferent_access)
-        linked_family_requests = requests.select { LINKED_NSM_REQUEST_TYPES.include?(_1[:request_type].to_s) }
-        linked_family_requests.sort_by { submitted_at(_1) }.reverse
-      end
+    def entered_to_be_paid_result
+      Result.new(
+        entered_allowed_total: entered_allowed_total&.to_d,
+        previously_paid_allowed_total: nil,
+        payable_allowed_total: entered_allowed_total&.to_d,
+        calculation_method:,
+      )
     end
 
-    def submitted_at(payment_request)
-      Time.zone.parse(payment_request[:submitted_at].to_s)
-    end
+    def calculated_difference_result
+      raise MissingEnteredAllowedTotalError, "entered_allowed_total is required" if entered_allowed_total.nil?
+      raise MissingPreviousPaymentError, "previous_allowed_total is required" if previous_allowed_total.nil?
 
-    def calculate_difference(latest, previous)
-      latest.tap do |payment_request|
-        amount_keys.each do |key|
-          next unless payment_request.key?(key)
-
-          payment_request[key] = payment_request[key].to_d - previous[key].to_d
-        end
-      end
+      Result.new(
+        entered_allowed_total: entered_allowed_total.to_d,
+        previously_paid_allowed_total: previous_allowed_total.to_d,
+        payable_allowed_total: entered_allowed_total.to_d - previous_allowed_total.to_d,
+        calculation_method:,
+      )
     end
   end
 end

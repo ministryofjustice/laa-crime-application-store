@@ -1,110 +1,64 @@
 require "rails_helper"
 
 RSpec.describe PaymentRequests::ToBePaidCalculator do
-  subject(:call) { described_class.new(payment_requests:, cutoff_date:).call }
+  describe ".call" do
+    context "when calculation method is entered_to_be_paid" do
+      it "returns the entered allowed total as the payable amount" do
+        result = described_class.call(
+          calculation_method: LaaCrimeFormsCommon::PaymentBasis::ENTERED_TO_BE_PAID,
+          entered_allowed_total: 150.0,
+        )
 
-  let(:cutoff_date) { Date.new(2026, 9, 19) }
-  let(:payment_requests) do
-    [
-      {
-        request_type: "non_standard_magistrate",
-        submitted_at: "2026-09-18 10:31:07 UTC",
-        claimed_total: 130,
-        allowed_total: 120,
-      },
-      {
-        request_type: "non_standard_mag_amendment",
-        submitted_at: "2026-09-19 10:31:07 UTC",
-        claimed_total: 200,
-        allowed_total: 150,
-      },
-    ]
-  end
-
-  context "when latest linked payment request is before the cutoff date" do
-    let(:payment_requests) do
-      [
-        {
-          request_type: "non_standard_magistrate",
-          submitted_at: "2026-09-10 10:31:07 UTC",
-          claimed_total: 130,
-          allowed_total: 120,
-        },
-        {
-          request_type: "non_standard_mag_amendment",
-          submitted_at: "2026-09-18 10:31:07 UTC",
-          claimed_total: 200,
-          allowed_total: 150,
-        },
-      ]
+        expect(result.entered_allowed_total).to eq(150.to_d)
+        expect(result.previously_paid_allowed_total).to be_nil
+        expect(result.payable_allowed_total).to eq(150.to_d)
+        expect(result.calculation_method).to eq("entered_to_be_paid")
+      end
     end
 
-    it "returns the latest payment request totals" do
-      expect(call).to include(
-        claimed_total: 200,
-        allowed_total: 150,
-      )
-    end
-  end
+    context "when calculation method is calculated_difference" do
+      it "returns the difference between entered and previous totals" do
+        result = described_class.call(
+          calculation_method: LaaCrimeFormsCommon::PaymentBasis::CALCULATED_DIFFERENCE,
+          entered_allowed_total: 200.0,
+          previous_allowed_total: 150.0,
+        )
 
-  context "when latest linked payment request is on or after the cutoff date" do
-    it "returns the total differences between latest and previous requests" do
-      expect(call).to include(
-        claimed_total: 70.to_d,
-        allowed_total: 30.to_d,
-      )
-    end
-  end
+        expect(result.entered_allowed_total).to eq(200.to_d)
+        expect(result.previously_paid_allowed_total).to eq(150.to_d)
+        expect(result.payable_allowed_total).to eq(50.to_d)
+        expect(result.calculation_method).to eq("calculated_difference")
+      end
 
-  context "when non-linked payment request types are present" do
-    let(:payment_requests) do
-      [
-        {
-          request_type: "assigned_counsel",
-          submitted_at: "2026-09-30 10:31:07 UTC",
-          claimed_total: 999,
-          allowed_total: 999,
-        },
-        {
-          request_type: "non_standard_magistrate",
-          submitted_at: "2026-09-18 10:31:07 UTC",
-          claimed_total: 130,
-          allowed_total: 120,
-        },
-        {
-          request_type: "non_standard_mag_appeal",
-          submitted_at: "2026-09-20 10:31:07 UTC",
-          claimed_total: 200,
-          allowed_total: 150,
-        },
-      ]
+      it "raises when previous total is missing" do
+        expect {
+          described_class.call(
+            calculation_method: LaaCrimeFormsCommon::PaymentBasis::CALCULATED_DIFFERENCE,
+            entered_allowed_total: 200.0,
+          )
+        }.to raise_error(described_class::MissingPreviousPaymentError, /previous_allowed_total is required/)
+      end
+
+      it "raises when entered total is missing" do
+        expect {
+          described_class.call(
+            calculation_method: LaaCrimeFormsCommon::PaymentBasis::CALCULATED_DIFFERENCE,
+            entered_allowed_total: nil,
+            previous_allowed_total: 100.0,
+          )
+        }.to raise_error(described_class::MissingEnteredAllowedTotalError, /entered_allowed_total is required/)
+      end
     end
 
-    it "calculates totals using only linked NSM family payment requests" do
-      expect(call).to include(
-        claimed_total: 70.to_d,
-        allowed_total: 30.to_d,
-      )
-    end
-  end
-
-  context "when there is no previous linked payment request after the cutoff date" do
-    let(:payment_requests) do
-      [
-        {
-          request_type: "non_standard_mag_appeal",
-          submitted_at: "2026-09-20 10:31:07 UTC",
-          claimed_total: 200,
-          allowed_total: 150,
-        },
-      ]
-    end
-
-    it "returns latest totals" do
-      expect(call).to include(
-        claimed_total: 200,
-        allowed_total: 150,
-      )
+    context "when calculation method is unknown" do
+      it "raises an ArgumentError" do
+        expect {
+          described_class.call(
+            calculation_method: "something_else",
+            entered_allowed_total: 100.0,
+          )
+        }.to raise_error(ArgumentError, /Unknown calculation method/)
+      end
     end
   end
 end

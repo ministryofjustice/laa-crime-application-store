@@ -74,7 +74,7 @@ RSpec.describe PaymentRequest do
       )
       payment_request.validate
 
-      expect(payment_request.errors[:entered_allowed_total].join).to match(/less than or equal to/)
+      expect(payment_request.errors[:entered_allowed_total].join).to include("less than or equal to")
     end
   end
 
