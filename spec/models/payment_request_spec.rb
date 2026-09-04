@@ -59,6 +59,25 @@ RSpec.describe PaymentRequest do
     end
   end
 
+  describe "entered_allowed_total validation" do
+    it "accepts numeric values" do
+      payment_request = build(:payment_request, :non_standard_magistrate, entered_allowed_total: 123.45)
+
+      expect(payment_request).to be_valid
+    end
+
+    it "rejects values outside allowed numeric limits" do
+      payment_request = build(
+        :payment_request,
+        :non_standard_magistrate,
+        entered_allowed_total: (NumericLimits::MAX_FLOAT + 1),
+      )
+      payment_request.validate
+
+      expect(payment_request.errors[:entered_allowed_total].join).to match(/less than or equal to/)
+    end
+  end
+
   describe "#nsm_claim=" do
     let(:payment_request) { build(:payment_request) }
     let(:nsm_claim) { build(:nsm_claim) }

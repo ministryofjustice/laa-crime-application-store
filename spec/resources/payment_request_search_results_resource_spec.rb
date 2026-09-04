@@ -16,6 +16,7 @@ RSpec.describe PaymentRequestSearchResultsResource do
           payable_claim: claim,
           payment_basis: "digital_claim",
           calculation_method: "entered_to_be_paid",
+          entered_allowed_total: 150.0,
         )
       end
 
@@ -45,6 +46,12 @@ RSpec.describe PaymentRequestSearchResultsResource do
         serialized = serialize_collection([payment_request])
 
         expect(serialized.first["calculation_method"]).to eq("entered_to_be_paid")
+      end
+
+      it "includes entered_allowed_total for reporting" do
+        serialized = serialize_collection([payment_request])
+
+        expect(serialized.first["entered_allowed_total"].to_s).to eq("150.0")
       end
     end
 

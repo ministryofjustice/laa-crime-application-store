@@ -14,7 +14,7 @@ class PaymentRequestResource
              :allowed_assigned_counsel_vat,
              if: proc { |payment_request, _attrs| payment_request.payable_claim.is_a? AssignedCounselClaim }
 
-  attributes :claimed_total, :allowed_total,
+  attributes :claimed_total, :allowed_total, :entered_allowed_total,
              if: proc { |pr, _|
                [NsmClaim, AssignedCounselClaim].any? { pr.payable_claim.is_a?(_1) }
              }

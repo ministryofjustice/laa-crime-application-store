@@ -19,6 +19,7 @@ RSpec.describe PaymentRequestResource do
           request.calculation_method = "calculated_difference"
           request.claimed_total = 500
           request.allowed_total = 450
+          request.entered_allowed_total = 700
         end
       end
 
@@ -36,6 +37,7 @@ RSpec.describe PaymentRequestResource do
           allowed_disbursement_cost
           claimed_total
           allowed_total
+          entered_allowed_total
         ].each { expect(serialized).to have_key(_1) }
 
         %w[
@@ -48,6 +50,7 @@ RSpec.describe PaymentRequestResource do
         expect(serialized["submission_id"]).to eq(submission_id)
         expect(serialized["payment_basis"]).to eq("existing_payment_record")
         expect(serialized["calculation_method"]).to eq("calculated_difference")
+        expect(serialized["entered_allowed_total"].to_s).to eq("700.0")
       end
 
       it "serializes the linked NSM claim when include_claim is true" do
@@ -68,6 +71,7 @@ RSpec.describe PaymentRequestResource do
           request.calculation_method = "entered_to_be_paid"
           request.claimed_total = 400
           request.allowed_total = 350
+          request.entered_allowed_total = 350
         end
       end
 
@@ -81,6 +85,7 @@ RSpec.describe PaymentRequestResource do
           allowed_assigned_counsel_vat
           claimed_total
           allowed_total
+          entered_allowed_total
         ].each { expect(serialized).to have_key(_1) }
 
         %w[
@@ -97,6 +102,7 @@ RSpec.describe PaymentRequestResource do
         expect(serialized["submission_id"]).to eq(submission_id)
         expect(serialized["payment_basis"]).to eq("new_unlinked_record")
         expect(serialized["calculation_method"]).to eq("entered_to_be_paid")
+        expect(serialized["entered_allowed_total"].to_s).to eq("350.0")
         expect(serialized.fetch("payable_claim")).to include(
           "claim_type" => "AssignedCounselClaim",
         )
@@ -128,6 +134,7 @@ RSpec.describe PaymentRequestResource do
 
         expect(serialized).not_to have_key("claimed_total")
         expect(serialized).not_to have_key("allowed_total")
+        expect(serialized).not_to have_key("entered_allowed_total")
       end
 
       it "returns a nil submission_id gracefully" do

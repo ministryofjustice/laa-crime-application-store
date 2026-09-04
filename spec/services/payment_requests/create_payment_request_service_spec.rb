@@ -225,6 +225,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
         request_type: "non_standard_magistrate",
         date_claim_assessed: Date.new(2025, 1, 1),
         payment_basis: "standard_manual_entry",
+        allowed_total: 150.0,
       }
     end
 
@@ -245,6 +246,12 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
                                      .send(:build_payment_request, claim)
 
       expect(payment_request.calculation_method).to eq("entered_to_be_paid")
+    end
+
+    it "stores entered_allowed_total from the submitted allowed_total" do
+      payment_request = described_class.new(params).send(:build_payment_request, claim)
+
+      expect(payment_request.entered_allowed_total).to eq(150.0)
     end
   end
 

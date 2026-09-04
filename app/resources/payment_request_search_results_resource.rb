@@ -2,7 +2,7 @@ class PaymentRequestSearchResultsResource
   include Alba::Resource
 
   attributes :id, :request_type,
-             :submitted_at, :submission_id, :payment_basis, :calculation_method
+             :submitted_at, :submission_id, :payment_basis, :calculation_method, :entered_allowed_total
   attributes :created_at, :updated_at
 
   one :payable_claim, resource: ClaimPaymentSearchResultsResource

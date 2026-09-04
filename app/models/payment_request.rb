@@ -40,6 +40,7 @@ class PaymentRequest < ApplicationRecord
 
   attribute :claimed_total, :gbp
   attribute :allowed_total, :gbp
+  attribute :entered_allowed_total, :gbp
 
   attribute :claimed_net_assigned_counsel_cost, :gbp
   attribute :claimed_assigned_counsel_vat, :gbp
@@ -62,6 +63,7 @@ class PaymentRequest < ApplicationRecord
   validates :allowed_disbursement_cost, is_a_number: true, numericality: { allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT, greater_than_or_equal_to: -NumericLimits::MAX_FLOAT }
   validates :allowed_net_assigned_counsel_cost, is_a_number: true, numericality: { allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT, greater_than_or_equal_to: -NumericLimits::MAX_FLOAT }
   validates :allowed_assigned_counsel_vat, is_a_number: true, numericality: { allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT, greater_than_or_equal_to: -NumericLimits::MAX_FLOAT }
+  validates :entered_allowed_total, is_a_number: true, numericality: { allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT, greater_than_or_equal_to: -NumericLimits::MAX_FLOAT }
   validates :allowed_profit_cost, numericality: { greater_than_or_equal_to: 0, allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT }, unless: -> { amendment? }
   validates :allowed_travel_cost, numericality: { greater_than_or_equal_to: 0, allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT }, unless: -> { amendment? }
   validates :allowed_waiting_cost, numericality: { greater_than_or_equal_to: 0, allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT }, unless: -> { amendment? }

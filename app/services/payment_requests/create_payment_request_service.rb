@@ -94,6 +94,7 @@ module PaymentRequests
         request_type: params[:request_type],
         payment_basis:,
         calculation_method: LaaCrimeFormsCommon::PaymentBasis.calculation_method_for(payment_basis),
+        entered_allowed_total: params[:allowed_total],
         submitted_at: Time.current,
         date_claim_assessed: params[:date_claim_assessed],
       )
