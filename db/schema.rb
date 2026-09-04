@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_24_094444) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_04_120410) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -310,6 +310,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_094444) do
            SELECT application.id,
               application.application_type,
               application_version.version,
+              application.current_version,
               COALESCE((previous_application_version.application ->> 'status'::text), 'draft'::text) AS from_status,
               (COALESCE((previous_application_version.application ->> 'updated_at'::text), (application_version.application ->> 'created_at'::text)))::timestamp without time zone AS from_time,
               (application_version.application ->> 'status'::text) AS to_status,
@@ -327,6 +328,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_094444) do
    SELECT id,
       application_type,
       version,
+      current_version,
       from_status,
       from_time,
       to_status,
