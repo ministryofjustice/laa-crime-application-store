@@ -106,6 +106,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_04_120410) do
     t.decimal "allowed_total", precision: 10, scale: 2
     t.decimal "allowed_travel_cost", precision: 10, scale: 2
     t.decimal "allowed_waiting_cost", precision: 10, scale: 2
+    t.string "calculation_method"
     t.decimal "claimed_assigned_counsel_vat", precision: 10, scale: 2
     t.decimal "claimed_disbursement_cost", precision: 10, scale: 2
     t.decimal "claimed_net_assigned_counsel_cost", precision: 10, scale: 2
@@ -121,6 +122,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_04_120410) do
     t.datetime "submitted_at"
     t.uuid "submitter_id"
     t.datetime "updated_at", null: false
+    t.index ["calculation_method"], name: "index_payment_requests_on_calculation_method"
     t.index ["date_claim_assessed"], name: "idx_pr_date_claim_assessed"
     t.index ["payable_claim_id"], name: "index_payment_requests_on_payable_claim_id"
     t.index ["payment_basis"], name: "index_payment_requests_on_payment_basis"
