@@ -49,6 +49,7 @@ class PaymentRequest < ApplicationRecord
   validates :submitter_id, is_a_uuid: true
   validates :request_type, presence: true, inclusion: { in: REQUEST_TYPES }
   validates :payment_basis, inclusion: { in: LaaCrimeFormsCommon::PaymentBasis::ALL }, allow_nil: true
+  validates :calculation_method, inclusion: { in: LaaCrimeFormsCommon::PaymentBasis::CALCULATION_METHOD_BY_BASIS.values.uniq }, allow_nil: true
   validates :claimed_profit_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: NumericLimits::MAX_FLOAT, allow_nil: true }
   validates :claimed_travel_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: NumericLimits::MAX_FLOAT, allow_nil: true }
   validates :claimed_waiting_cost, is_a_number: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: NumericLimits::MAX_FLOAT, allow_nil: true }
@@ -68,6 +69,7 @@ class PaymentRequest < ApplicationRecord
   validates :allowed_net_assigned_counsel_cost, numericality: { greater_than_or_equal_to: 0, allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT }, unless: -> { amendment? }
   validates :allowed_assigned_counsel_vat, numericality: { greater_than_or_equal_to: 0, allow_nil: true, less_than_or_equal_to: NumericLimits::MAX_FLOAT }, unless: -> { amendment? }
   validate :correct_request_type
+  validate :calculation_method_matches_payment_basis
 
   def nsm_claim
     payable_claim.is_a?(NsmClaim) ? payable_claim : nil
@@ -98,5 +100,14 @@ class PaymentRequest < ApplicationRecord
 
   def amendment?
     request_type.end_with?("_amendment")
+  end
+
+  def calculation_method_matches_payment_basis
+    return if payment_basis.blank? || calculation_method.blank?
+
+    expected_method = LaaCrimeFormsCommon::PaymentBasis.calculation_method_for(payment_basis)
+    return if expected_method == calculation_method
+
+    errors.add(:calculation_method, "must match payment_basis")
   end
 end
