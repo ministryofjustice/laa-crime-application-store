@@ -27,6 +27,7 @@ RSpec.describe "processing times" do
         "to_date" => Date.new(2024, 6, 26),
         "to_status" => "submitted",
         "to_time" => Time.zone.local(2024, 6, 26, 12),
+        "current_version" => 1,
         "version" => 1,
         "claim_imported" => false },
     ])
@@ -35,6 +36,8 @@ RSpec.describe "processing times" do
   it "records time between versions" do
     submission = travel_to(base_time) { create(:submission, :with_pa_version) }
     travel_to(base_time + 20.minutes) { create(:submission_version, :with_pa_application, submission:, status: "approved", version: 2) }
+    submission.current_version = 2
+    submission.save!
 
     expect(klass.count).to eq(2)
 
@@ -48,6 +51,7 @@ RSpec.describe "processing times" do
         "to_date" => Date.new(2024, 6, 26),
         "to_status" => "approved",
         "to_time" => Time.zone.local(2024, 6, 26, 12, 20),
+        "current_version" => 2,
         "version" => 2,
         "claim_imported" => false },
     )
