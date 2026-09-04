@@ -233,6 +233,19 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
 
       expect(payment_request.payment_basis).to eq("standard_manual_entry")
     end
+
+    it "derives calculation_method from payment_basis" do
+      payment_request = described_class.new(params).send(:build_payment_request, claim)
+
+      expect(payment_request.calculation_method).to eq("entered_to_be_paid")
+    end
+
+    it "ignores caller-supplied calculation_method values" do
+      payment_request = described_class.new(params.merge(calculation_method: "calculated_difference"))
+                                     .send(:build_payment_request, claim)
+
+      expect(payment_request.calculation_method).to eq("entered_to_be_paid")
+    end
   end
 
   describe "#call" do

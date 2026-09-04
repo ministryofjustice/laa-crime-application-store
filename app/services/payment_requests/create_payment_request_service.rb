@@ -87,10 +87,13 @@ module PaymentRequests
     end
 
     def build_payment_request(claim)
+      payment_basis = params[:payment_basis]
+
       claim.payment_requests.build(
         submitter_id: params[:submitter_id],
         request_type: params[:request_type],
-        payment_basis: params[:payment_basis],
+        payment_basis:,
+        calculation_method: LaaCrimeFormsCommon::PaymentBasis.calculation_method_for(payment_basis),
         submitted_at: Time.current,
         date_claim_assessed: params[:date_claim_assessed],
       )
