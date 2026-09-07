@@ -202,6 +202,23 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
 
       service.send(:persist_linked_submission!, claim)
     end
+
+    it "does not update claim when no linked submission is found" do
+      allow(service).to receive(:find_referred_submission).with(linked_laa_reference).and_return(nil)
+
+      expect(claim).not_to receive(:update!)
+
+      service.send(:persist_linked_submission!, claim)
+    end
+
+    it "updates claim submission_id when linked submission id matches the provided submission id" do
+      linked_submission = instance_double(Submission, id: submission_id)
+      allow(service).to receive(:find_referred_submission).with(linked_laa_reference).and_return(linked_submission)
+
+      expect(claim).to receive(:update!).with(submission_id:)
+
+      service.send(:persist_linked_submission!, claim)
+    end
   end
 
   describe "#assign_costs" do

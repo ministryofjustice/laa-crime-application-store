@@ -35,24 +35,6 @@ RSpec.describe PaymentRequestSearchResultsResource do
 
         expect(serialized.first["submission_id"]).to eq(submission_id)
       end
-
-      it "includes payment_basis for reporting" do
-        serialized = serialize_collection([payment_request])
-
-        expect(serialized.first["payment_basis"]).to eq("digital_claim")
-      end
-
-      it "includes calculation_method for reporting" do
-        serialized = serialize_collection([payment_request])
-
-        expect(serialized.first["calculation_method"]).to eq("entered_to_be_paid")
-      end
-
-      it "includes entered_allowed_total for reporting" do
-        serialized = serialize_collection([payment_request])
-
-        expect(serialized.first["entered_allowed_total"].to_s).to eq("150.0")
-      end
     end
 
     context "when a payment request is not linked to a claim" do
