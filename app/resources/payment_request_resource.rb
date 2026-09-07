@@ -2,7 +2,7 @@ class PaymentRequestResource
   include Alba::Resource
 
   attributes :id, :submitter_id, :request_type,
-             :submitted_at, :submission_id, :date_claim_assessed, :payment_basis, :calculation_method
+             :submitted_at, :submission_id, :date_claim_assessed
   attributes :claimed_profit_cost, :allowed_profit_cost,
              :claimed_travel_cost, :allowed_travel_cost,
              :claimed_waiting_cost, :allowed_waiting_cost,
@@ -14,7 +14,7 @@ class PaymentRequestResource
              :allowed_assigned_counsel_vat,
              if: proc { |payment_request, _attrs| payment_request.payable_claim.is_a? AssignedCounselClaim }
 
-  attributes :claimed_total, :allowed_total, :entered_allowed_total,
+  attributes :claimed_total, :allowed_total,
              if: proc { |pr, _|
                [NsmClaim, AssignedCounselClaim].any? { pr.payable_claim.is_a?(_1) }
              }

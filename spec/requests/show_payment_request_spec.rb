@@ -36,9 +36,6 @@ RSpec.describe "show payment request", type: :request do
         request_type
         submitted_at
         submitter_id
-        payment_basis
-        calculation_method
-        entered_allowed_total
         claimed_travel_cost
         updated_at
         claimed_waiting_cost
@@ -108,9 +105,6 @@ RSpec.describe "show payment request", type: :request do
         request_type
         submitted_at
         submitter_id
-        payment_basis
-        calculation_method
-        entered_allowed_total
         claimed_net_assigned_counsel_cost
         claimed_assigned_counsel_vat
         allowed_net_assigned_counsel_cost
