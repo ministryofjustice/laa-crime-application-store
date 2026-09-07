@@ -3,13 +3,6 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby File.read(".ruby-version").strip
 
-local_laa_common_path = File.expand_path("../laa-crime-forms-common", __dir__)
-laa_common_options = if Dir.exist?(local_laa_common_path)
-                       { path: local_laa_common_path }
-                     else
-                       { github: "ministryofjustice/laa-crime-forms-common" }
-                     end
-
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.1.3"
 
@@ -30,7 +23,7 @@ gem "aws-sdk-s3", "~> 1.229"
 gem "govuk_notify_rails", "~> 3.0.0"
 gem "httparty", ">= 0.24.0"
 gem "jwt", "~> 3.2.0"
-gem "laa_crime_forms_common", "~> 0.13.1", **laa_common_options
+gem "laa_crime_forms_common", "~> 0.13.1", github: "ministryofjustice/laa-crime-forms-common"
 gem "lograge"
 gem "logstash-event"
 gem "oauth2"

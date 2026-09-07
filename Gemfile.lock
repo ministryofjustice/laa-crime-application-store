@@ -1,5 +1,6 @@
-PATH
-  remote: /Users/robin.skilling/Repos/laa-crime-forms/laa-crime-forms-common
+GIT
+  remote: https://github.com/ministryofjustice/laa-crime-forms-common.git
+  revision: a0c7f3e40c7f0af8457b0fb74df09cf632b59e87
   specs:
     laa_crime_forms_common (0.13.1)
       httparty (>= 0.22.0, < 1)
