@@ -8,7 +8,6 @@ module PaymentRequests
       :previous_allowed_total,
       :payable_total,
       :calculation_method,
-      keyword_init: true,
     )
 
     def self.call(calculation_method:, allowed_total:, previous_allowed_total: nil)
