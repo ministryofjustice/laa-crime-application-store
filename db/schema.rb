@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_04_150500) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_08_094500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -119,8 +119,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_04_150500) do
     t.decimal "claimed_waiting_cost", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "date_claim_assessed"
-    t.decimal "entered_allowed_total", precision: 10, scale: 2
     t.uuid "payable_claim_id"
+    t.decimal "payable_total", precision: 10, scale: 2
     t.string "payment_basis"
     t.string "request_type"
     t.datetime "submitted_at"
@@ -129,6 +129,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_04_150500) do
     t.index ["calculation_method"], name: "index_payment_requests_on_calculation_method"
     t.index ["date_claim_assessed"], name: "idx_pr_date_claim_assessed"
     t.index ["payable_claim_id"], name: "index_payment_requests_on_payable_claim_id"
+    t.index ["payable_total"], name: "index_payment_requests_on_payable_total"
     t.index ["payment_basis"], name: "index_payment_requests_on_payment_basis"
     t.index ["request_type", "date_claim_assessed"], name: "idx_pr_request_type_date_assessed"
     t.index ["request_type", "submitted_at"], name: "idx_pr_request_type_submitted_at", order: { submitted_at: :desc }
