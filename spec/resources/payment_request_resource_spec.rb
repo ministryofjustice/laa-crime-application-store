@@ -19,7 +19,6 @@ RSpec.describe PaymentRequestResource do
           request.calculation_method = "calculated_difference"
           request.claimed_total = 500
           request.allowed_total = 450
-          request.entered_allowed_total = 700
         end
       end
 

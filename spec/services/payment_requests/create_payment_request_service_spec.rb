@@ -263,11 +263,12 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
         allow(service).to receive(:claim_type).and_return("NsmClaim")
         payment_request.payment_basis = "standard_manual_entry"
         payment_request.calculation_method = "entered_to_be_paid"
-        payment_request.entered_allowed_total = 120
+        payment_request.allowed_total = 120
 
         service.send(:assign_costs, payment_request)
 
         expect(payment_request.allowed_total).to eq(120.to_d)
+        expect(payment_request.payable_total).to eq(120.to_d)
       end
     end
 
@@ -360,12 +361,6 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       expect(payment_request.calculation_method).to eq("entered_to_be_paid")
     end
 
-    it "stores entered_allowed_total from the submitted allowed_total" do
-      payment_request = described_class.new(params).send(:build_payment_request, claim)
-
-      expect(payment_request.entered_allowed_total).to eq(150.0)
-    end
-
     it "defaults payment_basis to standard_manual_entry when missing" do
       payment_request = described_class.new(params.except(:payment_basis)).send(:build_payment_request, claim)
 
@@ -427,8 +422,8 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       it "stores the payable difference in allowed_total" do
         result = service.call
 
-        expect(result[:payment_request].allowed_total).to eq(80.to_d)
-        expect(result[:payment_request].entered_allowed_total).to eq(200.to_d)
+        expect(result[:payment_request].allowed_total).to eq(200.to_d)
+        expect(result[:payment_request].payable_total).to eq(80.to_d)
       end
     end
 

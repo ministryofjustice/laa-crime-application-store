@@ -16,7 +16,6 @@ RSpec.describe PaymentRequestSearchResultsResource do
           payable_claim: claim,
           payment_basis: "digital_claim",
           calculation_method: "entered_to_be_paid",
-          entered_allowed_total: 150.0,
         )
       end
 

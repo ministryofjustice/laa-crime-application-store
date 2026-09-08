@@ -1,22 +1,22 @@
 module PaymentRequests
   class ToBePaidCalculator
     class MissingPreviousPaymentError < StandardError; end
-    class MissingEnteredAllowedTotalError < StandardError; end
+    class MissingAllowedTotalError < StandardError; end
 
     Result = Struct.new(
-      :entered_allowed_total,
-      :previously_paid_allowed_total,
-      :payable_allowed_total,
+      :allowed_total,
+      :previous_allowed_total,
+      :payable_total,
       :calculation_method,
     )
 
-    def self.call(calculation_method:, entered_allowed_total:, previous_allowed_total: nil)
-      new(calculation_method:, entered_allowed_total:, previous_allowed_total:).call
+    def self.call(calculation_method:, allowed_total:, previous_allowed_total: nil)
+      new(calculation_method:, allowed_total:, previous_allowed_total:).call
     end
 
-    def initialize(calculation_method:, entered_allowed_total:, previous_allowed_total: nil)
+    def initialize(calculation_method:, allowed_total:, previous_allowed_total: nil)
       @calculation_method = calculation_method
-      @entered_allowed_total = entered_allowed_total
+      @allowed_total = allowed_total
       @previous_allowed_total = previous_allowed_total
     end
 
@@ -33,25 +33,25 @@ module PaymentRequests
 
   private
 
-    attr_reader :calculation_method, :entered_allowed_total, :previous_allowed_total
+    attr_reader :calculation_method, :allowed_total, :previous_allowed_total
 
     def entered_to_be_paid_result
       Result.new(
-        entered_allowed_total: entered_allowed_total&.to_d,
-        previously_paid_allowed_total: nil,
-        payable_allowed_total: entered_allowed_total&.to_d,
+        allowed_total: allowed_total&.to_d,
+        previous_allowed_total: nil,
+        payable_total: allowed_total&.to_d,
         calculation_method:,
       )
     end
 
     def calculated_difference_result
-      raise MissingEnteredAllowedTotalError, "entered_allowed_total is required" if entered_allowed_total.nil?
+      raise MissingAllowedTotalError, "allowed_total is required" if allowed_total.nil?
       raise MissingPreviousPaymentError, "previous_allowed_total is required" if previous_allowed_total.nil?
 
       Result.new(
-        entered_allowed_total: entered_allowed_total.to_d,
-        previously_paid_allowed_total: previous_allowed_total.to_d,
-        payable_allowed_total: entered_allowed_total.to_d - previous_allowed_total.to_d,
+        allowed_total: allowed_total.to_d,
+        previous_allowed_total: previous_allowed_total.to_d,
+        payable_total: allowed_total.to_d - previous_allowed_total.to_d,
         calculation_method:,
       )
     end

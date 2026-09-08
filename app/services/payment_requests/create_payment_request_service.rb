@@ -94,7 +94,6 @@ module PaymentRequests
         request_type: params[:request_type],
         payment_basis:,
         calculation_method: LaaCrimeFormsCommon::PaymentBasis.calculation_method_for(payment_basis),
-        entered_allowed_total: params[:allowed_total],
         submitted_at: Time.current,
         date_claim_assessed: params[:date_claim_assessed],
       )
@@ -150,13 +149,13 @@ module PaymentRequests
 
       result = PaymentRequests::ToBePaidCalculator.call(
         calculation_method: payment_request.calculation_method,
-        entered_allowed_total: payment_request.entered_allowed_total,
+        allowed_total: payment_request.allowed_total,
         previous_allowed_total: previous_allowed_total_for(payment_request),
       )
 
-      payment_request.allowed_total = result.payable_allowed_total
+      payment_request.payable_total = result.payable_total
     rescue PaymentRequests::ToBePaidCalculator::MissingPreviousPaymentError,
-           PaymentRequests::ToBePaidCalculator::MissingEnteredAllowedTotalError,
+           PaymentRequests::ToBePaidCalculator::MissingAllowedTotalError,
            ArgumentError => e
       raise UnprocessableEntityError, e.message
     end
