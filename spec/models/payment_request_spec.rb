@@ -59,9 +59,9 @@ RSpec.describe PaymentRequest do
     end
   end
 
-  describe "entered_allowed_total validation" do
+  describe "payable_total validation" do
     it "accepts numeric values" do
-      payment_request = build(:payment_request, :non_standard_magistrate, entered_allowed_total: 123.45)
+      payment_request = build(:payment_request, :non_standard_magistrate, payable_total: 123.45)
 
       expect(payment_request).to be_valid
     end
@@ -70,11 +70,11 @@ RSpec.describe PaymentRequest do
       payment_request = build(
         :payment_request,
         :non_standard_magistrate,
-        entered_allowed_total: (NumericLimits::MAX_FLOAT + 1),
+        payable_total: (NumericLimits::MAX_FLOAT + 1),
       )
       payment_request.validate
 
-      expect(payment_request.errors[:entered_allowed_total].join).to include("less than or equal to")
+      expect(payment_request.errors[:payable_total].join).to include("less than or equal to")
     end
   end
 
