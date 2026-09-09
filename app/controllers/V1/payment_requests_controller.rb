@@ -28,7 +28,7 @@ module V1
     end
 
     def current_payment_request
-      @current_payment_request ||= PaymentRequest.find(params[:id])
+      @current_payment_request ||= PaymentRequest.find(params.expect(:id))
     end
   end
 end

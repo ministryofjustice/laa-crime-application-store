@@ -33,7 +33,7 @@ RSpec.describe "autogrant_events" do
     expect(index).to be_present
     expect(index.columns).to eq(%w[id current_version])
     expect(index.where).to match(/state.*auto_grant/)
-    expect(index.where).not_to match(/application_type/)
+    expect(index.where).not_to include("application_type")
   end
 
   it "returns no records when no autogranted applications exist" do

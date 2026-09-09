@@ -15,6 +15,8 @@ RSpec.describe PaymentRequestResource do
       let(:payment_request) do
         build(:payment_request, :non_standard_magistrate).tap do |request|
           request.payable_claim.submission_id = submission_id
+          request.payment_basis = "existing_payment_record"
+          request.calculation_method = "calculated_difference"
           request.claimed_total = 500
           request.allowed_total = 450
         end

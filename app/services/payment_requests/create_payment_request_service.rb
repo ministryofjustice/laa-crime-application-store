@@ -87,9 +87,13 @@ module PaymentRequests
     end
 
     def build_payment_request(claim)
+      payment_basis = params[:payment_basis] || LaaCrimeFormsCommon::PaymentBasis::STANDARD_MANUAL_ENTRY
+
       claim.payment_requests.build(
         submitter_id: params[:submitter_id],
         request_type: params[:request_type],
+        payment_basis:,
+        calculation_method: LaaCrimeFormsCommon::PaymentBasis.calculation_method_for(payment_basis),
         submitted_at: Time.current,
         date_claim_assessed: params[:date_claim_assessed],
       )
@@ -102,6 +106,8 @@ module PaymentRequests
       when "AssignedCounselClaim"
         payment_request.assign_attributes(mapped_assigned_counsel_cost_attributes)
       end
+
+      apply_to_be_paid_calculation(payment_request)
     end
 
     def mapped_nsm_cost_attributes
@@ -136,6 +142,34 @@ module PaymentRequests
 
     def claim_type
       @claim_type ||= find_claim_type_group(params[:request_type])
+    end
+
+    def apply_to_be_paid_calculation(payment_request)
+      return if payment_request.calculation_method.blank?
+
+      result = PaymentRequests::ToBePaidCalculator.call(
+        calculation_method: payment_request.calculation_method,
+        allowed_total: payment_request.allowed_total,
+        previous_allowed_total: previous_allowed_total_for(payment_request),
+      )
+
+      payment_request.payable_total = result.payable_total
+    rescue PaymentRequests::ToBePaidCalculator::MissingPreviousPaymentError,
+           PaymentRequests::ToBePaidCalculator::MissingAllowedTotalError,
+           ArgumentError => e
+      raise UnprocessableEntityError, e.message
+    end
+
+    def previous_allowed_total_for(payment_request)
+      return nil unless payment_request.calculation_method == LaaCrimeFormsCommon::PaymentBasis::CALCULATED_DIFFERENCE
+
+      payment_request.payable_claim
+                     .payment_requests
+                     .where.not(id: payment_request.id)
+                     .where.not(allowed_total: nil)
+                     .order(submitted_at: :desc)
+                     .limit(1)
+                     .pick(:allowed_total)
     end
 
     def persist_linked_submission!(claim)
