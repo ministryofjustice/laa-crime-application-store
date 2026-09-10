@@ -44,7 +44,7 @@ module V1
   private
 
     def current_submission
-      @current_submission ||= Submission.find(params[:id])
+      @current_submission ||= Submission.find(params.expect(:id))
     end
 
     def authorization_object

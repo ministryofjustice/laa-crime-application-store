@@ -36,6 +36,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       allowed_travel_cost: 15.0,
       allowed_waiting_cost: 5.0,
       allowed_disbursement_cost: 4.0,
+      payment_basis: "standard_manual_entry",
     }
   end
 
@@ -49,7 +50,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       "non_standard_magistrate" => false,
     }.each do |request_type, expected|
       it "returns #{expected} when request_type is '#{request_type}'" do
-        params = { request_type: request_type }
+        params = { request_type: }
         result = described_class.new(params).send(:supplemental_appeal_or_ammendment?)
         expect(result).to eq(expected)
       end
@@ -57,6 +58,21 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
   end
 
   describe "#find_or_create_claim!" do
+    context "when idempotency token has already been used" do
+      let(:idempotency_token) { SecureRandom.uuid }
+      let(:params) { { idempotency_token:, request_type: "non_standard_magistrate" } }
+
+      before do
+        create(:payable_claim, idempotency_token:)
+      end
+
+      it "raises UnprocessableEntityError" do
+        expect {
+          service.send(:find_or_create_claim!)
+        }.to raise_error(described_class::UnprocessableEntityError, /payment already exists/)
+      end
+    end
+
     context "when laa_reference is present and request_type has a supplemental/appeal/amendment suffix" do
       subject(:service) { described_class.new(params) }
 
@@ -79,7 +95,7 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
       let(:service) { described_class.new(params) }
 
       describe "when linked_laa_reference exists" do
-        let(:params) { super().except(:laa_reference).merge({ linked_laa_reference: linked_laa_reference }) }
+        let(:params) { super().except(:laa_reference).merge({ linked_laa_reference: }) }
 
         it "links the submission ref to the payment" do
           expect(service.call[:claim][:laa_reference]).to eq(linked_laa_reference)
@@ -158,6 +174,51 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
         expect(result[:claim].reload.submission_id).to be_nil
       end
     end
+
+    context "when linked_laa_reference is present but id is missing" do
+      let(:params) { super().merge(linked_laa_reference:).except(:id) }
+
+      it "does not attempt to link a submission" do
+        expect(service).not_to receive(:find_referred_submission)
+
+        result = service.call
+        expect(result[:claim].reload.submission_id).to be_nil
+      end
+    end
+  end
+
+  describe "#persist_linked_submission!" do
+    let(:linked_laa_reference) { "LAA-EXISTING" }
+    let(:claim) { instance_double(NsmClaim) }
+    let(:submission_id) { SecureRandom.uuid }
+    let(:params) { { linked_laa_reference:, id: submission_id } }
+    let(:service) { described_class.new(params) }
+
+    it "does not update claim when linked submission id does not match the provided submission id" do
+      linked_submission = instance_double(Submission, id: SecureRandom.uuid)
+      allow(service).to receive(:find_referred_submission).with(linked_laa_reference).and_return(linked_submission)
+
+      expect(claim).not_to receive(:update!)
+
+      service.send(:persist_linked_submission!, claim)
+    end
+
+    it "does not update claim when no linked submission is found" do
+      allow(service).to receive(:find_referred_submission).with(linked_laa_reference).and_return(nil)
+
+      expect(claim).not_to receive(:update!)
+
+      service.send(:persist_linked_submission!, claim)
+    end
+
+    it "updates claim submission_id when linked submission id matches the provided submission id" do
+      linked_submission = instance_double(Submission, id: submission_id)
+      allow(service).to receive(:find_referred_submission).with(linked_laa_reference).and_return(linked_submission)
+
+      expect(claim).to receive(:update!).with(submission_id:)
+
+      service.send(:persist_linked_submission!, claim)
+    end
   end
 
   describe "#assign_costs" do
@@ -186,6 +247,8 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
           request_type: "non_standard_magistrate",
           claimed_profit_cost: 100,
           allowed_disbursement_cost: 50,
+          payment_basis: "standard_manual_entry",
+          allowed_total: 120,
         }
       end
 
@@ -194,6 +257,18 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
         service.send(:assign_costs, payment_request)
         expect(payment_request.claimed_profit_cost).to eq(100)
         expect(payment_request.allowed_disbursement_cost).to eq(50)
+      end
+
+      it "sets allowed_total from calculator output" do
+        allow(service).to receive(:claim_type).and_return("NsmClaim")
+        payment_request.payment_basis = "standard_manual_entry"
+        payment_request.calculation_method = "entered_to_be_paid"
+        payment_request.allowed_total = 120
+
+        service.send(:assign_costs, payment_request)
+
+        expect(payment_request.allowed_total).to eq(120.to_d)
+        expect(payment_request.payable_total).to eq(120.to_d)
       end
     end
 
@@ -216,6 +291,84 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
     end
   end
 
+  describe "#assigned_counsel_claim_details" do
+    let(:params) do
+      {
+        request_type: "assigned_counsel",
+        counsel_office_code: "2C123B",
+        counsel_firm_name: "Counsel Firm",
+        solicitor_office_code: "3B123A",
+        solicitor_firm_name: "Solicitor Firm",
+        defendant_last_name: "Jones",
+        nsm_claim_id: SecureRandom.uuid,
+        ufn: "020225/001",
+        idempotency_token: SecureRandom.uuid,
+      }
+    end
+
+    it "maps assigned counsel details from params" do
+      details = described_class.new(params).send(:assigned_counsel_claim_details)
+
+      expect(details).to include(
+        counsel_office_code: "2C123B",
+        counsel_firm_name: "Counsel Firm",
+        solicitor_office_code: "3B123A",
+        solicitor_firm_name: "Solicitor Firm",
+        client_last_name: "Jones",
+        nsm_claim_id: params[:nsm_claim_id],
+        ufn: "020225/001",
+        idempotency_token: params[:idempotency_token],
+      )
+      expect(details[:laa_reference]).to be_present
+    end
+  end
+
+  describe "#build_payment_request" do
+    let(:claim) { build_stubbed(:nsm_claim) }
+    let(:params) do
+      {
+        submitter_id: SecureRandom.uuid,
+        request_type: "non_standard_magistrate",
+        date_claim_assessed: Date.new(2025, 1, 1),
+        payment_basis: "standard_manual_entry",
+        allowed_total: 150.0,
+      }
+    end
+
+    it "sets payment_basis on the new payment request" do
+      payment_request = described_class.new(params).send(:build_payment_request, claim)
+
+      expect(payment_request.payment_basis).to eq("standard_manual_entry")
+    end
+
+    it "derives calculation_method from payment_basis" do
+      payment_request = described_class.new(params).send(:build_payment_request, claim)
+
+      expect(payment_request.calculation_method).to eq("entered_to_be_paid")
+    end
+
+    it "maps linked_no_previous_payment to entered_to_be_paid" do
+      payment_request = described_class.new(params.merge(payment_basis: "linked_no_original_payment"))
+                                     .send(:build_payment_request, claim)
+
+      expect(payment_request.calculation_method).to eq("entered_to_be_paid")
+    end
+
+    it "ignores caller-supplied calculation_method values" do
+      payment_request = described_class.new(params.merge(calculation_method: "calculated_difference"))
+                                     .send(:build_payment_request, claim)
+
+      expect(payment_request.calculation_method).to eq("entered_to_be_paid")
+    end
+
+    it "defaults payment_basis to standard_manual_entry when missing" do
+      payment_request = described_class.new(params.except(:payment_basis)).send(:build_payment_request, claim)
+
+      expect(payment_request.payment_basis).to eq("standard_manual_entry")
+      expect(payment_request.calculation_method).to eq("entered_to_be_paid")
+    end
+  end
+
   describe "#call" do
     let(:params) do
       {
@@ -235,6 +388,66 @@ RSpec.describe PaymentRequests::CreatePaymentRequestService, type: :service do
         allow(payment_request).to receive(:save).and_return(true)
 
         expect(service.call).to eq({ claim:, payment_request: })
+      end
+    end
+
+    context "when payment basis maps to calculated_difference" do
+      let(:laa_reference) { "LAA-EXISTING" }
+      let(:claim) { create(:nsm_claim, laa_reference:) }
+      let(:params) do
+        {
+          idempotency_token: SecureRandom.uuid,
+          request_type: "non_standard_mag_appeal",
+          laa_reference:,
+          submitter_id: SecureRandom.uuid,
+          date_claim_assessed: "2026-09-20",
+          payment_basis: "existing_payment_record",
+          allowed_total: 200,
+        }
+      end
+
+      before do
+        create(
+          :payment_request,
+          :non_standard_magistrate,
+          payable_claim: claim,
+          request_type: "non_standard_magistrate",
+          payment_basis: "standard_manual_entry",
+          calculation_method: "entered_to_be_paid",
+          allowed_total: 120,
+          submitted_at: Time.zone.parse("2026-09-01 10:00:00 UTC"),
+        )
+      end
+
+      it "stores the payable difference in allowed_total" do
+        result = service.call
+
+        expect(result[:payment_request].allowed_total).to eq(200.to_d)
+        expect(result[:payment_request].payable_total).to eq(80.to_d)
+      end
+    end
+
+    context "when calculated_difference has no previous payment value" do
+      let(:laa_reference) { "LAA-EXISTING" }
+      let(:params) do
+        {
+          idempotency_token: SecureRandom.uuid,
+          request_type: "non_standard_mag_appeal",
+          laa_reference:,
+          submitter_id: SecureRandom.uuid,
+          date_claim_assessed: "2026-09-20",
+          payment_basis: "existing_payment_record",
+          allowed_total: 200,
+        }
+      end
+
+      before do
+        create(:nsm_claim, laa_reference:)
+      end
+
+      it "raises an UnprocessableEntityError" do
+        expect { service.call }
+          .to raise_error(described_class::UnprocessableEntityError, /previous_allowed_total is required/)
       end
     end
 

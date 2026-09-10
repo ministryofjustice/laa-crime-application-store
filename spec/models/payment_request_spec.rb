@@ -1,6 +1,83 @@
 require "rails_helper"
 
 RSpec.describe PaymentRequest do
+  describe "payment_basis validation" do
+    it "accepts known payment basis values" do
+      LaaCrimeFormsCommon::PaymentBasis::ALL.each do |value|
+        payment_request = build(:payment_request, :non_standard_magistrate, payment_basis: value)
+
+        expect(payment_request).to be_valid
+      end
+    end
+
+    it "allows nil while legacy records are present" do
+      payment_request = build(:payment_request, :non_standard_magistrate, payment_basis: nil)
+
+      expect(payment_request).to be_valid
+    end
+
+    describe "calculation_method validation" do
+      it "accepts known calculation method values" do
+        LaaCrimeFormsCommon::PaymentBasis::CALCULATION_METHOD_BY_BASIS.values.uniq.each do |value|
+          payment_request = build(:payment_request, :non_standard_magistrate, calculation_method: value)
+
+          expect(payment_request).to be_valid
+        end
+      end
+
+      it "allows nil while legacy records are present" do
+        payment_request = build(:payment_request, :non_standard_magistrate, calculation_method: nil)
+
+        expect(payment_request).to be_valid
+      end
+
+      it "rejects unknown values" do
+        payment_request = build(:payment_request, :non_standard_magistrate, calculation_method: "not_valid")
+        payment_request.validate
+
+        expect(payment_request.errors[:calculation_method]).to include("is not included in the list")
+      end
+
+      it "rejects methods that do not match payment_basis" do
+        payment_request = build(
+          :payment_request,
+          :non_standard_magistrate,
+          payment_basis: "existing_payment_record",
+          calculation_method: "entered_to_be_paid",
+        )
+        payment_request.validate
+
+        expect(payment_request.errors[:calculation_method]).to include("must match payment_basis")
+      end
+    end
+
+    it "rejects unknown values" do
+      payment_request = build(:payment_request, :non_standard_magistrate, payment_basis: "not_valid")
+      payment_request.validate
+
+      expect(payment_request.errors[:payment_basis]).to include("is not included in the list")
+    end
+  end
+
+  describe "payable_total validation" do
+    it "accepts numeric values" do
+      payment_request = build(:payment_request, :non_standard_magistrate, payable_total: 123.45)
+
+      expect(payment_request).to be_valid
+    end
+
+    it "rejects values outside allowed numeric limits" do
+      payment_request = build(
+        :payment_request,
+        :non_standard_magistrate,
+        payable_total: (NumericLimits::MAX_FLOAT + 1),
+      )
+      payment_request.validate
+
+      expect(payment_request.errors[:payable_total].join).to include("less than or equal to")
+    end
+  end
+
   describe "#nsm_claim=" do
     let(:payment_request) { build(:payment_request) }
     let(:nsm_claim) { build(:nsm_claim) }
