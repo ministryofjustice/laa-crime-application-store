@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_08_094500) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_11_152000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -261,11 +261,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_08_094500) do
       payment_requests.allowed_net_assigned_counsel_cost,
       payment_requests.allowed_assigned_counsel_vat,
       payment_requests.allowed_total,
+      payment_requests.payable_total AS to_be_paid,
       payment_requests.date_claim_assessed,
       payment_requests.submitted_at
      FROM (payment_requests
        JOIN payable_claims ON ((payment_requests.payable_claim_id = payable_claims.id)))
-    WHERE ((payment_requests.request_type)::text = ANY (ARRAY[('assigned_counsel'::character varying)::text, ('assigned_counsel_appeal'::character varying)::text, ('assigned_counsel_amendment'::character varying)::text]));
+    WHERE ((payment_requests.request_type)::text = ANY ((ARRAY['assigned_counsel'::character varying, 'assigned_counsel_appeal'::character varying, 'assigned_counsel_amendment'::character varying])::text[]));
   SQL
   create_view "autogrant_events", sql_definition: <<-SQL
       SELECT a.id,
@@ -279,7 +280,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_08_094500) do
     WHERE (a.state = 'auto_grant'::text);
   SQL
   create_view "nsm_payments", sql_definition: <<-SQL
-      SELECT payable_claims.id AS claim_id,
+      SELECT payment_requests.id AS payment_request_id,
+      payable_claims.id AS claim_id,
       payable_claims.court_attendances,
       payable_claims.court_name,
       payable_claims.court_id,
@@ -305,6 +307,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_08_094500) do
       payment_requests.claimed_waiting_cost,
       payment_requests.claimed_total,
       payment_requests.allowed_total,
+          CASE
+              WHEN (((payment_requests.request_type)::text = ANY ((ARRAY['non_standard_mag_supplemental'::character varying, 'non_standard_mag_appeal'::character varying, 'non_standard_mag_amendment'::character varying])::text[])) AND ((payment_requests.calculation_method)::text = 'entered_to_be_paid'::text) AND ((payment_requests.payment_basis)::text = ANY ((ARRAY['linked_no_original_payment'::character varying, 'new_unlinked_record'::character varying])::text[]))) THEN 'Y'::text
+              ELSE 'N'::text
+          END AS contingency,
+          CASE
+              WHEN (((payment_requests.request_type)::text = ANY ((ARRAY['non_standard_mag_supplemental'::character varying, 'non_standard_mag_appeal'::character varying, 'non_standard_mag_amendment'::character varying])::text[])) AND ((payment_requests.calculation_method)::text = 'entered_to_be_paid'::text) AND ((payment_requests.payment_basis)::text = ANY ((ARRAY['linked_no_original_payment'::character varying, 'new_unlinked_record'::character varying])::text[]))) THEN NULL::numeric
+              ELSE payment_requests.allowed_total
+          END AS totals,
+      payment_requests.payable_total AS to_be_paid,
       payment_requests.date_claim_assessed AS date_received,
       payment_requests.submitted_at
      FROM (payment_requests
