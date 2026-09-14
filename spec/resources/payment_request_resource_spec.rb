@@ -36,6 +36,7 @@ RSpec.describe PaymentRequestResource do
           allowed_disbursement_cost
           claimed_total
           allowed_total
+          calculation_method
         ].each { expect(serialized).to have_key(_1) }
 
         %w[
@@ -77,6 +78,7 @@ RSpec.describe PaymentRequestResource do
           allowed_assigned_counsel_vat
           claimed_total
           allowed_total
+          calculation_method
         ].each { expect(serialized).to have_key(_1) }
 
         %w[
