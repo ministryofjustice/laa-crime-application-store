@@ -41,6 +41,7 @@ RSpec.describe "show payment request", type: :request do
         claimed_waiting_cost
         claimed_total
         allowed_total
+        calculation_method
       ]
 
       get "/v1/payment_requests/#{payment_id}"
@@ -112,6 +113,7 @@ RSpec.describe "show payment request", type: :request do
         updated_at
         claimed_total
         allowed_total
+        calculation_method
       ]
 
       get "/v1/payment_requests/#{payment_id}"
