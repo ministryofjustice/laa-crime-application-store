@@ -30,6 +30,7 @@ module V1
           :current_caseworker_id,
           :status_with_assignment,
           :id_to_exclude,
+          :include_total_results,
           status_with_assignment: [],
           account_number: [],
         )
