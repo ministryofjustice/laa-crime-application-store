@@ -28,6 +28,7 @@ RSpec.describe "Assigned counsel payments" do
         allowed_net_assigned_counsel_cost: 450,
         allowed_assigned_counsel_vat: 90,
         allowed_total: 540,
+        payable_total: 540,
         date_claim_assessed: Date.new(2026, 1, 19),
       )
     end
@@ -48,7 +49,56 @@ RSpec.describe "Assigned counsel payments" do
       "claimed_assigned_counsel_vat" => 100,
       "allowed_net_assigned_counsel_cost" => 450,
       "allowed_assigned_counsel_vat" => 90,
+      "to_be_paid" => 540,
     )
+  end
+
+  it "uses system-calculated difference as to_be_paid when linked CRM8 values exist" do
+    claim = create(:assigned_counsel_claim)
+
+    create(
+      :payment_request,
+      :assigned_counsel,
+      payable_claim: claim,
+      payment_basis: "standard_manual_entry",
+      calculation_method: "entered_to_be_paid",
+      allowed_total: 180,
+      payable_total: 180,
+      submitted_at: Time.zone.parse("2026-02-01 10:00:00 UTC"),
+    )
+
+    create(
+      :payment_request,
+      :assigned_counsel_amendment,
+      payable_claim: claim,
+      payment_basis: "existing_payment_record",
+      calculation_method: "calculated_difference",
+      allowed_total: 240,
+      payable_total: 60,
+      submitted_at: Time.zone.parse("2026-02-02 10:00:00 UTC"),
+    )
+
+    latest = klass.order(submitted_at: :desc).first
+
+    expect(latest.request_type).to eq("assigned_counsel_amendment")
+    expect(latest.to_be_paid).to eq(60)
+  end
+
+  it "uses caseworker-entered to-be-paid amount when no linked CRM8 values exist" do
+    claim = create(:assigned_counsel_claim)
+
+    payment_request = create(
+      :payment_request,
+      :assigned_counsel_appeal,
+      payable_claim: claim,
+      payment_basis: "new_unlinked_record",
+      calculation_method: "entered_to_be_paid",
+      allowed_total: 310,
+      payable_total: 95,
+    )
+
+    row = klass.find_by(payment_request_id: payment_request.id)
+    expect(row.to_be_paid).to eq(95)
   end
 
   it "maps assigned counsel variants and excludes non CRM8 payment requests" do
