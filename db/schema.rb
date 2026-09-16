@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_11_152000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_16_110000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -313,7 +313,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_11_152000) do
           END AS contingency,
           CASE
               WHEN (((payment_requests.request_type)::text = ANY ((ARRAY['non_standard_mag_supplemental'::character varying, 'non_standard_mag_appeal'::character varying, 'non_standard_mag_amendment'::character varying])::text[])) AND ((payment_requests.calculation_method)::text = 'entered_to_be_paid'::text) AND ((payment_requests.payment_basis)::text = ANY ((ARRAY['linked_no_original_payment'::character varying, 'new_unlinked_record'::character varying])::text[]))) THEN NULL::numeric
-              ELSE payment_requests.allowed_total
+              ELSE NULLIF(payment_requests.allowed_total, (0)::numeric)
           END AS totals,
       payment_requests.payable_total AS to_be_paid,
       payment_requests.date_claim_assessed AS date_received,
