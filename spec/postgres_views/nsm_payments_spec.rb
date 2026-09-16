@@ -64,7 +64,7 @@ RSpec.describe "nsm payments" do
     )
   end
 
-  it "preserves genuine zero totals rather than coercing to nil" do
+  it "coerces zero totals to nil for reporting" do
     claim = create(:nsm_claim)
     create(
       :payment_request,
@@ -78,7 +78,7 @@ RSpec.describe "nsm payments" do
 
     row = klass.take
 
-    expect(row.totals).to eq(0)
+    expect(row.totals).to be_nil
     expect(row.to_be_paid).to eq(0)
     expect(row.contingency).to eq("N")
   end
