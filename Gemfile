@@ -4,7 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby File.read(".ruby-version").strip
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.1.3"
+gem "rails", "~> 8.1.4"
 
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.6"
@@ -19,10 +19,10 @@ gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 gem "bootsnap", require: false
 
 gem 'alba'
-gem "aws-sdk-s3", "~> 1.229"
+gem "aws-sdk-s3", "~> 1.232"
 gem "govuk_notify_rails", "~> 3.0.0"
 gem "httparty", ">= 0.24.0"
-gem "jwt", "~> 3.2.0"
+gem "jwt", "~> 3.3.0"
 gem "laa_crime_forms_common", "~> 0.13.1", github: "ministryofjustice/laa-crime-forms-common", ref: "a0c7f3e40c7f0af8457b0fb74df09cf632b59e87"
 gem "lograge"
 gem "logstash-event"
