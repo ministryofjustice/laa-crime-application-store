@@ -60,4 +60,7 @@ spec:
           # Maximum number of concurrent db connections on application db
           - name: MB_APPLICATION_DB_MAX_CONNECTION_POOL_SIZE
             value: {{ .Values.metabase.applicationDbPoolSize | quote}}
+          # Disable public sharing on dashboards and questions
+          - name: MB_PUBLIC_SHARING_ENABLED
+            value: 'false'
 {{- end }}
