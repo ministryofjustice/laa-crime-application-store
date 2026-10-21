@@ -54,6 +54,63 @@ jobs:
 
           docker push ${ECR_IMAGE} --all-tags
 
+  snyk-monitor:
+    name: Update Snyk dependency benchmarks for main branch
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      security-events: write
+      contents: read
+    needs: build
+    env:
+      ECR_IMAGE: ${{ secrets.ECR_REGISTRY_URL}}/${{ vars.APP_STORE_DEV_ECR_REPOSITORY}}:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Set up Ruby and install gems
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b
+        with:
+          bundler-cache: true
+
+      - name: Configure AWS credentials for ECR access
+        uses: ministryofjustice/laa-reusable-github-actions/.github/actions/ecr-auth@main
+        with:
+          ecr_role: ${{ secrets.APP_STORE_DEV_ECR_ROLE_TO_ASSUME }}
+          ecr_region: ${{ vars.APP_STORE_DEV_ECR_REGION }}
+          role-session-name: ${{ vars.ECR_ROLE_SESSION_NAME }}
+
+      - name: Pull Docker image from ECR for scanning
+        run: docker pull $ECR_IMAGE
+
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04
+
+      - name: Monitor Docker Vulnerabilities
+        uses: snyk/actions/docker@11b673cfb4b0dc0d860a1323caa199d54950dcce
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: ${{ env.ECR_IMAGE }}
+          command: monitor
+          args: --target-reference=laa-crime-application-store-newest-main
+
+      - name: Monitor Ruby Gemfile Vulnerabilities
+        uses: snyk/actions/ruby@11b673cfb4b0dc0d860a1323caa199d54950dcce
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: monitor
+          args: --project-name=laa-crime-application-store-newest-main-gemfile --file=Gemfile.lock
+
+      - name: Monitor Production Metabase Vulnerabilities
+        continue-on-error: true
+        run: snyk container monitor $(cat helm_deploy/values-production.yaml | yq '.metabase.image') --target-reference=laa-crime-application-store-metabase-newest-main
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
   deploy-dev-uat:
     name: Deploy branch to ${{ matrix.env }}
     runs-on: ubuntu-latest

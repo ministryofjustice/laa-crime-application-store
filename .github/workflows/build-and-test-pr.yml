@@ -225,6 +225,12 @@ jobs:
         with:
           sarif_file: snyk_sarif
 
+      - name: Monitor UAT Metabase Vulnerabilities
+        continue-on-error: true
+        run: snyk container monitor $(cat helm_deploy/values-production.yaml | yq '.metabase.image') --target-reference=laa-crime-application-store-metabase-newest-pr
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
       - name: Monitor Docker Vulnerabilities
         uses: snyk/actions/docker@11b673cfb4b0dc0d860a1323caa199d54950dcce
         env:
