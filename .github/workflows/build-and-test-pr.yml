@@ -220,28 +220,10 @@ jobs:
       - name: Install Snyk CLI
         uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04
 
-      - name: Snyk Code Test
-        continue-on-error: true
-        run: snyk code test --sarif | tee snyk_sarif
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
       - name: Upload results to Github Code Scanning
         uses: github/codeql-action/upload-sarif@3db7caf9014b962f9392088c0fcaf53eeddf47db
         with:
           sarif_file: snyk_sarif
-
-      - name: Scan UAT Metabase Docker Image for Vulnerabilities
-        continue-on-error: true
-        run: snyk container test $(cat helm_deploy/values-uat.yaml | yq '.metabase.image') --policy-path=.snyk --severity-threshold=high --fail-on=patchable
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-      - name: Scan Prod Metabase Docker Image for Vulnerabilities
-        continue-on-error: true
-        run: snyk container test $(cat helm_deploy/values-production.yaml | yq '.metabase.image') --policy-path=.snyk --severity-threshold=high --fail-on=patchable
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Monitor Docker Vulnerabilities
         uses: snyk/actions/docker@11b673cfb4b0dc0d860a1323caa199d54950dcce
@@ -278,6 +260,24 @@ jobs:
         with:
           args: --file=Gemfile.lock --sarif-file-output=snyk-gemfile.sarif
 
+      - name: Scan UAT Metabase Docker Image for Vulnerabilities
+        continue-on-error: true
+        run: snyk container test $(cat helm_deploy/values-uat.yaml | yq '.metabase.image') --policy-path=.snyk --severity-threshold=high --fail-on=patchable --sarif-file-output=snyk-uat-metabase.sarif
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Scan Prod Metabase Docker Image for Vulnerabilities
+        continue-on-error: true
+        run: snyk container test $(cat helm_deploy/values-production.yaml | yq '.metabase.image') --policy-path=.snyk --severity-threshold=high --fail-on=patchable --sarif-file-output=snyk-prod-metabase.sarif
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Snyk Code Test
+        continue-on-error: true
+        run: snyk code test --sarif | tee snyk_code.sarif
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
       - name: Sanitise Snyk Test SARIF outputs
         run: |
           for sarif in snyk-*.sarif; do
@@ -296,6 +296,21 @@ jobs:
         uses: github/codeql-action/upload-sarif@3db7caf9014b962f9392088c0fcaf53eeddf47db
         with:
           sarif_file: snyk-gemfile.sarif
+
+      - name: Upload Snyk UAT Metabase Docker Image Vulnerability Results to Github Code Scanning
+        uses: github/codeql-action/upload-sarif@3db7caf9014b962f9392088c0fcaf53eeddf47db
+        with:
+          sarif_file: snyk-uat-metabase.sarif
+
+      - name: Upload Snyk Prod Metabase Docker Image Vulnerability Results to Github Code Scanning
+        uses: github/codeql-action/upload-sarif@3db7caf9014b962f9392088c0fcaf53eeddf47db
+        with:
+          sarif_file: snyk-prod-metabase.sarif
+
+      - name: Upload Snyk Code Test Results to Github Code Scanning
+        uses: github/codeql-action/upload-sarif@3db7caf9014b962f9392088c0fcaf53eeddf47db
+        with:
+          sarif_file: snyk_code.sarif
 
   snyk-pr-comment:
     name: Comment on PR with Snyk results from Github Code Scanning
