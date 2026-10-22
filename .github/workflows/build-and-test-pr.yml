@@ -313,12 +313,6 @@ jobs:
         with:
           sarif_file: snyk_code.sarif
 
-      - name: Upload Snyk code test results to Github Code Scanning
-        uses: github/codeql-action/upload-sarif@3db7caf9014b962f9392088c0fcaf53eeddf47db
-        with:
-          sarif_file: snyk_code.sarif
-
-
   snyk-pr-comment:
     name: Comment on PR with Snyk results from Github Code Scanning
     needs: snyk-scan
