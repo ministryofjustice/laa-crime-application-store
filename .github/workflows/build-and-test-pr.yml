@@ -220,11 +220,6 @@ jobs:
       - name: Install Snyk CLI
         uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04
 
-      - name: Upload results to Github Code Scanning
-        uses: github/codeql-action/upload-sarif@3db7caf9014b962f9392088c0fcaf53eeddf47db
-        with:
-          sarif_file: snyk_sarif
-
       - name: Monitor UAT Metabase Vulnerabilities
         continue-on-error: true
         run: snyk container monitor $(cat helm_deploy/values-production.yaml | yq '.metabase.image') --target-reference=laa-crime-application-store-metabase-newest-pr
@@ -317,6 +312,12 @@ jobs:
         uses: github/codeql-action/upload-sarif@3db7caf9014b962f9392088c0fcaf53eeddf47db
         with:
           sarif_file: snyk_code.sarif
+
+      - name: Upload Snyk code test results to Github Code Scanning
+        uses: github/codeql-action/upload-sarif@3db7caf9014b962f9392088c0fcaf53eeddf47db
+        with:
+          sarif_file: snyk_code.sarif
+
 
   snyk-pr-comment:
     name: Comment on PR with Snyk results from Github Code Scanning
