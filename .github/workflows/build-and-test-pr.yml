@@ -222,7 +222,13 @@ jobs:
 
       - name: Monitor UAT Metabase Vulnerabilities
         continue-on-error: true
-        run: snyk container monitor $(cat helm_deploy/values-production.yaml | yq '.metabase.image') --target-reference=laa-crime-application-store-metabase-newest-pr
+        run: snyk container monitor $(cat helm_deploy/values-uat.yaml | yq '.metabase.image') --target-reference=laa-crime-application-store-metabase-newest-pr-uat
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Monitor Production Metabase Vulnerabilities
+        continue-on-error: true
+        run: snyk container monitor $(cat helm_deploy/values-production.yaml | yq '.metabase.image') --target-reference=laa-crime-application-store-metabase-newest-pr-production
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -263,13 +269,13 @@ jobs:
 
       - name: Scan UAT Metabase Docker Image for Vulnerabilities
         continue-on-error: true
-        run: snyk container test $(cat helm_deploy/values-uat.yaml | yq '.metabase.image') --policy-path=.snyk --severity-threshold=high --fail-on=patchable --sarif-file-output=snyk-uat-metabase.sarif
+        run: snyk container test $(cat helm_deploy/values-uat.yaml | yq '.metabase.image') --policy-path=.snyk --sarif-file-output=snyk-uat-metabase.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Scan Prod Metabase Docker Image for Vulnerabilities
         continue-on-error: true
-        run: snyk container test $(cat helm_deploy/values-production.yaml | yq '.metabase.image') --policy-path=.snyk --severity-threshold=high --fail-on=patchable --sarif-file-output=snyk-prod-metabase.sarif
+        run: snyk container test $(cat helm_deploy/values-production.yaml | yq '.metabase.image') --policy-path=.snyk --sarif-file-output=snyk-prod-metabase.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -312,6 +318,26 @@ jobs:
         uses: github/codeql-action/upload-sarif@3db7caf9014b962f9392088c0fcaf53eeddf47db
         with:
           sarif_file: snyk_code.sarif
+
+      - name: Gate PR on patchable vulnerabilities above high severity (Docker image)
+        uses: snyk/actions/docker@11b673cfb4b0dc0d860a1323caa199d54950dcce
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: ${{ env.ECR_IMAGE }}
+          args: --fail-on=patchable --severity-threshold=high
+          command: container test
+
+      - name: Gate PR on patchable vulnerabilities above high severity (Gemfile)
+        uses: snyk/actions/ruby@11b673cfb4b0dc0d860a1323caa199d54950dcce
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --fail-on=patchable --severity-threshold=high --file=Gemfile.lock
+          command: test
+
+      - name: Gate PR on patchable vulnerabilities above high severity (Prod Metabase)
+        run: snyk container test $(cat helm_deploy/values-production.yaml | yq '.metabase.image') --fail-on=patchable --severity-threshold=high --policy-path=.snyk
 
   snyk-pr-comment:
     name: Comment on PR with Snyk results from Github Code Scanning
