@@ -338,6 +338,8 @@ jobs:
 
       - name: Gate PR on patchable vulnerabilities above high severity (Prod Metabase)
         run: snyk container test $(cat helm_deploy/values-production.yaml | yq '.metabase.image') --fail-on=patchable --severity-threshold=high --policy-path=.snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
   snyk-pr-comment:
     name: Comment on PR with Snyk results from Github Code Scanning
