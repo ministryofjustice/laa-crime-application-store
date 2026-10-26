@@ -14,6 +14,9 @@ RUN apk add --update \
   tzdata \
   yarn
 
+# Install updated CA certificates for SSL verification
+RUN apk add --no-cache --upgrade ca-certificates ca-certificates-bundle
+
 # Alpine does not have a glibc, and this is needed for dart-sass
 # Refer to: https://github.com/sgerrand/alpine-pkg-glibc
 ARG GLIBC_VERSION=2.34-r0
