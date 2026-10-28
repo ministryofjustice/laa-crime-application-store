@@ -60,5 +60,66 @@ RSpec.describe Submissions::SearchService do
         expect(n_plus_one_queries).to be_empty
       end
     end
+
+    context "when include_total_results is false" do
+      let(:params) { { application_type: "crm4", per_page: 1, include_total_results: "false" } }
+
+      before do
+        create(:submission, :with_pa_version, defendant_name: "Fred Zeigler")
+      end
+
+      it "uses countless metadata without total_results" do
+        metadata = JSON.parse(call).fetch("metadata")
+
+        expect(metadata).to include("page" => 1, "per_page" => 1, "has_more" => true)
+        expect(metadata).not_to have_key("total_results")
+      end
+    end
+
+    context "when include_total_results is boolean false" do
+      let(:params) { { application_type: "crm4", per_page: 1, include_total_results: false } }
+
+      before do
+        create(:submission, :with_pa_version, defendant_name: "Fred Zeigler")
+      end
+
+      it "does not include total_results" do
+        metadata = JSON.parse(call).fetch("metadata")
+
+        expect(metadata).to include("page" => 1, "per_page" => 1, "has_more" => true)
+        expect(metadata).not_to have_key("total_results")
+      end
+    end
+
+    context "when include_total_results is true" do
+      let(:params) { { application_type: "crm4", per_page: 1, include_total_results: true } }
+
+      before do
+        create(:submission, :with_pa_version, defendant_name: "Fred Zeigler")
+      end
+
+      it "does not include has_more in metadata" do
+        metadata = JSON.parse(call).fetch("metadata")
+
+        expect(metadata).to include("page" => 1, "per_page" => 1, "total_results" => 2)
+        expect(metadata).not_to have_key("has_more")
+      end
+    end
+  end
+
+  describe "#search_results pagination shape" do
+    subject(:parsed) { JSON.parse(described_class.call(params, :provider)) }
+
+    let(:params) { { application_type: "crm4", per_page: 10, page: 2, include_total_results: false } }
+
+    before do
+      create_list(:submission, 21, :with_pa_version, defendant_name: "Fred Yankowitz")
+    end
+
+    it "returns a full second page and has_more true" do
+      expect(parsed.fetch("data").size).to eq(10)
+      expect(parsed.fetch("raw_data").size).to eq(10)
+      expect(parsed.fetch("metadata")).to include("page" => 2, "per_page" => 10, "has_more" => true)
+    end
   end
 end
