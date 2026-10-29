@@ -4,10 +4,10 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby File.read(".ruby-version").strip
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.1.3"
+gem "rails", "~> 8.1.4"
 
 # Use postgresql as the database for Active Record
-gem "pg", "~> 1.6"
+gem "pg", "~> 1.7"
 
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", "~> 8.0.2"
@@ -19,11 +19,11 @@ gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 gem "bootsnap", require: false
 
 gem 'alba'
-gem "aws-sdk-s3", "~> 1.229"
+gem "aws-sdk-s3", "~> 1.235"
 gem "govuk_notify_rails", "~> 3.0.0"
 gem "httparty", ">= 0.24.0"
-gem "jwt", "~> 3.2.0"
-gem "laa_crime_forms_common", "~> 0.13.3", github: "ministryofjustice/laa-crime-forms-common"
+gem "jwt", "~> 3.3.0"
+gem "laa_crime_forms_common", "~> 0.13.4", github: "ministryofjustice/laa-crime-forms-common"
 gem "lograge"
 gem "logstash-event"
 gem "oauth2"
