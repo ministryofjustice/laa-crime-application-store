@@ -22,6 +22,26 @@ The instructions assume you have [Homebrew](https://brew.sh) installed in your m
 * `brew install prek`
 * execute `prek install` in the repository to install the pre-commit hooks
 
+### Docker builds and Common authentication
+
+Docker builds require a `common_token` secret with read access to
+`ministryofjustice/laa-crime-forms-common`. The PR and main build workflows obtain
+this token through Octo STS and check for repository access before building.
+PR image builds are restricted to branches in this repository.
+
+For a local build, populate `COMMON_TOKEN` using an approved credential mechanism,
+then pass it as a secret rather than a build argument:
+
+```bash
+docker build --secret id=common_token,env=COMMON_TOKEN -t laa-crime-application-store:local .
+```
+
+The PR build currently uses `--no-cache` to ensure the authenticated dependency
+download. Jobs that install gems directly on the runner obtain their own Octo STS
+token before Ruby setup and supply it through `BUNDLE_GITHUB__COM`. These PR jobs
+are also restricted to branches in this repository; fork PRs skip the
+Common-dependent checks and deployments.
+
 ### Configuration
 
 * Copy `.env.development` to `.env.development.local` and modify with suitable values for your local machine
