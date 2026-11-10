@@ -35,7 +35,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Ruby and install gems
-        uses: ruby/setup-ruby@e81a8fa391b11a595c1b7ed84177cc0fe02faf83
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199
         with:
           bundler-cache: true
 
@@ -116,7 +116,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Ruby and install gems
-        uses: ruby/setup-ruby@e81a8fa391b11a595c1b7ed84177cc0fe02faf83
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199
         with:
           bundler-cache: true
 
@@ -203,7 +203,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Ruby and install gems
-        uses: ruby/setup-ruby@e81a8fa391b11a595c1b7ed84177cc0fe02faf83
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199
         with:
           bundler-cache: true
 
