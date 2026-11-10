@@ -35,7 +35,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Ruby and install gems
-        uses: ruby/setup-ruby@26e5b7d197ebf60545ee9667bcbace0be11ccaec
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199
         with:
           bundler-cache: true
 
@@ -116,7 +116,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Ruby and install gems
-        uses: ruby/setup-ruby@26e5b7d197ebf60545ee9667bcbace0be11ccaec
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199
         with:
           bundler-cache: true
 
@@ -131,7 +131,7 @@ jobs:
 
       - name: Upload code coverage results
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: coverage-results
           path: coverage
@@ -203,7 +203,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Ruby and install gems
-        uses: ruby/setup-ruby@26e5b7d197ebf60545ee9667bcbace0be11ccaec
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199
         with:
           bundler-cache: true
 
@@ -225,7 +225,7 @@ jobs:
         run: snyk container monitor $(cat helm_deploy/values-uat.yaml | yq '.metabase.image') --target-reference=laa-crime-application-store-metabase-newest-pr-uat
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
+      
       - name: Monitor Production Metabase Vulnerabilities
         continue-on-error: true
         run: snyk container monitor $(cat helm_deploy/values-production.yaml | yq '.metabase.image') --target-reference=laa-crime-application-store-metabase-newest-pr-production
