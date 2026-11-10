@@ -113,4 +113,55 @@ RSpec.describe "Assigned counsel payments" do
       "AC Amendment",
     )
   end
+
+  it "marks contingency Y for assigned counsel amendments and appeals with entered_to_be_paid and specific payment_basis" do
+    claim = create(:assigned_counsel_claim)
+
+    payment_request = create(
+      :payment_request,
+      :assigned_counsel_amendment,
+      payable_claim: claim,
+      payment_basis: "linked_no_original_payment",
+      calculation_method: "entered_to_be_paid",
+      allowed_total: 200,
+      payable_total: 50,
+    )
+
+    row = klass.find_by(payment_request_id: payment_request.id)
+    expect(row.contingency).to eq("Y")
+  end
+
+  it "marks contingency N for assigned counsel amendments and appeals with non-matching payment_basis" do
+    claim = create(:assigned_counsel_claim)
+
+    payment_request = create(
+      :payment_request,
+      :assigned_counsel_amendment,
+      payable_claim: claim,
+      payment_basis: "standard_manual_entry",
+      calculation_method: "entered_to_be_paid",
+      allowed_total: 200,
+      payable_total: 50,
+    )
+
+    row = klass.find_by(payment_request_id: payment_request.id)
+    expect(row.contingency).to eq("N")
+  end
+
+  it "coerces zero totals to nil for reporting" do
+    claim = create(:assigned_counsel_claim)
+
+    payment_request = create(
+      :payment_request,
+      :assigned_counsel_amendment,
+      payable_claim: claim,
+      payment_basis: "linked_no_original_payment",
+      calculation_method: "entered_to_be_paid",
+      allowed_total: 0,
+      payable_total: 0,
+    )
+
+    row = klass.find_by(payment_request_id: payment_request.id)
+    expect(row.totals).to be_nil
+  end
 end

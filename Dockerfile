@@ -1,4 +1,4 @@
-FROM ruby:3.4.7-alpine3.21 AS base
+FROM ruby:3.4.12-alpine3.24 AS base
 LABEL maintainer="Non-standard magistrates' court payment team"
 
 # TODO: is this still needed?
@@ -13,6 +13,9 @@ RUN apk add --update \
   gcompat \
   tzdata \
   yarn
+
+# Install updated CA certificates for SSL verification
+RUN apk add --no-cache --upgrade ca-certificates ca-certificates-bundle
 
 # Alpine does not have a glibc, and this is needed for dart-sass
 # Refer to: https://github.com/sgerrand/alpine-pkg-glibc
