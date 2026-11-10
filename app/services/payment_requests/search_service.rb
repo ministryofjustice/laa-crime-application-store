@@ -121,6 +121,7 @@ module PaymentRequests
 
     def search_query_text(claims)
       claims.where("LOWER(payable_claims.client_last_name) % ?", query_params[:query].downcase)
+                      .or(claims.where("LOWER(payable_claims.client_first_name) % ?", query_params[:query].downcase))
                       .or(claims.where("LOWER(payable_claims.solicitor_firm_name) % ?", query_params[:query].downcase))
     end
   end
