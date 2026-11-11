@@ -8,7 +8,7 @@ RSpec.describe "list payment request", type: :request do
   context "with payment requests" do
     before do
       create_list(:payment_request, 20,
-                  payable_claim: build(:nsm_claim, client_last_name: "Andrex"))
+                  payable_claim: build(:nsm_claim, client_first_name: "John", client_last_name: "Andrex"))
     end
 
     it "successfully update when fields are valid" do
@@ -37,7 +37,7 @@ RSpec.describe "list payment request", type: :request do
         laa_reference
         solicitor_firm_name
         ufn
-        client_last_name
+        client_name
         claim_type
         solicitor_office_code
       ]
