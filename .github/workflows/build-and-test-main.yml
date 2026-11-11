@@ -71,7 +71,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Ruby and install gems
-        uses: ruby/setup-ruby@26e5b7d197ebf60545ee9667bcbace0be11ccaec
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199
         with:
           bundler-cache: true
 
