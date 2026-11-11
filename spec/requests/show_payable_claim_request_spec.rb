@@ -22,6 +22,7 @@ RSpec.describe "show payable claim", type: :request do
         assigned_counsel_claim
         defendant_first_name
         defendant_last_name
+        defendant_name
         court_name
         court_id
         created_at
@@ -83,6 +84,7 @@ RSpec.describe "show payable claim", type: :request do
         created_at
         updated_at
         defendant_last_name
+        defendant_name
         id
         laa_reference
         nsm_claim

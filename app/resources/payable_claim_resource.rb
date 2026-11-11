@@ -7,6 +7,7 @@ class PayableClaimResource
              :solicitor_office_code,
              :solicitor_firm_name,
              :defendant_last_name,
+             :defendant_name,
              :ufn
 
   attributes :work_completed_date,
@@ -33,6 +34,10 @@ class PayableClaimResource
   many :payment_requests, resource: PaymentRequestResource
   one :nsm_claim, if: proc { |payable_claim| payable_claim.is_a? AssignedCounselClaim }
   one :assigned_counsel_claim, if: proc { |payable_claim| payable_claim.is_a? NsmClaim }
+
+  def defendant_name(payable_claim)
+    "#{payable_claim.client_first_name} #{payable_claim.client_last_name}"
+  end
 
   def stage_reached(payable_claim)
     payable_claim.stage_code
