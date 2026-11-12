@@ -35,9 +35,13 @@ RUN apk add --update \
 
 COPY Gemfile Gemfile.lock .ruby-version ./
 
-RUN bundle config set frozen 'true' && \
+RUN --mount=type=secret,id=common_token,required=true \
+  test -s /run/secrets/common_token && \
+  bundle config set frozen 'true' && \
   bundle config set without test:development && \
-  bundle install --jobs 5 --retry 3
+  BUNDLE_GITHUB__COM="x-access-token:$(cat /run/secrets/common_token)" \
+  bundle install --jobs 5 --retry 3 && \
+  rm -rf /usr/local/bundle/cache/bundler/git
 
 RUN yarn install --frozen-lockfile --ignore-scripts
 
