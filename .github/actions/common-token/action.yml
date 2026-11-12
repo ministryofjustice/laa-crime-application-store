@@ -1,0 +1,32 @@
+name: Obtain Common token
+description: Obtain and verify a read-only Octo STS token for Common repo.
+
+inputs:
+  trust-policy:
+    description: Trust policy identity, in Common repo, for the calling workflow.
+    required: true
+
+outputs:
+  token:
+    description: Short-lived GitHub installation token for accessing Common repo.
+    value: ${{ steps.common-token.outputs.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Obtain read-only Common repo token
+      uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
+      id: common-token
+      with:
+        scope: ministryofjustice/laa-crime-forms-common
+        identity: ${{ inputs.trust-policy }}
+
+    - name: Verify token grants access to Common repo
+      shell: bash
+      env:
+        GH_TOKEN: ${{ steps.common-token.outputs.token }}
+      run: |
+        test -n "$GH_TOKEN"
+        gh api --paginate installation/repositories \
+          --jq '.repositories[].full_name' |
+          grep -Fx 'ministryofjustice/laa-crime-forms-common'

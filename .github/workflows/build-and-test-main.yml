@@ -12,6 +12,9 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  COMMON_TRUST_POLICY: app-store-main-read
+
 jobs:
   build:
     name: Build and push Docker image to ECR
@@ -28,6 +31,12 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Obtain read-only token for Common repo
+        uses: ./.github/actions/common-token
+        id: common-token
+        with:
+          trust-policy: ${{ env.COMMON_TRUST_POLICY }}
+
       - name: Configure AWS credentials for ECR access
         uses: ministryofjustice/laa-reusable-github-actions/.github/actions/ecr-auth@e5500aa20b13a1406fe8a62b8788181a2ca18926
         with:
@@ -37,6 +46,8 @@ jobs:
 
       - name: Build Docker image and push to ECR
         id: build
+        env:
+          COMMON_TOKEN: ${{ steps.common-token.outputs.token }}
         run: |
           IMAGE_TAG="main-${{ github.sha }}"
           echo "image-tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
@@ -44,6 +55,7 @@ jobs:
           ECR_IMAGE=${{ secrets.ECR_REGISTRY_URL }}/${{ vars.APP_STORE_DEV_ECR_REPOSITORY }}
 
           docker build \
+            --secret id=common_token,env=COMMON_TOKEN \
             --build-arg APP_BUILD_DATE=$(date +%Y-%m-%dT%H:%M:%S%z) \
             --build-arg APP_BUILD_TAG=${{ github.sha }} \
             --build-arg APP_GIT_COMMIT=${{ github.sha }} \
@@ -70,8 +82,17 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Obtain read-only token for Common repo
+        uses: ./.github/actions/common-token
+        id: common-token
+        with:
+          trust-policy: ${{ env.COMMON_TRUST_POLICY }}
+
       - name: Set up Ruby and install gems
         uses: ruby/setup-ruby@26e5b7d197ebf60545ee9667bcbace0be11ccaec
+        env:
+          BUNDLE_GITHUB__COM: x-access-token:${{ steps.common-token.outputs.token }}
+
         with:
           bundler-cache: true
 
