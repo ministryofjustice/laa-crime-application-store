@@ -4,7 +4,7 @@ module PaymentRequests
       ufn
       laa_reference
       solicitor_office_code
-      client_last_name
+      defendant_name
       request_type
       submitted_at
       solicitor_firm_name
@@ -94,6 +94,8 @@ module PaymentRequests
 
       if sort_by.in?(%w[submitted_at request_type])
         "#{sort_by} #{sort_direction}"
+      elsif sort_by == "defendant_name"
+        "LOWER(payable_claims.client_first_name) #{sort_direction}, LOWER(payable_claims.client_last_name) #{sort_direction}"
       else
         "LOWER(payable_claims.#{sort_by}) #{sort_direction}"
       end
@@ -121,6 +123,8 @@ module PaymentRequests
 
     def search_query_text(claims)
       claims.where("LOWER(payable_claims.client_last_name) % ?", query_params[:query].downcase)
+                      .or(claims.where("LOWER(payable_claims.client_first_name) % ?", query_params[:query].downcase))
+                      .or(claims.where("LOWER(client_first_name || ' ' || client_last_name) = ?", query_params[:query].downcase))
                       .or(claims.where("LOWER(payable_claims.solicitor_firm_name) % ?", query_params[:query].downcase))
     end
   end
