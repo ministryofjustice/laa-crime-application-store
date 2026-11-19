@@ -44,7 +44,7 @@ jobs:
           trust-policy: ${{ env.COMMON_TRUST_POLICY }}
 
       - name: Set up Ruby and install gems
-        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199
+        uses: ruby/setup-ruby@f9c4492e86def3e644ab32a0ef185eda5b0c20d0
         env:
           BUNDLE_GITHUB__COM: x-access-token:${{ steps.common-token.outputs.token }}
         with:
@@ -135,7 +135,7 @@ jobs:
           trust-policy: ${{ env.COMMON_TRUST_POLICY }}
 
       - name: Set up Ruby and install gems
-        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199
+        uses: ruby/setup-ruby@f9c4492e86def3e644ab32a0ef185eda5b0c20d0
         env:
           BUNDLE_GITHUB__COM: x-access-token:${{ steps.common-token.outputs.token }}
         with:
@@ -242,7 +242,7 @@ jobs:
           trust-policy: ${{ env.COMMON_TRUST_POLICY }}
 
       - name: Set up Ruby and install gems
-        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199
+        uses: ruby/setup-ruby@f9c4492e86def3e644ab32a0ef185eda5b0c20d0
         env:
           BUNDLE_GITHUB__COM: x-access-token:${{ steps.common-token.outputs.token }}
         with:
@@ -266,7 +266,7 @@ jobs:
         run: snyk container monitor $(cat helm_deploy/values-uat.yaml | yq '.metabase.image') --target-reference=laa-crime-application-store-metabase-newest-pr-uat
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      
+
       - name: Monitor Production Metabase Vulnerabilities
         continue-on-error: true
         run: snyk container monitor $(cat helm_deploy/values-production.yaml | yq '.metabase.image') --target-reference=laa-crime-application-store-metabase-newest-pr-production
@@ -382,17 +382,17 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-  snyk-pr-comment:
-    name: Comment on PR with Snyk results from Github Code Scanning
-    needs: snyk-scan
-    uses: ministryofjustice/laa-crime-forms-common/.github/workflows/comment-pr.yml@main
-    permissions:
-      pull-requests: write
-    with:
-      comment-body: |
-            ### :lock: :mag: Security scan :mag: :lock:
-            [Dependency alerts for this PR](${{ github.server_url }}/${{ github.repository }}/security/code-scanning?query=pr%3A${{ github.event.pull_request.number }}+is%3Aopen+tool%3A%22Snyk+Container%22%2C%22Snyk+Open+Source%22)
-            [All other alerts for this PR (code quality etc.)](${{ github.server_url }}/${{ github.repository }}/security/code-scanning?query=pr%3A${{ github.event.pull_request.number }}+is%3Aopen+-tool%3A%22Snyk+Container%22+-tool%3A%22Snyk+Open+Source%22)
+  # snyk-pr-comment:
+  #   name: Comment on PR with Snyk results from Github Code Scanning
+  #   needs: snyk-scan
+  #   uses: ministryofjustice/laa-crime-forms-common/.github/workflows/comment-pr.yml@main
+  #   permissions:
+  #     pull-requests: write
+  #   with:
+  #     comment-body: |
+  #           ### :lock: :mag: Security scan :mag: :lock:
+  #           [Dependency alerts for this PR](${{ github.server_url }}/${{ github.repository }}/security/code-scanning?query=pr%3A${{ github.event.pull_request.number }}+is%3Aopen+tool%3A%22Snyk+Container%22%2C%22Snyk+Open+Source%22)
+  #           [All other alerts for this PR (code quality etc.)](${{ github.server_url }}/${{ github.repository }}/security/code-scanning?query=pr%3A${{ github.event.pull_request.number }}+is%3Aopen+-tool%3A%22Snyk+Container%22+-tool%3A%22Snyk+Open+Source%22)
 
   e2e-test:
     name: Run E2E Tests
