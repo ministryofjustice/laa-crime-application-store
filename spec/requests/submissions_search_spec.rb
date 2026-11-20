@@ -78,6 +78,19 @@ RSpec.describe "Submission search" do
         expect(response.parsed_body["metadata"]["per_page"]).to be 2
       end
 
+      it "returns has_more only when include_total_results is false" do
+        post search_endpoint, params: {
+          query: "Fred",
+          per_page: "2",
+          page: "1",
+          application_type: "crm4",
+          include_total_results: false,
+        }
+
+        expect(response.parsed_body["metadata"]["has_more"]).to be true
+        expect(response.parsed_body["metadata"]).not_to have_key("total_results")
+      end
+
       it "returns raw data result matching the page and order of the data result" do
         sort_by = "client_name"
         sort_direction = "asc"
