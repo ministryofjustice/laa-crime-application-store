@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/ministryofjustice/laa-crime-forms-common.git
-  revision: 12e3ed700c8e5dcd3235d39e56b51cf887e6457c
+  revision: f6a02900542e4a2e5dabb4d2d9e8edfe41dd760a
   specs:
-    laa_crime_forms_common (0.13.4)
+    laa_crime_forms_common (0.13.5)
       httparty (>= 0.22.0, < 1)
       i18n (>= 1.8.11, < 2)
       json-schema (>= 5.0.0, < 7)
@@ -95,8 +95,8 @@ GEM
     auth-sanitizer (0.2.5)
       version_gem (~> 1.1, >= 1.1.16)
     aws-eventstream (1.4.1)
-    aws-partitions (1.1304.0)
-    aws-sdk-core (3.266.0)
+    aws-partitions (1.1309.0)
+    aws-sdk-core (3.271.0)
       aws-eventstream (~> 1, >= 1.4.1)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -105,11 +105,11 @@ GEM
       jmespath (~> 1, >= 1.6.1)
       logger
       rexml (~> 3.4, >= 3.4.2)
-    aws-sdk-kms (1.141.0)
-      aws-sdk-core (~> 3, >= 3.266.0)
+    aws-sdk-kms (1.145.0)
+      aws-sdk-core (~> 3, >= 3.270.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.237.0)
-      aws-sdk-core (~> 3, >= 3.263.0)
+    aws-sdk-s3 (1.242.0)
+      aws-sdk-core (~> 3, >= 3.268.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
     aws-sigv4 (1.12.1)
@@ -124,7 +124,7 @@ GEM
     builder (3.3.0)
     coderay (1.1.3)
     concurrent-ruby (1.3.8)
-    connection_pool (3.0.2)
+    connection_pool (3.0.3)
     crack (1.0.1)
       bigdecimal
       rexml
@@ -193,13 +193,13 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     jmespath (1.6.2)
-    json (2.21.2)
+    json (3.1.0)
     json-schema (6.2.1)
       addressable (~> 2.8)
       bigdecimal (>= 3.1, < 5)
     jwt (3.3.0)
       base64
-    language_server-protocol (3.17.0.5)
+    language_server-protocol (3.17.0.6)
     lint_roller (1.1.0)
     logger (1.7.0)
     lograge (0.15.1)
@@ -263,8 +263,8 @@ GEM
       snaky_hash (~> 2.0, >= 2.0.9)
       version_gem (~> 1.1, >= 1.1.17)
     ostruct (0.6.3)
-    parallel (1.28.0)
-    parser (3.3.11.1)
+    parallel (2.3.0)
+    parser (3.3.14.0)
       ast (~> 2.4.1)
       racc
     pg (1.7.0-arm64-darwin)
@@ -289,7 +289,7 @@ GEM
       binding_of_caller (>= 1.0)
       pry (~> 0.13)
     public_suffix (7.0.5)
-    puma (8.0.2)
+    puma (8.0.4)
       nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.8.1)
@@ -344,7 +344,7 @@ GEM
       tsort
     redis-client (0.30.1)
       connection_pool
-    regexp_parser (2.12.0)
+    regexp_parser (2.13.4)
     reline (0.7.0)
       io-console (~> 0.5)
     request_store (1.7.0)
@@ -362,7 +362,7 @@ GEM
     rspec-mocks (3.13.9)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
-    rspec-rails (8.0.5)
+    rspec-rails (8.1.0)
       actionpack (>= 7.2)
       activesupport (>= 7.2)
       railties (>= 7.2)
@@ -373,55 +373,56 @@ GEM
     rspec-support (3.13.8)
     rspec_junit_formatter (0.8.0)
       rspec-core (>= 3.13, < 4)
-    rubocop (1.86.0)
-      json (~> 2.3)
+    rubocop (1.92.2)
+      json (>= 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
-      parallel (~> 1.10)
+      parallel (>= 1.10)
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
-      regexp_parser (>= 2.9.3, < 3.0)
+      regexp_parser (>= 2.11.3, < 3.0)
       rubocop-ast (>= 1.49.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.49.1)
+    rubocop-ast (1.50.0)
       parser (>= 3.3.7.2)
       prism (~> 1.7)
-    rubocop-capybara (2.22.1)
+    rubocop-capybara (3.1.0)
       lint_roller (~> 1.1)
-      rubocop (~> 1.72, >= 1.72.1)
-    rubocop-govuk (5.2.1)
-      rubocop (= 1.86.0)
-      rubocop-ast (= 1.49.1)
-      rubocop-capybara (= 2.22.1)
-      rubocop-rails (= 2.34.3)
+      rubocop (~> 1.89)
+    rubocop-govuk (6.0.0)
+      rubocop (= 1.92.2)
+      rubocop-ast (= 1.50.0)
+      rubocop-capybara (= 3.1.0)
+      rubocop-rails (= 2.38.0)
       rubocop-rake (= 0.7.1)
-      rubocop-rspec (= 3.9.0)
-    rubocop-performance (1.26.1)
+      rubocop-rspec (= 3.10.2)
+    rubocop-performance (1.27.0)
       lint_roller (~> 1.1)
-      rubocop (>= 1.75.0, < 2.0)
+      rubocop (>= 1.89.0, < 2.0)
       rubocop-ast (>= 1.47.1, < 2.0)
-    rubocop-rails (2.34.3)
+    rubocop-rails (2.38.0)
       activesupport (>= 4.2.0)
       lint_roller (~> 1.1)
       rack (>= 1.1)
-      rubocop (>= 1.75.0, < 2.0)
+      rubocop (>= 1.89.0, < 2.0)
       rubocop-ast (>= 1.44.0, < 2.0)
     rubocop-rake (0.7.1)
       lint_roller (~> 1.1)
       rubocop (>= 1.72.1)
-    rubocop-rspec (3.9.0)
+    rubocop-rspec (3.10.2)
       lint_roller (~> 1.1)
-      rubocop (~> 1.81)
+      regexp_parser (>= 2.0)
+      rubocop (~> 1.86, >= 1.86.2)
     ruby-progressbar (1.13.0)
     scenic (1.9.0)
       activerecord (>= 4.0.0)
       railties (>= 4.0.0)
     securerandom (0.4.1)
-    sentry-rails (7.1.0)
+    sentry-rails (7.2.0)
       railties (>= 5.2.0)
-      sentry-ruby (~> 7.1.0)
-    sentry-ruby (7.1.0)
+      sentry-ruby (~> 7.2.0)
+    sentry-ruby (7.2.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
       logger
@@ -456,9 +457,9 @@ GEM
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode (0.4.4.5)
-    unicode-display_width (3.2.0)
-      unicode-emoji (~> 4.1)
-    unicode-emoji (4.2.0)
+    unicode-display_width (3.3.0)
+      unicode-emoji (~> 4.3)
+    unicode-emoji (4.3.0)
     uri (1.1.2)
     useragent (0.16.11)
     uuid (2.3.9)
@@ -485,7 +486,7 @@ PLATFORMS
 
 DEPENDENCIES
   alba
-  aws-sdk-s3 (~> 1.237)
+  aws-sdk-s3 (~> 1.242)
   bootsnap
   debug
   dotenv-rails
@@ -494,7 +495,7 @@ DEPENDENCIES
   govuk_notify_rails (~> 3.0.0)
   httparty (>= 0.24.0)
   jwt (~> 3.3.0)
-  laa_crime_forms_common (~> 0.13.4)!
+  laa_crime_forms_common (~> 0.13.5)!
   lograge
   logstash-event
   oauth2
@@ -504,7 +505,7 @@ DEPENDENCIES
   pry-nav
   pry-rescue
   pry-stack_explorer
-  puma (~> 8.0.2)
+  puma (~> 8.0.4)
   rails (~> 8.1.4)
   rspec-rails
   rspec_junit_formatter
