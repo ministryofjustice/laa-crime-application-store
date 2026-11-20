@@ -23,9 +23,12 @@ module V1
           :submitted_to,
           :received_from,
           :received_to,
+          :created_at_from,
+          :created_at_to,
           :request_type,
           :submission_id,
           :query,
+          request_type: [],
         )
       end
     end
